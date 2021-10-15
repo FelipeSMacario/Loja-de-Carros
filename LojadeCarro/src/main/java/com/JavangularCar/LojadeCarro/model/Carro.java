@@ -20,8 +20,14 @@ public class Carro {
     @Column(name = "Placa")
     private String placa;
 
+    @Column(name = "AnoFabricacao")
+    private int anoFabricacao;
+
     @ManyToOne
     private Modelo modelo;
+
+    @ManyToOne
+    private Marca marca;
 
     @ManyToOne
     private Cores cores;
