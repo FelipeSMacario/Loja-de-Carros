@@ -7,8 +7,8 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Data
-@Table(name = "modelo")
 @Entity
+@Table(name = "Modelo")
 @Getter
 @Setter
 public class Modelo {
@@ -18,4 +18,7 @@ public class Modelo {
 
     @Column(name = "Nome")
     private String nome;
+
+    @ManyToOne
+    private Marca marca;
 }
