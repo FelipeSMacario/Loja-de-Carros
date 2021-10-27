@@ -1,6 +1,7 @@
 package com.JavangularCar.LojadeCarro.service;
 
 import com.JavangularCar.LojadeCarro.model.Carro;
+import com.JavangularCar.LojadeCarro.model.Marca;
 import com.JavangularCar.LojadeCarro.repository.CarroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -32,7 +33,20 @@ public class CarroService {
     }
     public ResponseEntity updateCarro(@RequestBody Carro carro, Long id){
         return carroRepository.findById(id)
-                .map(record -> ResponseEntity.ok().body(carroRepository.save(carro)))
+                .map(record -> {
+                    record.setQuilometragem(carro.getQuilometragem());
+                    record.setPlaca(carro.getPlaca());
+                    record.setMotor(carro.getMotor());
+                    record.setMotor(carro.getMotor());
+                    record.setCarroceria(carro.getCarroceria());
+                    record.setMarca(carro.getMarca());
+                    record.setCores(carro.getCores());
+                    record.setModelo(carro.getModelo());
+                    record.setKit(carro.getKit());
+                    record.setCombustivel(carro.getCombustivel());
+                    Carro update = carroRepository.save(record);
+                    return ResponseEntity.ok().body(update);
+                })
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
     public ResponseEntity deleteCarro(Long id) {

@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { Marca } from '../models/marca.model';
+import { MarcasService } from '../services/marcas.service';
 
 @Component({
   selector: 'app-home',
@@ -7,9 +9,18 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() { }
+  marca : Marca[] = [];
+
+  constructor(private marcaService : MarcasService) { }
 
   ngOnInit(): void {
+    this.listarMarcas();
   }
 
+  listarMarcas() : void {
+      this.marcaService.findAllMarcas().subscribe({
+      next : (marca) => (this.marca = marca),
+      error : (err) => console.log(err)
+    })
+  }
 }

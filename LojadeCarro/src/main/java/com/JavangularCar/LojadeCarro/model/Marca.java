@@ -18,4 +18,7 @@ public class Marca {
 
     @Column(name = "Nome")
     private String nome;
+
+    @Column(name = "URL")
+    private String url;
 }
