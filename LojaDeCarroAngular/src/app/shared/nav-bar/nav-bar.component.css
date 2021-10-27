@@ -1,0 +1,14 @@
+.navmenu{
+    background-color: #282828;
+}
+.navLetra{
+    color: #DAA520;
+}
+.navImagem{
+    height: 60px;
+    width: 60;
+}
+
+.listaNav li{
+    margin-left: 100px;
+}

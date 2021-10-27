@@ -1,0 +1,42 @@
+.fundo{
+   background-image: url("../../assets/images/home.jpg");
+   background-repeat: no-repeat;
+   background-size: cover;
+   height: 100%;
+    
+}
+.imagem{
+    height: 200px;
+    padding: 5px;
+}
+
+.cards{
+    padding-top: 35%;
+       
+}
+.cardTamanho{
+    height: 500px;
+    width: 2000px;
+    padding-right: 20px;
+}
+.separaCard{
+    margin-right: 100px;
+    
+}
+.btn{
+    padding: 0%;
+}
+.cardImagemCompra{
+    height: 100%;
+    width: 100%;
+}
+.cardImagemCompra:hover{
+    content: url("../../assets/images/comprar-copia.jpg");
+}
+.cardImagemVenda{
+    height: 100%;
+    width: 100%;
+}
+.cardImagemVenda:hover{
+    content: url("../../assets/images/vendaCopia.png");
+}
