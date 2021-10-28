@@ -17,6 +17,10 @@ public class Carro {
     @Column(name = "Quilometragem")
     private double quilometragem;
 
+    private String url;
+
+    private Double valor;
+
     @Column(name = "Placa")
     private String placa;
 

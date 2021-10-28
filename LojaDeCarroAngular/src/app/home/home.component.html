@@ -5,9 +5,9 @@
         <h2 class="card-title tituloCard">Pesquise por uma marca</h2>
 
         <div class="form-check child" *ngFor="let mac of marca">
-          <input class="form-check-input check" type="radio" />
+          <input class="form-check-input check" type="radio"/>
           <label class="form-check-label">
-            <button class="botaoCheck">
+            <button (click)="digitaValor(mac.id)" class="botaoCheck" >
               <img class="listaImagem" src="{{ mac.url }}" />
             </button>
           </label>
