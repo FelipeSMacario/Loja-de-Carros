@@ -26,5 +26,8 @@ public class Kit {
 
     private boolean arCondicionado;
 
+    @ManyToOne
+    private Carro carro;
+
 
 }

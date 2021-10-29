@@ -1,0 +1,18 @@
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Carro } from '../models/Carro.model';
+
+@Injectable({
+  providedIn: 'root'
+})
+export class CarroService {
+
+  constructor(private httpClient : HttpClient) { }
+
+  url : string = "http://localhost:8080/carro";
+   
+  public findAllCarros() : Observable<Carro[]>{
+    return this.httpClient.get<Carro[]>(`${this.url}`);
+  }
+}

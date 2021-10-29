@@ -14,21 +14,14 @@ import java.time.LocalDateTime;
 @Table(name = "Venda")
 public class Venda {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(name = "Data")
     private LocalDateTime data;
 
-    private String url;
-
-    @Column(name = "ValorVenda")
-    private Double valorVenda;
-
-    @ManyToOne
-    private Comprador comprador;
-
-    @ManyToOne
-    private Vendedor vendedor;
+    @OneToOne
+    private Usuario usuario;
 
     @OneToOne
     private Carro carro;

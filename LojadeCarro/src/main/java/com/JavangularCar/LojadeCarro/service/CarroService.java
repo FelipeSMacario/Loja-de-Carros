@@ -42,7 +42,6 @@ public class CarroService {
                     record.setMarca(carro.getMarca());
                     record.setCores(carro.getCores());
                     record.setModelo(carro.getModelo());
-                    record.setKit(carro.getKit());
                     record.setCombustivel(carro.getCombustivel());
                     Carro update = carroRepository.save(record);
                     return ResponseEntity.ok().body(update);

@@ -3,11 +3,33 @@
     <mat-drawer mode="side" opened class="side">
       <div class="titulo">Filtro</div>
       <div>
-        
+          
       </div>      
     </mat-drawer>
         <mat-drawer-content class="principal">
-            OLA
+     
+              <div class="form-check child" *ngFor="let car of carro">
+                <input class="form-check-input check" type="radio"/>
+                <label class="form-check-label">
+                  <div class="card-group">
+
+                    <button class="cardButton" (click)="digitaValor(car.id)">
+
+                      <div class="card cardTamanho" style="width: 18rem;">
+                        <img class="card-img-top imagemCard" src="{{car.url}}" alt="Card image cap">
+                        <div class="card-body">
+                          <h5 class="card-title">{{car.modelo.nome}}</h5>
+                          <p class="card-text">{{car.valor}}</p>
+                        </div>
+                      </div>
+
+                    </button>
+
+
+                  </div>
+                </label>
+              </div>          
+
          </mat-drawer-content>
   </mat-drawer-container>
 </div>

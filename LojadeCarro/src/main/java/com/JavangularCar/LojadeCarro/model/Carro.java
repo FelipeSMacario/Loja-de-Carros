@@ -43,7 +43,7 @@ public class Carro {
     private Modelo modelo;
 
     @ManyToOne
-    private Kit kit;
+    private Usuario usuario;
 
     @ManyToMany
     private List<Combustivel> combustivel = new ArrayList<>();
