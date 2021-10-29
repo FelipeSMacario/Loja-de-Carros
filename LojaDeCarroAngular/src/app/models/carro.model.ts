@@ -8,6 +8,7 @@ import { Usuario } from "./usuario.model";
 export class Carro {
     id : number;
     nome : string;
+    quilometragem : number;
     url : string;
     valor : number;
     placa : string;

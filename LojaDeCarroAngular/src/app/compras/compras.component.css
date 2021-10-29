@@ -29,9 +29,6 @@
   .check{
     display: none;
 }
-.cardTamanho{
-    
-}
 
 .imagemCard{
     padding: 5px;
@@ -44,4 +41,26 @@
     margin-bottom: 20px;
     margin-left: 50px;
     border: none;
+}
+.card-title{
+    text-align: left;
+    color: #DAA520;
+}
+.card-title .titulo{
+    text-align: left;
+    font-size: 18px;
+    font-weight: bold;
+    color: #DAA520;
+}
+
+.carroValor .carroTexto{
+    text-align: center;
+    font-family:'Times New Roman', Times, serif;
+    font-size: 20px;
+    font-weight: bold;
+    border-color: #DAA520;
+    border-width: .5px;
+    border-style: solid;
+    background-color: #282828;
+    color: #DAA520;
 }

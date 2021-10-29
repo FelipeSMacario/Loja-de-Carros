@@ -18,8 +18,22 @@
                       <div class="card cardTamanho" style="width: 18rem;">
                         <img class="card-img-top imagemCard" src="{{car.url}}" alt="Card image cap">
                         <div class="card-body">
-                          <h5 class="card-title">{{car.modelo.nome}}</h5>
-                          <p class="card-text">{{car.valor}}</p>
+
+                          <div class="card-title">
+                              <div class="titulo">
+                                {{car.marca.nome}} {{car.modelo.nome}}
+                              </div>
+                              <div class="subTitulo">
+                                {{car.motor}}
+                                <br>
+                                {{car.anoFabricacao}} / {{car.quilometragem |  number : '1.2-3'}} Km
+                              </div>
+                          </div>
+                         
+
+                          <div class="carroValor">
+                            <p class="card-text carroTexto">Valor: {{car.valor| currency: "R$ "}}</p>
+                          </div>                          
                         </div>
                       </div>
 
