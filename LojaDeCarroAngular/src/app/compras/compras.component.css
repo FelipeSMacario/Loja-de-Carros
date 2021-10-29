@@ -41,6 +41,7 @@
     margin-bottom: 20px;
     margin-left: 50px;
     border: none;
+    background-color: #bcbcbc;
 }
 .card-title{
     text-align: left;
@@ -63,4 +64,8 @@
     border-style: solid;
     background-color: #282828;
     color: #DAA520;
+}
+.tamanhoCard{
+    border-style: solid;
+    border-color: #DAA520;
 }
