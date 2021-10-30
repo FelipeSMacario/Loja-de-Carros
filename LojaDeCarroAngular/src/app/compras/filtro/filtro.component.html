@@ -1,0 +1,42 @@
+<form class="formulario"> 
+
+    <div class="filtro">
+        <div class="marcaModelo">
+            <select class="form-select campoSelect" aria-label="Default select example">
+                <option value="null" disabled selected>Modelo</option>
+              </select>
+        
+              <select class="form-select campoSelect" aria-label="Default select example">
+                <option value="null" disabled selected>Marca</option>
+              </select>
+    
+        </div>
+    
+        <div class="anoFabricacao">
+            <div class="form-group row">
+                <label class="col-form-label text-center">Ano do Carro</label>
+                <div class="anoLinha">
+                  <div class="range">
+                    <app-range [minValue]=1961 [maxValue]=2022 msgMin = "Min" msgMax = "Max" corBarra = "#DAA520"></app-range>
+                </div>
+                </div>
+              </div> 
+        </div>
+
+        <div class="preco">
+            <div class="form-group row">
+                <label class="col-form-label text-center">Preço</label>
+                <div class="anoLinha">
+                  <div class="range">
+                    <app-range [minValue]=0 [maxValue]=200000 msgMin = "Min" msgMax = "Max" corBarra = "#DAA520"></app-range>
+                </div>
+                </div>
+              </div> 
+        </div>       
+        <button class="pesquisar btn">Pesquisar</button>
+    </div>
+
+    
+</form>
+
+

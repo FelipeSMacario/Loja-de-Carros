@@ -12,6 +12,11 @@ import { FooterComponent } from './shared/footer/footer.component';
 import { HomeComponent } from './home/home.component';
 import { ComprasComponent } from './compras/compras.component';
 import { HttpClientModule } from '@angular/common/http';
+import { FiltroComponent } from './compras/filtro/filtro.component';
+import { ReactiveFormsModule } from '@angular/forms';
+import {MatSelectModule} from '@angular/material/select';
+import { RangeComponent } from './shared/range/range.component';
+import { Ng5SliderModule } from 'ng5-slider';
 
 @NgModule({
   declarations: [
@@ -21,14 +26,19 @@ import { HttpClientModule } from '@angular/common/http';
     ListarVendasComponent,
     FooterComponent,
     HomeComponent,
-    ComprasComponent
+    ComprasComponent,
+    FiltroComponent,
+    RangeComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
     MatSidenavModule,
-    HttpClientModule
+    HttpClientModule,
+    ReactiveFormsModule,
+    MatSelectModule,
+    Ng5SliderModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

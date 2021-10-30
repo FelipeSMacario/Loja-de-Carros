@@ -1,0 +1,53 @@
+.formulario{
+    margin-top: 10px;
+}
+
+.marcaModelo{
+
+}
+
+.pesquisar{
+    margin-top: 100%;
+    border-color: #DAA520;
+    border-width: 4px;
+    background-color: #282828;
+    color: #DAA520
+}
+.campoSelect{
+    padding: 5px;
+    margin-bottom: 20px;
+    
+    text-align: center;
+    border-color: #DAA520;
+    background-color: #282828;
+    color: #DAA520;
+    -webkit-appearance: button;
+}
+.formAno{
+    border-style: solid;
+    border-color: #DAA520;
+    background-color: #282828;
+    color: #DAA520;
+    width: 42%;
+}
+.formAno::placeholder{
+    text-align: center;
+    color: #DAA520;
+    width: 100%;
+}
+.anoLinha .inicio{
+    float: left;
+}
+.anoLinha .fim{
+    float: right;
+}
+.filtro{
+    margin-left: 10px;
+    margin-right: 10px;
+}
+.anoFabricacao{
+    margin-bottom: 20px;
+}
+.preco{
+    margin-bottom: 20px;
+}
