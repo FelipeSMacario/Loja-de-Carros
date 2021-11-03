@@ -12,7 +12,11 @@ export class CarroService {
 
   url : string = "http://localhost:8080/carro";
    
-  public findAllCarros() : Observable<Carro[]>{
+  findAllCarros() : Observable<Carro[]>{
     return this.httpClient.get<Carro[]>(`${this.url}`);
+  }
+
+  findCarroById(id : number) : Observable<Carro> {
+    return this.httpClient.get<Carro>(`${this.url}/${id}`);
   }
 }

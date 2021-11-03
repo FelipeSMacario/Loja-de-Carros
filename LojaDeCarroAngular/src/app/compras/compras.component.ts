@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Carro } from '../models/Carro.model';
 import { CarroService } from '../services/carro.service';
 
@@ -11,7 +12,9 @@ export class ComprasComponent implements OnInit {
 
   carro : Carro[] = [];
 
-  constructor(private carroService : CarroService) { }
+  constructor(
+    private carroService : CarroService,
+    private router : Router) { }
 
   ngOnInit(): void {
     this.listarcarros();
@@ -25,6 +28,6 @@ export class ComprasComponent implements OnInit {
   }
   
   digitaValor(id : number) {
-    console.log(id)
+    this.router.navigate(['compras/detalhes', id])
   }
 }

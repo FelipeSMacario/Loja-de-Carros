@@ -42,7 +42,6 @@ export class FiltroComponent implements OnInit {
     })
   }
 
-  
 
 listarModelos(valor : number){
   this.filtro.controls.modelo.setValue(null);
