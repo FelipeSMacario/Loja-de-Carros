@@ -17,6 +17,8 @@ import { ReactiveFormsModule } from '@angular/forms';
 import {MatSelectModule} from '@angular/material/select';
 import { RangeComponent } from './shared/range/range.component';
 import { Ng5SliderModule } from 'ng5-slider';
+import { RangeSimplesComponent } from './shared/range-simples/range-simples.component';
+import { CarroComponent } from './carro/carro.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +30,9 @@ import { Ng5SliderModule } from 'ng5-slider';
     HomeComponent,
     ComprasComponent,
     FiltroComponent,
-    RangeComponent
+    RangeComponent,
+    RangeSimplesComponent,
+    CarroComponent
   ],
   imports: [
     BrowserModule,

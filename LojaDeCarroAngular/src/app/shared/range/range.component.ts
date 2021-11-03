@@ -22,7 +22,8 @@ export class RangeComponent implements OnInit{
   options: Options =  {    
     floor : 0,
     ceil : 0,
-    getPointerColor: ()=>{return this.corBarra},  
+    getPointerColor: ()=>{return "black"},  
+    getSelectionBarColor: ()=>{return this.corBarra},
 
     translate: (value: number, label: LabelType): string => {
       switch (label) {

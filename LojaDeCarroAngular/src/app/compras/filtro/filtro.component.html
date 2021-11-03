@@ -1,13 +1,15 @@
-<form class="formulario"> 
+<form class="formulario" [formGroup]="filtro"> 
 
     <div class="filtro">
         <div class="marcaModelo">
-            <select class="form-select campoSelect" aria-label="Default select example">
-                <option value="null" disabled selected>Modelo</option>
+            <select class="form-select campoSelect" (change)="listarModelos(filtro.value.marca.id)" formControlName="marca">
+                <option value="null" disabled selected>Marca</option>
+                <option *ngFor="let marc of marca" [ngValue]="marc">{{marc.nome}}</option>
               </select>
         
-              <select class="form-select campoSelect" aria-label="Default select example">
-                <option value="null" disabled selected>Marca</option>
+              <select class="form-select campoSelect" >
+                <option value="null" disabled selected>Modelo</option>
+                <option *ngFor="let model of modelo" [ngValue]="model">{{model.nome}}</option>
               </select>
     
         </div>
@@ -17,7 +19,7 @@
                 <label class="col-form-label text-center">Ano do Carro</label>
                 <div class="anoLinha">
                   <div class="range">
-                    <app-range [minValue]=1961 [maxValue]=2022 msgMin = "Min" msgMax = "Max" corBarra = "#DAA520"></app-range>
+                    <app-range [minValue]=1961 [maxValue]=2022 msgMin = "" msgMax = "" corBarra = "#DAA520"></app-range>
                 </div>
                 </div>
               </div> 
@@ -28,11 +30,22 @@
                 <label class="col-form-label text-center">Preço</label>
                 <div class="anoLinha">
                   <div class="range">
-                    <app-range [minValue]=0 [maxValue]=200000 msgMin = "Min" msgMax = "Max" corBarra = "#DAA520"></app-range>
+                    <app-range [minValue]=0 [maxValue]=200000 msgMin = "" msgMax = "" corBarra = "#DAA520"></app-range>
                 </div>
                 </div>
               </div> 
-        </div>       
+        </div>   
+        
+        <div class="preco">
+          <div class="form-group row">
+              <label class="col-form-label text-center">Quilometragem</label>
+              <div class="anoLinha">
+                <div class="range">
+                  <app-range-simples></app-range-simples>
+              </div>
+              </div>
+            </div> 
+      </div>
         <button class="pesquisar btn">Pesquisar</button>
     </div>
 
