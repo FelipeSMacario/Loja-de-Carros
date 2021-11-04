@@ -8,3 +8,15 @@
     height: auto;
     width: calc(100% * (5/10) - 10px - 1px);
 }
+label{
+    margin-top: 5px;
+    color: #DAA520;
+    font-size: 20px;
+    text-align: center;
+}
+
+.labelCard{
+    color: #DAA520;
+    font-size: 20px;
+    text-align: center;
+}

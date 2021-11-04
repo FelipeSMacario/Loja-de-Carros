@@ -3,10 +3,12 @@
 }
 .navLetra{
     color: #DAA520;
+
 }
 .navImagem{
-    height: 60px;
+    height: 80px;
     width: 60;
+    
 }
 
 .listaNav li{

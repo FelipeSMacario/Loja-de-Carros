@@ -21,6 +21,7 @@ import { RangeSimplesComponent } from './shared/range-simples/range-simples.comp
 import { CarroComponent } from './carro/carro.component';
 import { DetalhesComponent } from './carro/detalhes/detalhes.component';
 import { TabsModule } from 'ngx-bootstrap/tabs';
+import { CarouselModule } from 'ngx-bootstrap/carousel';
 
 @NgModule({
   declarations: [
@@ -46,7 +47,8 @@ import { TabsModule } from 'ngx-bootstrap/tabs';
     ReactiveFormsModule,
     MatSelectModule,
     Ng5SliderModule,
-    TabsModule
+    TabsModule,
+    CarouselModule
     
   ],
   providers: [],
