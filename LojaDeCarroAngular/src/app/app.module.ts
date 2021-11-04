@@ -19,6 +19,8 @@ import { RangeComponent } from './shared/range/range.component';
 import { Ng5SliderModule } from 'ng5-slider';
 import { RangeSimplesComponent } from './shared/range-simples/range-simples.component';
 import { CarroComponent } from './carro/carro.component';
+import { DetalhesComponent } from './carro/detalhes/detalhes.component';
+import { TabsModule } from 'ngx-bootstrap/tabs';
 
 @NgModule({
   declarations: [
@@ -32,7 +34,8 @@ import { CarroComponent } from './carro/carro.component';
     FiltroComponent,
     RangeComponent,
     RangeSimplesComponent,
-    CarroComponent
+    CarroComponent,
+    DetalhesComponent
   ],
   imports: [
     BrowserModule,
@@ -43,6 +46,8 @@ import { CarroComponent } from './carro/carro.component';
     ReactiveFormsModule,
     MatSelectModule,
     Ng5SliderModule,
+    TabsModule
+    
   ],
   providers: [],
   bootstrap: [AppComponent]

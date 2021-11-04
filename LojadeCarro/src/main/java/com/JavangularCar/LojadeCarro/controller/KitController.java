@@ -23,9 +23,9 @@ public class KitController {
     public List<Kit> listarKit() {
         return kitService.listarKit();
     }
-    @GetMapping("/{id")
-    public ResponseEntity<Kit> findKitById(@PathVariable Long id){
-        return kitService.findKitById(id);
+    @GetMapping("/{id}")
+    public Kit findKitById(@PathVariable Long id){
+        return kitService.filtrarKit(id);
     }
     @PutMapping("/{id}")
     public ResponseEntity updateKit(@RequestBody Kit kit, Long id){

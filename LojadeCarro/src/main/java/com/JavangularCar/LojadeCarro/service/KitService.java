@@ -28,6 +28,12 @@ public class KitService {
                             .map(record -> ResponseEntity.ok().body(record))
                             .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
+    public Kit filtrarKit(Long id){
+        return kitRepository.filtrarKit(id);
+    }
+
+
     public ResponseEntity updateKit(@RequestBody Kit kit, Long id){
         return kitRepository.findById(id)
                             .map(record -> {
