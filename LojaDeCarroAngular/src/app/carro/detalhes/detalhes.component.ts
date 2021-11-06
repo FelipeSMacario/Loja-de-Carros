@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Carro } from 'src/app/models/Carro.model';
+import { Cores } from 'src/app/models/cores.model';
 import { Kit } from 'src/app/models/kit.model';
 import { CarroService } from 'src/app/services/carro.service';
 import { KitService } from 'src/app/services/kit.service';
@@ -15,6 +16,7 @@ export class DetalhesComponent implements OnInit {
   kits : Kit[] = [];
   kit : Kit = new Kit(); 
   carro : Carro = new Carro();
+  cor : Cores = new Cores();
   id : number;
 
   constructor(
@@ -39,7 +41,7 @@ export class DetalhesComponent implements OnInit {
   
   findCarroById() : void {
     this.carService.findCarroById(this.id).subscribe({
-      next : (carro) => {this.carro = carro},
+      next : (carro) => {this.carro = carro; this.cor = carro.cores},
       error : err => console.log(err)
     })
   }

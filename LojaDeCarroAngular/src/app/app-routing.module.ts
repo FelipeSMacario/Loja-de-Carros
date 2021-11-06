@@ -8,6 +8,10 @@ import { ListarVendasComponent } from './vendas/listar-vendas/listar-vendas.comp
 
 const routes: Routes = [
   {
+    path : "", redirectTo: 'home', pathMatch: 'full'
+  },
+
+  {
     path : "home",
     component : HomeComponent
   },
@@ -15,6 +19,12 @@ const routes: Routes = [
     path : "compras",
     component : ComprasComponent
   },
+
+  {
+    path : "compras/Marca/:Marca",
+    component : ComprasComponent
+  },
+
   {
     path : "compras/detalhes/:id",
     component : CarroComponent

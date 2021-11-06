@@ -1,7 +1,7 @@
 <div class="detalhes">
     <div class="container">
-        <tabset>
-            <tab heading="Caracteristicas">
+        <tabset >
+            <tab  heading="Caracteristicas">
                 <div class="card-group bloco"> 
         
                     <div class="row">
@@ -19,7 +19,7 @@
                     <div class="row">
                         <div class="card">
                             <label>Cor</label>
-                            <div class="card-body labelCard">{{carro.cores.nome}}</div>
+                            <div class="card-body labelCard">{{cor.nome}}</div>
                           </div>
                 
                           <div class="card">
@@ -32,7 +32,7 @@
             </tab>
         
             <tab heading="Detalhes do veiculo">
-                <div>
+                <div class="listaTodos">
                     <ul class="listaDetalhes">
                         <li class="listaDetalhesLI" *ngIf="kit.freioABS === true"> 
                             <div>

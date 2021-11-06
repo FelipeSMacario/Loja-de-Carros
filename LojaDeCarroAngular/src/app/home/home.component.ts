@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { Marca } from '../models/marca.model';
 import { MarcasService } from '../services/marcas.service';
 
@@ -11,7 +12,9 @@ export class HomeComponent implements OnInit {
 
   marca : Marca[] = [];
 
-  constructor(private marcaService : MarcasService) { }
+  constructor(
+    private marcaService : MarcasService,
+    private router : Router) { }
 
   ngOnInit(): void {
     this.listarMarcas();
@@ -24,7 +27,7 @@ export class HomeComponent implements OnInit {
     })
   }
 
-  digitaValor(id : number){
-    console.log(id);
+  digitaValor(nome : string){
+    this.router.navigate(['compras/Marca/',nome]);
   }
 }

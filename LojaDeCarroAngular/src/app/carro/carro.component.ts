@@ -21,7 +21,7 @@ export class CarroComponent implements OnInit {
   ngOnInit(): void {
     this.id = this.activatedRoute.snapshot.params['id'];
     this.carroService.findCarroById(this.id).subscribe({
-      next : (carro) => this.carro = carro,
+      next : (carro) => {this.carro = carro},
       error : err => console.log(err)
     } )
     

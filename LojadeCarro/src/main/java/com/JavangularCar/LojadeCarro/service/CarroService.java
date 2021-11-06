@@ -56,4 +56,8 @@ public class CarroService {
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 
     }
+
+    public List<Carro> findByMarca(String Marca){
+        return carroRepository.findByMarca(Marca);
+    }
 }

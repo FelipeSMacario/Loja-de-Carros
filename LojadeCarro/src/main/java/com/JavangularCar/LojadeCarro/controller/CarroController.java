@@ -38,4 +38,9 @@ public class CarroController {
     public ResponseEntity deleteCarro(@PathVariable Long id){
         return carroService.deleteCarro(id);
     }
+
+    @GetMapping("/Marca/{Marca}")
+    public List<Carro> findByMarca(@PathVariable String Marca){
+        return carroService.findByMarca(Marca);
+    }
 }

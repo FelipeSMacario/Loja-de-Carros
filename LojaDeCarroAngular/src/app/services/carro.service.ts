@@ -19,4 +19,8 @@ export class CarroService {
   findCarroById(id : number) : Observable<Carro> {
     return this.httpClient.get<Carro>(`${this.url}/${id}`);
   }
+
+  findByMarca(marca : string) : Observable<Carro[]> {
+    return this.httpClient.get<Carro[]>(`${this.url}/Marca/${marca}`);
+  }
 }
