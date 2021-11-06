@@ -22,6 +22,7 @@ import { CarroComponent } from './carro/carro.component';
 import { DetalhesComponent } from './carro/detalhes/detalhes.component';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { CarouselModule } from 'ngx-bootstrap/carousel';
+import {MatIconModule} from '@angular/material/icon';
 
 @NgModule({
   declarations: [
@@ -48,7 +49,8 @@ import { CarouselModule } from 'ngx-bootstrap/carousel';
     MatSelectModule,
     Ng5SliderModule,
     TabsModule,
-    CarouselModule
+    CarouselModule,
+    MatIconModule
     
   ],
   providers: [],

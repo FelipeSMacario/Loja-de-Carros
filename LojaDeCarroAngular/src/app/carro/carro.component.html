@@ -1,19 +1,22 @@
 <div class="container">
   <carousel [pauseOnFocus]="true">
     <slide>
-      <img src="../../../assets/images/carro1.webp" alt="first slide" style="display: block; width: 100%;">
+      <img class="imagemCarousel" src="{{carro.url}}">
     </slide>
     <slide>
-      <img src="../../../assets/images/carro2.jpg" alt="second slide" style="display: block; width: 100%;">
+      <img  class="imagemCarousel" src="{{carro.url}}" >
     </slide>
     <slide>
-      <img src="../../../assets/images/carro3.jpg" alt="third slide" style="display: block; width: 100%;">
+      <img  class="imagemCarousel" src="{{carro.url}}" >
+    </slide>
+    <slide>
+      <img  class="imagemCarousel" src="{{carro.url}}">
     </slide>
   </carousel>
-
-  <div class="detalhes">
-    <app-detalhes></app-detalhes>
-  </div>
     
 
+</div>
+
+<div class="detalhes">
+  <app-detalhes></app-detalhes>
 </div>

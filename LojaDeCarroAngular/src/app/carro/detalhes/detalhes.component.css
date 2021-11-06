@@ -1,6 +1,11 @@
+.detalhes{
+    background-color: #bcbcbc;
+}
+
 .card{
     border-style: solid;
     border-color: #DAA520;
+    background-color: #282828;
 }
 .row{
     display: inline-block;
@@ -19,4 +24,20 @@ label{
     color: #DAA520;
     font-size: 20px;
     text-align: center;
+}
+.done{
+    padding-right: 2px;
+    float: inline-end;
+    color: #DAA520;
+    width: 200px;
+}
+
+.listaDetalhes{
+    list-style: none;
+}
+.listaDetalhesLI{
+    
+}
+.bloco{
+    background-color: #282828;
 }

@@ -1,69 +1,83 @@
-<tabset>
-    <tab heading="Caracteristicas">
-        <div class="card-group bloco"> 
-
-            <div class="row">
-                <div class="card">
-                    <label>Ano</label>
-                    <div class="card-body labelCard">{{carro.anoFabricacao}}</div>
-                  </div>
+<div class="detalhes">
+    <div class="container">
+        <tabset>
+            <tab heading="Caracteristicas">
+                <div class="card-group bloco"> 
         
-                  <div class="card">
-                    <label>KM</label>
-                    <div class="card-body labelCard">{{carro.quilometragem |  number : '1.2-3'}}</div>
-                  </div>    
-            </div>
-
-            <div class="row">
-                <div class="card">
-                    <label>Cor</label>
-                    <div class="card-body labelCard">cor</div>
-                  </div>
+                    <div class="row">
+                        <div class="card">
+                            <label>Ano</label>
+                            <div class="card-body labelCard">{{carro.anoFabricacao}}</div>
+                          </div>
+                
+                          <div class="card">
+                            <label>KM</label>
+                            <div class="card-body labelCard">{{carro.quilometragem |  number : '1.2-3'}}</div>
+                          </div>    
+                    </div>
         
-                  <div class="card">
-                    <label>Final Placa</label>
-                    <div class="card-body labelCard">{{carro.placa}}</div>
-                  </div>
-            </div>
-
-            
+                    <div class="row">
+                        <div class="card">
+                            <label>Cor</label>
+                            <div class="card-body labelCard">{{carro.cores.nome}}</div>
+                          </div>
+                
+                          <div class="card">
+                            <label>Final Placa</label>
+                            <div class="card-body labelCard">{{carro.placa}}</div>
+                          </div>
+                    </div>
+                </div>
+        
+            </tab>
+        
+            <tab heading="Detalhes do veiculo">
+                <div>
+                    <ul class="listaDetalhes">
+                        <li class="listaDetalhesLI" *ngIf="kit.freioABS === true"> 
+                            <div>
+                                <span>
+                                    <mat-icon class="done">done</mat-icon>
+                                </span>
+                                <label>Freio ABS</label>
+                            </div>
+                        </li>
+                        <li class="listaDetalhesLI" *ngIf="kit.rodaLigaLeve === true"> 
+                            <div>
+                                <span>
+                                    <mat-icon class="done">done</mat-icon>
+                                </span>
+                                <label>Roda Liga Leva</label>
+                            </div>
+                        </li>
+                        <li class="listaDetalhesLI" *ngIf="kit.arCondicionado === true"> 
+                            <div>
+                                <span>
+                                    <mat-icon class="done">done</mat-icon>
+                                </span>
+                                <label>Ar Condicionado</label>
+                            </div>
+                        </li>
+        
+                        <li class="listaDetalhesLI" *ngIf="kit.direcaoHidraulica === true"> 
+                            <div>
+                                <span>
+                                    <mat-icon class="done">done</mat-icon>
+                                </span>
+                                
+                                <label>Direção Hidráulica</label>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
               
-
-        </div>
-
-    </tab>
-
-    <tab heading="Detalhes do veiculo">
-        <div class="card-group"> 
-            <div class="card">
-                <label>Freio ABS</label>
-                <div class="card-body labelCard">{{kit.freioABS}}</div>
-            </div>
-
-            <div class="card">
-                <label>Roda Liga Leva</label>
-                <div class="card-body labelCard">{{kit.rodaLigaLeve}}</div>
-            </div>
-
-            <div class="card">
-                <label>Automático</label>
-                <div class="card-body labelCard">{{kit.automatico}}</div>
-            </div>
-
-            <div class="card">
-                <label>Direção Hidráulica</label>
-                <div class="card-body labelCard">{{kit.direcaoHidraulica}}</div>
-            </div>
-
-            <div class="card">
-                <label>Ar Condicionado</label>
-                <div class="card-body labelCard">{{kit.arCondicionado}}</div>
-            </div>
-        </div>
-      
-    </tab>
-  </tabset>
-
+            </tab>
+          </tabset>
+    </div>
+    
+    
+    
+</div>
 
 
 

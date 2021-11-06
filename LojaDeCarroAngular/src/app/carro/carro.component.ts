@@ -11,7 +11,7 @@ import { CarroService } from '../services/carro.service';
 export class CarroComponent implements OnInit {
 
   id : number;
-  carro : Carro;
+  carro : Carro = new Carro();
 
   constructor(
     private carroService : CarroService,
