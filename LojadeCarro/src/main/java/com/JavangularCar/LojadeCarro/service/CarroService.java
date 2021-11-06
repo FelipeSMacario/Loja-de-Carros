@@ -25,13 +25,14 @@ public class CarroService {
         return carroRepository.findAll();
     }
 
-    public ResponseEntity<Carro> findCarroById(Long id){
+    public ResponseEntity<Carro> findCarroById(Long id) {
         return carroRepository.findById(id)
                 .map(record -> ResponseEntity.ok().body(record))
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 
     }
-    public ResponseEntity updateCarro(@RequestBody Carro carro, Long id){
+
+    public ResponseEntity updateCarro(@RequestBody Carro carro, Long id) {
         return carroRepository.findById(id)
                 .map(record -> {
                     record.setQuilometragem(carro.getQuilometragem());
@@ -48,16 +49,34 @@ public class CarroService {
                 })
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
+
     public ResponseEntity deleteCarro(Long id) {
         return carroRepository.findById(id)
                 .map(record -> {
                     carroRepository.deleteById(id);
-                    return ResponseEntity.ok().build(); })
+                    return ResponseEntity.ok().build();
+                })
                 .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
 
     }
 
-    public List<Carro> findByMarca(String Marca){
+    public List<Carro> findByMarca(String Marca) {
         return carroRepository.findByMarca(Marca);
+    }
+
+    public List<Carro> findByModelo(String Marca, String Modelo){
+        return carroRepository.findByModelo(Marca, Modelo);
+    }
+
+    public List<Carro> findByValorBetween(Double valor1, Double valor2){
+        return carroRepository.findByValorBetween(valor1, valor2);
+    }
+
+    public List<Carro> findByAnoFabricacaoBetween(int valor1, int valor2){
+        return carroRepository.findByAnoFabricacaoBetween(valor1, valor2);
+    }
+
+    public List<Carro> findByQuilometragemLessThanEqual(Double valor){
+        return carroRepository.findByQuilometragemLessThanEqual(valor);
     }
 }

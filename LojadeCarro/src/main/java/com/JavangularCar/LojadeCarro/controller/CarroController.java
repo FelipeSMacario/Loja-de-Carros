@@ -43,4 +43,23 @@ public class CarroController {
     public List<Carro> findByMarca(@PathVariable String Marca){
         return carroService.findByMarca(Marca);
     }
+
+    @GetMapping("/Marca/{Marca}/Modelo/{Modelo}")
+    public List<Carro> findByModelo(@PathVariable String Marca, @PathVariable String Modelo){
+        return carroService.findByModelo(Marca, Modelo);
+    }
+
+    @GetMapping("/Valor/{valor1}-{valor2}")
+    public List<Carro> findByValorBetween(@PathVariable Double valor1, @PathVariable Double valor2){
+        return carroService.findByValorBetween(valor1, valor2);
+    }
+
+    @GetMapping("/AnoCarro/{valor1}-{valor2}")
+    public List<Carro> findByAnoFabricacaoBetween(@PathVariable int valor1, @PathVariable int valor2){
+        return carroService.findByAnoFabricacaoBetween(valor1, valor2);
+    }
+    @GetMapping("/Quilometragem/{valor}")
+    public List<Carro> findByQuilometragemLessThanEqual(@PathVariable Double valor){
+        return carroService.findByQuilometragemLessThanEqual(valor);
+    }
 }

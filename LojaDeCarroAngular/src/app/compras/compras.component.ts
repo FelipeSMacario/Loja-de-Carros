@@ -26,10 +26,7 @@ export class ComprasComponent implements OnInit {
 
       const valorAsync = new Promise((resolve, reject) => {
         setTimeout(() => resolve( this.filtrarMarca(this.marca)), 50)
-      });
-
-
-     
+      });    
       
     }
 

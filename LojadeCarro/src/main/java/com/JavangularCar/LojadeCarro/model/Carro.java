@@ -15,7 +15,7 @@ public class Carro {
     private Long id;
 
     @Column(name = "Quilometragem")
-    private double quilometragem;
+    private Double quilometragem;
 
     private String url;
 
