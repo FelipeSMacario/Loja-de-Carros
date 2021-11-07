@@ -10,7 +10,6 @@ import {MatSidenavModule} from '@angular/material/sidenav';
 import { ListarVendasComponent } from './vendas/listar-vendas/listar-vendas.component';
 import { FooterComponent } from './shared/footer/footer.component';
 import { HomeComponent } from './home/home.component';
-import { ComprasComponent } from './compras/compras.component';
 import { HttpClientModule } from '@angular/common/http';
 import { FiltroComponent } from './compras/filtro/filtro.component';
 import { ReactiveFormsModule } from '@angular/forms';
@@ -18,11 +17,12 @@ import {MatSelectModule} from '@angular/material/select';
 import { RangeComponent } from './shared/range/range.component';
 import { Ng5SliderModule } from 'ng5-slider';
 import { RangeSimplesComponent } from './shared/range-simples/range-simples.component';
-import { CarroComponent } from './carro/carro.component';
 import { DetalhesComponent } from './carro/detalhes/detalhes.component';
 import { TabsModule } from 'ngx-bootstrap/tabs';
 import { CarouselModule } from 'ngx-bootstrap/carousel';
 import {MatIconModule} from '@angular/material/icon';
+import { ComprasComponent } from './compras/compras/compras.component';
+import { CarroComponent } from './carro/carro/carro.component';
 
 @NgModule({
   declarations: [

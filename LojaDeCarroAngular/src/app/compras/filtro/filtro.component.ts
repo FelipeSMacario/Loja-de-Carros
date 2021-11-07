@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Marca } from 'src/app/models/marca.model';
 import { Modelo } from 'src/app/models/modelo.model';
@@ -25,11 +25,12 @@ export class FiltroComponent implements OnInit {
     this.listarMarcas();
 
     this.filtro = this.fb.group({
-      id: [null],
       marca: [null],
       modelo: [null],
-      anoFabricacao: [null],
-      valor: [null],
+      anoFabricacaoInicio: [null],
+      anoFabricacaoFinal: [null],
+      valorInicio: [null],
+      valorFinal: [null],
       quilometragem: [null],
       
     })
@@ -45,11 +46,30 @@ export class FiltroComponent implements OnInit {
 
 listarModelos(valor : number){
   this.filtro.controls.modelo.setValue(null);
-  console.log(this.filtro)
   this.modeloService.findAllModelos().subscribe({
     next : (modelo) => {this.modelo = modelo.filter( modelo => modelo.marca.id === valor)},
     error : (err) => console.log(err)
-  })
+  })  
+}
+
+atualizaQuilometragem(e){
+  this.filtro.value.quilometragem = e;
+}
+
+atualizaAno(e){
+  const valor = e;
+  this.filtro.value.anoFabricacaoInicio = parseInt(valor[0]);
+  this.filtro.value.anoFabricacaoFinal = parseInt(valor[1]);
+}
+
+atualizaValor(e){
+  const valor = e;
+  this.filtro.value.valorInicio = parseFloat(valor[0]);
+  this.filtro.value.valorFinal = parseFloat(valor[1]);
+}
+
+pesquisa(){
+  console.log(this.filtro.value);
   
 }
 

@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Carro } from '../models/Carro.model';
-import { CarroService } from '../services/carro.service';
+import { Carro } from 'src/app/models/Carro.model';
+import { CarroService } from 'src/app/services/carro.service';
+
+
 
 @Component({
   selector: 'app-compras',
@@ -37,7 +39,6 @@ export class ComprasComponent implements OnInit {
     this.carroService.findAllCarros().subscribe({
       next: (car) => {
         this.carro = car;
-        console.log("XINGA LA")
       },
       error: (err) => console.log(err),
     });
@@ -54,9 +55,4 @@ export class ComprasComponent implements OnInit {
     });
   }
 
-  falaAi() {
-    console.log(this.carro);
-    console.log(this.filterCarro);
-    console.log(this.marca);
-  }
 }

@@ -7,7 +7,7 @@
                 <option *ngFor="let marc of marca" [ngValue]="marc">{{marc.nome}}</option>
               </select>
         
-              <select class="form-select campoSelect" >
+              <select class="form-select campoSelect" formControlName="modelo" >
                 <option value="null" disabled selected>Modelo</option>
                 <option *ngFor="let model of modelo" [ngValue]="model">{{model.nome}}</option>
               </select>
@@ -19,7 +19,7 @@
                 <label class="col-form-label text-center">Ano do Carro</label>
                 <div class="anoLinha">
                   <div class="range">
-                    <app-range [minValue]=1961 [maxValue]=2022 msgMin = "" msgMax = "" corBarra = "#DAA520"></app-range>
+                    <app-range [minValue]=1961 [maxValue]=2022 msgMin = "" msgMax = "" corBarra = "#DAA520" (defineValores)="atualizaAno($event)"></app-range>
                 </div>
                 </div>
               </div> 
@@ -27,10 +27,10 @@
 
         <div class="preco">
             <div class="form-group row">
-                <label class="col-form-label text-center">Preço</label>
+                <label class="col-form-label text-center">Valor</label>
                 <div class="anoLinha">
                   <div class="range">
-                    <app-range [minValue]=0 [maxValue]=200000 msgMin = "" msgMax = "" corBarra = "#DAA520"></app-range>
+                    <app-range [minValue]=0 [maxValue]=200000 msgMin = "" msgMax = "" corBarra = "#DAA520" (defineValores)="atualizaValor($event)"></app-range>
                 </div>
                 </div>
               </div> 
@@ -41,12 +41,12 @@
               <label class="col-form-label text-center">Quilometragem</label>
               <div class="anoLinha">
                 <div class="range">
-                  <app-range-simples></app-range-simples>
+                  <app-range-simples [value]=0 (valorEmitido)="atualizaQuilometragem($event)"></app-range-simples>
               </div>
               </div>
             </div> 
       </div>
-        <button class="pesquisar btn">Pesquisar</button>
+        <button class="pesquisar btn" (click)="pesquisa()">Pesquisar</button>
     </div>
 
     

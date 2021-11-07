@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter, Input } from '@angular/core';
 import { Options } from 'ng5-slider';
+
 
 @Component({
   selector: 'app-range-simples',
@@ -10,7 +11,14 @@ export class RangeSimplesComponent {
 
   constructor() { }
 
-  value: number = 0;
+  @Input() value: number;
+
+  @Output() valorEmitido = new EventEmitter();
+
+  sendValorEmitido(){
+    this.valorEmitido.emit(this.value);
+  }
+
   options: Options = {
     getPointerColor: ()=>{return "black"}, 
     

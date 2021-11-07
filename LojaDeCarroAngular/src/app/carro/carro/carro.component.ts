@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Carro } from '../models/Carro.model';
-import { CarroService } from '../services/carro.service';
+import { Carro } from 'src/app/models/Carro.model';
+import { CarroService } from 'src/app/services/carro.service';
+
 
 @Component({
   selector: 'app-carro',
