@@ -30,4 +30,6 @@ export class HomeComponent implements OnInit {
   digitaValor(nome : string){
     this.router.navigate(['compras/Marca/',nome]);
   }
+
+  
 }

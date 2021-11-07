@@ -1,39 +1,41 @@
 <div class="fundo">
   <div class="container lista">
-    <div class="card mb-3">
+    <div class="card cardMarcas mb-3">
       <div class="card-body">
         <h2 class="card-title tituloCard">Pesquise por uma marca</h2>
 
         <div class="form-check child" *ngFor="let mac of marca">
-          <input class="form-check-input check" type="radio"/>
+          <input class="form-check-input check" type="radio" />
           <label class="form-check-label">
-            <button (click)="digitaValor(mac.nome)" class="botaoCheck" >
+            <button (click)="digitaValor(mac.nome)" class="botaoCheck">
               <img class="listaImagem" src="{{ mac.url }}" />
             </button>
           </label>
         </div>
-      </div>
+      </div>      
     </div>
+
     <div class="container">
       <div class="card-group cards">
-        <div class="card separaCard cardCor">
-          
+        <div class="card separaCard">
+          <button class="buttonCard" [routerLink]="['/compras']">
             <img
-              [routerLink]="['/compras']"
-              class="card-img-top cardImagemCompra"
+              class="card-img-top cardImagem"
               src="../../assets/images/comprar.jpg"
             />
-          
+            <h1 class="legendaImagem">Compre um veículo</h1>
+          </button>
         </div>
 
-        <div class="card cardCor">
-          
+        <div class="card">
+          <button class="buttonCard" [routerLink]="['/vendas']">
             <img
-              [routerLink]="['/vendas']"
-              class="card-img-top cardImagemVenda"
+              class="card-img-top cardImagem"
               src="../../assets/images/vendajpg.png"
             />
-          
+
+            <h1 class="legendaImagem">Venda seu veículo</h1>
+          </button>
         </div>
       </div>
     </div>
