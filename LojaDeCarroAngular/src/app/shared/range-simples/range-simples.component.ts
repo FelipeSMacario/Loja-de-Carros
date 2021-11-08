@@ -20,7 +20,10 @@ export class RangeSimplesComponent {
   }
 
   options: Options = {
-    getPointerColor: ()=>{return "black"}, 
+
+    getPointerColor: () => {
+      return 'black';
+    },    
     
     floor: 0,
     ceil: 1000000

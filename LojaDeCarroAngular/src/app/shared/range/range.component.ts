@@ -58,5 +58,6 @@ export class RangeComponent implements OnInit {
   atualizaOptions(options: Options) {
     options.floor = this.minValue;
     options.ceil = this.maxValue;
+    
   }
 }

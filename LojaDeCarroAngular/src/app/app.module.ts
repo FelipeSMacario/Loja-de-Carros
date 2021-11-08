@@ -24,6 +24,8 @@ import {MatIconModule} from '@angular/material/icon';
 import { ComprasComponent } from './compras/compras/compras.component';
 import { CarroComponent } from './carro/carro/carro.component';
 
+import {MatSliderModule} from '@angular/material/slider';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -37,7 +39,8 @@ import { CarroComponent } from './carro/carro/carro.component';
     RangeComponent,
     RangeSimplesComponent,
     CarroComponent,
-    DetalhesComponent
+    DetalhesComponent,
+
   ],
   imports: [
     BrowserModule,
@@ -50,7 +53,8 @@ import { CarroComponent } from './carro/carro/carro.component';
     Ng5SliderModule,
     TabsModule,
     CarouselModule,
-    MatIconModule
+    MatIconModule,
+    MatSliderModule
     
   ],
   providers: [],

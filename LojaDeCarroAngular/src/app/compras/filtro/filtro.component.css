@@ -2,21 +2,17 @@
     margin-top: 10px;
 }
 
-.marcaModelo{
-
-}
-
-.pesquisar{
-    margin-top: 100%;
+.pesquisar{    
+    margin-top: 10px;
     border-color: #DAA520;
     border-width: 4px;
     background-color: #282828;
-    color: #DAA520
+    color: #DAA520;
+    width: 95%;
 }
 .campoSelect{
     padding: 5px;
-    margin-bottom: 20px;
-    
+    margin-bottom: 20px;    
     text-align: center;
     border-color: #DAA520;
     background-color: #282828;
@@ -45,8 +41,7 @@
     margin-left: 10px;
     margin-right: 10px;
 }
-.anoFabricacao{
-    
+.anoFabricacao{    
     margin-bottom: 20px;
     width: 95%;
 }
@@ -54,3 +49,22 @@
     margin-bottom: 20px;
     width: 95%;
 }
+.filtroFiltro{
+    float: left;
+    margin-top: 5px;
+}
+.close{
+    margin-top: 2px;
+}
+.filtroLimpar{
+    float: left;
+    margin-top: 3px;
+    margin-bottom: 20px;
+}
+.botaoLimpar{
+    float: right;
+    background-color: #282828;
+    color: #DAA520;
+    border-width: 0;
+}
+

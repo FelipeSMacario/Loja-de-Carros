@@ -49,12 +49,12 @@ public class CarroController {
         return carroService.findByModelo(Marca, Modelo);
     }
 
-    @GetMapping("/Valor/{valor1}-{valor2}")
+    @GetMapping("/Valor/{valor1}/{valor2}")
     public List<Carro> findByValorBetween(@PathVariable Double valor1, @PathVariable Double valor2){
         return carroService.findByValorBetween(valor1, valor2);
     }
 
-    @GetMapping("/AnoCarro/{valor1}-{valor2}")
+    @GetMapping("/AnoCarro/{valor1}/{valor2}")
     public List<Carro> findByAnoFabricacaoBetween(@PathVariable int valor1, @PathVariable int valor2){
         return carroService.findByAnoFabricacaoBetween(valor1, valor2);
     }
