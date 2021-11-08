@@ -23,8 +23,10 @@ import { CarouselModule } from 'ngx-bootstrap/carousel';
 import {MatIconModule} from '@angular/material/icon';
 import { ComprasComponent } from './compras/compras/compras.component';
 import { CarroComponent } from './carro/carro/carro.component';
-
+import { PaginationModule } from 'ngx-bootstrap/pagination';
 import {MatSliderModule} from '@angular/material/slider';
+import { PaginacaoComponent } from './shared/paginacao/paginacao.component';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
   declarations: [
@@ -40,6 +42,7 @@ import {MatSliderModule} from '@angular/material/slider';
     RangeSimplesComponent,
     CarroComponent,
     DetalhesComponent,
+    PaginacaoComponent,
 
   ],
   imports: [
@@ -54,7 +57,9 @@ import {MatSliderModule} from '@angular/material/slider';
     TabsModule,
     CarouselModule,
     MatIconModule,
-    MatSliderModule
+    MatSliderModule,
+    PaginationModule,
+    FormsModule
     
   ],
   providers: [],

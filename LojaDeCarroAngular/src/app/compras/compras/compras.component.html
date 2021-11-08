@@ -1,47 +1,44 @@
 <div class="container">
   <mat-drawer-container class="example-container">
     <mat-drawer mode="side" opened class="side">
-      
       <app-filtro></app-filtro>
     </mat-drawer>
-        <mat-drawer-content class="principal">
-     
-              <div class="form-check child" *ngFor="let car of carro">
-                <input class="form-check-input check" type="radio"/>
-                <label class="form-check-label">
-                  <div class="card-group">
-
-                    <button class="cardButton" (click)="digitaValor(car.id)">
-
-                      <div class="card tamanhoCard" style="width: 18rem;">
-                        <img class="card-img-top imagemCard" src="{{car.url}}" >
-                        <div class="card-body">
-
-                          <div class="card-title">
-                              <div class="titulo">
-                                {{car.marca.nome}} {{car.modelo.nome}}
-                              </div>
-                              <div class="subTitulo">
-                                {{car.motor}}
-                                <br>
-                                {{car.anoFabricacao}} / {{car.quilometragem |  number : '1.2-3'}} Km
-                              </div>
-                          </div>
-                         
-
-                          <div class="carroValor">
-                            <p class="card-text carroTexto">Valor: {{car.valor| currency: "R$ "}}</p>
-                          </div>                          
-                        </div>
-                      </div>
-
-                    </button>
-
-
+    <mat-drawer-content class="principal">
+      <div class="form-check child" *ngFor="let car of carro">
+        <input class="form-check-input check" type="radio" />
+        <label class="form-check-label">
+          <div class="card-group">
+            <button class="cardButton" (click)="digitaValor(car.id)">
+              <div class="card tamanhoCard" style="width: 18rem">
+                <img class="card-img-top imagemCard" src="{{ car.url }}" />
+                <div class="card-body">
+                  <div class="card-title">
+                    <div class="titulo">
+                      {{ car.marca.nome }} {{ car.modelo.nome }}
+                    </div>
+                    <div class="subTitulo">
+                      {{ car.motor }}
+                      <br />
+                      {{ car.anoFabricacao }} /
+                      {{ car.quilometragem | number: "1.2-3" }} Km
+                    </div>
                   </div>
-                </label>
-              </div>          
 
-         </mat-drawer-content>
+                  <div class="carroValor">
+                    <p class="card-text carroTexto">
+                      Valor: {{ car.valor | currency: "R$ " }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </button>
+          </div>
+        </label>
+      </div>
+      <div class="paginacao">
+        <app-paginacao [totalItems]=carro.length [itemsPerPage]=5></app-paginacao>
+      </div>
+      
+    </mat-drawer-content>
   </mat-drawer-container>
 </div>

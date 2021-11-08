@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class CarroService {
@@ -60,7 +61,7 @@ public class CarroService {
 
     }
 
-    public List<Carro> findByMarca(String Marca) {
+    public List<Carro> findByMarca(Optional<String> Marca) {
         return carroRepository.findByMarca(Marca);
     }
 

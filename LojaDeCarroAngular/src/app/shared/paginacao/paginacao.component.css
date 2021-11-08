@@ -1,0 +1,27 @@
+.teste{
+    margin-left: 40%;
+}
+.teste2{    
+    margin-left: 40%;
+}
+
+.pagination .active  a{
+    background-color: #DAA520 !important;
+    color: #282828 !important;
+    border-color: #282828 !important;
+}
+
+.pagination  a {
+    background-color: #282828;
+    color: #DAA520;
+    border-color: #DAA520;
+  }
+  .pagination a:hover {
+    background-color: #DAA520;
+    color: #282828;
+    border-color: #282828;
+  }
+  .pager a{
+      background-color: #282828;
+      color: #DAA520;
+  }
