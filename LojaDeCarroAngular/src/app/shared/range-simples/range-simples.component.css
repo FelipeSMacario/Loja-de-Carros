@@ -1,0 +1,17 @@
+.ng5-slider .ng5-slider-bar{
+    background-color: #282828 !important;
+    border-color: #DAA520;
+    border-width: 1px;
+    border-style: solid;
+}
+.ng5-slider .ng5-slider-selection{
+    background-color: #282828 !important;
+    border-color: #DAA520;
+    border-width: 1px;
+    border-style: solid;
+}
+.ng5-slider .ng5-slider-bubble{
+    color: #DAA520 !important;
+}
+
+  

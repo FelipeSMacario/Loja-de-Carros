@@ -1,11 +1,12 @@
-import { Component, Output, EventEmitter, Input } from '@angular/core';
+import { Component, Output, EventEmitter, Input, ViewEncapsulation } from '@angular/core';
 import { Options } from 'ng5-slider';
 
 
 @Component({
   selector: 'app-range-simples',
   templateUrl: './range-simples.component.html',
-  styleUrls: ['./range-simples.component.css']
+  styleUrls: ['./range-simples.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class RangeSimplesComponent {
 
@@ -26,7 +27,8 @@ export class RangeSimplesComponent {
     },    
     
     floor: 0,
-    ceil: 1000000
+    ceil: 200000,
+    step: 5000
   };
 
 }

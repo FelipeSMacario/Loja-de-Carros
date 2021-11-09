@@ -13,8 +13,6 @@ export class RangeComponent implements OnInit {
 
   @Input() minValue: number;
   @Input() maxValue: number;
-  @Input() msgMin: string;
-  @Input() msgMax: string;
   @Input() corBarra: string;
 
   @Output() defineValores = new EventEmitter();
@@ -43,16 +41,8 @@ export class RangeComponent implements OnInit {
       return this.corBarra;
     },
 
-    translate: (value: number, label: LabelType): string => {
-      switch (label) {
-        case LabelType.Low:
-          return '<b>' + this.msgMin + ' </b>' + value;
-        case LabelType.High:
-          return '<b>' + this.msgMax + ' </b>' + value;
-        default:
-          return 'R$' + value;
-      }
-    },
+
+
   };
 
   atualizaOptions(options: Options) {
