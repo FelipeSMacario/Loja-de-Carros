@@ -12,11 +12,13 @@ import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 export class PaginacaoComponent{
   @Input() totalItems : number;
   @Input() itemsPerPage : number;
-  currentPage = 1;
-  smallnumPages = 0;
+  currentPage = 0;
+  smallnumPages = 1;
  
   pageChanged(event: PageChangedEvent): void {
-    console.log('Page changed to: ' + event.page);
+    console.log('Page changed to: ' + this.totalItems);
+    console.log('Page changed to: ' +( event.page -1));
     console.log('Number items per page: ' + event.itemsPerPage);
+    console.log(this.currentPage);
   }
 }

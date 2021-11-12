@@ -3,6 +3,9 @@ package com.JavangularCar.LojadeCarro.controller;
 import com.JavangularCar.LojadeCarro.model.Carro;
 import com.JavangularCar.LojadeCarro.service.CarroService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,8 +26,9 @@ public class CarroController {
     }
 
     @GetMapping
-    public List<Carro> listarCarros(){
-        return carroService.listarCarros();
+    public Page<Carro> listarCarros(@PageableDefault(size = 9) Pageable pageable){
+
+        return carroService.listarCarros(pageable);
 
     }
     @GetMapping("/{id}")

@@ -4,6 +4,8 @@ import com.JavangularCar.LojadeCarro.model.Carro;
 import com.JavangularCar.LojadeCarro.model.Marca;
 import com.JavangularCar.LojadeCarro.repository.CarroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -22,8 +24,8 @@ public class CarroService {
         return carroRepository.save(carro);
     }
 
-    public List<Carro> listarCarros() {
-        return carroRepository.findAll();
+    public Page<Carro> listarCarros(Pageable pageable) {
+        return carroRepository.findAll(pageable);
     }
 
     public ResponseEntity<Carro> findCarroById(Long id) {
