@@ -4,7 +4,7 @@
       <app-filtro></app-filtro>
     </mat-drawer>
     <mat-drawer-content class="principal">
-      <button (click)="digitaAA()">ABC</button>
+      
       <div class="form-check child" *ngFor="let car of carro">
         <input class="form-check-input check" type="radio" />
         <label class="form-check-label">
@@ -37,10 +37,13 @@
         </label>
       </div>
       <div class="paginacao">
-        <app-paginacao 
-                      [totalItems]=elementoTotal 
-                      [itemsPerPage]=itemPagina>
-                    </app-paginacao>
+        <app-paginacao
+        [itemsPerPage]="itemPagina"
+        [totalItems]="elementoTotal"
+        (atualizaPagina)="atualizaPagina($event)">
+        </app-paginacao> 
+                     
+                    
       </div>
       
     </mat-drawer-content>

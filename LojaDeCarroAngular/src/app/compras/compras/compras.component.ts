@@ -46,9 +46,11 @@ export class ComprasComponent implements OnInit {
     this.router.navigate(['compras/detalhes', id]);
   }
 
-
-  digitaAA(){
-    console.log(this.page);
+  atualizaPagina(e){
+    this.carroService.findAllCarros(e - 1).subscribe({
+      next : car => this.carro = car.content,
+      error : err => console.log(err)
+    })
   }
 
 }
