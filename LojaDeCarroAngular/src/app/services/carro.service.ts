@@ -16,6 +16,10 @@ export class CarroService {
     return this.httpClient.get<Page>(`${this.url}?page=${page}`);
   }
 
+  findMarca(marca : string) : Observable<Carro[]>{
+    return this.httpClient.get<Carro[]>(`${this.url}/Marca/${marca}`);
+  }
+
   findCarroById(id : number) : Observable<Carro> {
     return this.httpClient.get<Carro>(`${this.url}/${id}`);
   }

@@ -98,6 +98,22 @@ export class FiltroComponent implements OnInit {
     }     
   }
 
+  pesquisar(marca? : string,
+           modelo? : string,
+           anoFabricacaoInicio? : number,
+           anoFabricacaoFinal? : number, 
+           valorInicio? : number, 
+           valorFinal? : number, 
+           quilometragem? : number ) : string {
+
+          if(this.filtro.value.marca){
+            marca = this.filtro.value.marca.nome;
+          }
+            
+          return (`${marca}/${modelo}/${anoFabricacaoInicio}/${anoFabricacaoFinal}/${valorInicio}/${valorFinal}/${quilometragem}`) ;
+      
+  }
+
   limparFiltro() {
     this.filtro.reset();
     this.router.navigate(['compras']);
@@ -108,6 +124,6 @@ export class FiltroComponent implements OnInit {
   }
 
   abc(){
-    console.log(this.filtro.value)
+    console.log(this.pesquisar());
   }
 }

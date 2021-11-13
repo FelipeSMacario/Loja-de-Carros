@@ -63,23 +63,12 @@ public class CarroService {
 
     }
 
-    public List<Carro> findByMarca(Optional<String> Marca) {
-        return carroRepository.findByMarca(Marca);
+    public List<Carro> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem){
+        return carroRepository.FindByCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem);
     }
 
-    public List<Carro> findByModelo(String Marca, String Modelo){
-        return carroRepository.findByModelo(Marca, Modelo);
-    }
+//    public List<Carro> findByValorBetween(Double valor1, Double valor2, int ano1, int ano2){
+//        return carroRepository.findByValorBetweenAndAnoFabricacaoBetween(valor1, valor2, ano1, ano2);
+//    }
 
-    public List<Carro> findByValorBetween(Double valor1, Double valor2){
-        return carroRepository.findByValorBetween(valor1, valor2);
-    }
-
-    public List<Carro> findByAnoFabricacaoBetween(int valor1, int valor2){
-        return carroRepository.findByAnoFabricacaoBetween(valor1, valor2);
-    }
-
-    public List<Carro> findByQuilometragemLessThanEqual(Double valor){
-        return carroRepository.findByQuilometragemLessThanEqual(valor);
-    }
 }

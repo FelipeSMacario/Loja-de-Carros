@@ -21,50 +21,36 @@ public class CarroController {
     CarroService carroService;
 
     @PostMapping
-    public Carro createCarro(@RequestBody Carro carro){
+    public Carro createCarro(@RequestBody Carro carro) {
         return carroService.createCarro(carro);
     }
 
     @GetMapping
-    public Page<Carro> listarCarros(@PageableDefault(size = 9) Pageable pageable){
+    public Page<Carro> listarCarros(@PageableDefault(size = 9) Pageable pageable) {
 
         return carroService.listarCarros(pageable);
 
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<Carro> findCarroById(@PathVariable Long id){
+    public ResponseEntity<Carro> findCarroById(@PathVariable Long id) {
         return carroService.findCarroById(id);
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity updateCarro(@RequestBody Carro carro, @PathVariable Long id){
+    public ResponseEntity updateCarro(@RequestBody Carro carro, @PathVariable Long id) {
         return carroService.updateCarro(carro, id);
     }
+
     @DeleteMapping("/{id}")
-    public ResponseEntity deleteCarro(@PathVariable Long id){
+    public ResponseEntity deleteCarro(@PathVariable Long id) {
         return carroService.deleteCarro(id);
     }
 
-    @GetMapping("/Marca/{Marca}")
-    public List<Carro> findByMarca(@PathVariable Optional<String> Marca){
-        return carroService.findByMarca(Marca);
+    @GetMapping("/search")
+    public List<Carro> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim,  Double valorInicio, Double valorFim, Double quilometragem){
+        return carroService.FiltrarCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem);
     }
 
-    @GetMapping("/Marca/{Marca}/Modelo/{Modelo}")
-    public List<Carro> findByModelo(@PathVariable String Marca, @PathVariable String Modelo){
-        return carroService.findByModelo(Marca, Modelo);
-    }
 
-    @GetMapping("/Valor/{valor1}/{valor2}")
-    public List<Carro> findByValorBetween(@PathVariable Double valor1, @PathVariable Double valor2){
-        return carroService.findByValorBetween(valor1, valor2);
-    }
-
-    @GetMapping("/AnoCarro/{valor1}/{valor2}")
-    public List<Carro> findByAnoFabricacaoBetween(@PathVariable int valor1, @PathVariable int valor2){
-        return carroService.findByAnoFabricacaoBetween(valor1, valor2);
-    }
-    @GetMapping("/Quilometragem/{valor}")
-    public List<Carro> findByQuilometragemLessThanEqual(@PathVariable Double valor){
-        return carroService.findByQuilometragemLessThanEqual(valor);
-    }
 }

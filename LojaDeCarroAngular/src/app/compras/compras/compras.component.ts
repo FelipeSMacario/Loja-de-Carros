@@ -53,4 +53,7 @@ export class ComprasComponent implements OnInit {
     })
   }
 
+  BB(){
+    
+  }
 }
