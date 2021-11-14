@@ -26,10 +26,5 @@ export class HomeComponent implements OnInit {
       error : (err) => console.log(err)
     })
   }
-
-  digitaValor(nome : string){
-    this.router.navigate(['compras/Marca/',nome]);
-  }
-
   
 }

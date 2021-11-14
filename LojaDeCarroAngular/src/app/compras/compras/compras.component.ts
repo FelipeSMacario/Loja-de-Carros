@@ -14,9 +14,11 @@ import { CarroService } from 'src/app/services/carro.service';
 export class ComprasComponent implements OnInit {
   page : Page;
   carro: Carro[] = [];
-  filterCarro: Carro[];
+  filterCarro: Carro[] = [];
   elementoTotal : number;
   itemPagina : number;
+  valor : number;
+  marca : string;
 
   constructor(
     private carroService: CarroService,
@@ -54,6 +56,13 @@ export class ComprasComponent implements OnInit {
   }
 
   BB(){
-    
+    this.activatedRoute.queryParams.subscribe(
+      (queryParams : any) => {
+        this.valor = queryParams["page"];
+        this.marca = queryParams["marca"];
+      }
+    )
+    console.log(this.marca)
   }
+
 }

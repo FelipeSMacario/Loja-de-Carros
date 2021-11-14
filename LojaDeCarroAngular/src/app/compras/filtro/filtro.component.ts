@@ -1,3 +1,4 @@
+import { HttpParams } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -123,7 +124,20 @@ export class FiltroComponent implements OnInit {
     window.location.reload();
   }
 
+  
+
   abc(){
-    console.log(this.pesquisar());
+    let httpParams = new HttpParams();
+
+    if (this.filtro.value.marca) httpParams = httpParams.set("marca",this.filtro.value.marca.nome);
+    if (this.filtro.value.modelo) httpParams = httpParams.set("modelo",this.filtro.value.modelo.nome);
+    if (this.filtro.value.anoFabricacaoInicio) httpParams = httpParams.set("anoFabricacaoInicio",this.filtro.value.anoFabricacaoInicio);
+    if (this.filtro.value.anoFabricacaoFinal) httpParams = httpParams.set("anoFabricacaoFinal",this.filtro.value.anoFabricacaoFinal);
+    if (this.filtro.value.valorInicio) httpParams = httpParams.set("valorInicio",this.filtro.value.valorInicio);
+    if (this.filtro.value.valorFinal) httpParams = httpParams.set("valorFinal",this.filtro.value.valorFinal);
+    if (this.filtro.value.quilometragem) httpParams = httpParams.set("quilometragem",this.filtro.value.quilometragem);
+    
+
+    console.log(httpParams.toString());
   }
 }

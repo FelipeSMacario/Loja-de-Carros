@@ -7,7 +7,7 @@
         <div class="form-check child" *ngFor="let mac of marca">
           <input class="form-check-input check" type="radio" />
           <label class="form-check-label">
-            <button (click)="digitaValor(mac.nome)" class="botaoCheck">
+            <button routerLink="/compras/search"[queryParams]="{marca:mac.nome}" class="botaoCheck">
               <img class="listaImagem" src="{{ mac.url }}" />
             </button>
           </label>
@@ -18,7 +18,7 @@
     <div class="container">
       <div class="card-group cards">
         <div class="card separaCard">
-          <button class="buttonCard" [routerLink]="['/compras']">
+          <button class="buttonCard" routerLink="/compras">
             <img
               class="card-img-top cardImagem"
               src="../../assets/images/comprar.jpg"

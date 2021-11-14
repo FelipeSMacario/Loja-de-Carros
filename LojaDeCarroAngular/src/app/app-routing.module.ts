@@ -20,26 +20,7 @@ const routes: Routes = [
   },
 
   {
-    path : "compras/Marca/:Marca",
-    component : ComprasComponent
-  },
-  {
-    path : "compras/Marca/:Marca/Modelo/:Modelo",
-    component : ComprasComponent
-  },
-
-  {
-    path : "compras/AnoCarro/:KM1/:KM2",
-    component : ComprasComponent
-  },
-
-  {
-    path : "compras/Quilometragem/:valor",
-    component : ComprasComponent
-  },
-
-  {
-    path : "compras/Valor/:valor1/:valor2",
+    path : "compras/search",
     component : ComprasComponent
   },
 
