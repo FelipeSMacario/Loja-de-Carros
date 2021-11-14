@@ -25,29 +25,31 @@ export class RangeComponent implements OnInit {
   }
 
   atualizaValores(changeContext: ChangeContext): void {
-    const valor = this.getChangeContextString(changeContext).split(" ");
+    const valor = this.getChangeContextString(changeContext).split(' ');
 
     this.defineValores.emit(valor);
-
   }
 
   options: Options = {
     floor: 0,
     ceil: 0,
+
     getPointerColor: () => {
       return 'black';
     },
     getSelectionBarColor: () => {
       return this.corBarra;
     },
-
-
-
   };
 
   atualizaOptions(options: Options) {
     options.floor = this.minValue;
     options.ceil = this.maxValue;
-    
+
+    if (options.ceil > 2022) {
+      options.step = 2000;
+    } else {
+      options.step = 1;
+    }
   }
 }

@@ -57,7 +57,10 @@ export class ComprasComponent implements OnInit {
 
   parametros(e){
    this.carroService.teste(e).subscribe({
-     next : car => this.carro = car.content,
+     next : car => {this.page = car;
+                    this.carro = car.content
+                    this.elementoTotal = car.totalElements;
+                    this.itemPagina = car.numberOfElements;},
      error : err => console.log(err)
    })
     

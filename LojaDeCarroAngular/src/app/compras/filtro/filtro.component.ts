@@ -33,10 +33,10 @@ export class FiltroComponent implements OnInit {
     this.filtro = this.fb.group({
       marca: [null],
       modelo: [null],
-      anoInicio: [null],
-      anoFim: [null],
-      valorInicio: [null],
-      valorFinal: [null],
+      anoInicio: [1961],
+      anoFim: [2022],
+      valorInicio: [0],
+      valorFim: [200000],
       quilometragem: [null],
     });
   }
@@ -71,7 +71,7 @@ export class FiltroComponent implements OnInit {
   atualizaValor(e) {
     const valor = e;
     this.filtro.value.valorInicio = parseFloat(valor[0]);
-    this.filtro.value.valorFinal = parseFloat(valor[1]);
+    this.filtro.value.valorFim = parseFloat(valor[1]);
   }
 
   pesquisa() {
@@ -79,25 +79,22 @@ export class FiltroComponent implements OnInit {
 
     if (this.filtro.value.marca) httpParams = httpParams.set("marca",this.filtro.value.marca.nome);
     if (this.filtro.value.modelo) httpParams = httpParams.set("modelo",this.filtro.value.modelo.nome);
-    if (this.filtro.value.anoFabricacaoInicio) httpParams = httpParams.set("anoFabricacaoInicio",this.filtro.value.anoFabricacaoInicio);
-    if (this.filtro.value.anoFabricacaoFinal) httpParams = httpParams.set("anoFabricacaoFinal",this.filtro.value.anoFabricacaoFinal);
+    if (this.filtro.value.anoInicio) httpParams = httpParams.set("anoInicio",this.filtro.value.anoInicio);
+    if (this.filtro.value.anoFim) httpParams = httpParams.set("anoFim",this.filtro.value.anoFim);
     if (this.filtro.value.valorInicio) httpParams = httpParams.set("valorInicio",this.filtro.value.valorInicio);
-    if (this.filtro.value.valorFinal) httpParams = httpParams.set("valorFinal",this.filtro.value.valorFinal);
+    if (this.filtro.value.valorFim) httpParams = httpParams.set("valorFim",this.filtro.value.valorFim);
     if (this.filtro.value.quilometragem) httpParams = httpParams.set("quilometragem",this.filtro.value.quilometragem);
     
     this.router.navigate(["/compras"], {queryParams : {"search" : httpParams}})
     this.parametros.emit( httpParams.toString());
     
+    console.log(this.filtro.value)
   }
 
   limparFiltro() {
     this.filtro.reset();
     this.pesquisa();
     this.router.navigate(['/compras']);
-  }
-
-  refresh(): void {
-    
   }
 
 }
