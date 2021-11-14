@@ -9,8 +9,6 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -27,9 +25,7 @@ public class CarroController {
 
     @GetMapping
     public Page<Carro> listarCarros(@PageableDefault(size = 9) Pageable pageable) {
-
         return carroService.listarCarros(pageable);
-
     }
 
     @GetMapping("/{id}")
@@ -48,8 +44,8 @@ public class CarroController {
     }
 
     @GetMapping("/search")
-    public List<Carro> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim,  Double valorInicio, Double valorFim, Double quilometragem){
-        return carroService.FiltrarCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem);
+    public Page<Carro> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem, @PageableDefault(size = 9) Pageable pageable) {
+        return carroService.FiltrarCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable);
     }
 
 

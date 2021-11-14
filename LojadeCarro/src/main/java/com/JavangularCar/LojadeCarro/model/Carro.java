@@ -17,8 +17,10 @@ public class Carro {
     @Column(name = "Quilometragem")
     private Double quilometragem;
 
+    @Column(name = "Url")
     private String url;
 
+    @Column(name = "Valor")
     private Double valor;
 
     @Column(name = "Placa")
@@ -34,6 +36,7 @@ public class Carro {
     private Carroceria carroceria;
 
     @ManyToOne
+    @JoinColumn(name = "marca_id")
     private Marca marca;
 
     @ManyToOne

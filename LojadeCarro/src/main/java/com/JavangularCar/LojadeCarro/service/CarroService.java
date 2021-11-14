@@ -10,9 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class CarroService {
@@ -63,12 +61,9 @@ public class CarroService {
 
     }
 
-    public List<Carro> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem){
-        return carroRepository.FindByCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem);
+    public Page<Carro> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem, Pageable pageable){
+        return carroRepository.FindByCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable);
     }
 
-//    public List<Carro> findByValorBetween(Double valor1, Double valor2, int ano1, int ano2){
-//        return carroRepository.findByValorBetweenAndAnoFabricacaoBetween(valor1, valor2, ano1, ano2);
-//    }
 
 }
