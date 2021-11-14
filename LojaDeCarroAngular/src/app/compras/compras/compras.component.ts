@@ -19,11 +19,11 @@ export class ComprasComponent implements OnInit {
   itemPagina : number;
   valor : number;
   marca : string;
+  teste : any;
 
   constructor(
     private carroService: CarroService,
     private router: Router,
-    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -55,14 +55,13 @@ export class ComprasComponent implements OnInit {
     })
   }
 
-  BB(){
-    this.activatedRoute.queryParams.subscribe(
-      (queryParams : any) => {
-        this.valor = queryParams["page"];
-        this.marca = queryParams["marca"];
-      }
-    )
-    console.log(this.marca)
+  parametros(e){
+   this.carroService.teste(e).subscribe({
+     next : car => this.carro = car.content,
+     error : err => console.log(err)
+   })
+    
   }
+  
 
 }

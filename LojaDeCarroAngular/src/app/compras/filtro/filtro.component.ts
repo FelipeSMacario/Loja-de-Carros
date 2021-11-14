@@ -1,7 +1,8 @@
 import { HttpParams } from '@angular/common/http';
-import { Component, OnInit } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { Router } from '@angular/router';
+
 import { Marca } from 'src/app/models/marca.model';
 import { Modelo } from 'src/app/models/modelo.model';
 import { MarcasService } from 'src/app/services/marcas.service';
@@ -17,6 +18,8 @@ export class FiltroComponent implements OnInit {
   modelo: Modelo[] = [];
   filtro: FormGroup;
 
+  @Output() parametros = new EventEmitter();
+
   constructor(
     private fb: FormBuilder,
     private marcaService: MarcasService,
@@ -30,8 +33,8 @@ export class FiltroComponent implements OnInit {
     this.filtro = this.fb.group({
       marca: [null],
       modelo: [null],
-      anoFabricacaoInicio: [null],
-      anoFabricacaoFinal: [null],
+      anoInicio: [null],
+      anoFim: [null],
       valorInicio: [null],
       valorFinal: [null],
       quilometragem: [null],
@@ -61,8 +64,8 @@ export class FiltroComponent implements OnInit {
 
   atualizaAno(e) {
     const valor = e;
-    this.filtro.value.anoFabricacaoInicio = parseInt(valor[0]);
-    this.filtro.value.anoFabricacaoFinal = parseInt(valor[1]);
+    this.filtro.value.anoInicio = parseInt(valor[0]);
+    this.filtro.value.anoFim = parseInt(valor[1]);
   }
 
   atualizaValor(e) {
@@ -72,61 +75,6 @@ export class FiltroComponent implements OnInit {
   }
 
   pesquisa() {
-    if (this.filtro.value.marca && this.filtro.value.modelo == undefined) {
-      this.router.navigate(['compras/Marca/', this.filtro.value.marca.nome]);
-    } else if (this.filtro.value.modelo) {
-      this.router.navigate([
-        `compras/Marca/${this.filtro.value.marca.nome}/Modelo/${this.filtro.value.modelo.nome}`,
-      ]);
-    }
-    if (
-      this.filtro.value.anoFabricacaoInicio &&
-      this.filtro.value.anoFabricacaoFinal
-    ) {
-      this.router.navigate([
-        `compras/AnoCarro/${this.filtro.value.anoFabricacaoInicio}/${this.filtro.value.anoFabricacaoFinal}`,
-      ]);
-    }
-    if (this.filtro.value.valorInicio && this.filtro.value.valorFinal) {
-      this.router.navigate([
-        `compras/Valor/${this.filtro.value.valorInicio}/${this.filtro.value.valorFinal}`,
-      ]);
-    }
-    if (this.filtro.value.quilometragem) {
-      this.router.navigate([
-        `compras/Quilometragem/${this.filtro.value.quilometragem}`,
-      ]);
-    }     
-  }
-
-  pesquisar(marca? : string,
-           modelo? : string,
-           anoFabricacaoInicio? : number,
-           anoFabricacaoFinal? : number, 
-           valorInicio? : number, 
-           valorFinal? : number, 
-           quilometragem? : number ) : string {
-
-          if(this.filtro.value.marca){
-            marca = this.filtro.value.marca.nome;
-          }
-            
-          return (`${marca}/${modelo}/${anoFabricacaoInicio}/${anoFabricacaoFinal}/${valorInicio}/${valorFinal}/${quilometragem}`) ;
-      
-  }
-
-  limparFiltro() {
-    this.filtro.reset();
-    this.router.navigate(['compras']);
-  }
-
-  refresh(): void {
-    window.location.reload();
-  }
-
-  
-
-  abc(){
     let httpParams = new HttpParams();
 
     if (this.filtro.value.marca) httpParams = httpParams.set("marca",this.filtro.value.marca.nome);
@@ -137,7 +85,19 @@ export class FiltroComponent implements OnInit {
     if (this.filtro.value.valorFinal) httpParams = httpParams.set("valorFinal",this.filtro.value.valorFinal);
     if (this.filtro.value.quilometragem) httpParams = httpParams.set("quilometragem",this.filtro.value.quilometragem);
     
-
-    console.log(httpParams.toString());
+    this.router.navigate(["/compras"], {queryParams : {"search" : httpParams}})
+    this.parametros.emit( httpParams.toString());
+    
   }
+
+  limparFiltro() {
+    this.filtro.reset();
+    this.pesquisa();
+    this.router.navigate(['/compras']);
+  }
+
+  refresh(): void {
+    
+  }
+
 }

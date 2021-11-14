@@ -9,7 +9,7 @@
         <mat-icon class="close">clear</mat-icon>
       </button>
     </div>
-    
+      
     <div class="marcaModelo">
       <select
         class="form-select campoSelect"
@@ -21,7 +21,6 @@
           {{ marc.nome }}
         </option>
       </select>
-      <button (click)="abc()">AAAA</button>
       <select class="form-select campoSelect" formControlName="modelo">
         <option value="null" disabled selected>Modelo</option>
         <option *ngFor="let model of modelo" [ngValue]="model">
