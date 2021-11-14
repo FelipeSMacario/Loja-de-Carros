@@ -84,11 +84,14 @@ export class FiltroComponent implements OnInit {
     if (this.filtro.value.valorInicio) httpParams = httpParams.set("valorInicio",this.filtro.value.valorInicio);
     if (this.filtro.value.valorFim) httpParams = httpParams.set("valorFim",this.filtro.value.valorFim);
     if (this.filtro.value.quilometragem) httpParams = httpParams.set("quilometragem",this.filtro.value.quilometragem);
+    httpParams = httpParams.set("page",1)
     
-    this.router.navigate(["/compras"], {queryParams : {"search" : httpParams}})
-    this.parametros.emit( httpParams.toString());
-    
-    console.log(this.filtro.value)
+    this.router.navigate(["/compras"], {queryParams : {"search" : httpParams}});
+
+
+    httpParams = httpParams.set("page",0)    
+    this.parametros.emit( httpParams.toString());   
+
   }
 
   limparFiltro() {
