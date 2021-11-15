@@ -17,8 +17,8 @@ export class FiltroComponent implements OnInit {
   marca: Marca[] = [];
   modelo: Modelo[] = [];
   filtro: FormGroup;
-
-  @Output() parametros = new EventEmitter();
+  checkMarca: string;
+  checkModelo: string;
 
   constructor(
     private fb: FormBuilder,
@@ -75,23 +75,22 @@ export class FiltroComponent implements OnInit {
   }
 
   pesquisa() {
-    let httpParams = new HttpParams();
+    if (this.filtro.value.marca) this.checkMarca = this.filtro.value.marca.nome;
+    if (this.filtro.value.modelo)
+      this.checkModelo = this.filtro.value.modelo.nome;
 
-    if (this.filtro.value.marca) httpParams = httpParams.set("marca",this.filtro.value.marca.nome);
-    if (this.filtro.value.modelo) httpParams = httpParams.set("modelo",this.filtro.value.modelo.nome);
-    if (this.filtro.value.anoInicio) httpParams = httpParams.set("anoInicio",this.filtro.value.anoInicio);
-    if (this.filtro.value.anoFim) httpParams = httpParams.set("anoFim",this.filtro.value.anoFim);
-    if (this.filtro.value.valorInicio) httpParams = httpParams.set("valorInicio",this.filtro.value.valorInicio);
-    if (this.filtro.value.valorFim) httpParams = httpParams.set("valorFim",this.filtro.value.valorFim);
-    if (this.filtro.value.quilometragem) httpParams = httpParams.set("quilometragem",this.filtro.value.quilometragem);
-    httpParams = httpParams.set("page",1)
-    
-    this.router.navigate(["/compras"], {queryParams : {"search" : httpParams}});
-
-
-    httpParams = httpParams.set("page",0)    
-    this.parametros.emit( httpParams.toString());   
-
+    this.router.navigate(['/compras/search'], {
+      queryParams: {
+        marca: this.checkMarca,
+        modelo: this.checkModelo,
+        anoInicio: this.filtro.value.anoInicio,
+        anoFim: this.filtro.value.anoFim,
+        valorInicio: this.filtro.value.valorInicio,
+        valorFim: this.filtro.value.valorFim,
+        quilometragem: this.filtro.value.quilometragem,
+        page : 1
+      },
+    });
   }
 
   limparFiltro() {
@@ -99,5 +98,4 @@ export class FiltroComponent implements OnInit {
     this.pesquisa();
     this.router.navigate(['/compras']);
   }
-
 }

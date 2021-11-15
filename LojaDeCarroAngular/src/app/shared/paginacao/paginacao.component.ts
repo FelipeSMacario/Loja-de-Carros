@@ -1,4 +1,5 @@
 import { Component, Input, Output, ViewEncapsulation, EventEmitter } from '@angular/core';
+import { Router } from '@angular/router';
 import { PageChangedEvent } from 'ngx-bootstrap/pagination';
 
 
@@ -16,9 +17,13 @@ export class PaginacaoComponent{
   @Output() atualizaPagina = new EventEmitter();
   @Input() itemsPerPage : number;
   @Input() totalItems : number;
+
+  constructor(private router : Router){}
  
   pageChanged(event: PageChangedEvent): void {
     this.page = event.page;
     this.atualizaPagina?.emit(this.page);
+    this.router.navigate(["/compras/search"], {queryParams : {"page" : this.page}, queryParamsHandling : "merge"})
+    
   }
 }

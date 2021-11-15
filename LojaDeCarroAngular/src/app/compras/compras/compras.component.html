@@ -1,10 +1,10 @@
 <div class="container telaCompras">
   <mat-drawer-container class="example-container">
     <mat-drawer mode="side" opened class="side">
-      <app-filtro (parametros)="parametros($event)"></app-filtro>
+      <app-filtro></app-filtro>
     </mat-drawer>
     <mat-drawer-content class="principal">
-      
+      <button (click)="digitaPaginas()">ABC</button>
       <div class="form-check child" *ngFor="let car of carro">
         <input class="form-check-input check" type="radio" />
         <label class="form-check-label">
@@ -37,13 +37,11 @@
         </label>
       </div>
       <div class="paginacao">
-        <app-paginacao
+        <app-paginacao *ngIf="totalPagina > 1"
         [itemsPerPage]="itemPagina"
         [totalItems]="elementoTotal"
         (atualizaPagina)="atualizaPagina($event)">
-        </app-paginacao> 
-                     
-                    
+        </app-paginacao>                     
       </div>
       
     </mat-drawer-content>
