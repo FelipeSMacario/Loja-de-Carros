@@ -17,6 +17,7 @@ export class PaginacaoComponent{
   @Output() atualizaPagina = new EventEmitter();
   @Input() itemsPerPage : number;
   @Input() totalItems : number;
+  @Input() totalPages : number;
 
   constructor(private router : Router){}
  
@@ -25,9 +26,7 @@ export class PaginacaoComponent{
     this.atualizaPagina?.emit(this.page);
     
     if(this.router.url.includes("search")) this.router.navigate(["/compras/search"], {queryParams : {"page" : this.page}, queryParamsHandling : "merge"});
-    else this.router.navigate(["/compras"], {queryParams : {"page" : this.page}, queryParamsHandling : "merge"});
-
-
+    else this.router.navigate(["/compras"], {queryParams : {"page" : this.page}, queryParamsHandling : "merge"})
     
     
   }

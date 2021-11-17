@@ -84,4 +84,8 @@ export class ComprasComponent implements OnInit {
     this.listarcarros(this.httpParams.toString());
   }
 
+  abc(){
+    console.log(this.page)
+  }
+
 }

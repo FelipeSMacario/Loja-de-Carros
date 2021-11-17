@@ -38,6 +38,7 @@
       </div>
       <div class="paginacao">
         <app-paginacao *ngIf="totalPagina > 1"
+        [totalPages]="totalPagina"  
         [itemsPerPage]="itemPagina"
         [totalItems]="elementoTotal"
         (atualizaPagina)="atualizaPagina($event)">
