@@ -1,7 +1,7 @@
 import { HttpParams } from '@angular/common/http';
 import { Component, EventEmitter, OnInit, Output } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Params, Router } from '@angular/router';
 
 import { Marca } from 'src/app/models/marca.model';
 import { Modelo } from 'src/app/models/modelo.model';
@@ -20,11 +20,14 @@ export class FiltroComponent implements OnInit {
   checkMarca: string;
   checkModelo: string;
 
+  @Output() atualizaParametro = new EventEmitter();
+
   constructor(
     private fb: FormBuilder,
     private marcaService: MarcasService,
     private modeloService: ModeloService,
-    private router: Router
+    private router: Router,
+    private activatedRoute : ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -74,12 +77,13 @@ export class FiltroComponent implements OnInit {
     this.filtro.value.valorFim = parseFloat(valor[1]);
   }
 
-  pesquisa() {
-    if (this.filtro.value.marca) this.checkMarca = this.filtro.value.marca.nome;
-    if (this.filtro.value.modelo)
-      this.checkModelo = this.filtro.value.modelo.nome;
+  pesquisa() {    
 
-    this.router.navigate(['/compras/search'], {
+    
+    if (this.filtro.value.marca) this.checkMarca = this.filtro.value.marca.nome;
+    if (this.filtro.value.modelo)this.checkModelo = this.filtro.value.modelo.nome;
+    
+    this.router.navigate(['compras/search'], {
       queryParams: {
         marca: this.checkMarca,
         modelo: this.checkModelo,
@@ -89,8 +93,18 @@ export class FiltroComponent implements OnInit {
         valorFim: this.filtro.value.valorFim,
         quilometragem: this.filtro.value.quilometragem,
         page : 1
-      },
-    });
+      }, queryParamsHandling : "merge",       
+    });    
+    
+    this.atualizaParametro.emit({
+      "marca": this.checkMarca,
+      "modelo": this.checkModelo,
+      "anoInicio": this.filtro.value.anoInicio,
+      "anoFim": this.filtro.value.anoFim,
+      "valorInicio": this.filtro.value.valorInicio,
+      "valorFim": this.filtro.value.valorFim,
+      "quilometragem": this.filtro.value.quilometragem});
+  
   }
 
   limparFiltro() {

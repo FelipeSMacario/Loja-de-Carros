@@ -33,8 +33,9 @@ const routes: Routes = [
   component : ListarVendasComponent
 }];
 
-@NgModule({
-  imports: [RouterModule.forRoot(routes)],
+@NgModule({ 
+  imports: [RouterModule.forRoot(routes, { onSameUrlNavigation: 'reload' }), ],
+  
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

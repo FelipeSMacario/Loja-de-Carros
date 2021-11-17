@@ -59,9 +59,11 @@ import { FormsModule } from '@angular/forms';
     MatIconModule,
     MatSliderModule,
     PaginationModule,
-    FormsModule
+    FormsModule,
+    
     
   ],
+  
   providers: [],
   bootstrap: [AppComponent]
 })

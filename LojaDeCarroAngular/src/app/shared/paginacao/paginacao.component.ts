@@ -23,7 +23,12 @@ export class PaginacaoComponent{
   pageChanged(event: PageChangedEvent): void {
     this.page = event.page;
     this.atualizaPagina?.emit(this.page);
-    this.router.navigate(["/compras/search"], {queryParams : {"page" : this.page}, queryParamsHandling : "merge"})
+    
+    if(this.router.url.includes("search")) this.router.navigate(["/compras/search"], {queryParams : {"page" : this.page}, queryParamsHandling : "merge"});
+    else this.router.navigate(["/compras"], {queryParams : {"page" : this.page}, queryParamsHandling : "merge"});
+
+
+    
     
   }
 }
