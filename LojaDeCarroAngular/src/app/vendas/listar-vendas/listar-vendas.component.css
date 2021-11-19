@@ -1,0 +1,3 @@
+::ng-deep .customClass > a {
+    background-color: red !important;
+}

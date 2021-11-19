@@ -1,17 +1,22 @@
 .detalhes{
-    background-color: #bcbcbc;
+    background-color: #bcbcbc;   
+    height: 100%;
+    padding: 5px;
+    
 }
 
 .card{
-    border-style: solid;
-    border-color: #DAA520;
+    border: #DAA520 solid 2px;
     background-color: #282828;
+    height: 110px;
+    
 }
 .row{
     display: inline-block;
     flex-grow: 1;
     height: auto;
     width: calc(100% * (5/10) - 10px - 1px);
+    
 }
 label{
     margin-top: 5px;
@@ -30,14 +35,40 @@ label{
     float: inline-end;
     color: #DAA520;
     width: 200px;
+    
 }
 
 .listaDetalhes{
-    list-style: none;
+    list-style: none;    
 }
-.listaDetalhesLI{
-    
-}
+
 .listaTodos{
     background-color: #282828;
+    border: #DAA520 solid;
+    height: 100%;   
+    
 }
+ul {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 33%  33%;    
+  }
+  
+  li {
+    list-style: inside;
+    padding-bottom: 5px;
+}
+
+::ng-deep .customClass > a {
+    border: #DAA520 solid 1px !important;
+    background-color: #282828 !important;
+    color: #DAA520 !important;
+    
+}
+
+.tab{
+    margin-left: 10px;
+    width: 98%;    
+}
+
+

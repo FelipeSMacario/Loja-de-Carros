@@ -7,12 +7,16 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ListarVendasComponent implements OnInit {
 
-
-
   constructor() { }
 
   ngOnInit(): void {
    
   }
 
+  cliquei(){
+    console.log("CLIQUEI");
+    window.open();
+  }
+
+  
 }

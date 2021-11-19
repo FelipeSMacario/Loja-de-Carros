@@ -7,5 +7,7 @@ export class Kit {
   automatico: boolean;
   direcaoHidraulica: boolean;
   arCondicionado: boolean;
+  quatroPortas: boolean;
+  bancoCouro: boolean;
   carro : Carro;
 }

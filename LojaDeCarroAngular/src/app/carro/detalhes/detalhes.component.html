@@ -1,83 +1,107 @@
 <div class="detalhes">
-    <div class="container">
-        <tabset >
-            <tab  heading="Caracteristicas">
-                <div class="card-group bloco"> 
-        
-                    <div class="row">
-                        <div class="card">
-                            <label>Ano</label>
-                            <div class="card-body labelCard">{{carro.anoFabricacao}}</div>
-                          </div>
-                
-                          <div class="card">
-                            <label>KM</label>
-                            <div class="card-body labelCard">{{carro.quilometragem |  number : '1.2-3'}}</div>
-                          </div>    
-                    </div>
-        
-                    <div class="row">
-                        <div class="card">
-                            <label>Cor</label>
-                            <div class="card-body labelCard">{{cor.nome}}</div>
-                          </div>
-                
-                          <div class="card">
-                            <label>Final Placa</label>
-                            <div class="card-body labelCard">{{carro.placa}}</div>
-                          </div>
-                    </div>
-                </div>
-        
-            </tab>
-        
-            <tab heading="Detalhes do veiculo">
-                <div class="listaTodos">
-                    <ul class="listaDetalhes">
-                        <li class="listaDetalhesLI" *ngIf="kit.freioABS === true"> 
-                            <div>
-                                <span>
-                                    <mat-icon class="done">done</mat-icon>
-                                </span>
-                                <label>Freio ABS</label>
-                            </div>
-                        </li>
-                        <li class="listaDetalhesLI" *ngIf="kit.rodaLigaLeve === true"> 
-                            <div>
-                                <span>
-                                    <mat-icon class="done">done</mat-icon>
-                                </span>
-                                <label>Roda Liga Leva</label>
-                            </div>
-                        </li>
-                        <li class="listaDetalhesLI" *ngIf="kit.arCondicionado === true"> 
-                            <div>
-                                <span>
-                                    <mat-icon class="done">done</mat-icon>
-                                </span>
-                                <label>Ar Condicionado</label>
-                            </div>
-                        </li>
-        
-                        <li class="listaDetalhesLI" *ngIf="kit.direcaoHidraulica === true"> 
-                            <div>
-                                <span>
-                                    <mat-icon class="done">done</mat-icon>
-                                </span>
-                                
-                                <label>Direção Hidráulica</label>
-                            </div>
-                        </li>
-                    </ul>
-                </div>
-              
-            </tab>
-          </tabset>
-    </div>
-    
-    
-    
+  <div class="container">
+    <tabset>
+      <tab heading="Caracteristicas" customClass="customClass">
+        <div class="card-group tab">
+          <div class="row">
+            <div class="card">
+              <label>Ano</label>
+              <div class="card-body labelCard">{{ carro.anoFabricacao }}</div>
+            </div>
+
+            <div class="card">
+              <label>KM</label>
+              <div class="card-body labelCard">
+                {{ carro.quilometragem | number: "1.2-3" }}
+              </div>
+
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="card">
+              <label>Cor</label>
+              <div class="card-body labelCard">{{ cor.nome }}</div>
+            </div>
+
+            <div class="card">
+              <label>Final Placa</label>
+              <div class="card-body labelCard">{{ placa }}</div>
+            </div>
+          </div>
+        </div>
+      </tab>
+
+      <tab heading="Detalhes do veiculo" customClass="customClass">
+        <div class="listaTodos bloco">
+          <ul class="listaDetalhes">
+            <li class="listaDetalhesLI" *ngIf="kit.freioABS === true">
+              <div>
+                <span>
+                  <mat-icon class="done">done</mat-icon>
+                </span>
+                <label>Freio ABS</label>
+              </div>
+            </li>
+            <li class="listaDetalhesLI" *ngIf="kit.rodaLigaLeve === true">
+              <div>
+                <span>
+                  <mat-icon class="done">done</mat-icon>
+                </span>
+                <label>Roda Liga Leva</label>
+              </div>
+            </li>
+            <li class="listaDetalhesLI" *ngIf="kit.arCondicionado === true">
+              <div>
+                <span>
+                  <mat-icon class="done">done</mat-icon>
+                </span>
+                <label>Ar Condicionado</label>
+              </div>
+            </li>
+
+            <li class="listaDetalhesLI" *ngIf="kit.direcaoHidraulica === true">
+              <div>
+                <span>
+                  <mat-icon class="done">done</mat-icon>
+                </span>
+
+                <label>Direção Hidráulica</label>
+              </div>
+            </li>
+
+            <li class="listaDetalhesLI" *ngIf="kit.automatico === true">
+              <div>
+                <span>
+                  <mat-icon class="done">done</mat-icon>
+                </span>
+
+                <label>Automático</label>
+              </div>
+            </li>
+
+            <li class="listaDetalhesLI" *ngIf="kit.bancoCouro === true">
+              <div>
+                <span>
+                  <mat-icon class="done">done</mat-icon>
+                </span>
+
+                <label>Banco de Couro</label>
+              </div>
+            </li>
+
+            <li class="listaDetalhesLI" *ngIf="kit.quatroPortas === true">
+              <div>
+                <span>
+                  <mat-icon class="done">done</mat-icon>
+                </span>
+
+                <label>4 portas</label>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </tab>
+    </tabset>
+  </div>
 </div>
-
-
-

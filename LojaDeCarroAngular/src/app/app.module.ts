@@ -27,6 +27,9 @@ import { PaginationModule } from 'ngx-bootstrap/pagination';
 import {MatSliderModule} from '@angular/material/slider';
 import { PaginacaoComponent } from './shared/paginacao/paginacao.component';
 import { FormsModule } from '@angular/forms';
+import {MatFormFieldModule} from '@angular/material/form-field';
+import { CadastroComponent } from './cadastro/cadastro.component';
+import { UploadArquivosComponent } from './vendas/upload-arquivos/upload-arquivos.component';
 
 @NgModule({
   declarations: [
@@ -43,6 +46,8 @@ import { FormsModule } from '@angular/forms';
     CarroComponent,
     DetalhesComponent,
     PaginacaoComponent,
+    CadastroComponent,
+    UploadArquivosComponent,
 
   ],
   imports: [
@@ -60,7 +65,7 @@ import { FormsModule } from '@angular/forms';
     MatSliderModule,
     PaginationModule,
     FormsModule,
-    
+    MatFormFieldModule
     
   ],
   

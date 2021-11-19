@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { CadastroComponent } from './cadastro/cadastro.component';
 import { CarroComponent } from './carro/carro/carro.component';
 import { ComprasComponent } from './compras/compras/compras.component';
 import { HomeComponent } from './home/home.component';
@@ -31,7 +32,12 @@ const routes: Routes = [
   {
   path : "vendas",
   component : ListarVendasComponent
-}];
+  },
+  {
+  path : "cadastro",
+  component : CadastroComponent
+  } 
+];
 
 @NgModule({ 
   imports: [RouterModule.forRoot(routes, { onSameUrlNavigation: 'reload' }), ],

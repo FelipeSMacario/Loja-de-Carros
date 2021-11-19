@@ -26,6 +26,10 @@ public class Kit {
 
     private boolean arCondicionado;
 
+    private boolean quatroPortas;
+
+    private boolean bancoCouro;
+
     @ManyToOne
     private Carro carro;
 

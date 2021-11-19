@@ -1,0 +1,18 @@
+.conteudo{
+    background-color: #bcbcbc;
+    padding: 5px;
+    height: 100%;
+    width: 100%;
+}
+
+.form{
+    padding: 15px;
+    border: solid 1px #DAA520;
+    background-color: #282828;
+    color: #DAA520;
+}
+.botao{
+    background-color: #282828;
+    border: #DAA520 2px solid;
+    color: #DAA520;
+}

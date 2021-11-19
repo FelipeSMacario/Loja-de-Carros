@@ -18,6 +18,7 @@ export class DetalhesComponent implements OnInit {
   carro : Carro = new Carro();
   cor : Cores = new Cores();
   id : number;
+  placa : string;
 
   constructor(
     private kitService : KitService,
@@ -41,7 +42,7 @@ export class DetalhesComponent implements OnInit {
   
   findCarroById() : void {
     this.carService.findCarroById(this.id).subscribe({
-      next : (carro) => {this.carro = carro; this.cor = carro.cores},
+      next : (carro) => {this.carro = carro; this.cor = carro.cores; this.placa = carro.placa.substr(carro.placa.length -1)},
       error : err => console.log(err)
     })
   }
