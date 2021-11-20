@@ -3,7 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Carro, Page } from 'src/app/models/Carro.model';
 import { CarroService } from 'src/app/services/carro.service';
-import { take } from 'rxjs/operators';
+import { distinctUntilChanged, take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-compras',
@@ -18,25 +18,22 @@ export class ComprasComponent implements OnInit {
   elementoTotal: number;
   itemPagina: number;
   totalPagina: number;
-  marca : string;
+  marca: string;
 
   httpParams = new HttpParams();
 
   constructor(
     private carroService: CarroService,
     private router: Router,
-    private activatedRoute : ActivatedRoute
-  ) {}
+    private activatedRoute: ActivatedRoute
+  ) {
+  
+  }
 
   ngOnInit(): void {
+      
 
-    if(this.router.url.includes("search")){
-      this.homeMarca();
-    } else{
-      this.listarcarros();
-    }
-    
-    
+    this.atualizaParametros();
   }
 
   listarcarros(parametros?: string): void {
@@ -64,37 +61,38 @@ export class ComprasComponent implements OnInit {
     this.listarcarros(this.httpParams.toString());
   }
 
-  parametros(e) {
-    
-    if (e.marca) this.httpParams = this.httpParams.set('marca', e.marca);
-
-    if (e.modelo) this.httpParams = this.httpParams.set('modelo', e.modelo);
-
-    if (e.anoInicio)
-      this.httpParams = this.httpParams.set('anoInicio', e.anoInicio);
-
-    if (e.anoFim) this.httpParams = this.httpParams.set('anoFim', e.anoFim);
-
-    if (e.valorInicio)
-      this.httpParams = this.httpParams.set('valorInicio', e.valorInicio);
-
-    if (e.valorFim)
-      this.httpParams = this.httpParams.set('valorFim', e.valorFim);
-
-    if (e.quilometragem)
-      this.httpParams = this.httpParams.set('quilometragem', e.quilometragem);
-
-    this.listarcarros(this.httpParams.toString());
+  atualizaParametros(){
+    this.activatedRoute.queryParams.pipe( distinctUntilChanged()).subscribe((queryParams) => {
+      if(queryParams["marca"]) {
+        this.httpParams = this.httpParams.set("marca", queryParams["marca"]);
+      }
+      if(queryParams["modelo"]) {
+        this.httpParams = this.httpParams.set("modelo", queryParams["modelo"]);
+      }
+      if(queryParams["anoInicio"]) {
+        this.httpParams = this.httpParams.set("anoInicio", queryParams["anoInicio"]);
+      }
+      if(queryParams["anoFim"]) {
+        this.httpParams = this.httpParams.set("anoFim", queryParams["anoFim"]);
+      }
+      if(queryParams["valorInicio"]) {
+        this.httpParams = this.httpParams.set("valorInicio", queryParams["valorInicio"]);
+      }
+      if(queryParams["valorFim"]) {
+        this.httpParams = this.httpParams.set("valorFim", queryParams["valorFim"]);
+      }  
+      if(queryParams["quilometragem"]) {
+        this.httpParams = this.httpParams.set("quilometragem", queryParams["quilometragem"]);
+      }  
+      if(queryParams["page"]) {
+        this.httpParams = this.httpParams.set("page", queryParams["page"] - 1);
+      } 
+      this.listarcarros(this.httpParams.toString())
+    })
   }
 
-  limpaParametro() {
-    this.listarcarros();
-  }
-  homeMarca(){    
-      this.activatedRoute.queryParams.pipe(take(1)).subscribe(
-        (queryParams) => {this.httpParams = this.httpParams.set('marca', queryParams["marca"])}
-      )
-      this.listarcarros(this.httpParams.toString());
-    
+  atualizaFiltro(){
+    this.atualizaParametros();
   }
 }
+

@@ -1,11 +1,11 @@
 <div class="container telaCompras">
   <mat-drawer-container class="example-container">
     <mat-drawer mode="side" opened class="side">
-      <app-filtro (atualizaParametro)="parametros($event)" (limpaParametro)="limpaParametro()"></app-filtro>
+      <app-filtro (atualizaParametro)="atualizaFiltro()"></app-filtro>
     </mat-drawer>
     <mat-drawer-content class="principal">
       <div>
-        
+        <button (click)=" atualizaParametros()">ABC</button>
       </div>
       <div class="form-check child" *ngFor="let car of carro">
         <input class="form-check-input check" type="radio" />

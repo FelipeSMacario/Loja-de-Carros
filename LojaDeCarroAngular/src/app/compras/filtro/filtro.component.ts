@@ -28,7 +28,6 @@ export class FiltroComponent implements OnInit {
     private marcaService: MarcasService,
     private modeloService: ModeloService,
     private router: Router,
-    private activatedRoute : ActivatedRoute
   ) {}
 
   ngOnInit(): void {
@@ -78,13 +77,17 @@ export class FiltroComponent implements OnInit {
     this.filtro.value.valorFim = parseFloat(valor[1]);
   }
 
-  pesquisa() {    
+  pesquisar(){
+    const valorAsync = new Promise((resolve, reject) => {
+      setTimeout(() => resolve(this.pesquisa()), 500)
+    });
+  }
 
-    
+  pesquisa() {        
     if (this.filtro.value.marca) this.checkMarca = this.filtro.value.marca.nome;
     if (this.filtro.value.modelo)this.checkModelo = this.filtro.value.modelo.nome;
     
-    this.router.navigate(['/compras'], {
+    this.router.navigate(['/compras/search'], {
       queryParams: {
         marca: this.checkMarca,
         modelo: this.checkModelo,
@@ -94,23 +97,16 @@ export class FiltroComponent implements OnInit {
         valorFim: this.filtro.value.valorFim,
         quilometragem: this.filtro.value.quilometragem,
         page : 1
-      }, queryParamsHandling : "merge",       
+      }, queryParamsHandling : "merge",   
+      
     });    
     
-    this.atualizaParametro.emit({
-      "marca": this.checkMarca,
-      "modelo": this.checkModelo,
-      "anoInicio": this.filtro.value.anoInicio,
-      "anoFim": this.filtro.value.anoFim,
-      "valorInicio": this.filtro.value.valorInicio,
-      "valorFim": this.filtro.value.valorFim,
-      "quilometragem": this.filtro.value.quilometragem});
+    this.atualizaParametro.emit();
   
   }
 
   limparFiltro() {
     this.filtro.reset();
-    this.router.navigate(["/compras"])
-    this.limpaParametro.emit();   
+    this.router.navigate(['/compras']);
   }
 }
