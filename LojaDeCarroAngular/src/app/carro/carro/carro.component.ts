@@ -1,7 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { take } from 'rxjs/operators';
 import { Carro } from 'src/app/models/Carro.model';
+import { Imagens } from 'src/app/models/imagens.model';
 import { CarroService } from 'src/app/services/carro.service';
+import { ImagensService } from 'src/app/services/imagens.service';
 
 
 @Component({
@@ -12,20 +15,29 @@ import { CarroService } from 'src/app/services/carro.service';
 export class CarroComponent implements OnInit {
 
   id : number;
-  carro : Carro = new Carro();
+  imagens : Imagens[] = [];
 
   constructor(
-    private carroService : CarroService,
-    private activatedRoute : ActivatedRoute
+    
+    private activatedRoute : ActivatedRoute,
+    private imagensService : ImagensService
   ) { }
 
   ngOnInit(): void {
     this.id = this.activatedRoute.snapshot.params['id'];
-    this.carroService.findCarroById(this.id).subscribe({
-      next : (carro) => {this.carro = carro},
-      error : err => console.log(err)
-    } )
     
+    this.listarImagens();
   }
+
+  listarImagens(){
+    this.imagensService.findAllImagens().subscribe({
+      next : imagens => {
+        this.imagens = imagens.filter(imagens => imagens.carro.id == this.id);
+        console.log(this.imagens)
+        },
+      error : err => console.log(err)
+    } )    
+  }
+
 
 }

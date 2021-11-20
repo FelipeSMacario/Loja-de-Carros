@@ -21,6 +21,7 @@ export class FiltroComponent implements OnInit {
   checkModelo: string;
 
   @Output() atualizaParametro = new EventEmitter();
+  @Output() limpaParametro = new EventEmitter();
 
   constructor(
     private fb: FormBuilder,
@@ -83,7 +84,7 @@ export class FiltroComponent implements OnInit {
     if (this.filtro.value.marca) this.checkMarca = this.filtro.value.marca.nome;
     if (this.filtro.value.modelo)this.checkModelo = this.filtro.value.modelo.nome;
     
-    this.router.navigate(['compras/search'], {
+    this.router.navigate(['/compras'], {
       queryParams: {
         marca: this.checkMarca,
         modelo: this.checkModelo,
@@ -109,7 +110,7 @@ export class FiltroComponent implements OnInit {
 
   limparFiltro() {
     this.filtro.reset();
-    this.pesquisa();
-    this.router.navigate(['/compras']);
+    this.router.navigate(["/compras"])
+    this.limpaParametro.emit();   
   }
 }

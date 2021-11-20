@@ -14,7 +14,8 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private marcaService : MarcasService,
-    private router : Router) { }
+    private router : Router
+  ) { }
 
   ngOnInit(): void {
     this.listarMarcas();
@@ -26,5 +27,7 @@ export class HomeComponent implements OnInit {
       error : (err) => console.log(err)
     })
   }
-  
+  selecionaMarca(marca : string){
+    this.router.navigate(["/compras/search/"], {queryParams : {"marca" : marca}})
+  }
 }

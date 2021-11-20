@@ -15,4 +15,8 @@ export class ImagensService {
   findAllImagens() : Observable<Imagens[]> {
     return this.httpClient.get<Imagens[]>(`${this.url}`);
   }
+
+  findImagensById(id : number) : Observable<Imagens> {
+    return this.httpClient.get<Imagens>(`${this.url}/${id}`);
+  }
 }

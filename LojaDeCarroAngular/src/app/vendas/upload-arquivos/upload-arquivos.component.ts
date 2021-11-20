@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { UploadService } from 'src/app/services/upload.service';
 
 @Component({
   selector: 'app-upload-arquivos',
@@ -9,7 +10,9 @@ export class UploadArquivosComponent implements OnInit {
 
   files : Set<File>;
 
-  constructor() { }
+  constructor(
+    private uploadService : UploadService
+  ) { }
 
   ngOnInit(): void {
   }
@@ -30,7 +33,7 @@ export class UploadArquivosComponent implements OnInit {
   }
 
   onUpload(){
-    
+    console.log(this.files)
   }
 
 }

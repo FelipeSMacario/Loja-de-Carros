@@ -1,19 +1,10 @@
 <div class="container">
-  <carousel [pauseOnFocus]="true">
-    <slide>
-      <img class="imagemCarousel" src="{{carro.url}}">
+  <carousel [pauseOnFocus]="true" >
+    <slide *ngFor="let img of imagens">
+      <img class="imagemCarousel" src="{{img.url}}">
     </slide>
-    <slide>
-      <img  class="imagemCarousel" src="{{carro.url}}" >
-    </slide>
-    <slide>
-      <img  class="imagemCarousel" src="{{carro.url}}" >
-    </slide>
-    <slide>
-      <img  class="imagemCarousel" src="{{carro.url}}">
-    </slide>
-  </carousel>
     
+  </carousel>
 
 </div>
 

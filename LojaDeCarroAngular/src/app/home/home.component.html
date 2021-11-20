@@ -7,7 +7,7 @@
         <div class="form-check child" *ngFor="let mac of marca">
           <input class="form-check-input check" type="radio" />
           <label class="form-check-label">
-            <button routerLink="/compras/search"[queryParams]="{marca:mac.nome}" class="botaoCheck">
+            <button class="botaoCheck" (click)="selecionaMarca(mac.nome)">
               <img class="listaImagem" src="{{ mac.url }}" />
             </button>
           </label>
