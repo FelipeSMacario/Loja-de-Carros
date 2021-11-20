@@ -19,6 +19,7 @@ public class ImagemController {
 
     @PostMapping
     public void upload(@RequestParam("file") MultipartFile[] multipartFile) throws IOException {
+
         imagemService.updateArquivos(multipartFile);
     }
 }

@@ -38,7 +38,7 @@ export class ComprasComponent implements OnInit {
 
   listarcarros(parametros?: string): void {
     this.carroService
-      .teste(parametros)
+      .findAllCarros(parametros)
       .pipe(take(1))
       .subscribe({
         next: (car) => {

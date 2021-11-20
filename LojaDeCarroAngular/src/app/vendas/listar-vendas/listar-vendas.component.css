@@ -1,3 +1,22 @@
-::ng-deep .customClass > a {
-    background-color: red !important;
+
+.conteudo{
+    background-color: #bcbcbc;
+    padding: 5px;
+    height: 100%;
+    width: 100%;
+}
+
+.form{
+    margin-top: 20px;
+    padding: 15px;
+    border: solid 1px #DAA520;
+    background-color: #282828;
+    color: #DAA520;
+}
+
+.titulo{
+    display: block;
+    text-align: center;    
+    font-size: 30px;
+    font-family: Georgia, 'Times New Roman', Times, serif;
 }

@@ -29,7 +29,6 @@ export interface Sort {
 
 export class Carro {
     id : number;
-    nome : string;
     quilometragem : number;
     url : string;
     valor : number;

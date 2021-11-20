@@ -48,7 +48,7 @@ public class Carro {
     @ManyToOne
     private Usuario usuario;
 
-    @ManyToMany
-    private List<Combustivel> combustivel = new ArrayList<>();
+    @ManyToOne
+    private Combustivel combustivel;
 
 }

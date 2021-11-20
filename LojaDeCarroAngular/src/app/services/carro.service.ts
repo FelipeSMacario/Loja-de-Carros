@@ -12,11 +12,8 @@ export class CarroService {
 
   url : string = "http://localhost:8080/carro";
    
-  findAllCarros(page? : number) : Observable<Page>{
-    return this.httpClient.get<Page>(`${this.url}?page=${page}`);
-  }
 
-  teste(query? : any) : Observable<Page>{
+  findAllCarros(query? : any) : Observable<Page>{
     return this.httpClient.get<Page>(`${this.url}/search?${query}`);
   }
 
@@ -32,8 +29,6 @@ export class CarroService {
     return this.httpClient.get<Carro>(`${this.url}/${id}`);
   }
 
-  findByQuilometragem(valor : number) : Observable<Carro[]> {
-    return this.httpClient.get<Carro[]>(`${this.url}/Quilometragem/${valor}`);
-  }
+
 
 }
