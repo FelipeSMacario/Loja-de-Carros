@@ -91,8 +91,6 @@ export class ComprasComponent implements OnInit {
     })
   }
 
-  atualizaFiltro(){
-    this.atualizaParametros();
-  }
+
 }
 

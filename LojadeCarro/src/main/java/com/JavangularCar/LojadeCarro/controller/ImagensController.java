@@ -19,6 +19,7 @@ public class ImagensController {
     public Imagens createImagens(@RequestBody Imagens imagens){
         return imagensService.createImagem(imagens);
     }
+
     @GetMapping
     public List<Imagens> listarImagens(){
         return imagensService.listarImagens();
