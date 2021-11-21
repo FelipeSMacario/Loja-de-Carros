@@ -47,5 +47,9 @@ export class DetalhesComponent implements OnInit {
     })
   }
 
+  abc(){
+    console.log(this.kit);
+  }
+
 }
 

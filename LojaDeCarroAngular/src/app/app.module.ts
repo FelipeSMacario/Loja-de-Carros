@@ -30,6 +30,7 @@ import { FormsModule } from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import { CadastroComponent } from './cadastro/cadastro.component';
 import { UploadArquivosComponent } from './vendas/upload-arquivos/upload-arquivos.component';
+import { ListarKitComponent } from './vendas/listar-kit/listar-kit.component';
 
 @NgModule({
   declarations: [
@@ -48,6 +49,7 @@ import { UploadArquivosComponent } from './vendas/upload-arquivos/upload-arquivo
     PaginacaoComponent,
     CadastroComponent,
     UploadArquivosComponent,
+    ListarKitComponent,
 
   ],
   imports: [

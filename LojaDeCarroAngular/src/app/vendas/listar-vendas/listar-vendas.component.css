@@ -16,7 +16,73 @@
 
 .titulo{
     display: block;
+    
     text-align: center;    
     font-size: 30px;
     font-family: Georgia, 'Times New Roman', Times, serif;
+    margin-bottom: 10px;
 }
+
+.divGeral .larguraCampos{
+    height: 40px;
+    width: 50%;
+    background-color: #282828;
+    color: #DAA520;
+    border: #DAA520 solid 1px;
+    border-radius: 10px;
+    -webkit-appearance: button;
+}
+
+.divGeral .larguraCampos::placeholder{
+    padding-left: 15px;
+    color: #DAA520;
+}
+
+.divGeral .margimCampos{
+   margin-left: 20px;
+}
+
+.divGeral{
+    display: flex;
+    margin-top: 10px;
+    margin-bottom: 30px;       
+}
+
+.botaoDIV{
+    display: block;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.botaoDIV .botao{
+    background-color: #282828;
+    font-size: 25px;
+    border: #DAA520 2px solid;
+    color: #DAA520;
+    height: 40px;
+    width: 30%;
+}
+
+.botaoDIV .botao:hover{
+    transition-duration: 1s;
+    background-color: #DAA520;
+    font-size: 25px;
+    border: #bcbcbc 2px solid;
+    color: #282828;
+    height: 40px;
+    width: 30%;
+}
+
+::ng-deep .customClass > a {
+    border: #DAA520 solid 1px !important;
+    background-color: #282828 !important;
+    color: #DAA520 !important;    
+}
+
+::ng-deep .customClass > d{
+    border: #DAA520 solid 1px !important;
+    background-color: red !important;
+    color: #DAA520 !important;    
+}
+
+

@@ -48,6 +48,7 @@ public class Carro {
     @ManyToOne
     private Usuario usuario;
 
+
     @ManyToOne
     private Combustivel combustivel;
 

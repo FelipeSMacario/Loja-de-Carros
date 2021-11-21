@@ -1,87 +1,125 @@
 <div class="conteudo">
+  <div class="container">
+    <form [formGroup]="formulario" class="form" (ngSubmit)="cadastrarCarro()">
+      <label class="titulo">Cadastro do veículo</label>
+      
+      <tabset>
+        <tab heading="Veículo" customClass="customClass">
+          <div class="marcaModelo divGeral">
+            <select
+              class="form-select larguraCampos"
+              formControlName="marca"
+              (change)="listarModelos(formulario.value.marca.id)"
+            >
+              <option value="null" disabled selected>
+                Selecione a marca do veículo
+              </option>
+              <option *ngFor="let marc of marca" [ngValue]="marc">
+                {{ marc.nome }}
+              </option>
+            </select>
 
-    <div class="container">
+            <select
+              class="form-select larguraCampos margimCampos"
+              formControlName="modelo"
+            >
+              <option value="null" disabled selected>
+                Selecione o modelo do veículo
+              </option>
+              <option *ngFor="let model of modelo" [ngValue]="model">
+                {{ model.nome }}
+              </option>
+            </select>
+          </div>
 
-        <form [formGroup]="formulario" class="form">
-            <label class="titulo">Cadastro do veículo</label>
+          <div class="quilometragemValor divGeral">
+            <input
+              class="valores larguraCampos"
+              type="number"
+              formControlName="quilometragem"
+              placeholder="Digite a quilometragem do veículo"
+            />
 
-            <div class="marcaModelo">
-                <select class="form-select campoSelect"formControlName="marca" (change)="listarModelos(formulario.value.marca.id)">
-                
-                <option value="null" disabled selected>Marca</option>
-                <option *ngFor="let marc of marca" [ngValue]="marc">
-                  {{ marc.nome }}
-                </option>
-              </select>
+            <input
+              class="valores larguraCampos margimCampos"
+              type="number"
+              formControlName="valor"
+              placeholder="Digite o valor desejado pelo veículo"
+            />
+          </div>
 
+          <div class="motorPlaca divGeral">
+            <input
+              class="valores larguraCampos"
+              type="text"
+              formControlName="motor"
+              placeholder="Digite a descrição de seu motor"
+            />
 
-              <select class="form-select campoSelect" formControlName="modelo">
-                <option value="null" disabled selected>Modelo</option>
-                <option *ngFor="let model of modelo" [ngValue]="model">
-                  {{ model.nome }}
-                </option>
-              </select>
+            <input
+              class="valores larguraCampos margimCampos"
+              type="text"
+              formControlName="placa"
+              placeholder="Digite a sua placa"
+            />
+          </div>
 
-            </div>  
-            
-            <div class="quilometragemValor">
-                <label>Quilometragem</label>
-                <input type="number" placeholder="Digite a quilometragem do veículo">
+          <div class="anoFabricaCombustivel divGeral">
+            <input
+              type="number"
+              class="valores larguraCampos"
+              formControlName="anoFabricacao"
+              placeholder="Digite o ano da fabricação do veículo"
+            />
 
-                <label>Valor</label>
-                <input type="number" placeholder="Valor o valor do veículo">
+            <select
+              class="form-select valores larguraCampos margimCampos"
+              formControlName="combustivel"
+            >
+              <option value="null" disabled selected>
+                Selecione seu combustivel
+              </option>
+              <option *ngFor="let comb of combustivel" [ngValue]="comb">
+                {{ comb.nome }}
+              </option>
+            </select>
+          </div>
 
-            </div>
+          <div class="CarroceriaCores divGeral">
+            <select
+              class="form-select campoSelect larguraCampos"
+              formControlName="cores"
+            >
+              <option value="null" disabled selected>
+                Selecione a cor do veículo
+              </option>
+              <option *ngFor="let cor of cores" [ngValue]="cor">
+                {{ cor.nome }}
+              </option>
+            </select>
 
-            <div class="motorPlaca">
-                <label>Motor</label>
-                <input type="text" placeholder="Digite a descrição de seu motor">
+            <select
+              class="form-select larguraCampos margimCampos"
+              formControlName="carroceria"
+            >
+              <option value="null" disabled selected>
+                Selecione o tipo da carroceria do seu veículo
+              </option>
+              <option *ngFor="let carr of carroceria" [ngValue]="carr">
+                {{ carr.nome }}
+              </option>
+            </select>
+          </div>
+        </tab>
 
-                <label>Placa</label>
-                <input type="text" placeholder="Digite a sua placa">
+        <tab heading="Detahes do veículo" customClass="customClass">
+          <app-listar-kit></app-listar-kit>
+        </tab>
+      </tabset>
 
-            </div>
-            
-            <div class="anoFabricaCombustivel">
-
-                <label>Ano da Fabricação</label>
-                <input type="number" placeholder="Digite o ano da fabricação do veículo">
-
-                
-              <select class="form-select campoSelect" formControlName="combustivel">
-                <option value="null" disabled selected>Selecione seu combustivel</option>
-                <option *ngFor="let comb of combustivel" [ngValue]="comb">
-                  {{ comb.nome }}
-                </option>
-              </select>             
-
-            </div>
-
-            <div class="CarroceriaCores">
-
-              <select class="form-select campoSelect" formControlName="cores">
-                <option value="null" disabled selected>Selecione a cor do veículo</option>
-                <option *ngFor="let comb of combustivel" [ngValue]="comb">
-                  {{ comb.nome }}
-                </option>
-              </select>     
-
-              <select class="form-select campoSelect" formControlName="carroceria">
-                <option value="null" disabled selected>Selecione o tipo da carroceria do seu veículo</option>
-                <option *ngFor="let comb of combustivel" [ngValue]="comb">
-                  {{ comb.nome }}
-                </option>
-              </select>     
-
-            </div>
-    
-        </form>
-    
-    
-    
-    </div>
-
-
-
+      <div class="botaoDIV">
+        <button class="botao" type="submit" >Cadastrar</button>
+      </div>
+    </form>
+  </div>
 </div>
-

@@ -17,18 +17,17 @@ export class CarroService {
     return this.httpClient.get<Page>(`${this.url}/search?${query}`);
   }
 
-  filtrarCarros(marca : string) : Observable<Page> {
-    return this.httpClient.get<Page>(`${this.url}/search?marca=${marca}`)
-  }
-
-  findMarca(marca : string) : Observable<Carro[]>{
-    return this.httpClient.get<Carro[]>(`${this.url}/Marca/${marca}`);
-  }
-
   findCarroById(id : number) : Observable<Carro> {
     return this.httpClient.get<Carro>(`${this.url}/${id}`);
   }
 
-
+  cadastrarCarro(carro : Carro) : Observable<Carro>{
+    if(carro.id) {
+      return this.httpClient.put<Carro>(`${this.url}/${carro.id}`,carro);
+    }
+    else {
+      return this.httpClient.post<Carro>(`${this.url}`,carro);
+    }
+  }
 
 }

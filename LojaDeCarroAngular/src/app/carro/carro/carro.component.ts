@@ -16,6 +16,7 @@ export class CarroComponent implements OnInit {
 
   id : number;
   imagens : Imagens[] = [];
+  imgdefault : string = "../../../assets/images/semImagem.jpg";
 
   constructor(
     

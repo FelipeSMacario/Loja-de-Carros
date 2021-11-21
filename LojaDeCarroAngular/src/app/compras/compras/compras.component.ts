@@ -13,7 +13,7 @@ import { distinctUntilChanged, take } from 'rxjs/operators';
 export class ComprasComponent implements OnInit {
   page: Page;
   carro: Carro[] = [];
-
+  imgdefault : string = "../../../assets/images/semImagem.jpg"
   filterCarro: Carro[] = [];
   elementoTotal: number;
   itemPagina: number;
