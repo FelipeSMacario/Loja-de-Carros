@@ -4,8 +4,17 @@
       <img class="imagemCarousel" [src]="img.url">
       
     </slide>
+    <div *ngIf="imagens.length == 0">
+      <div class="label">
+        <label class="labelAltura">Selecione as fotos para o veículo</label>
+        <app-upload-arquivos></app-upload-arquivos>
 
-    <img *ngIf="imagens.length == 0" class="imagemCarousel" [src]="imgdefault">
+        
+      </div>      
+      <img  class="semImagem" [src]="imgdefault">    
+      
+    </div>
+    
     
   </carousel>
 

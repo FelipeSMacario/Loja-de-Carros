@@ -1,0 +1,12 @@
+<div class="input-group mb-3">
+    <input type="file" multiple class="form-control" id="inputGroupFile02" (change)="onChange($event)">
+    <label class="input-group-text" for="inputGroupFile02" id="customFileLabel">
+      <mat-icon class="botaoEntrada">add_circle_outline</mat-icon>
+    </label>
+</div>
+<div style="margin-top: 10px">
+  <button class="btn" [disabled]="!files" (click)="onUpload()">Enviar</button>
+
+</div>
+
+<button (click)="cliquei()">cliquei</button>

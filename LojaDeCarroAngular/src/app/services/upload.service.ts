@@ -1,22 +1,30 @@
 import { HttpClient, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { Carro } from '../models/Carro.model';
+import { Imagens } from '../models/imagens.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class UploadService {
 
-  url : string = "http://localhost:8080/modelo";
+  url : string = "http://localhost:8080/imagens";
 
   constructor(private httpClient : HttpClient) { }
 
-  upload(files : Set<File>, url : string) {
+  upload(files : Set<File>, id : number) {
 
     const formData = new FormData();
-    files.forEach(file => formData.append("file", file, file.name));
+    files.forEach(file => formData.append("file", file, file.name));  
+    formData.append("id", id.toString());    
 
     const request = new HttpRequest("POST", this.url, formData);
 
     return this.httpClient.request(request);
-  }
+  }  
+
+  
+  
+  
 }

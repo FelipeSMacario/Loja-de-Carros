@@ -1,5 +1,7 @@
 package com.JavangularCar.LojadeCarro.service;
 
+import ch.qos.logback.core.joran.util.StringToObjectConverter;
+import com.JavangularCar.LojadeCarro.model.Carro;
 import com.JavangularCar.LojadeCarro.model.Imagens;
 import com.JavangularCar.LojadeCarro.repository.ImagensRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,16 +9,27 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @Service
 public class ImagensService {
     @Autowired
     ImagensRepository imagensRepository;
+    Carro carro;
 
-    public Imagens createImagem(@RequestBody Imagens imagens) {
-        return imagensRepository.save(imagens);
+    public void createImagem(Imagens imagens, MultipartFile files, Long id2) throws IOException {
+        String cliente = "Felipe";
+        new File("D:\\TesteArquivoJava\\" + cliente).mkdirs();
+        files.transferTo(new File("D:\\TesteArquivoJava\\" + cliente + "\\" + files.getOriginalFilename()));
+
+        imagens.setUrl("D:/TesteArquivoJava/" + cliente + "/" + files.getOriginalFilename());
+
+        imagensRepository.save(imagens);
+
     }
 
     public List<Imagens> listarImagens() {
@@ -39,11 +52,16 @@ public class ImagensService {
                     return ResponseEntity.ok().body(update);
                 }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
-    public ResponseEntity deleteImagens(Long id){
+
+    public ResponseEntity deleteImagens(Long id) {
         return imagensRepository.findById(id)
-                                            .map(record -> {
-                                                imagensRepository.deleteById(id);
-                                                return ResponseEntity.ok().build();
-                                            }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(record -> {
+                    imagensRepository.deleteById(id);
+                    return ResponseEntity.ok().build();
+                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    }
+
+    public void updateEstoque(Long idCarro,  Long idImagem){
+        imagensRepository.updateEstoque(idCarro, idImagem);
     }
 }

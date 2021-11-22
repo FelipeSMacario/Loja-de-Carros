@@ -3,7 +3,6 @@ import { ActivatedRoute } from '@angular/router';
 import { take } from 'rxjs/operators';
 import { Carro } from 'src/app/models/Carro.model';
 import { Imagens } from 'src/app/models/imagens.model';
-import { CarroService } from 'src/app/services/carro.service';
 import { ImagensService } from 'src/app/services/imagens.service';
 
 
@@ -31,10 +30,9 @@ export class CarroComponent implements OnInit {
   }
 
   listarImagens(){
-    this.imagensService.findAllImagens().subscribe({
+    this.imagensService.findAllImagens().pipe(take(1)).subscribe({
       next : imagens => {
         this.imagens = imagens.filter(imagens => imagens.carro.id == this.id);
-        console.log(this.imagens)
         },
       error : err => console.log(err)
     } )    

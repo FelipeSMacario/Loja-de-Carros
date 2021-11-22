@@ -9,6 +9,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -19,8 +21,9 @@ public class CarroController {
     CarroService carroService;
 
     @PostMapping
-    public Carro createCarro(@RequestBody Carro carro) {
-        return carroService.createCarro(carro);
+    public void createCarro(@RequestBody Carro carro) {
+        carroService.createCarro(carro);
+        new File("D:\\TesteArquivoJava\\" + carro.getId()).mkdirs();
     }
 
     @GetMapping

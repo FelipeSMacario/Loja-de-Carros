@@ -13,3 +13,28 @@
     margin-top: 2px;
     margin-bottom: 10px;
 }
+
+.semImagem{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    height: 300px;
+    width: 100%;
+    border: solid #DAA520 4px;
+}
+.label{
+    margin-top: 10px;
+    color: #DAA520;
+    text-shadow: #282828 1px 1px 1px;
+}
+
+.label .botaoEntrada{
+    margin-left: 4px !important;       
+    font-size: 28px !important;
+    
+}
+.label .labelAltura{
+    font-size: 35px;
+    margin-top: 0px;
+    
+}
+
