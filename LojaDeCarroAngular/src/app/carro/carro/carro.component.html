@@ -2,22 +2,15 @@
   <carousel [pauseOnFocus]="true" >
     <slide *ngFor="let img of imagens">
       <img class="imagemCarousel" [src]="img.url">
-      
     </slide>
     <div *ngIf="imagens.length == 0">
       <div class="label">
         <label class="labelAltura">Selecione as fotos para o veículo</label>
-        <app-upload-arquivos></app-upload-arquivos>
-
-        
+        <app-upload-arquivos></app-upload-arquivos>        
       </div>      
-      <img  class="semImagem" [src]="imgdefault">    
-      
+      <img  class="semImagem" [src]="imgdefault">        
     </div>
-    
-    
   </carousel>
-
 </div>
 
 <div class="detalhes">

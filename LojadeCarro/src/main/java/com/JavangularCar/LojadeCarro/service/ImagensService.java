@@ -23,9 +23,9 @@ public class ImagensService {
     public void createImagem(Imagens imagens, MultipartFile files, Long id2) throws IOException {
         String cliente = id2.toString();
         new File("D:\\TesteArquivoJava\\" + cliente).mkdirs();
-        files.transferTo(new File("D:\\TesteArquivoJava\\" + cliente + "\\" + files.getOriginalFilename()));
+        files.transferTo(new File("D:\\Loja de carro\\LojaDeCarroAngular\\src\\assets\\TesteArquivoJava\\" + cliente + "\\" + files.getOriginalFilename()));
 
-        imagens.setUrl("D:/TesteArquivoJava/" + cliente + "/" + files.getOriginalFilename());
+        imagens.setUrl("../../../assets/TesteArquivoJava/" + cliente + "/" + files.getOriginalFilename());
 
         imagensRepository.save(imagens);
 
@@ -62,5 +62,9 @@ public class ImagensService {
 
     public void updateEstoque(Long idCarro,  Long idImagem){
         imagensRepository.updateEstoque(idCarro, idImagem);
+    }
+
+    public void imagemCarroDefault(String urlDefault, Long idCarro) {
+        imagensRepository.imagemCarroDefault(urlDefault, idCarro);
     }
 }

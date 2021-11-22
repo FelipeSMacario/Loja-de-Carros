@@ -31,9 +31,12 @@
 }
 
 .imagemCard{
-    padding: 5px;
+    margin-top: 2px;
+    margin-left: 5px;
+    margin-right: 5px;
     height: 200px;
-    width: 100%;
+    width: 97%;
+    border: 1px #DAA520 solid;
 }
 
 .cardButton{
@@ -60,9 +63,7 @@
     font-family:'Times New Roman', Times, serif;
     font-size: 20px;
     font-weight: bold;
-    border-color: #DAA520;
-    border-width: .5px;
-    border-style: solid;
+    border: #DAA520 solid 2px;
     background-color: #282828;
     color: #DAA520;
 }

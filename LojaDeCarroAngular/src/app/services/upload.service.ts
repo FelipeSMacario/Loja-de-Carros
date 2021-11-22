@@ -1,8 +1,5 @@
 import { HttpClient, HttpRequest } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
-import { Carro } from '../models/Carro.model';
-import { Imagens } from '../models/imagens.model';
 
 @Injectable({
   providedIn: 'root'

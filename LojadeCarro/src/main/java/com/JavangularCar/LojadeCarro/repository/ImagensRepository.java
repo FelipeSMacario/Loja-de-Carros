@@ -1,6 +1,5 @@
 package com.JavangularCar.LojadeCarro.repository;
 
-import com.JavangularCar.LojadeCarro.model.Carro;
 import com.JavangularCar.LojadeCarro.model.Imagens;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -17,4 +16,9 @@ public interface ImagensRepository extends JpaRepository<Imagens, Long> {
     @Transactional
     @Query(value = "UPDATE lojadecarro.imagens SET carro_id = :idCarro WHERE id = :idImagem", nativeQuery = true)
     void updateEstoque(@Param("idCarro") Long idCarro, @Param("idImagem") Long idImagem);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE lojadecarro.carro SET url = :urlDefault WHERE id = :idCarro", nativeQuery = true)
+    void imagemCarroDefault(@Param("urlDefault") String urlDefault, @Param("idCarro") Long idCarro);
 }

@@ -23,9 +23,19 @@ public class ImagensController {
     public void createImagens(@RequestParam("file") MultipartFile[] file, @RequestParam("id")String id) throws IOException {
         for (int c = 0; c < file.length; c ++){
             Imagens imagens = new Imagens();
+
+            //Converter a do carro enviada pelo FORMDATA do angular ID de String para LONG
             Long id2 = Long.parseLong(id);
+
             imagensService.createImagem(imagens, file[c], id2);
+
+            //Função que insere o id do carro após a criação da imagem
             imagensService.updateEstoque(id2, imagens.getId());
+
+            //Função que filtra a primeira imagem inserida e define como imagem Default no carro
+            if (c == 0) {
+                imagensService.imagemCarroDefault(imagens.getUrl(), id2);
+            }
         }
     }
 
