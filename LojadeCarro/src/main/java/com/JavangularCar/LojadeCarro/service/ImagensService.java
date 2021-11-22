@@ -19,10 +19,9 @@ import java.util.List;
 public class ImagensService {
     @Autowired
     ImagensRepository imagensRepository;
-    Carro carro;
 
     public void createImagem(Imagens imagens, MultipartFile files, Long id2) throws IOException {
-        String cliente = "Felipe";
+        String cliente = id2.toString();
         new File("D:\\TesteArquivoJava\\" + cliente).mkdirs();
         files.transferTo(new File("D:\\TesteArquivoJava\\" + cliente + "\\" + files.getOriginalFilename()));
 
