@@ -21,9 +21,9 @@ public class CarroController {
     CarroService carroService;
 
     @PostMapping
-    public void createCarro(@RequestBody Carro carro) {
-        carroService.createCarro(carro);
-        new File("D:\\TesteArquivoJava\\" + carro.getId()).mkdirs();
+    public Carro createCarro(@RequestBody Carro carro) {
+       return carroService.createCarro(carro);
+
     }
 
     @GetMapping

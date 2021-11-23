@@ -22,7 +22,7 @@ public class ImagensService {
 
     public void createImagem(Imagens imagens, MultipartFile files, Long id2) throws IOException {
         String cliente = id2.toString();
-        new File("D:\\TesteArquivoJava\\" + cliente).mkdirs();
+        new File("D:\\Loja de carro\\LojaDeCarroAngular\\src\\assets\\TesteArquivoJava\\" + cliente).mkdirs();
         files.transferTo(new File("D:\\Loja de carro\\LojaDeCarroAngular\\src\\assets\\TesteArquivoJava\\" + cliente + "\\" + files.getOriginalFilename()));
 
         imagens.setUrl("../../../assets/TesteArquivoJava/" + cliente + "/" + files.getOriginalFilename());

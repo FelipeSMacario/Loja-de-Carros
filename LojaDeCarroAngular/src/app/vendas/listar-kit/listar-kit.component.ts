@@ -42,7 +42,7 @@ export class ListarKitComponent implements OnInit {
       });
   }
 
-  digitaCarro(carro: Object) {
-    console.log(carro);
+  digitaCarro() {
+    console.log(this.formCheck.value);
   }
 }

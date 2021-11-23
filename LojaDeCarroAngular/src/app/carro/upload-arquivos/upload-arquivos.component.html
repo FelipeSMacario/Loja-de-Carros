@@ -1,0 +1,13 @@
+<div class="input-group divInput">
+    <input type="file" multiple class="form-control" id="inputGroupFile02" (change)="onChange($event)">
+    <label class="input-group-text divbotao btn" for="inputGroupFile02" id="customFileLabel">
+      <mat-icon class="botaoEntrada">add_circle_outline</mat-icon>
+    </label>
+    <div class="tamanhoFonte">
+      {{nomeArquivo}}
+    </div>
+</div>
+
+<div *ngIf="size > 0" style="margin-top: 10px">
+  <button class="btn botaoEvniar" (click)="onUpload()">Enviar</button>
+</div>

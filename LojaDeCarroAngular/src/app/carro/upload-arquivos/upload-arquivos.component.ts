@@ -17,6 +17,8 @@ export class UploadArquivosComponent implements OnInit {
   formulario : FormGroup;
   id : number;
   carro : Carro;
+  size : number;
+  nomeArquivo : string;
 
   constructor(
     private uploadService : UploadService,
@@ -61,8 +63,8 @@ export class UploadArquivosComponent implements OnInit {
       this.files.add(selectedFiles[c]);
     }
 
-    document.getElementById("customFileLabel")?.innerHTML == fileNames.join(", ");  
-    console.log(fileNames)
+    this.nomeArquivo = fileNames.join(", ");  
+    this.size = this.files.size;
   }
 
   onUpload(){

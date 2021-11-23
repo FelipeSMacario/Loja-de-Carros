@@ -1,0 +1,29 @@
+input[type='file'] {
+    display: none
+}
+
+.divbotao .botaoEntrada{
+    color : #DAA520;   
+    font-size: 40px;     
+    height: 100%;
+    width: 100%;
+}
+
+.botaoEvniar{
+    border: #DAA520 solid 3px;
+    background-color: #282828 !important;
+    
+    color: #DAA520;
+}
+.botaoEvniar:hover{
+    border: #282828 solid 3px;
+    background-color: #DAA520 !important;
+    color: #282828;
+}
+
+.tamanhoFonte{
+    margin-top: 15px;
+    margin-right: 50px;
+    color: #DAA520;
+    font-size: 15px;
+}

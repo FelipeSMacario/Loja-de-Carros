@@ -131,19 +131,19 @@ export class ListarVendasComponent implements OnInit {
       .cadastrarCarro(this.formulario.value)
       .pipe(take(1))
       .subscribe({
-        next: (car) => {
-          console.log('Cadastrado com sucesso principal', car);
-          this.carro = car;                 
+        next: (carro) => {
+          console.log('Cadastrado com sucesso principal', carro);
+          this.carro = carro;                         
         },
         error: (err) => console.log(err),
       }); 
 
       const valorAsync = new Promise((resolve, reject) => {
-        setTimeout(() => resolve(this.atualizaKit()), 1000)
+        setTimeout(() => resolve(this.atualizaKit()), 5000)
       });
   }
 
   atualizaKit(){
-    this.child.cadastrarKit(this.carro); 
+    this.child.cadastrarKit(this.carro);
   }
 }

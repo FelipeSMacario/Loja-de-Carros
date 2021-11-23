@@ -29,7 +29,7 @@ import { PaginacaoComponent } from './shared/paginacao/paginacao.component';
 import { FormsModule } from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
 import { CadastroComponent } from './cadastro/cadastro.component';
-import { UploadArquivosComponent } from './shared/upload-arquivos/upload-arquivos.component';
+import { UploadArquivosComponent } from './carro/upload-arquivos/upload-arquivos.component';
 import { ListarKitComponent } from './vendas/listar-kit/listar-kit.component';
 
 @NgModule({
