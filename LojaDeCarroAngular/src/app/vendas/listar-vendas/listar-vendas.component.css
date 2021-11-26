@@ -31,7 +31,7 @@
     color: #DAA520;
     border: #DAA520 solid 1px;
     border-radius: 10px;
-    -webkit-appearance: button;
+    
 }
 
 .divGeral .larguraCampos::placeholder{
@@ -85,5 +85,11 @@
     background-color: red !important;
     color: #DAA520 !important;    
 }
+
+.selectCor{
+    height: 40px;
+    width: 50%;
+}
+
 
 

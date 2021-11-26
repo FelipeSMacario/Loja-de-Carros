@@ -19,6 +19,7 @@ import { ListarKitComponent } from '../listar-kit/listar-kit.component';
   selector: 'app-listar-vendas',
   templateUrl: './listar-vendas.component.html',
   styleUrls: ['./listar-vendas.component.css'],  
+  
 })
 
 export class ListarVendasComponent implements OnInit {
@@ -84,14 +85,14 @@ export class ListarVendasComponent implements OnInit {
       });
   }
 
-  listarModelos(valor: number): void {
+  listarModelos(e: number): void {
     this.formulario.controls.modelo.setValue(null);
     this.modeloService
       .findAllModelos()
       .pipe(take(1))
       .subscribe({
         next: (modelo) =>
-          (this.modelo = modelo.filter((model) => model.marca.id === valor)),
+          (this.modelo = modelo.filter((model) => model.marca.id === e)),
         error: (err) => console.log(err),
       });
   }
@@ -145,5 +146,13 @@ export class ListarVendasComponent implements OnInit {
 
   atualizaKit(){
     this.child.cadastrarKit(this.carro);
+  }
+
+  abc(){
+    console.log(this.formulario.value)
+  }
+
+  abcd(e){
+    console.log(e)
   }
 }

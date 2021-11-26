@@ -1,6 +1,14 @@
-<mat-form-field appearance="fill" floatLabel="always">
-    <mat-label>Amount</mat-label>
-    <input matInput type="number" class="example-right-align" placeholder="0">
-    <span matPrefix>$&nbsp;</span>
-    <span matSuffix>.00</span>
+<div [formGroup]="formGroup">
+  <mat-form-field appearance="fill" floatLabel="always">
+    <mat-label>{{label}}</mat-label>
+    <input 
+    matInput type="number" 
+    [formControlName]="ControlName"
+    class="example-right-align" 
+    [min]="min" 
+    [placeholder]="placeholder"
+    [step]="step">
+    <span matPrefix>{{prefixo}}&nbsp;</span>
   </mat-form-field>
+</div>
+

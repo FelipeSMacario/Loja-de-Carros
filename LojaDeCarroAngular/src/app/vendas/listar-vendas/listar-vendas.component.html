@@ -2,113 +2,102 @@
   <div class="container">
     <form [formGroup]="formulario" class="form" (ngSubmit)="cadastrarCarro()">
       <label class="titulo">Cadastro do veículo</label>
-      
+
       <tabset>
         <tab heading="Veículo" customClass="customClass">
           <div class="marcaModelo divGeral">
-            <select
-              class="form-select larguraCampos"
-              formControlName="marca"
-              (change)="listarModelos(formulario.value.marca.id)"
-            >
-              <option value="null" disabled selected>
-                Selecione a marca do veículo
-              </option>
-              <option *ngFor="let marc of marca" [ngValue]="marc">
-                {{ marc.nome }}
-              </option>
-            </select>
+            <app-input-select
+              class="selectCor"
+              label="Selecione a marca do veículo"
+              [formGroup]="formulario"
+              ControlName="marca"
+              [Objeto]="marca"
+              (modelo)="listarModelos($event)"
+              ></app-input-select>
 
-            <select
-              class="form-select larguraCampos margimCampos"
-              formControlName="modelo"
-            >
-              <option value="null" disabled selected>
-                Selecione o modelo do veículo
-              </option>
-              <option *ngFor="let model of modelo" [ngValue]="model">
-                {{ model.nome }}
-              </option>
-            </select>
+            <app-input-select
+              class="selectCor"
+              label="Selecione o modelo do veículo"
+              [formGroup]="formulario"
+              ControlName="modelo"
+              [Objeto]="modelo"
+            ></app-input-select>
           </div>
 
           <div class="quilometragemValor divGeral">
-            <input
-              class="valores larguraCampos"
-              type="number"
-              formControlName="quilometragem"
+            <app-input-number
+              class="selectCor"
+              [formGroup]="formulario"
+              ControlName="quilometragem"
               placeholder="Digite a quilometragem do veículo"
-            />
+              min="0"
+              step="1000"
+              prefixo="KM"
+            ></app-input-number>
 
-            <input
-              class="valores larguraCampos margimCampos"
-              type="number"
-              formControlName="valor"
+            <app-input-number
+              class="selectCor"
+              [formGroup]="formulario"
+              ControlName="valor"
               placeholder="Digite o valor desejado pelo veículo"
-            />
+              min="5000"
+              step="1000"
+              prefixo="R$"
+            ></app-input-number>
           </div>
 
           <div class="motorPlaca divGeral">
-            <input
-              class="valores larguraCampos"
-              type="text"
-              formControlName="motor"
-              placeholder="Digite a descrição de seu motor"
-            />
+            <app-input-text
+              class="selectCor"
+              label="Digite a descrição de seu motor"
+              ControlName="motor"
+              [formGroup]="formulario"
+            ></app-input-text>
 
-            <input
-              class="valores larguraCampos margimCampos"
-              type="text"
-              formControlName="placa"
-              placeholder="Digite a sua placa"
-            />
+            <app-input-text
+              class="selectCor"
+              label="Digite a sua placa"
+              ControlName="placa"
+              [formGroup]="formulario"
+            ></app-input-text>
           </div>
 
           <div class="anoFabricaCombustivel divGeral">
-            <input
-              type="number"
-              class="valores larguraCampos"
-              formControlName="anoFabricacao"
-              placeholder="Digite o ano da fabricação do veículo"
-            />
 
-            <select
-              class="form-select valores larguraCampos margimCampos"
-              formControlName="combustivel"
-            >
-              <option value="null" disabled selected>
-                Selecione seu combustivel
-              </option>
-              <option *ngFor="let comb of combustivel" [ngValue]="comb">
-                {{ comb.nome }}
-              </option>
-            </select>
+            <app-input-number
+              class="selectCor"
+              [formGroup]="formulario"
+              ControlName="anoFabricacao"
+              placeholder="Digite o ano da fabricação do veículo"
+              min="1961"
+              step="1"
+            ></app-input-number>
+
+            <app-input-select
+            class="selectCor"
+            label="Selecione seu combustível"
+            [formGroup]="formulario"
+            ControlName="combustivel"
+            [Objeto]="combustivel"
+          ></app-input-select>
           </div>
 
           <div class="CarroceriaCores divGeral">
-            <select
-              class="form-select campoSelect larguraCampos"
-              formControlName="cores"
-            >
-              <option value="null" disabled selected>
-                Selecione a cor do veículo
-              </option>
-              <option *ngFor="let cor of cores" [ngValue]="cor">
-                {{ cor.nome }}
-              </option>
-            </select>
+            <app-input-select
+             class="selectCor"
+              label="Selecione a cor do seu veículo"
+              [formGroup]="formulario"
+              ControlName="cores"
+              [Objeto]="cores"
+            ></app-input-select>
 
-            <select
-              class="form-select larguraCampos margimCampos"
-              formControlName="carroceria"
-            >
-              <option value="null" disabled selected>
-                Selecione o tipo da carroceria do seu veículo
-              </option>
-              <option *ngFor="let carr of carroceria" [ngValue]="carr">
-                {{ carr.nome }}
-              </option>
-            </select>
+            <app-input-select
+              class="selectCor"
+              label="Selecione a carroceria do seu veículo"
+              [formGroup]="formulario"
+              ControlName="carroceria"
+              [Objeto]="carroceria"
+            ></app-input-select>
           </div>
         </tab>
 
@@ -118,7 +107,7 @@
       </tabset>
 
       <div class="botaoDIV">
-        <button class="botao" type="submit" >Cadastrar</button>
+        <button class="botao" type="button" (click)="abc()">Cadastrar</button>
       </div>
     </form>
   </div>
