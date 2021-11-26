@@ -5,6 +5,10 @@
     display: grid;
     grid-template-columns: 33%  33% 33%;  
     margin-bottom: 20px;
+    padding-top: 10px;
+    padding-left: 10px;
+    border: #DAA520 2px solid;
+    background-color: #282828;
 }
 
 .formEspaco{

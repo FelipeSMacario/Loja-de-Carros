@@ -31,6 +31,14 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import { CadastroComponent } from './cadastro/cadastro.component';
 import { UploadArquivosComponent } from './carro/upload-arquivos/upload-arquivos.component';
 import { ListarKitComponent } from './vendas/listar-kit/listar-kit.component';
+import {MatDatepickerModule} from '@angular/material/datepicker';
+import {MatNativeDateModule} from '@angular/material/core';
+import { MatInputModule } from '@angular/material/input';
+import { DatePickerComponent } from './shared/angular-form/date-picker/date-picker.component';
+import { EMailComponent } from './shared/angular-form/e-mail/e-mail.component';
+import { InputTextComponent } from './shared/angular-form/input-text/input-text.component';
+import { InputSelectComponent } from './shared/angular-form/input-select/input-select.component';
+import { InputNumberComponent } from './shared/angular-form/input-number/input-number.component';
 
 @NgModule({
   declarations: [
@@ -50,6 +58,11 @@ import { ListarKitComponent } from './vendas/listar-kit/listar-kit.component';
     CadastroComponent,
     UploadArquivosComponent,
     ListarKitComponent,
+    DatePickerComponent,
+    EMailComponent,
+    InputTextComponent,
+    InputSelectComponent,
+    InputNumberComponent,
 
   ],
   imports: [
@@ -67,8 +80,10 @@ import { ListarKitComponent } from './vendas/listar-kit/listar-kit.component';
     MatSliderModule,
     PaginationModule,
     FormsModule,
-    MatFormFieldModule
-    
+    MatFormFieldModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
+    MatInputModule,
   ],
   
   providers: [],

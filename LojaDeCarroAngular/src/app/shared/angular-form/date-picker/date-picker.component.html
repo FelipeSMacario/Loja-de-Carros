@@ -1,0 +1,19 @@
+<div [formGroup]="formGroup">
+
+  <mat-form-field appearance="fill">               
+    <input
+      readonly
+      matInput
+      [placeholder]="placeholder"
+      [formControlName]="ControlName"
+      [matDatepicker]="picker1"
+      (click)="picker1.open()"
+    />
+    <mat-datepicker-toggle
+      matSuffix
+      [for]="picker1"
+    ></mat-datepicker-toggle>
+    <mat-datepicker #picker1></mat-datepicker>
+  </mat-form-field>
+
+</div>

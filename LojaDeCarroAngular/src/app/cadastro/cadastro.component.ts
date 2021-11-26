@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
+import { take } from 'rxjs/operators';
 import { Usuario } from '../models/usuario.model';
 import { UsuarioService } from '../services/usuario.service';
 
@@ -13,7 +14,6 @@ export class CadastroComponent implements OnInit {
   usuario : Usuario = new Usuario();
   usuarios : Usuario[] = [];
   formulario : FormGroup;
-  file : FileList;
 
   constructor(
     private fb : FormBuilder,
@@ -22,18 +22,18 @@ export class CadastroComponent implements OnInit {
 
   ngOnInit(): void {
     this.formulario = this.fb.group({
+      id : [null],
       cpf : [null],
       dtNascimento : [null],
       email : [null],
       nome : [null],
-      url : [null]
     })
   }
-
-  cliquei(){
-    this.file = this.formulario.value.url;
-    console.log(this.file)
-    console.log(this.formulario.value)
+  salvarUsuario(){
+    this.usuarioService.saveUsuario(this.formulario.value).pipe(take(1)).subscribe({
+      next : user => console.log("Cadastrado com sucesso", user),
+      error : err => console.log(err)
+    })
   }
 
 }

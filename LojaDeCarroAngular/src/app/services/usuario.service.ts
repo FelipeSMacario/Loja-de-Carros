@@ -20,7 +20,7 @@ export class UsuarioService {
     return this.httpClient.get<Usuario>(`${this.url}/${id}`);
   }
 
-  saveFabricante(usuario : Usuario) : Observable<Usuario> {
+  saveUsuario(usuario : Usuario) : Observable<Usuario> {
     if(usuario.id) {
       return this.httpClient.put<Usuario>(`${this.url}/${usuario.id}`,usuario);
     }

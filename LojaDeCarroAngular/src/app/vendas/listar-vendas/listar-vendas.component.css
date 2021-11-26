@@ -1,6 +1,6 @@
 
 .conteudo{
-    background-color: #bcbcbc;
+    background-color: #282828;
     padding: 5px;
     height: 100%;
     width: 100%;
@@ -10,14 +10,15 @@
     margin-top: 20px;
     padding: 15px;
     border: solid 1px #DAA520;
-    background-color: #282828;
+    background-color: #bcbcbc;    
     color: #DAA520;
 }
 
 .titulo{
-    display: block;
-    
-    text-align: center;    
+    display: block;    
+    text-align: center;  
+    color: #DAA520;
+    text-shadow: #282828 1px 1px; 
     font-size: 30px;
     font-family: Georgia, 'Times New Roman', Times, serif;
     margin-bottom: 10px;
@@ -67,7 +68,7 @@
     transition-duration: 1s;
     background-color: #DAA520;
     font-size: 25px;
-    border: #bcbcbc 2px solid;
+    border: #282828 2px solid;
     color: #282828;
     height: 40px;
     width: 30%;
