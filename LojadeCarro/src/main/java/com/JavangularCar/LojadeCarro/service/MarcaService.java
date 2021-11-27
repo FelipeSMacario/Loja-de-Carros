@@ -20,7 +20,7 @@ public class MarcaService {
     }
 
     public List<Marca> listarMarcas() {
-        return marcaRepository.findAll();
+        return marcaRepository.findByOrderByNomeAsc();
     }
 
     public ResponseEntity<Marca> findMarcaById(Long id) {

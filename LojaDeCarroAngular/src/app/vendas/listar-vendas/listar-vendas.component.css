@@ -1,10 +1,13 @@
 
 .conteudo{
-    background-color: #282828;
+    background-image: url("../../../assets/images/cadastro.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 1400px;     
     padding: 5px;
-    height: 100%;
     width: 100%;
 }
+
 
 .form{
     margin-top: 20px;
@@ -85,11 +88,12 @@
     background-color: red !important;
     color: #DAA520 !important;    
 }
-
 .selectCor{
-    height: 40px;
+    height: 100px;
     width: 50%;
+    margin-right: 10px;
 }
+
 
 
 

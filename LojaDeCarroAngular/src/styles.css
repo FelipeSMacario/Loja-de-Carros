@@ -3,4 +3,43 @@
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
 
+.mat-select-arrow{
+    color: #DAA520!important;
+}
+.mat-form-field{
+    background-color: #282828 !important;
+    width: 100%;
+    border: #DAA520 1px solid;
+}
+.mat-form-field-label {
+    color: #DAA520 !important;
+}
+.mat-form-field-ripple {
+    background-color: #DAA520!important;
+}
+.mat-select-panel {
+    background: #282828 !important;  
+    border: #DAA520 1px solid;
+}
 
+.mat-select-ripple{
+    background-color: #DAA520!important;
+}
+
+.mat-select-value-text {
+    color: #DAA520 !important;
+}
+
+.mat-option-text{
+    color: #DAA520 !important;
+}
+.mat-input-element::placeholder{
+    padding-left: 2px !important;
+    color: #DAA520 !important;
+    background-color: #282828 !important;
+ }
+
+ .mat-input-element{
+    color: #DAA520 !important;
+    
+ }

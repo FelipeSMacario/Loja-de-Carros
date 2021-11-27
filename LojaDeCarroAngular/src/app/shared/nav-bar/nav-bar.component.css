@@ -1,16 +1,14 @@
-.navmenu{
-    background-color: #282828;
+.navmenu {
+  background-color: #282828;
 }
-.navLetra{
-    color: #DAA520;
-
+.navLetra {
+  color: #daa520;
 }
-.navImagem{
-    height: 80px;
-    width: 60;
-    
+.navImagem {
+  height: 80px;
+  width: 60;
 }
 
-.listaNav li{
-    margin-left: 100px;
+.listaNav li {
+  margin-left: 100px;
 }

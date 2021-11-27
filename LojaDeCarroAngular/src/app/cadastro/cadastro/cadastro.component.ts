@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { take } from 'rxjs/operators';
-import { Usuario } from '../models/usuario.model';
-import { UsuarioService } from '../services/usuario.service';
+import { Usuario } from 'src/app/models/usuario.model';
+import { UsuarioService } from 'src/app/services/usuario.service';
+
 
 @Component({
   selector: 'app-cadastro',

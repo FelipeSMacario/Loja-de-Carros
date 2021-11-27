@@ -28,7 +28,6 @@ import {MatSliderModule} from '@angular/material/slider';
 import { PaginacaoComponent } from './shared/paginacao/paginacao.component';
 import { FormsModule } from '@angular/forms';
 import {MatFormFieldModule} from '@angular/material/form-field';
-import { CadastroComponent } from './cadastro/cadastro.component';
 import { UploadArquivosComponent } from './carro/upload-arquivos/upload-arquivos.component';
 import { ListarKitComponent } from './vendas/listar-kit/listar-kit.component';
 import {MatDatepickerModule} from '@angular/material/datepicker';
@@ -39,6 +38,9 @@ import { EMailComponent } from './shared/angular-form/e-mail/e-mail.component';
 import { InputTextComponent } from './shared/angular-form/input-text/input-text.component';
 import { InputSelectComponent } from './shared/angular-form/input-select/input-select.component';
 import { InputNumberComponent } from './shared/angular-form/input-number/input-number.component';
+import { LoginComponent } from './cadastro/login/login.component';
+import { CadastroComponent } from './cadastro/cadastro/cadastro.component';
+import { InputPasswordComponent } from './shared/angular-form/input-password/input-password.component';
 
 @NgModule({
   declarations: [
@@ -63,6 +65,8 @@ import { InputNumberComponent } from './shared/angular-form/input-number/input-n
     InputTextComponent,
     InputSelectComponent,
     InputNumberComponent,
+    LoginComponent,
+    InputPasswordComponent,
 
   ],
   imports: [

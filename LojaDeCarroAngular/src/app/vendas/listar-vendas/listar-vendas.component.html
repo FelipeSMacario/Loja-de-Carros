@@ -29,7 +29,7 @@
               class="selectCor"
               [formGroup]="formulario"
               ControlName="quilometragem"
-              placeholder="Digite a quilometragem do veículo"
+              label="Digite a quilometragem do veículo"              
               min="0"
               step="1000"
               prefixo="KM"
@@ -39,7 +39,7 @@
               class="selectCor"
               [formGroup]="formulario"
               ControlName="valor"
-              placeholder="Digite o valor desejado pelo veículo"
+              label="Digite o valor desejado pelo veículo"
               min="5000"
               step="1000"
               prefixo="R$"
@@ -68,7 +68,7 @@
               class="selectCor"
               [formGroup]="formulario"
               ControlName="anoFabricacao"
-              placeholder="Digite o ano da fabricação do veículo"
+              label="Digite o ano da fabricação do veículo"
               min="1961"
               step="1"
             ></app-input-number>
@@ -107,7 +107,7 @@
       </tabset>
 
       <div class="botaoDIV">
-        <button class="botao" type="button" (click)="abc()">Cadastrar</button>
+        <button class="botao" type="submit">Cadastrar</button>
       </div>
     </form>
   </div>

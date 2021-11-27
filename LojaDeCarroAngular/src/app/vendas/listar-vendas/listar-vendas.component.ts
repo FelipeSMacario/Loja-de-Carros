@@ -147,12 +147,4 @@ export class ListarVendasComponent implements OnInit {
   atualizaKit(){
     this.child.cadastrarKit(this.carro);
   }
-
-  abc(){
-    console.log(this.formulario.value)
-  }
-
-  abcd(e){
-    console.log(e)
-  }
 }

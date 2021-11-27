@@ -5,8 +5,7 @@ import { Objeto } from './objetc.model';
 @Component({
   selector: 'app-input-select',
   templateUrl: './input-select.component.html',
-  styleUrls: ['./input-select.component.css'],
-  encapsulation: ViewEncapsulation.None
+  styleUrls: ['./input-select.component.css']
 })
 export class InputSelectComponent {
 

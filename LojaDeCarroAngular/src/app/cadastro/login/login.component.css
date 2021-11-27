@@ -1,0 +1,32 @@
+.conteudo{
+    background-image: url("../../../assets/images/cadastro2.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 1400px;     
+ }
+.form{
+    padding: 15px;
+    width: 700px;
+    border: solid 1px #DAA520;
+    background-color: #bcbcbc;
+    color: #DAA520;
+}
+.botaoDIV{
+    display: block;
+    text-align: center;
+}
+.botao{
+    text-align: center;
+    background-color: #282828;
+    height: 60px;
+    width: 150px;
+    font-size: 20px;
+    border: #DAA520 2px solid;
+    color: #DAA520;
+}
+.botao:hover{
+    transition-duration: 1s;
+    background-color: #DAA520;
+    border: #282828 2px solid;
+    color: #282828;
+}
