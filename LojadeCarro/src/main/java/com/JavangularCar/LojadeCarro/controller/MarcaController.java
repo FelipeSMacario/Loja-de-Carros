@@ -5,12 +5,14 @@ import com.JavangularCar.LojadeCarro.service.MarcaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("marca")
+@EnableSwagger2
 public class MarcaController {
 
     @Autowired

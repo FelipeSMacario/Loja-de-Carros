@@ -2,20 +2,28 @@ package com.JavangularCar.LojadeCarro.service;
 
 import com.JavangularCar.LojadeCarro.model.Usuario;
 import com.JavangularCar.LojadeCarro.repository.UsuarioRepository;
+import com.JavangularCar.LojadeCarro.security.WebSecurityConfig;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
 @Service
+@Component
 public class UsuarioService {
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
     public Usuario createUsuario(@RequestBody Usuario usuario) {
+        usuario.setPassword(encoder.encode(usuario.getPassword()));
         return usuarioRepository.save(usuario);
     }
 
@@ -36,6 +44,11 @@ public class UsuarioService {
                                     record.setCpf(usuario.getCpf());
                                     record.setDtNascimento(usuario.getDtNascimento());
                                     record.setNome(usuario.getNome());
+                                    record.setEmail(usuario.getEmail());
+                                    record.setPassword(encoder.encode(usuario.getPassword()));
+                                    String senhaCripto = new BCryptPasswordEncoder().encode(usuario.getPassword());
+                                    System.out.println(senhaCripto);
+
                                     Usuario update = usuarioRepository.save(record);
                                     return ResponseEntity.ok().body(update);
                                 }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
