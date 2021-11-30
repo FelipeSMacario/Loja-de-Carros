@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
@@ -18,8 +19,11 @@ public class UsuarioService {
     @Autowired
     UsuarioRepository usuarioRepository;
 
+    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+
+
     public Usuario createUsuario(@RequestBody Usuario usuario) {
-       // usuario.setPassword(encoder.encode(usuario.getPassword()));
+        usuario.setPassword(encoder.encode(usuario.getPassword()));
         return usuarioRepository.save(usuario);
     }
 
@@ -41,7 +45,7 @@ public class UsuarioService {
                                     record.setDtNascimento(usuario.getDtNascimento());
                                     record.setNome(usuario.getNome());
                                     record.setEmail(usuario.getEmail());
-
+                                    record.setPassword(encoder.encode(usuario.getPassword()));
                                     Usuario update = usuarioRepository.save(record);
                                     return ResponseEntity.ok().body(update);
                                 }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
