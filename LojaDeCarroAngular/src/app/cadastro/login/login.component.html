@@ -1,8 +1,8 @@
 <div class="conteudo">
   <div class="container">
     <form class="form">
-      <app-e-mail></app-e-mail>
-      <app-input-password></app-input-password>
+      <app-e-mail [formGroup]="cadastro" email="login"></app-e-mail>
+      <app-input-password [formGroup]="cadastro" ControlName="password"></app-input-password>
 
       <button class="btn botao">Entrar</button>
       
@@ -14,4 +14,5 @@
       </div>
     </form>
   </div>
+  <button (click)="cliquei()" type="button">ABC</button>
 </div>
