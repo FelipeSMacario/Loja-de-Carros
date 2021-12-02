@@ -17,7 +17,22 @@ public class LoginService {
 
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-    public ResponseEntity<Boolean> logar(String login, String password) {
+    public ResponseEntity<Usuario> logar(String login, String password) {
+
+        Optional<Usuario> usuario = loginRepository.findByEmail(login);
+        if (usuario.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        } else {
+            Boolean valid = encoder.matches(password, usuario.get().getPassword());
+            if (valid) return ResponseEntity.status(HttpStatus.OK).body(usuario.get());
+            else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+        }
+
+
+    }
+
+
+    public ResponseEntity<Boolean> logar2(String login, String password) {
 
         Optional<Usuario> usuario = loginRepository.findByEmail(login);
 

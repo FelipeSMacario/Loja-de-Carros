@@ -2,6 +2,7 @@ import { HttpParams } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { take } from 'rxjs/operators';
+import { Usuario } from 'src/app/models/usuario.model';
 import { LoginService } from 'src/app/services/login.service';
 
 @Component({
@@ -11,11 +12,14 @@ import { LoginService } from 'src/app/services/login.service';
 })
 export class LoginComponent implements OnInit {
 
+  usuario : Usuario = new Usuario();
+  usuarioAutenticado : boolean = false;
+
   cadastro : FormGroup;
 
   constructor(
     private loginService : LoginService,
-    private fb : FormBuilder
+    private fb : FormBuilder,
   ) { }
 
   ngOnInit(): void {
@@ -25,17 +29,10 @@ export class LoginComponent implements OnInit {
     })
   }
 
-  cliquei(){
-    const params = new HttpParams()
-    .set("login", this.cadastro.value.login)
-    .set("password", this.cadastro.value.password);
-
-   this.loginService.logar(params.toString()).pipe(take(1)).subscribe({
-     next : result => console.log(result),
-     error : err => console.log(err)
-   })
-
-   
+  entrar(){
+    console.log(this.cadastro.value.login, this.cadastro.value.password)
+   let resp = this.loginService.logar(this.cadastro.value.login, this.cadastro.value.password);
+    resp.subscribe(data => console.log(data))
   }
 
 }

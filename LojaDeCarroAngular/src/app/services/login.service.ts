@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { Usuario } from '../models/usuario.model';
@@ -11,7 +11,8 @@ export class LoginService {
 
   url: string = 'http://localhost:8080/login';
 
-  logar(query : string) : Observable<Usuario> {
-    return this.httpClient.get<Usuario>(`${this.url}?${query}`);
+  logar(username : string, password : string) {
+    const headers = new HttpHeaders({Authorization: "Basic " + btoa(username+":"+password)})
+    return this.httpClient.get(`${this.url}`, {headers, responseType:"text" as "json"});
   }
 }

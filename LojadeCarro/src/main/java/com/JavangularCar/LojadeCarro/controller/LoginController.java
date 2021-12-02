@@ -1,5 +1,6 @@
 package com.JavangularCar.LojadeCarro.controller;
 
+import com.JavangularCar.LojadeCarro.model.Usuario;
 import com.JavangularCar.LojadeCarro.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,7 +15,7 @@ public class LoginController {
     LoginService loginService;
 
     @GetMapping()
-    public ResponseEntity<Boolean> logar(@RequestParam String login, @RequestParam String password){
+    public ResponseEntity<Usuario> logar(@RequestParam String login, @RequestParam String password){
         return loginService.logar(login, password);
     }
 }

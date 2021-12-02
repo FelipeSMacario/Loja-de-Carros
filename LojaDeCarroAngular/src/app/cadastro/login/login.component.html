@@ -1,10 +1,10 @@
 <div class="conteudo">
   <div class="container">
-    <form class="form">
+    <form class="form" (ngSubmit)=(entrar())>
       <app-e-mail [formGroup]="cadastro" email="login"></app-e-mail>
       <app-input-password [formGroup]="cadastro" ControlName="password"></app-input-password>
 
-      <button class="btn botao">Entrar</button>
+      <button class="btn botao" type="submit">Entrar</button>
       
       <div class="botaoDIV">
         <span
@@ -14,5 +14,4 @@
       </div>
     </form>
   </div>
-  <button (click)="cliquei()" type="button">ABC</button>
 </div>
