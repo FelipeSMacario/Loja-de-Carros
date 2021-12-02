@@ -4,4 +4,5 @@ export class Usuario{
     dtNascimento : Date;
     email : string;
     nome : string;
+    password : string;
 }

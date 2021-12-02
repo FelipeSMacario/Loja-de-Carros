@@ -14,6 +14,7 @@ export class LoginComponent implements OnInit {
 
   usuario : Usuario = new Usuario();
   usuarioAutenticado : boolean = false;
+  usuarioStorage : any = "Usuário";
 
   cadastro : FormGroup;
 
@@ -31,8 +32,16 @@ export class LoginComponent implements OnInit {
 
   entrar(){
     console.log(this.cadastro.value.login, this.cadastro.value.password)
-   let resp = this.loginService.logar(this.cadastro.value.login, this.cadastro.value.password);
-    resp.subscribe(data => console.log(data))
+   this.loginService.login(this.cadastro.value.login, this.cadastro.value.password).subscribe({
+     next : data => {
+       const params = new HttpParams().set("login", this.cadastro.value.login).set("password", this.cadastro.value.password);
+       console.log(params.toString())
+       this.loginService.getUser(params.toString()).pipe(take(1)).subscribe({
+         next : user => this.usuario = user
+       })
+     },
+     error : err => console.log(err)
+   })
   }
 
 }

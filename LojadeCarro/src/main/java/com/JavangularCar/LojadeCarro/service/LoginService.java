@@ -27,8 +27,6 @@ public class LoginService {
             if (valid) return ResponseEntity.status(HttpStatus.OK).body(usuario.get());
             else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
         }
-
-
     }
 
 
