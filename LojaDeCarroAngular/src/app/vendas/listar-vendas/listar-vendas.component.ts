@@ -69,7 +69,7 @@ export class ListarVendasComponent implements OnInit {
       combustivel: [null],
       carroceria: [null],
       cores: [null],
-      usuario: [null],
+      usuario: [JSON.parse(localStorage.getItem("usuario")!)],
     });
   }
 
@@ -146,5 +146,9 @@ export class ListarVendasComponent implements OnInit {
 
   atualizaKit(){
     this.child.cadastrarKit(this.carro);
+  }
+
+  abc(){
+    console.log(this.formulario.value)
   }
 }

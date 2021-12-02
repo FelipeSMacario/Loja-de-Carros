@@ -8,7 +8,9 @@ import { Usuario } from '../models/usuario.model';
   providedIn: 'root',
 })
 export class LoginService {
-  constructor(private httpClient: HttpClient) {}
+  constructor(
+    private httpClient: HttpClient,
+   ) {}
 
   url: string = 'http://localhost:8080/usuario';
   url2: string = 'http://localhost:8080/login?';

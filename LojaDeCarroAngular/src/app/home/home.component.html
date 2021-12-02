@@ -1,5 +1,11 @@
 <div class="fundo">
   <div class="container lista">
+
+
+    <div *ngIf="usuarioAutenticado">
+       <h1 class="tituloCard">Olá {{usuario.nome}}, seja bem-vindo(a) de volta. </h1> 
+    </div>
+
     <div class="card cardMarcas mb-3">
       <div class="card-body">
         <h2 class="card-title tituloCard">Pesquise por uma marca</h2>

@@ -8,7 +8,17 @@
   height: 80px;
   width: 60;
 }
-
 .listaNav li {
   margin-left: 100px;
+}
+
+.login{  
+  float: right;
+  margin-right: 15px;
+  background-color:#444444;
+}
+.menu{
+  text-align: center;
+  font-size: 20px;
+  background-color: #444444;
 }

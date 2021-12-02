@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { Marca } from '../models/marca.model';
+import { Usuario } from '../models/usuario.model';
 import { MarcasService } from '../services/marcas.service';
 
 @Component({
@@ -11,6 +12,8 @@ import { MarcasService } from '../services/marcas.service';
 export class HomeComponent implements OnInit {
 
   marca : Marca[] = [];
+  usuario : Usuario = new Usuario();
+  usuarioAutenticado : boolean;
 
   constructor(
     private marcaService : MarcasService,
@@ -19,6 +22,11 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.listarMarcas();
+    this.usuario = JSON.parse(localStorage.getItem("usuario")!);
+    this.usuarioAutenticado = JSON.parse(localStorage.getItem("usuarioAutenticado")!);
+
+    this.usuarioAutenticado ? this.usuarioAutenticado = true : this.usuarioAutenticado = false;
+    
   }
 
   listarMarcas() : void {

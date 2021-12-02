@@ -41,6 +41,7 @@ import { InputNumberComponent } from './shared/angular-form/input-number/input-n
 import { LoginComponent } from './cadastro/login/login.component';
 import { CadastroComponent } from './cadastro/cadastro/cadastro.component';
 import { InputPasswordComponent } from './shared/angular-form/input-password/input-password.component';
+import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 
 @NgModule({
   declarations: [
@@ -88,6 +89,7 @@ import { InputPasswordComponent } from './shared/angular-form/input-password/inp
     MatDatepickerModule,
     MatNativeDateModule,
     MatInputModule,
+    BsDropdownModule.forRoot(),
   ],
   
   providers: [],
