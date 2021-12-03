@@ -1,47 +1,69 @@
-
-.imagemCarousel{
-    margin-top: 10px;
-    margin-bottom: 10px;
-    height: 700px;
-    width: 100%;
-    border-style: solid;
-    border-width: 1;
-    border-color: #DAA520;
+.imagemCarousel {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  height: 700px;
+  width: 100%;
+  border-style: solid;
+  border-width: 1;
+  border-color: #daa520;
 }
 
-.detalhes{
-    margin-top: 2px;
-    margin-bottom: 10px;
+.detalhes {
+  margin-top: 2px;
+  margin-bottom: 10px;
 }
 
-.semImagem{
-    margin-top: 10px;
-    margin-bottom: 10px;
-    height: 300px;
-    width: 100%;
-    border: solid #DAA520 4px;
+.semImagem {
+  margin-top: 10px;
+  margin-bottom: 10px;
+  height: 300px;
+  width: 100%;
+  border: solid #daa520 4px;
 }
-.label{
-    margin-top: 10px;
-    color: #DAA520;
-    text-shadow: #282828 1px 1px 1px;
-}
-
-.label .botaoEntrada{
-    margin-left: 4px !important;       
-    font-size: 28px !important;
-    
-}
-.label .labelAltura{
-    height: 40px;
-    display: flex;
-    font-size: 35px;
-    margin-top: 0px;    
-}
-.entrada{
-    display: flex;
-    position: relative;
-    left: -9px;
-    top: -15px;
+.label {
+  margin-top: 10px;
+  color: #daa520;
+  text-shadow: #282828 1px 1px 1px;
 }
 
+.label .botaoEntrada {
+  margin-left: 4px !important;
+  font-size: 28px !important;
+}
+.label .labelAltura {
+  height: 40px;
+  display: flex;
+  font-size: 35px;
+  margin-top: 0px;
+}
+.entrada {
+  display: flex;
+  position: relative;
+  left: -9px;
+  top: -15px;
+}
+.valor {
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: center;
+  height: 40px;
+  font-size: 20px;
+}
+.divValor {
+  background-color: #282828;
+  color: #daa520;
+  text-align: center;
+  padding-top: 10px;
+  width: 400px;
+  border: #daa520 1px solid;
+}
+
+.divBotao .botao {
+  background-color: #daa520;
+  margin-left: 10px;
+  width: 400px;
+  border: #282828 1px solid;
+}
+.divBotao .botao:hover {
+    background-color: orange;
+}

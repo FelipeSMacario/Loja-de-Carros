@@ -1,15 +1,30 @@
 <div class="conteudo">
   <div class="container">
-    <form class="form" (ngSubmit)=(entrar())>
-      <app-e-mail [formGroup]="cadastro" email="login"></app-e-mail>
-      <app-input-password [formGroup]="cadastro" ControlName="password"></app-input-password>
+    <form class="form" (ngSubmit)="entrar()">
 
-      <button class="btn botao" type="submit">Entrar</button>
+      <label class="titulo">Login</label>
+
+      <div class="linha">
+        <app-e-mail [formGroup]="cadastro" email="login"></app-e-mail>
+      </div>
+
+      <div class="linha">
+        <app-input-password
+        [formGroup]="cadastro"
+        ControlName="password"
+      ></app-input-password>
+      </div>
       
+
       <div class="botaoDIV">
+        <button class="btn botao" type="submit">Entrar</button>
+      </div>
+
+      <div class="span">
         <span
           >Não é cadastrado?
-          <a [routerLink]="['/cadastro']"> Cadastre-se.</a></span>
+          <a [routerLink]="['/cadastro']"> Cadastre-se.</a>
+        </span>
       </div>
     </form>
   </div>

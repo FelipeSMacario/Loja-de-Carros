@@ -4,6 +4,10 @@
 .navLetra {
   color: #daa520;
 }
+
+.lista:hover {
+  box-shadow: 0 8px 6px -6px #daa520;
+}
 .navImagem {
   height: 80px;
   width: 60;

@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { take } from 'rxjs/operators';
 import { Carro } from 'src/app/models/Carro.model';
 import { Imagens } from 'src/app/models/imagens.model';
+import { CarroService } from 'src/app/services/carro.service';
 import { ImagensService } from 'src/app/services/imagens.service';
 
 
@@ -16,17 +17,20 @@ export class CarroComponent implements OnInit {
   id : number;
   imagens : Imagens[] = [];
   imgdefault : string = "../../../assets/images/semImagem.jpg";
+  
+  carro : Carro = new Carro();
 
   constructor(
     
     private activatedRoute : ActivatedRoute,
-    private imagensService : ImagensService
+    private imagensService : ImagensService,
+    private carroService : CarroService
   ) { }
 
   ngOnInit(): void {
     this.id = this.activatedRoute.snapshot.params['id'];
-    
     this.listarImagens();
+    this.findCarroById(this.id);
   }
 
   listarImagens(){
@@ -38,5 +42,11 @@ export class CarroComponent implements OnInit {
     } )    
   }
 
+  findCarroById(id : number) : void {
+    this.carroService.findCarroById(this.id).pipe(take(1)).subscribe({
+      next : car => this.carro = car,
+      error : err => console.log(err)
+    })
+  }
 
 }

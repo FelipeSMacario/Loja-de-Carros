@@ -1,21 +1,31 @@
 <div class="container">
-  <carousel [pauseOnFocus]="true" >
+  <carousel [pauseOnFocus]="true">
     <slide *ngFor="let img of imagens">
-      <img class="imagemCarousel" [src]="img.url">
+      <img class="imagemCarousel" [src]="img.url" />
     </slide>
     <div *ngIf="imagens.length == 0">
       <div class="label">
-        <label class="labelAltura">Selecione as fotos para o veículo        
+        <label class="labelAltura"
+          >Selecione as fotos para o veículo
 
-          <app-upload-arquivos class="entrada">
-          </app-upload-arquivos>                
-
-      </label>
- 
-      </div>      
-      <img  class="semImagem" [src]="imgdefault">        
+          <app-upload-arquivos class="entrada"> </app-upload-arquivos>
+        </label>
+      </div>
+      <img class="semImagem" [src]="imgdefault" />
     </div>
   </carousel>
+
+  <div class="valor">
+
+    <div class="divValor">
+      <label class="labelValor">Valor {{carro.valor | currency: "R$ " }}</label>
+    </div>
+    <div class="divBotao">
+      <button class="btn botao">Comprar</button>
+    </div>
+    
+  </div>
+
 </div>
 
 <div class="detalhes">
