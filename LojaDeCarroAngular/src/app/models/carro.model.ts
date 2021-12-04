@@ -41,5 +41,7 @@ export class Carro {
     modelo : Modelo;
     usuario : Usuario;
     combustivel : Combustivel;
+    dtCadastro : Date;
+    ativo : boolean;
     
 }

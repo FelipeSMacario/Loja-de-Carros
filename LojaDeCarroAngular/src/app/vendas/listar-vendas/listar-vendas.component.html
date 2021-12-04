@@ -13,7 +13,15 @@
               ControlName="marca"
               [Objeto]="marca"
               (modelo)="listarModelos($event)"
-              ></app-input-select>
+            ></app-input-select>
+
+            <ng-container *ngIf="formulario.controls.marca.touched">
+              <span *ngIf="formulario.controls.marca.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+            </ng-container>
 
             <app-input-select
               class="selectCor"
@@ -22,6 +30,14 @@
               ControlName="modelo"
               [Objeto]="modelo"
             ></app-input-select>
+
+            <ng-container *ngIf="formulario.controls.modelo.touched">
+              <span *ngIf="formulario.controls.modelo.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+            </ng-container>
           </div>
 
           <div class="quilometragemValor divGeral">
@@ -29,11 +45,28 @@
               class="selectCor"
               [formGroup]="formulario"
               ControlName="quilometragem"
-              label="Digite a quilometragem do veículo"              
+              label="Digite a quilometragem do veículo"
               min="0"
               step="1000"
               prefixo="KM"
             ></app-input-number>
+            <ng-container *ngIf="formulario.controls.quilometragem.touched">
+              <span *ngIf="formulario.controls.quilometragem.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+              <span *ngIf="formulario.controls.quilometragem.errors?.min">
+                <div class="alert alert-danger" role="alert">
+                  Quilometragem deve ser de no mínimo 0.
+                </div>
+              </span>
+              <span *ngIf="formulario.controls.quilometragem.errors?.max">
+                <div class="alert alert-danger" role="alert">
+                  Quilometragem deve ser de no maximo 999999.
+                </div>
+              </span>
+            </ng-container>
 
             <app-input-number
               class="selectCor"
@@ -44,6 +77,19 @@
               step="1000"
               prefixo="R$"
             ></app-input-number>
+
+            <ng-container *ngIf="formulario.controls.valor.touched">
+              <span *ngIf="formulario.controls.valor.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+              <span *ngIf="formulario.controls.valor.errors?.min">
+                <div class="alert alert-danger" role="alert">
+                  Valor deve ser de no mínimo 5000.
+                </div>
+              </span>
+            </ng-container>
           </div>
 
           <div class="motorPlaca divGeral">
@@ -54,16 +100,46 @@
               [formGroup]="formulario"
             ></app-input-text>
 
+            <ng-container *ngIf="formulario.controls.motor.touched">
+              <span *ngIf="formulario.controls.motor.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+              <span *ngIf="formulario.controls.motor.errors?.maxlength">
+                <div class="alert alert-danger" role="alert">
+                  A descrição do motor tem o máximo de 100 caracteres.
+                </div>
+              </span>
+            </ng-container>
+
             <app-input-text
               class="selectCor"
               label="Digite a sua placa"
               ControlName="placa"
               [formGroup]="formulario"
             ></app-input-text>
+            
+            <ng-container *ngIf="formulario.controls.placa.touched">
+              <span *ngIf="formulario.controls.placa.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+              <span *ngIf="formulario.controls.placa.errors?.minlength">
+                <div class="alert alert-danger" role="alert">
+                  Placa invalida.
+                </div>
+              </span>
+              <span *ngIf="formulario.controls.placa.errors?.maxlength">
+                <div class="alert alert-danger" role="alert">
+                  Placa invalida.
+                </div>
+              </span>
+            </ng-container>
           </div>
 
           <div class="anoFabricaCombustivel divGeral">
-
             <app-input-number
               class="selectCor"
               [formGroup]="formulario"
@@ -73,23 +149,60 @@
               step="1"
             ></app-input-number>
 
+            <ng-container *ngIf="formulario.controls.anoFabricacao.touched">
+              <span *ngIf="formulario.controls.anoFabricacao.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+              <span *ngIf="formulario.controls.anoFabricacao.errors?.min">
+                <div class="alert alert-danger" role="alert">
+                  Ano mínimo de 1961.
+                </div>
+              </span>
+              <span *ngIf="formulario.controls.anoFabricacao.errors?.max">
+                <div class="alert alert-danger" role="alert">
+                  Ano máximo de 2022.
+                </div>
+              </span>
+            </ng-container>
+
             <app-input-select
-            class="selectCor"
-            label="Selecione seu combustível"
-            [formGroup]="formulario"
-            ControlName="combustivel"
-            [Objeto]="combustivel"
-          ></app-input-select>
+              class="selectCor"
+              label="Selecione seu combustível"
+              [formGroup]="formulario"
+              ControlName="combustivel"
+              [Objeto]="combustivel"
+            ></app-input-select>
+
+            <ng-container *ngIf="formulario.controls.combustivel.touched">
+              <span *ngIf="formulario.controls.combustivel.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+            </ng-container>
+
           </div>
+
+          
 
           <div class="CarroceriaCores divGeral">
             <app-input-select
-             class="selectCor"
+              class="selectCor"
               label="Selecione a cor do seu veículo"
               [formGroup]="formulario"
               ControlName="cores"
               [Objeto]="cores"
             ></app-input-select>
+
+            <ng-container *ngIf="formulario.controls.cores.touched">
+              <span *ngIf="formulario.controls.cores.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+            </ng-container>
 
             <app-input-select
               class="selectCor"
@@ -98,6 +211,13 @@
               ControlName="carroceria"
               [Objeto]="carroceria"
             ></app-input-select>
+            <ng-container *ngIf="formulario.controls.carroceria.touched">
+              <span *ngIf="formulario.controls.carroceria.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+            </ng-container>
           </div>
         </tab>
 
@@ -108,9 +228,7 @@
 
       <div class="botaoDIV">
         <button class="botao" type="submit">Cadastrar</button>
-        
       </div>
     </form>
   </div>
 </div>
-

@@ -15,4 +15,7 @@ export class CombustivelService {
   listarCombustivel () : Observable<Combustivel[]> {
     return this.httpClient.get<Combustivel[]>(`${this.url}`);
   }
+  findCombustivelById(id : number) : Observable<Combustivel> {
+    return this.httpClient.get<Combustivel>(`${this.url}/${id}`);
+  }
 }

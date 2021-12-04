@@ -3,6 +3,7 @@ package com.JavangularCar.LojadeCarro.model;
 import lombok.Data;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,12 @@ public class Carro {
     @Column(name = "AnoFabricacao")
     private int anoFabricacao;
 
+    @Column(name = "DataCadastro")
+    private LocalDateTime dtCadastro;
+
+    @Column(name = "Ativo")
+    private boolean ativo;
+
     @ManyToOne
     private Carroceria carroceria;
 
@@ -47,7 +54,6 @@ public class Carro {
 
     @ManyToOne
     private Usuario usuario;
-
 
     @ManyToOne
     private Combustivel combustivel;

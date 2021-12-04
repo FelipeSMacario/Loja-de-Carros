@@ -4,6 +4,9 @@
     <mat-select  [formControlName]="ControlName" (selectionChange)="atualizaModelo($event)">
       <mat-option  *ngFor="let item of Objeto"  [value]="item">{{item.nome}}</mat-option>
     </mat-select>
+
+    
+    
   </mat-form-field>
 </div>
 

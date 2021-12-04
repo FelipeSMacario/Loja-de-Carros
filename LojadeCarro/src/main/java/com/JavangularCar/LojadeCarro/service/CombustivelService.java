@@ -15,6 +15,7 @@ public class CombustivelService {
     @Autowired
     CombustivelRepositor combustivelRepositor;
 
+
     public Combustivel createCombustivel(@RequestBody Combustivel combustivel){
         return combustivelRepositor.save(combustivel);
     }

@@ -4,7 +4,7 @@
     background-repeat: no-repeat;
     background-size: cover;
     height: 1400px;     
-    padding: 5px;
+    padding-top: 20px;
     width: 100%;
 }
 
@@ -12,6 +12,7 @@
 .form{
     margin-top: 20px;
     padding: 15px;
+    width: 100%;
     border: solid 1px #DAA520;
     background-color: #bcbcbc;    
     color: #DAA520;
@@ -93,7 +94,6 @@
     width: 50%;
     margin-right: 10px;
 }
-
 
 
 

@@ -2,12 +2,13 @@ import { Component, EventEmitter, Input, Output, ViewEncapsulation } from '@angu
 import { FormGroup } from '@angular/forms';
 import { Objeto } from './objetc.model';
 
+
 @Component({
   selector: 'app-input-select',
   templateUrl: './input-select.component.html',
   styleUrls: ['./input-select.component.css']
 })
-export class InputSelectComponent {
+export class InputSelectComponent  {
 
 @Input() label : string;
 @Input() formGroup : FormGroup;
@@ -18,4 +19,5 @@ export class InputSelectComponent {
 atualizaModelo(e){
   this.modelo.emit(e.value.id);
 }
+
 }
