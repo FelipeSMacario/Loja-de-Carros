@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { take } from 'rxjs/operators';
 import { Usuario } from 'src/app/models/usuario.model';
 import { UsuarioService } from 'src/app/services/usuario.service';
@@ -24,10 +24,11 @@ export class CadastroComponent implements OnInit {
   ngOnInit(): void {
     this.formulario = this.fb.group({
       id : [null],
-      cpf : [null],
-      dtNascimento : [null],
-      email : [null],
-      nome : [null],
+      cpf : [null, [Validators.required, Validators.minLength(11), Validators.maxLength(11)]],
+      dtNascimento : [null, [Validators.required]],
+      email : [null, [Validators.required, Validators.email]],
+      password : [null, [Validators.required, Validators.minLength(3), Validators.maxLength(10)]],
+      nome : [null,[Validators.required, Validators.minLength(3), Validators.maxLength(50)]],
     })
   }
   salvarUsuario(){

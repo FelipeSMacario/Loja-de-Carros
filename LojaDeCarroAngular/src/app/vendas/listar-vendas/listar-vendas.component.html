@@ -5,7 +5,8 @@
 
       <tabset>
         <tab heading="Veículo" customClass="customClass">
-          <div class="marcaModelo divGeral">
+          <div class="divGeral">
+            
             <app-input-select
               class="selectCor"
               label="Selecione a marca do veículo"
@@ -13,15 +14,17 @@
               ControlName="marca"
               [Objeto]="marca"
               (modelo)="listarModelos($event)"
-            ></app-input-select>
+            ></app-input-select>           
+             
 
-            <ng-container *ngIf="formulario.controls.marca.touched">
-              <span *ngIf="formulario.controls.marca.errors?.required">
-                <div class="alert alert-danger" role="alert">
-                  Campo Obrigatório
-                </div>
-              </span>
-            </ng-container>
+              <ng-container *ngIf="formulario.controls.marca.touched">
+                <span *ngIf="formulario.controls.marca.errors?.required">
+                  <div class="alert alert-danger" role="alert">
+                    Campo Obrigatório
+                  </div>
+                </span>
+              </ng-container>
+        
 
             <app-input-select
               class="selectCor"
@@ -39,6 +42,7 @@
               </span>
             </ng-container>
           </div>
+
 
           <div class="quilometragemValor divGeral">
             <app-input-number
@@ -227,7 +231,7 @@
       </tabset>
 
       <div class="botaoDIV">
-        <button class="botao" type="submit">Cadastrar</button>
+        <button class="botao btn" type="submit" [disabled]="!formulario.valid">Cadastrar</button>
       </div>
     </form>
   </div>

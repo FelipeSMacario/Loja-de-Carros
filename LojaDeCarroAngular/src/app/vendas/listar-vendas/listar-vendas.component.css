@@ -50,7 +50,7 @@
 .divGeral{
     display: flex;
     margin-top: 10px;
-    margin-bottom: 30px;       
+         
 }
 
 .botaoDIV{
@@ -60,16 +60,6 @@
 }
 
 .botaoDIV .botao{
-    background-color: #282828;
-    font-size: 25px;
-    border: #DAA520 2px solid;
-    color: #DAA520;
-    height: 40px;
-    width: 30%;
-}
-
-.botaoDIV .botao:hover{
-    transition-duration: 1s;
     background-color: #DAA520;
     font-size: 25px;
     border: #282828 2px solid;
@@ -77,6 +67,17 @@
     height: 40px;
     width: 30%;
 }
+
+.botaoDIV .botao:hover{
+    background-color: orange;
+
+    font-size: 25px;
+    border: #282828 2px solid;
+    color: #282828;
+    height: 40px;
+    width: 30%;
+}
+
 
 ::ng-deep .customClass > a {
     border: #DAA520 solid 1px !important;
@@ -93,6 +94,10 @@
     height: 100px;
     width: 50%;
     margin-right: 10px;
+}
+
+.btn{
+    padding-bottom: 40px;
 }
 
 

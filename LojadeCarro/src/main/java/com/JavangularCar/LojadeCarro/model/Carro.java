@@ -15,47 +15,52 @@ public class Carro {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "Quilometragem")
+    @Column(name = "Quilometragem", nullable = false)
     private Double quilometragem;
 
-    @Column(name = "Url")
+    @Column(name = "Url", nullable = false)
     private String url;
 
-    @Column(name = "Valor")
+    @Column(name = "Valor", nullable = false)
     private Double valor;
 
-    @Column(name = "Placa")
+    @Column(name = "Placa", nullable = false)
     private String placa;
 
-    @Column(name = "Motor")
+    @Column(name = "Motor", nullable = false)
     private String motor;
 
-    @Column(name = "AnoFabricacao")
+    @Column(name = "AnoFabricacao", nullable = false)
     private int anoFabricacao;
 
-    @Column(name = "DataCadastro")
+    @Column(name = "DataCadastro", nullable = false)
     private LocalDateTime dtCadastro;
 
-    @Column(name = "Ativo")
+    @Column(name = "Ativo", nullable = false)
     private boolean ativo;
 
     @ManyToOne
+    @JoinColumn(name = "carroceria_id", nullable = false)
     private Carroceria carroceria;
 
     @ManyToOne
-    @JoinColumn(name = "marca_id")
+    @JoinColumn(name = "marca_id", nullable = false)
     private Marca marca;
 
     @ManyToOne
+    @JoinColumn(name = "cores_id", nullable = false)
     private Cores cores;
 
     @ManyToOne
+    @JoinColumn(name = "modelo_id", nullable = false)
     private Modelo modelo;
 
     @ManyToOne
+    @JoinColumn(name = "usuario_id", nullable = false)
     private Usuario usuario;
 
     @ManyToOne
+    @JoinColumn(name = "combustivel_id", nullable = false)
     private Combustivel combustivel;
 
 }

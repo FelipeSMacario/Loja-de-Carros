@@ -11,6 +11,24 @@
         ></app-input-text>
       </div>
 
+      <ng-container *ngIf="formulario.controls.nome.touched">
+        <span *ngIf="formulario.controls.nome.errors?.required">
+          <div class="alert alert-danger" role="alert">
+            Campo Obrigatório
+          </div>
+        </span>
+        <span *ngIf="formulario.controls.nome.errors?.minlength">
+          <div class="alert alert-danger" role="alert">
+           O campo deve ter no mínomo 3 caracteres.
+          </div>
+        </span>
+        <span *ngIf="formulario.controls.nome.errors?.maxlength">
+          <div class="alert alert-danger" role="alert">
+            O campo deve ter no máximo 50 caracteres.
+          </div>
+        </span>
+      </ng-container>
+
       <div class="linha">
         <app-input-text
           label="CPF"
@@ -18,10 +36,65 @@
           [formGroup]="formulario"
         ></app-input-text>
       </div>
+      <ng-container *ngIf="formulario.controls.cpf.touched">
+        <span *ngIf="formulario.controls.cpf.errors?.required">
+          <div class="alert alert-danger" role="alert">
+            Campo Obrigatório
+          </div>
+        </span>
+        <span *ngIf="formulario.controls.cpf.errors?.minlength">
+          <div class="alert alert-danger" role="alert">
+           CPF inválido.
+          </div>
+        </span>
+        <span *ngIf="formulario.controls.cpf.errors?.maxlength">
+          <div class="alert alert-danger" role="alert">
+            CPF inválido.
+          </div>
+        </span>
+      </ng-container>
 
       <div class="linha">
         <app-e-mail [formGroup]="formulario" email="email"></app-e-mail>
       </div>
+
+      <ng-container *ngIf="formulario.controls.email.touched">
+        <span *ngIf="formulario.controls.email.errors?.required">
+          <div class="alert alert-danger" role="alert">
+            Campo Obrigatório.
+          </div>
+        </span>
+        <span *ngIf="formulario.controls.email.errors?.email">
+          <div class="alert alert-danger" role="alert">
+           E-mail inválido.
+          </div>
+        </span>
+      </ng-container>
+
+      <div class="linha">
+        <app-input-password
+        [formGroup]="formulario"
+        ControlName="password"
+      ></app-input-password>
+      </div>
+
+      <ng-container *ngIf="formulario.controls.password.touched">
+        <span *ngIf="formulario.controls.password.errors?.required">
+          <div class="alert alert-danger" role="alert">
+            Senha Obrigatória
+          </div>
+        </span>
+        <span *ngIf="formulario.controls.password.errors?.minlength">
+          <div class="alert alert-danger" role="alert">
+           Senha deve ter no mínimo 3 caracteres.
+          </div>
+        </span>
+        <span *ngIf="formulario.controls.password.errors?.maxlength">
+          <div class="alert alert-danger" role="alert">
+            Senha deve ter no máximo 10 caracteres.
+          </div>
+        </span>
+      </ng-container>
 
       <div class="linha">
         <app-date-picker
@@ -29,9 +102,17 @@
           ControlName="dtNascimento"
           placeholder="Data de Nascimento"
         ></app-date-picker>
+        <ng-container *ngIf="formulario.controls.dtNascimento.touched">
+          <span *ngIf="formulario.controls.dtNascimento.errors?.required">
+            <div class="alert alert-danger" role="alert">
+              Campo Obrigatório.
+            </div>
+          </span>
+        
+        </ng-container>
       </div>
       <div class="botaoDIV">
-        <button class="btn botao">Cadastrar</button>
+        <button class="btn botao" [disabled]="!formulario.valid">Cadastrar</button>
       </div>
       <div class="span">
         <span>Já possuí login? <a [routerLink]="['/login']" > Logar.</a></span>
