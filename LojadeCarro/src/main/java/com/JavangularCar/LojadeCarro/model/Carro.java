@@ -18,7 +18,7 @@ public class Carro {
     @Column(name = "Quilometragem", nullable = false)
     private Double quilometragem;
 
-    @Column(name = "Url", nullable = false)
+    @Column(name = "Url", nullable = true)
     private String url;
 
     @Column(name = "Valor", nullable = false)

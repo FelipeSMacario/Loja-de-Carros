@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 import { Carro } from 'src/app/models/Carro.model';
 import { Carroceria } from 'src/app/models/carroceria.model';
@@ -19,13 +20,10 @@ import { ListarKitComponent } from '../listar-kit/listar-kit.component';
 @Component({
   selector: 'app-listar-vendas',
   templateUrl: './listar-vendas.component.html',
-  styleUrls: ['./listar-vendas.component.css'],  
-  
+  styleUrls: ['./listar-vendas.component.css'],
 })
-
 export class ListarVendasComponent implements OnInit {
-
-  @ViewChild(ListarKitComponent ) child: ListarKitComponent; 
+  @ViewChild(ListarKitComponent) child: ListarKitComponent;
 
   formulario: FormGroup;
   marca: Marca[] = [];
@@ -33,9 +31,7 @@ export class ListarVendasComponent implements OnInit {
   combustivel: Combustivel[] = [];
   carroceria: Carroceria[] = [];
   cores: Cores[] = [];
-  carro : Carro = new Carro();
-
-  
+  carro: Carro = new Carro();
 
   constructor(
     private fb: FormBuilder,
@@ -45,7 +41,8 @@ export class ListarVendasComponent implements OnInit {
     private combustivelService: CombustivelService,
     private carroceriaService: CarrocerialService,
     private coresService: CoresService,
-    private modal : ModalService
+    private modal: ModalService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -62,17 +59,33 @@ export class ListarVendasComponent implements OnInit {
       marca: [null, [Validators.required]],
       modelo: [null, [Validators.required]],
       valor: [null, [Validators.required, Validators.min(5000)]],
-      quilometragem: [null, [Validators.required, Validators.min(0), Validators.max(999999)]],
+      quilometragem: [
+        null,
+        [Validators.required, Validators.min(0), Validators.max(999999)],
+      ],
       url: [null],
-      placa: [null, [Validators.required, Validators.minLength(8), Validators.maxLength(8)]],
+      placa: [
+        null,
+        [Validators.required, Validators.minLength(8), Validators.maxLength(8)],
+      ],
       motor: [null, [Validators.required, Validators.maxLength(100)]],
-      anoFabricacao: [null, [Validators.required, Validators.min(1961), Validators.max(2022)]],
+      anoFabricacao: [
+        null,
+        [Validators.required, Validators.min(1961), Validators.max(2022)],
+      ],
       combustivel: [null, [Validators.required]],
       carroceria: [null, [Validators.required]],
-      cores: [null, [Validators.required, Validators.minLength(4), Validators.maxLength(20)]],
-      dtCadastro : [new Date()] ,
-      ativo : [true] ,
-      usuario: [JSON.parse(localStorage.getItem("usuario")!)],
+      cores: [
+        null,
+        [
+          Validators.required,
+          Validators.minLength(4),
+          Validators.maxLength(20),
+        ],
+      ],
+      dtCadastro: [new Date()],
+      ativo: [true],
+      usuario: [JSON.parse(localStorage.getItem('usuario')!)],
     });
   }
 
@@ -128,7 +141,7 @@ export class ListarVendasComponent implements OnInit {
         next: (cor) => (this.cores = cor),
         error: (err) => console.log(err),
       });
-  }  
+  }
 
   cadastrarCarro() {
     this.carroService
@@ -136,19 +149,21 @@ export class ListarVendasComponent implements OnInit {
       .pipe(take(1))
       .subscribe({
         next: (carro) => {
-          console.log('Cadastrado com sucesso principal', carro);
-          this.carro = carro;                         
+          this.modal.handleMessage('Veículo cadastrado com sucesso', 'success');
+          this.carro = carro;
         },
-        error: (err) => console.log(err),
-      }); 
-
-      const valorAsync = new Promise((resolve, reject) => {
-        setTimeout(() => resolve(this.atualizaKit()), 5000)
+        error: (err) =>
+          this.modal.handleMessage('Erro ao cadastrar o veículo', 'danger'),
       });
+
+    const valorAsync = new Promise((resolve, reject) => {
+      setTimeout(() => resolve(this.atualizaKit()), 5000);
+    }).then(() => {
+      this.router.navigate(['/compras']);
+    });
   }
 
-  atualizaKit(){
+  atualizaKit() {
     this.child.cadastrarKit(this.carro);
   }
-
 }

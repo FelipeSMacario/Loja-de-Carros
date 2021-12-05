@@ -60,7 +60,7 @@ public class ImagensService {
                 }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    public void updateEstoque(Long idCarro,  Long idImagem){
+    public void updateEstoque(Long idCarro, Long idImagem) {
         imagensRepository.updateEstoque(idCarro, idImagem);
     }
 
