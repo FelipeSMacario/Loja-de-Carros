@@ -67,3 +67,8 @@
 .divBotao .botao:hover {
     background-color: orange;
 }
+
+.btn-danger{
+  margin-left: 10px;
+  width: 400px;
+}

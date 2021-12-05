@@ -3,6 +3,7 @@ package com.JavangularCar.LojadeCarro.service;
 import com.JavangularCar.LojadeCarro.model.Carro;
 import com.JavangularCar.LojadeCarro.model.Marca;
 import com.JavangularCar.LojadeCarro.repository.CarroRepository;
+import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,9 +11,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import java.util.List;
+
 
 @Service
+
 public class CarroService {
     @Autowired
     CarroRepository carroRepository;
@@ -60,7 +62,7 @@ public class CarroService {
 
     }
 
-    public Page<Carro> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem, Pageable pageable){
+    public Page<Carro> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem,  Pageable pageable){
         return carroRepository.FindByCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable);
     }
 

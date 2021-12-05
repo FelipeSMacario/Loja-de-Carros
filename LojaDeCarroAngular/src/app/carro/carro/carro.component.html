@@ -20,8 +20,12 @@
     <div class="divValor">
       <label class="labelValor">Valor {{carro.valor | currency: "R$ " }}</label>
     </div>
-    <div class="divBotao">
+    <div *ngIf="!igual" class="divBotao">
       <button class="btn botao">Comprar</button>
+    </div>
+
+    <div *ngIf="igual" class="divBotao">
+      <button class="btn btn-danger">Marcar como vendido</button>
     </div>
     
   </div>

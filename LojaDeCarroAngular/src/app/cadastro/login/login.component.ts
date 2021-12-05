@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 import { Usuario } from 'src/app/models/usuario.model';
 import { LoginService } from 'src/app/services/login.service';
+import { ModalService } from 'src/app/shared/modal/modal.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,8 @@ export class LoginComponent implements OnInit {
   constructor(
     private loginService: LoginService,
     private fb: FormBuilder,
-    private router: Router
+    private router: Router,
+    private modal : ModalService
   ) {}
 
   ngOnInit(): void {
@@ -34,7 +36,11 @@ export class LoginComponent implements OnInit {
       .login(this.cadastro.value.login, this.cadastro.value.password)
       .pipe(take(1))
       .subscribe({
-        next: (data) => {
+        next: data => {
+          this.modal.handleMessage(
+            'Logado com sucesso',
+            'success'
+          );
           const params = new HttpParams()
             .set('login', this.cadastro.value.login)
             .set('password', this.cadastro.value.password);
@@ -55,7 +61,9 @@ export class LoginComponent implements OnInit {
               },
             });
         },
-        error: (err) => console.log(err),
+        error: err => this.modal.handleMessage(
+          'Credenciais inválidas',
+          'danger'),
       });
   }
 }

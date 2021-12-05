@@ -42,6 +42,9 @@ import { LoginComponent } from './cadastro/login/login.component';
 import { CadastroComponent } from './cadastro/cadastro/cadastro.component';
 import { InputPasswordComponent } from './shared/angular-form/input-password/input-password.component';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
+import { ModalComponent } from './shared/modal/modal.component';
+import { AlertModalComponent } from './shared/modal/alert-modal/alert-modal.component';
+import { BsModalService } from 'ngx-bootstrap/modal';
 
 @NgModule({
   declarations: [
@@ -68,6 +71,8 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     InputNumberComponent,
     LoginComponent,
     InputPasswordComponent,
+    ModalComponent,
+    AlertModalComponent,
 
   ],
   imports: [
@@ -92,7 +97,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
     BsDropdownModule.forRoot(),
   ],
   
-  providers: [],
+  providers: [BsModalService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

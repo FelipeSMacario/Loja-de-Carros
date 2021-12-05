@@ -86,14 +86,31 @@
     font-size: 50px;
     color: #DAA520;
 }
-.card{
-    border-width: 0;
-}
+
 .cardMarcas{
-    margin-left: 10px;
-    border-style: solid;
-    border-color: #DAA520;
+    margin-left: 10px;    
     border-width: 2px;
     margin-right: 10px;
-    border-width: 0;
+    border-width: 1;
 }
+@media screen  and (max-width:370px){
+    .child{
+        display: inline-block;
+        flex-grow: 1;
+        height: auto;
+        width: calc(100% * (1/1) - 10px - 1px);
+      }
+      
+      
+}
+@media screen and (min-width:370px)  and (max-width:1400px){
+    .child{
+        display: inline-block;
+        flex-grow: 1;
+        height: auto;
+        width: calc(100% * (10/20) - 10px - 1px);
+      }
+      
+}
+
+

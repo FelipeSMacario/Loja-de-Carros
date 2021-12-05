@@ -13,6 +13,7 @@ import { CombustivelService } from 'src/app/services/combustivel.service';
 import { CoresService } from 'src/app/services/cores.service';
 import { MarcasService } from 'src/app/services/marcas.service';
 import { ModeloService } from 'src/app/services/modelo.service';
+import { ModalService } from 'src/app/shared/modal/modal.service';
 import { ListarKitComponent } from '../listar-kit/listar-kit.component';
 
 @Component({
@@ -44,7 +45,7 @@ export class ListarVendasComponent implements OnInit {
     private combustivelService: CombustivelService,
     private carroceriaService: CarrocerialService,
     private coresService: CoresService,
-
+    private modal : ModalService
   ) {}
 
   ngOnInit(): void {
