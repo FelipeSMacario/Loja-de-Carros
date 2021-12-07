@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 import { Carro } from 'src/app/models/Carro.model';
 import { Carroceria } from 'src/app/models/carroceria.model';
@@ -45,7 +46,8 @@ export class ListarVendasComponent implements OnInit {
     private combustivelService: CombustivelService,
     private carroceriaService: CarrocerialService,
     private coresService: CoresService,
-    private modal : ModalService
+    private modalService : ModalService,
+    private router : Router
   ) {}
 
   ngOnInit(): void {
@@ -136,15 +138,15 @@ export class ListarVendasComponent implements OnInit {
       .pipe(take(1))
       .subscribe({
         next: (carro) => {
-          console.log('Cadastrado com sucesso principal', carro);
+          this.modalService.handleMessage("Veículo cadastrado com sucesso", "success");
           this.carro = carro;                         
         },
-        error: (err) => console.log(err),
+        error: (err) => this.modalService.handleMessage("Erro ao cadastrar o veículo", "danger"),
       }); 
 
       const valorAsync = new Promise((resolve, reject) => {
         setTimeout(() => resolve(this.atualizaKit()), 5000)
-      });
+      }).then(() =>  this.router.navigate(["/compras"]));
   }
 
   atualizaKit(){

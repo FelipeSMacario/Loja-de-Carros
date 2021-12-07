@@ -1,11 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { take } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
+import { switchMap, take } from 'rxjs/operators';
 import { Carro } from 'src/app/models/Carro.model';
 import { Imagens } from 'src/app/models/imagens.model';
 import { Usuario } from 'src/app/models/usuario.model';
 import { CarroService } from 'src/app/services/carro.service';
 import { ImagensService } from 'src/app/services/imagens.service';
+import { ModalService } from 'src/app/shared/modal/modal.service';
 
 @Component({
   selector: 'app-carro',
@@ -18,11 +20,14 @@ export class CarroComponent implements OnInit {
   imgdefault: string = '../../../assets/images/semImagem.jpg';
   igual: boolean;
   carro: Carro = new Carro();
+  carroMarca : string;
+  carroModelo : string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private imagensService: ImagensService,
-    private carroService: CarroService
+    private carroService: CarroService,
+    private modalService : ModalService
   ) {}
 
   ngOnInit(): void {
@@ -52,11 +57,24 @@ export class CarroComponent implements OnInit {
       .subscribe({
         next: (car) => {
           this.carro = car;
+          this.carroMarca = car.marca.nome;
+          this.carroModelo = car.modelo.nome;
           let usuario = JSON.parse(localStorage.getItem("usuario")!);
           car.usuario.id == usuario.id ? this.igual = true : this.igual = false;
         },
         error: (err) => console.log(err),
       });
+  }
+
+ marcarVendido(){
+    const result$ = this.modalService.showConfirm("Confirmar como vendido", "Deseja marcar o veículo como vendido? O veículo não será mais exibido na lista de vendas", "Confirmar", "Cancelar", "danger" );
+    result$.asObservable().pipe(
+      take(1),
+      switchMap(result => result ? this.carroService.marcaVendido(this.carro) : EMPTY)
+    ).subscribe(
+      sucess => {this.modalService.handleMessage("Veículo vendido", "success");},
+      error => this.modalService.handleMessage("Erro ao atualizar o veículo", "danger")
+    )
   }
  
 }

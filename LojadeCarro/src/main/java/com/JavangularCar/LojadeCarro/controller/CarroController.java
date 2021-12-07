@@ -58,5 +58,9 @@ public class CarroController {
         return carroService.FiltrarCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable);
     }
 
-
+    @PutMapping("/vendido/{id}")
+    @ApiOperation(value = "Marca o carro como vendido o retirando da lista de exibição")
+    public ResponseEntity marcaVendido(@RequestBody Carro carro, @PathVariable Long id) {
+        return carroService.marcaVendido(carro, id);
+    }
 }

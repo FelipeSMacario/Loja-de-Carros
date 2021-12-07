@@ -51,6 +51,7 @@
 }
 .divValor {
   background-color: #282828;
+  margin-right: 5px;
   color: #daa520;
   text-align: center;
   padding-top: 10px;
@@ -71,4 +72,17 @@
 .btn-danger{
   margin-left: 10px;
   width: 400px;
+}
+.btnMenu{
+  background-color: #282828;
+  border: #daa520 1px solid;
+  color: #daa520;
+}
+.menuBotao{
+  background-color: #282828;
+  color: #daa520;
+  
+}
+.iconeMenu{
+  color: #daa520;
 }

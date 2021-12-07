@@ -16,20 +16,38 @@
   </carousel>
 
   <div class="valor">
+    <div class="divValor">
+      <label class="labelValor">{{ carroMarca }} {{ carroModelo }}</label>
+    </div>
 
     <div class="divValor">
-      <label class="labelValor">Valor {{carro.valor | currency: "R$ " }}</label>
+      <label class="labelValor"
+        >Valor {{ carro.valor | currency: "R$ " }}</label
+      >
     </div>
     <div *ngIf="!igual" class="divBotao">
       <button class="btn botao">Comprar</button>
     </div>
 
-    <div *ngIf="igual" class="divBotao">
-      <button class="btn btn-danger">Marcar como vendido</button>
-    </div>
-    
+    <button class="btn btnMenu"
+      *ngIf="igual"
+      mat-icon-button
+      [matMenuTriggerFor]="menu"
+      aria-label="Example icon-button with a menu"
+    >
+      <mat-icon>more_vert</mat-icon>
+    </button>
+    <mat-menu #menu="matMenu">
+      <button class="menuBotao"  mat-menu-item (click)="marcarVendido()">
+        <mat-icon class="iconeMenu">done_outline</mat-icon>
+        <span>Marca veículo como vendido</span>
+      </button>
+      <button class="menuBotao" mat-menu-item>
+        <mat-icon class="iconeMenu">edit</mat-icon>
+        <span>Editar veículo</span>
+      </button>
+    </mat-menu>
   </div>
-
 </div>
 
 <div class="detalhes">

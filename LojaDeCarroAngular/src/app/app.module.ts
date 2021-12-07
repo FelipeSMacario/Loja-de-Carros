@@ -45,6 +45,7 @@ import { BsDropdownModule } from 'ngx-bootstrap/dropdown';
 import { ModalComponent } from './shared/modal/modal.component';
 import { AlertModalComponent } from './shared/modal/alert-modal/alert-modal.component';
 import { BsModalService } from 'ngx-bootstrap/modal';
+import {MatMenuModule} from '@angular/material/menu';
 
 @NgModule({
   declarations: [
@@ -94,6 +95,7 @@ import { BsModalService } from 'ngx-bootstrap/modal';
     MatDatepickerModule,
     MatNativeDateModule,
     MatInputModule,
+    MatMenuModule,
     BsDropdownModule.forRoot(),
   ],
   

@@ -40,12 +40,17 @@ public class CarroService {
                     record.setQuilometragem(carro.getQuilometragem());
                     record.setPlaca(carro.getPlaca());
                     record.setMotor(carro.getMotor());
-                    record.setMotor(carro.getMotor());
                     record.setCarroceria(carro.getCarroceria());
                     record.setMarca(carro.getMarca());
                     record.setCores(carro.getCores());
                     record.setModelo(carro.getModelo());
                     record.setCombustivel(carro.getCombustivel());
+                    record.setUrl(carro.getUrl());
+                    record.setValor(carro.getValor());
+                    record.setAnoFabricacao(carro.getAnoFabricacao());
+                    record.setDtCadastro(carro.getDtCadastro());
+                    record.setUsuario(carro.getUsuario());
+                    record.setAtivo(carro.isAtivo());
                     Carro update = carroRepository.save(record);
                     return ResponseEntity.ok().body(update);
                 })
@@ -64,6 +69,29 @@ public class CarroService {
 
     public Page<Carro> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem,  Pageable pageable){
         return carroRepository.FindByCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable);
+    }
+
+    public ResponseEntity marcaVendido(@RequestBody Carro carro, Long id) {
+        return carroRepository.findById(id)
+                .map(record -> {
+                    record.setQuilometragem(carro.getQuilometragem());
+                    record.setPlaca(carro.getPlaca());
+                    record.setMotor(carro.getMotor());
+                    record.setCarroceria(carro.getCarroceria());
+                    record.setMarca(carro.getMarca());
+                    record.setCores(carro.getCores());
+                    record.setModelo(carro.getModelo());
+                    record.setCombustivel(carro.getCombustivel());
+                    record.setUrl(carro.getUrl());
+                    record.setValor(carro.getValor());
+                    record.setAnoFabricacao(carro.getAnoFabricacao());
+                    record.setDtCadastro(carro.getDtCadastro());
+                    record.setUsuario(carro.getUsuario());
+                    record.setAtivo(false);
+                    Carro update = carroRepository.save(record);
+                    return ResponseEntity.ok().body(update);
+                })
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
 

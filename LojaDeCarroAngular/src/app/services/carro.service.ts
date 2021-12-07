@@ -30,4 +30,8 @@ export class CarroService {
     }
   }
 
+  marcaVendido(carro : Carro) : Observable<Carro> {
+    return this.httpClient.put<Carro>(`${this.url}/vendido/${carro.id}`, carro);
+  }
+
 }
