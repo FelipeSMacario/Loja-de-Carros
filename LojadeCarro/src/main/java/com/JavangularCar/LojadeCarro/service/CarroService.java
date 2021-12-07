@@ -43,11 +43,10 @@ public class CarroService {
                     record.setValor(carro.getValor());
                     record.setPlaca(carro.getPlaca());
                     record.setMotor(carro.getMotor());
-<<<<<<< HEAD
-=======
+
                     record.setAnoFabricacao(carro.getAnoFabricacao());
                     record.setDtCadastro(carro.getDtCadastro());
->>>>>>> 92c568377fb44d4552635849cb4398d38de9ae8b
+
                     record.setCarroceria(carro.getCarroceria());
                     record.setMarca(carro.getMarca());
                     record.setCores(carro.getCores());

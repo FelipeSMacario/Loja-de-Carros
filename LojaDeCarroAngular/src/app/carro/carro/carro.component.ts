@@ -20,21 +20,20 @@ export class CarroComponent implements OnInit {
   imgdefault: string = '../../../assets/images/semImagem.jpg';
   igual: boolean;
   carro: Carro = new Carro();
-  carroMarca : string;
-  carroModelo : string;
+  carroMarca: string;
+  carroModelo: string;
 
   constructor(
     private activatedRoute: ActivatedRoute,
     private imagensService: ImagensService,
     private carroService: CarroService,
-    private modalService : ModalService
+    private modalService: ModalService
   ) {}
 
   ngOnInit(): void {
     this.id = this.activatedRoute.snapshot.params['id'];
     this.listarImagens();
     this.findCarroById(this.id);
-    
   }
 
   listarImagens() {
@@ -60,25 +59,14 @@ export class CarroComponent implements OnInit {
           this.carro = car;
           this.carroMarca = car.marca.nome;
           this.carroModelo = car.modelo.nome;
-          let usuario = JSON.parse(localStorage.getItem("usuario")!);
-          car.usuario.id == usuario.id ? this.igual = true : this.igual = false;
+          let usuario = JSON.parse(localStorage.getItem('usuario')!);
+          car.usuario.id == usuario.id
+            ? (this.igual = true)
+            : (this.igual = false);
         },
         error: (err) => console.log(err),
       });
   }
-
-<<<<<<< HEAD
- marcarVendido(){
-    const result$ = this.modalService.showConfirm("Confirmar como vendido", "Deseja marcar o veículo como vendido? O veículo não será mais exibido na lista de vendas", "Confirmar", "Cancelar", "danger" );
-    result$.asObservable().pipe(
-      take(1),
-      switchMap(result => result ? this.carroService.marcaVendido(this.carro) : EMPTY)
-    ).subscribe(
-      sucess => {this.modalService.handleMessage("Veículo vendido", "success");},
-      error => this.modalService.handleMessage("Erro ao atualizar o veículo", "danger")
-    )
-=======
-
 
   marcaVendido() {
     const result$ = this.modalService.showConfirm(
@@ -99,10 +87,9 @@ export class CarroComponent implements OnInit {
       .subscribe(
         (sucess) => {
           this.modalService.handleMessage(
-            "Carro marcado como vendido",
+            'Carro marcado como vendido',
             'success'
           );
-          
         },
         (error) => {
           this.modalService.handleMessage(
@@ -112,7 +99,5 @@ export class CarroComponent implements OnInit {
           console.log('Erro', error);
         }
       );
->>>>>>> 92c568377fb44d4552635849cb4398d38de9ae8b
   }
- 
 }

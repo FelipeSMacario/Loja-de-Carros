@@ -41,13 +41,8 @@ export class ListarVendasComponent implements OnInit {
     private combustivelService: CombustivelService,
     private carroceriaService: CarrocerialService,
     private coresService: CoresService,
-<<<<<<< HEAD
-    private modalService : ModalService,
-    private router : Router
-=======
-    private modal: ModalService,
+    private modalService: ModalService,
     private router: Router
->>>>>>> 92c568377fb44d4552635849cb4398d38de9ae8b
   ) {}
 
   ngOnInit(): void {
@@ -154,30 +149,22 @@ export class ListarVendasComponent implements OnInit {
       .pipe(take(1))
       .subscribe({
         next: (carro) => {
-<<<<<<< HEAD
-          this.modalService.handleMessage("Veículo cadastrado com sucesso", "success");
-          this.carro = carro;                         
-        },
-        error: (err) => this.modalService.handleMessage("Erro ao cadastrar o veículo", "danger"),
-      }); 
-
-      const valorAsync = new Promise((resolve, reject) => {
-        setTimeout(() => resolve(this.atualizaKit()), 5000)
-      }).then(() =>  this.router.navigate(["/compras"]));
-=======
-          this.modal.handleMessage('Veículo cadastrado com sucesso', 'success');
+          this.modalService.handleMessage(
+            'Veículo cadastrado com sucesso',
+            'success'
+          );
           this.carro = carro;
         },
         error: (err) =>
-          this.modal.handleMessage('Erro ao cadastrar o veículo', 'danger'),
+          this.modalService.handleMessage(
+            'Erro ao cadastrar o veículo',
+            'danger'
+          ),
       });
 
     const valorAsync = new Promise((resolve, reject) => {
       setTimeout(() => resolve(this.atualizaKit()), 5000);
-    }).then(() => {
-      this.router.navigate(['/compras']);
-    });
->>>>>>> 92c568377fb44d4552635849cb4398d38de9ae8b
+    }).then(() => this.router.navigate(['/compras']));
   }
 
   atualizaKit() {
