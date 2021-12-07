@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { take } from 'rxjs/operators';
 import { Carro } from 'src/app/models/Carro.model';
 import { Carroceria } from 'src/app/models/carroceria.model';
@@ -32,6 +32,7 @@ export class ListarVendasComponent implements OnInit {
   carroceria: Carroceria[] = [];
   cores: Cores[] = [];
   carro: Carro = new Carro();
+  id : number;
 
   constructor(
     private fb: FormBuilder,
@@ -42,50 +43,70 @@ export class ListarVendasComponent implements OnInit {
     private carroceriaService: CarrocerialService,
     private coresService: CoresService,
     private modalService: ModalService,
-    private router: Router
+    private router: Router,
+    private activatedRoute: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    this.criaForm();
-    this.listarMarca();
+
+    this.id = this.activatedRoute.snapshot.params["id"];
+   if(this.id){
+     this.criaFormVazio();
+ 
+    this.carroService.findCarroById(this.id).pipe(take(1)).subscribe({
+      next : car => this.criaFormPreenchido(car),
+      error : err => console.log(err)
+    })
+     
+   }else{
+     this.criaFormVazio();   
+    }   
+
+     this.listarModelos();
+    this.listarMarca();    
     this.listarCombustivel();
     this.listarCarroceria();
     this.listarCores();
   }
 
-  criaForm(): void {
+
+  criaFormVazio(): void {
     this.formulario = this.fb.group({
       id: [null],
       marca: [null, [Validators.required]],
       modelo: [null, [Validators.required]],
       valor: [null, [Validators.required, Validators.min(5000)]],
-      quilometragem: [
-        null,
-        [Validators.required, Validators.min(0), Validators.max(999999)],
-      ],
-      url: [null],
-      placa: [
-        null,
-        [Validators.required, Validators.minLength(8), Validators.maxLength(8)],
-      ],
+      quilometragem: [null, [Validators.required, Validators.min(0), Validators.max(999999)],],
+      url: [null],      
       motor: [null, [Validators.required, Validators.maxLength(100)]],
-      anoFabricacao: [
-        null,
-        [Validators.required, Validators.min(1961), Validators.max(2022)],
-      ],
+      placa: [null, [Validators.required, Validators.minLength(8), Validators.maxLength(8)],],
+      anoFabricacao: [null, [Validators.required, Validators.min(1961), Validators.max(2022)],],
       combustivel: [null, [Validators.required]],
       carroceria: [null, [Validators.required]],
-      cores: [
-        null,
-        [
-          Validators.required,
-          Validators.minLength(4),
-          Validators.maxLength(20),
-        ],
-      ],
+      cores: [null, [Validators.required, Validators.minLength(4), Validators.maxLength(20),],],
       dtCadastro: [new Date()],
       ativo: [true],
       usuario: [JSON.parse(localStorage.getItem('usuario')!)],
+    });
+  }
+
+  criaFormPreenchido(carro : Carro) {
+    this.formulario = this.fb.group({
+      id: [carro.id],
+      marca: [carro.marca, [Validators.required]],
+      modelo: [carro.modelo, [Validators.required]],
+      valor: [carro.valor, [Validators.required, Validators.min(5000)]],
+      quilometragem: [carro.quilometragem,[Validators.required, Validators.min(0), Validators.max(999999)],],
+      url: [carro.url], 
+      motor: [carro.motor, [Validators.required, Validators.maxLength(100)]],
+      placa: [carro.placa,[Validators.required, Validators.minLength(8), Validators.maxLength(8)],],      
+      anoFabricacao: [carro.anoFabricacao, [Validators.required, Validators.min(1961), Validators.max(2022)],],
+      combustivel: [carro.combustivel, [Validators.required]],
+      carroceria: [carro.carroceria, [Validators.required]],
+      cores: [carro.cores,[Validators.required,Validators.minLength(4), Validators.maxLength(20),],],
+      dtCadastro: [carro.dtCadastro],
+      ativo: [carro.ativo],
+      usuario: [carro.usuario],
     });
   }
 
@@ -101,16 +122,23 @@ export class ListarVendasComponent implements OnInit {
       });
   }
 
-  listarModelos(e: number): void {
-    this.formulario.controls.modelo.setValue(null);
+  listarModelos(): void {
     this.modeloService
       .findAllModelos()
       .pipe(take(1))
       .subscribe({
         next: (modelo) =>
-          (this.modelo = modelo.filter((model) => model.marca.id === e)),
+         this.modelo = modelo,
         error: (err) => console.log(err),
       });
+  }
+
+  filtrarModelo(e : number) : void{
+    this.formulario.controls.modelo.setValue(null);
+     this.modeloService.findAllModelos().pipe(take(1)).subscribe({
+       next : modelo => this.modelo = modelo.filter((model) => model.marca.id === e),
+       error : err => console.log(err)
+      })
   }
 
   listarCombustivel(): void {
@@ -170,4 +198,10 @@ export class ListarVendasComponent implements OnInit {
   atualizaKit() {
     this.child.cadastrarKit(this.carro);
   }
+
+  abc(){
+    
+    console.log(this.modelo)
+  }
+  
 }

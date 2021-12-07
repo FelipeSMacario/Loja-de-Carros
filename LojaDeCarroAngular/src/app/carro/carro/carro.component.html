@@ -39,11 +39,11 @@
       <mat-icon>more_vert</mat-icon>
     </button>
     <mat-menu #menu="matMenu">
-      <button class="menuBotao"  mat-menu-item >
+      <button class="menuBotao"  mat-menu-item (click)="marcaVendido()">
         <mat-icon class="iconeMenu">done_outline</mat-icon>
         <span>Marca veículo como vendido</span>
       </button>
-      <button class="menuBotao" mat-menu-item>
+      <button class="menuBotao" mat-menu-item (click)="editarCarro()">
         <mat-icon class="iconeMenu">edit</mat-icon>
         <span>Editar veículo</span>
       </button>

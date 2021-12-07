@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { EMPTY } from 'rxjs';
 import { switchMap, take } from 'rxjs/operators';
 import { Carro } from 'src/app/models/Carro.model';
 import { Imagens } from 'src/app/models/imagens.model';
-import { Usuario } from 'src/app/models/usuario.model';
 import { CarroService } from 'src/app/services/carro.service';
 import { ImagensService } from 'src/app/services/imagens.service';
 import { ModalService } from 'src/app/shared/modal/modal.service';
@@ -27,7 +26,8 @@ export class CarroComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private imagensService: ImagensService,
     private carroService: CarroService,
-    private modalService: ModalService
+    private modalService: ModalService,
+    private router : Router
   ) {}
 
   ngOnInit(): void {
@@ -99,5 +99,9 @@ export class CarroComponent implements OnInit {
           console.log('Erro', error);
         }
       );
+  }
+
+  editarCarro(){
+    this.router.navigate(["/vendas/", this.id])
   }
 }

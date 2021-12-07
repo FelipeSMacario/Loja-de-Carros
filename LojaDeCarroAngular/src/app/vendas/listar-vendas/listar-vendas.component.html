@@ -6,25 +6,22 @@
       <tabset>
         <tab heading="Veículo" customClass="customClass">
           <div class="divGeral">
-            
             <app-input-select
               class="selectCor"
               label="Selecione a marca do veículo"
               [formGroup]="formulario"
               ControlName="marca"
               [Objeto]="marca"
-              (modelo)="listarModelos($event)"
-            ></app-input-select>           
-             
+              (modelo)="filtrarModelo($event)"
+            ></app-input-select>
 
-              <ng-container *ngIf="formulario.controls.marca.touched">
-                <span *ngIf="formulario.controls.marca.errors?.required">
-                  <div class="alert alert-danger" role="alert">
-                    Campo Obrigatório
-                  </div>
-                </span>
-              </ng-container>
-        
+            <ng-container *ngIf="formulario.controls.marca.touched">
+              <span *ngIf="formulario.controls.marca.errors?.required">
+                <div class="alert alert-danger" role="alert">
+                  Campo Obrigatório
+                </div>
+              </span>
+            </ng-container>
 
             <app-input-select
               class="selectCor"
@@ -42,7 +39,6 @@
               </span>
             </ng-container>
           </div>
-
 
           <div class="quilometragemValor divGeral">
             <app-input-number
@@ -123,7 +119,7 @@
               ControlName="placa"
               [formGroup]="formulario"
             ></app-input-text>
-            
+
             <ng-container *ngIf="formulario.controls.placa.touched">
               <span *ngIf="formulario.controls.placa.errors?.required">
                 <div class="alert alert-danger" role="alert">
@@ -186,10 +182,7 @@
                 </div>
               </span>
             </ng-container>
-
           </div>
-
-          
 
           <div class="CarroceriaCores divGeral">
             <app-input-select
@@ -231,7 +224,10 @@
       </tabset>
 
       <div class="botaoDIV">
-        <button class="botao btn" type="submit" [disabled]="!formulario.valid">Cadastrar</button>
+        <button class="botao btn" type="submit" [disabled]="!formulario.valid">
+          Cadastrar
+        </button>
+        <button type="button" (click)="abc()">abc</button>
       </div>
     </form>
   </div>

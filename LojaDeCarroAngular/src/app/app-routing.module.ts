@@ -10,44 +10,51 @@ import { ListarVendasComponent } from './vendas/listar-vendas/listar-vendas.comp
 
 const routes: Routes = [
   {
-    path : "", redirectTo: 'home', pathMatch: 'full'
+    path: '',
+    redirectTo: 'home',
+    pathMatch: 'full',
   },
 
   {
-    path : "home",
-    component : HomeComponent
+    path: 'home',
+    component: HomeComponent,
   },
   {
-    path : "compras",
-    component : ComprasComponent
-  },
-
-  {
-    path : "compras/search",
-    component : ComprasComponent
+    path: 'compras',
+    component: ComprasComponent,
   },
 
   {
-    path : "compras/detalhes/:id",
-    component : CarroComponent
+    path: 'compras/search',
+    component: ComprasComponent,
+  },
+
+  {
+    path: 'compras/detalhes/:id',
+    component: CarroComponent,
   },
   {
-  path : "vendas",
-  component : ListarVendasComponent
+    path: 'vendas',
+    component: ListarVendasComponent,
   },
   {
-  path : "cadastro",
-  component : CadastroComponent
+    path: 'vendas/:id',
+    component: ListarVendasComponent,
+  },
+
+  {
+    path: 'cadastro',
+    component: CadastroComponent,
   },
   {
-    path : "login",
-    component : LoginComponent
-    }  
+    path: 'login',
+    component: LoginComponent,
+  },
 ];
 
-@NgModule({ 
-  imports: [RouterModule.forRoot(routes), ],
-  
-  exports: [RouterModule]
+@NgModule({
+  imports: [RouterModule.forRoot(routes)],
+
+  exports: [RouterModule],
 })
-export class AppRoutingModule { }
+export class AppRoutingModule {}
