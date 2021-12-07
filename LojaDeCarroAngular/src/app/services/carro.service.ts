@@ -30,7 +30,11 @@ export class CarroService {
     }
   }
 
+<<<<<<< HEAD
   marcaVendido(carro : Carro) : Observable<Carro> {
+=======
+  marcaCarroVendido(carro : Carro) : Observable<Carro> {
+>>>>>>> 92c568377fb44d4552635849cb4398d38de9ae8b
     return this.httpClient.put<Carro>(`${this.url}/vendido/${carro.id}`, carro);
   }
 

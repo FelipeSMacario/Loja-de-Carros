@@ -34,6 +34,7 @@ export class CarroComponent implements OnInit {
     this.id = this.activatedRoute.snapshot.params['id'];
     this.listarImagens();
     this.findCarroById(this.id);
+    
   }
 
   listarImagens() {
@@ -66,6 +67,7 @@ export class CarroComponent implements OnInit {
       });
   }
 
+<<<<<<< HEAD
  marcarVendido(){
     const result$ = this.modalService.showConfirm("Confirmar como vendido", "Deseja marcar o veículo como vendido? O veículo não será mais exibido na lista de vendas", "Confirmar", "Cancelar", "danger" );
     result$.asObservable().pipe(
@@ -75,6 +77,42 @@ export class CarroComponent implements OnInit {
       sucess => {this.modalService.handleMessage("Veículo vendido", "success");},
       error => this.modalService.handleMessage("Erro ao atualizar o veículo", "danger")
     )
+=======
+
+
+  marcaVendido() {
+    const result$ = this.modalService.showConfirm(
+      'Confirmar como vendido',
+      'Deseja marcar o veículo como vendido? O veículo não será mais apresentado na lista de vendas',
+      'Confirmar',
+      'Cancelar',
+      'danger'
+    );
+    result$
+      .asObservable()
+      .pipe(
+        take(1),
+        switchMap((result) =>
+          result ? this.carroService.marcaCarroVendido(this.carro) : EMPTY
+        )
+      )
+      .subscribe(
+        (sucess) => {
+          this.modalService.handleMessage(
+            "Carro marcado como vendido",
+            'success'
+          );
+          
+        },
+        (error) => {
+          this.modalService.handleMessage(
+            'Erro ao atualizar o carro',
+            'danger'
+          );
+          console.log('Erro', error);
+        }
+      );
+>>>>>>> 92c568377fb44d4552635849cb4398d38de9ae8b
   }
  
 }

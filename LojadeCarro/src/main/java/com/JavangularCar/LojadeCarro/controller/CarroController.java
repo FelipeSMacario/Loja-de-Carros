@@ -46,6 +46,12 @@ public class CarroController {
         return carroService.updateCarro(carro, id);
     }
 
+    @PutMapping("/vendido/{id}")
+    @ApiOperation(value = "Marca o carro como vendido o retirando da lista de carros disponíveis")
+    public ResponseEntity marcaVendido(@RequestBody Carro carro, @PathVariable Long id){
+        return carroService.macarVendido(carro, id);
+    }
+
     @DeleteMapping("/{id}")
     @ApiOperation(value = "Deletar um carro buscando por id")
     public ResponseEntity deleteCarro(@PathVariable Long id) {

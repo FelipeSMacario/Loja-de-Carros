@@ -19,6 +19,7 @@ import java.util.List;
 @RestController
 @RequestMapping("imagens")
 public class ImagensController {
+
     @Autowired
     ImagensService imagensService;
 
@@ -50,7 +51,7 @@ public class ImagensController {
     }
 
     @GetMapping("/{id}")
-    @ApiOperation(value = "Buscar image por id")
+    @ApiOperation(value = "Buscar image por id do carro")
     public ResponseEntity<Imagens> findImagemById(@PathVariable Long id){
         return imagensService.findImagensById(id);
     }
