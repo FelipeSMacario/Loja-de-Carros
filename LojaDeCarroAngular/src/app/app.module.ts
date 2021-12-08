@@ -38,7 +38,7 @@ import { EMailComponent } from './shared/angular-form/e-mail/e-mail.component';
 import { InputTextComponent } from './shared/angular-form/input-text/input-text.component';
 import { InputSelectComponent } from './shared/angular-form/input-select/input-select.component';
 import { InputNumberComponent } from './shared/angular-form/input-number/input-number.component';
-import { LoginComponent } from './cadastro/login/login.component';
+import { LoginComponent } from './Login/login/login.component';
 import { CadastroComponent } from './cadastro/cadastro/cadastro.component';
 import { InputPasswordComponent } from './shared/angular-form/input-password/input-password.component';
 import { BsDropdownModule } from 'ngx-bootstrap/dropdown';

@@ -1,12 +1,5 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
-import { CadastroComponent } from './cadastro/cadastro/cadastro.component';
-import { LoginComponent } from './cadastro/login/login.component';
-
-import { CarroComponent } from './carro/carro/carro.component';
-import { ComprasComponent } from './compras/compras/compras.component';
-import { HomeComponent } from './home/home.component';
-import { ListarVendasComponent } from './vendas/listar-vendas/listar-vendas.component';
 
 const routes: Routes = [
   {
@@ -14,42 +7,34 @@ const routes: Routes = [
     redirectTo: 'home',
     pathMatch: 'full',
   },
-
   {
-    path: 'home',
-    component: HomeComponent,
-  },
-  {
-    path: 'compras',
-    component: ComprasComponent,
+    path : "cadastro",
+    loadChildren: () => import("./cadastro/cadastro.module").then(m => m.CadastroModule)
   },
 
   {
-    path: 'compras/search',
-    component: ComprasComponent,
+    path : "login",
+    loadChildren: () => import("./Login/login.module").then(m => m.LoginModule)
   },
 
   {
-    path: 'compras/detalhes/:id',
-    component: CarroComponent,
-  },
-  {
-    path: 'vendas',
-    component: ListarVendasComponent,
-  },
-  {
-    path: 'vendas/:id',
-    component: ListarVendasComponent,
+    path : "compras",
+    loadChildren: () => import("./compras/compras.module").then(m => m.ComprasModule)
   },
 
   {
-    path: 'cadastro',
-    component: CadastroComponent,
+    path : "carro",
+    loadChildren: () => import("./carro/carro.module").then(m => m.CarroModule)
   },
   {
-    path: 'login',
-    component: LoginComponent,
+    path : "home",
+    loadChildren: () => import("./home/home.module").then(m => m.HomeModule)
   },
+  {
+    path : "vendas",
+    loadChildren: () => import("./vendas/vendas.module").then(m => m.VendasModule)
+  }
+  
 ];
 
 @NgModule({

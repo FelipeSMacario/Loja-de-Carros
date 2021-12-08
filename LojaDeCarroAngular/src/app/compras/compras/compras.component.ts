@@ -53,7 +53,7 @@ export class ComprasComponent implements OnInit {
   }
 
   digitaValor(id: number) {
-    this.router.navigate(['compras/detalhes', id]);
+    this.router.navigate(['carro/detalhes', id]);
   }
 
   atualizaPagina(e) {
