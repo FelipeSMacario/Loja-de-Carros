@@ -1,10 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
-import { take } from 'rxjs/operators';
+import { EMPTY } from 'rxjs';
+import { switchMap, take } from 'rxjs/operators';
 import { Carro } from '../models/Carro.model';
 import { CarroService } from '../services/carro.service';
 import { ComprarService } from '../services/comprar.service';
+import { ModalService } from '../shared/modal/modal.service';
 
 @Component({
   selector: 'app-comprar-carro',
@@ -24,7 +26,8 @@ export class ComprarCarroComponent implements OnInit {
     private activatedRoute : ActivatedRoute,
     private fb : FormBuilder,
     private carroService : CarroService,
-    private comprasService : ComprarService
+    private comprasService : ComprarService,
+    private modalService : ModalService
     ) { }
 
   ngOnInit(): void {
@@ -60,6 +63,17 @@ export class ComprarCarroComponent implements OnInit {
       valor : [carro.valor],
       dataVenda : [new Date()]
     })
+  }
+
+  modalComprar(){
+    const result$ = this.modalService.showConfirm("Confirma compra", "Deseja comprar o veículo?", "Confirmar", "Cancelar" );
+    result$.asObservable().pipe(
+      take(1),
+      switchMap(result => result ? this.comprasService.comprar(this.formulario.value) : EMPTY)
+    ).subscribe(
+      sucess => {this.modalService.handleMessage("Veículo adquirido", "success")},
+      error => this.modalService.handleMessage("Erro ao adquirir o veículo", "danger")
+    )
   }
 
   comprar(){
