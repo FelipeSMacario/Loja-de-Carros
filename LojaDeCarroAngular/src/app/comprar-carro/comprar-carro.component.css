@@ -1,0 +1,49 @@
+.conteudo{
+    display: flexbox;
+}
+.form{
+    display: flexbox;
+    padding: 20px;
+    background-color: #bcbcbc; 
+    border: 1px solid #DAA520;
+    margin-top: 10px;
+    margin-bottom: 10px;    
+}
+
+.marcaModelo{
+    display: flex;
+    justify-content: center;
+}
+.marcaModelo .input{  
+    width: 294px;    
+}
+
+.marcaModelo .margin{
+    margin-left: 10px;
+}
+.valor{
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    
+}
+.valor .input{
+    width: 600px;
+}
+
+.botao{
+   display: flex;
+   justify-content: center;
+}
+.botao .btn{
+    margin-top: 5px;
+    background-color: #DAA520;
+    font-size: 25px;
+    border: #282828 2px solid;
+    color: #282828;
+    width: 600px;    
+}
+.botao .btn:hover{
+    background-color: orange;
+ 
+}

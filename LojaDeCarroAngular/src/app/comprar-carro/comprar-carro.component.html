@@ -1,0 +1,30 @@
+<div class="conteudo">
+    <div class="container">
+        <form [formGroup]="formulario" class="form">
+            <div class="marcaModelo">
+                <mat-form-field class="input" appearance="fill">
+                    <mat-label>Input</mat-label>
+                    <input matInput value={{carroMarca}} readonly>
+                </mat-form-field>
+    
+                <mat-form-field  class="input margin" appearance="fill">
+                    <mat-label>Input</mat-label>
+                    <input matInput value={{carroModelo}} readonly readonly>
+                </mat-form-field>
+            </div>
+            
+            <div class="valor">
+                <mat-form-field  class="input" appearance="fill">
+                    <mat-label>Input</mat-label>
+                    <input matInput value={{valor}} readonly readonly>
+                </mat-form-field>
+            </div>
+            
+            <div class="botao">
+                <button type="button" class="btn" (click)="comprar()">Comprar</button>
+            </div>
+            
+        </form>
+    </div>
+    
+</div>

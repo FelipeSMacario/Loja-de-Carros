@@ -104,4 +104,7 @@ export class CarroComponent implements OnInit {
   editarCarro(){
     this.router.navigate(["/vendas/", this.id])
   }
+  comprar(){
+    this.router.navigate(["comprar/", this.id])
+  }
 }

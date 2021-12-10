@@ -46,6 +46,7 @@ import { ModalComponent } from './shared/modal/modal.component';
 import { AlertModalComponent } from './shared/modal/alert-modal/alert-modal.component';
 import { BsModalService } from 'ngx-bootstrap/modal';
 import {MatMenuModule} from '@angular/material/menu';
+import { ComprarCarroComponent } from './comprar-carro/comprar-carro.component';
 
 @NgModule({
   declarations: [
@@ -74,6 +75,7 @@ import {MatMenuModule} from '@angular/material/menu';
     InputPasswordComponent,
     ModalComponent,
     AlertModalComponent,
+    ComprarCarroComponent,
 
   ],
   imports: [
