@@ -51,6 +51,7 @@ export class ListarVendasComponent implements OnInit {
 
     this.id = this.activatedRoute.snapshot.params["id"];
    if(this.id){
+     
      this.criaFormVazio();
  
     this.carroService.findCarroById(this.id).pipe(take(1)).subscribe({
@@ -59,6 +60,7 @@ export class ListarVendasComponent implements OnInit {
     })
      
    }else{
+     
      this.criaFormVazio();   
     }   
 

@@ -1,116 +1,117 @@
 .fundo{
-   background-image: url("../../assets/images/home.jpg");
-   background-repeat: no-repeat;
-   background-size: cover;
-   height: 1400px;
-    
-}
-.imagem{
-    height: 200px;
-    padding: 5px;
-}
-
-.cards{
-    padding-top: 15%; 
-}
-.cardTamanho{
-    height: 500px;
-    width: 2000px;
-    padding-right: 20px;
-}
-.separaCard{
-    margin-right: 100px;   
-    border-width: 0;
-}
-
-.listaImagem{
-    height: 100px;
-    width: 150px;
-}
-.child{
-  display: inline-block;
-  flex-grow: 1;
-  height: auto;
-  width: calc(100% * (3/20) - 10px - 1px);
-}
-.lista{
-    padding-top: 100px;
-    height: 100%;
-}
-.check{
-    display: none;
-}
-.tituloCard{
-    font-size: 30px;
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    text-align: center;
-    color: #DAA520;
-}
-.botaoCheck{
-    border-width: 0;
-}
-.botaoCheck:hover{
-    border-color: #DAA520;
-    border-width: 2px;
-}
-.buttonCard{
-    height: 100%;
-    width: 100%;
-    padding: 0;
-    border-width: 0;
-}
-
-.buttonCard:hover .cardImagem{
-    opacity: 0.8;
-    border-color: #DAA520;
-    border-style: solid;
-    border-width: 3px;
-}
-.buttonCard:hover .legendaImagem{
-    opacity: 1;
-}
-
-.cardImagem{
-    height: 100%;
-    width: 100%;
-
-}
-
-.legendaImagem{
-    position: absolute;
-    top: 200px;
-    left: 85px;
-	z-index: 1;    
-    opacity: 0;
-    position: flex;
-    font-size: 50px;
-    color: #DAA520;
-}
-
-.cardMarcas{
-    margin-left: 10px;    
-    border-width: 2px;
-    margin-right: 10px;
-    border-width: 1;
-}
-@media screen  and (max-width:370px){
-    .child{
-        display: inline-block;
-        flex-grow: 1;
-        height: auto;
-        width: calc(100% * (1/1) - 10px - 1px);
-      }
-      
-      
-}
-@media screen and (min-width:370px)  and (max-width:1400px){
-    .child{
-        display: inline-block;
-        flex-grow: 1;
-        height: auto;
-        width: calc(100% * (10/20) - 10px - 1px);
-      }
-      
-}
-
-
+    background-image: url("../../assets/images/home.jpg");
+    background-repeat: no-repeat;
+    background-size: cover;
+    height: 1400px;
+     
+ }
+ .imagem{
+     height: 200px;
+     padding: 5px;
+ }
+ 
+ .cards{
+     padding-top: 15%; 
+ }
+ .cardTamanho{
+     height: 500px;
+     width: 2000px;
+     padding-right: 20px;
+ }
+ .separaCard{
+     margin-right: 100px;   
+     border-width: 0;
+ }
+ 
+ .listaImagem{
+     height: 100px;
+     width: 150px;
+ }
+ .child{
+   display: inline-block;
+   flex-grow: 1;
+   height: auto;
+   width: calc(100% * (3/20) - 10px - 1px);
+ }
+ .lista{
+     padding-top: 100px;
+     height: 100%;
+ }
+ .check{
+     display: none;
+ }
+ .tituloCard{
+     font-size: 30px;
+     font-family: Georgia, 'Times New Roman', Times, serif;
+     text-align: center;
+     color: #DAA520;
+ }
+ .botaoCheck{
+     border-width: 0;
+ }
+ .botaoCheck:hover{
+     border-color: #DAA520;
+     border-width: 2px;
+ }
+ .buttonCard{
+     height: 100%;
+     width: 100%;
+     padding: 0;
+     border-width: 0;
+ }
+ 
+ .buttonCard:hover .cardImagem{
+     opacity: 0.8;
+     border-color: #DAA520;
+     border-style: solid;
+     border-width: 3px;
+ }
+ .buttonCard:hover .legendaImagem{
+     opacity: 1;
+ }
+ 
+ .cardImagem{
+     height: 100%;
+     width: 100%;
+ 
+ }
+ 
+ .legendaImagem{
+     position: absolute;
+     top: 200px;
+     left: 85px;
+     z-index: 1;    
+     opacity: 0;
+     position: flex;
+     font-size: 50px;
+     color: #DAA520;
+ }
+ 
+ .cardMarcas{
+     margin-left: 10px;    
+     border-width: 2px;
+     margin-right: 10px;
+     border-width: 1;
+ }
+ @media screen  and (max-width:370px){
+     .child{
+         display: inline-block;
+         flex-grow: 1;
+         height: auto;
+         width: calc(100% * (1/1) - 10px - 1px);
+       }
+       
+       
+ }
+ @media screen and (min-width:370px)  and (max-width:1400px){
+     .child{
+         display: inline-block;
+         flex-grow: 1;
+         height: auto;
+         width: calc(100% * (10/20) - 10px - 1px);
+       }
+       
+ }
+ 
+ 
+ 
