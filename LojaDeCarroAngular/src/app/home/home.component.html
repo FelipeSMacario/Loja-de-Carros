@@ -3,47 +3,48 @@
 
 
     <div *ngIf="usuarioAutenticado">
-       <h1 class="tituloCard">Olá {{usuario.nome}}, seja bem-vindo(a) de volta. </h1> 
+       <h1 class="tituloCard">Olá , seja bem-vindo(a) de volta {{usuario.nome}}. </h1>
     </div>
 
-    <div class="card cardMarcas">
-      <div class="card-body">
-        <h2 class="card-title tituloCard">Pesquise por uma marca</h2>
-
-        <div class="form-check child" *ngFor="let mac of marca">
-          <input class="form-check-input check" type="radio" />
-          <label class="form-check-label">
-            <button class="botaoCheck" (click)="selecionaMarca(mac.nome)">
-              <img class="listaImagem" src="{{ mac.url }}" />
-            </button>
-          </label>
-        </div>
-      </div>      
-    </div>
-
-    <div class="container">
-      <div class="card-group cards">
-        <div class="card separaCard">
-          <button class="buttonCard" routerLink="/compras">
-            <img
-              class="card-img-top cardImagem"
-              src="../../assets/images/comprar.jpg"
-            />
-            <h1 class="legendaImagem">Compre um veículo</h1>
-          </button>
-        </div>
-
-        <div class="card">
-          <button class="buttonCard" [routerLink]="['/vendas']">
-            <img
-              class="card-img-top cardImagem"
-              src="../../assets/images/vendajpg.png"
-            />
-
-            <h1 class="legendaImagem">Venda seu veículo</h1>
-          </button>
+      <div class="card card-marcas " >
+        <div class="row" >
+          <h2 class="card-title tituloCard">Pesquise por uma marca</h2>
+          
+          <div class="form-check col" *ngFor="let marc of marca" (click)="selecionaMarca(marc.nome)">
+            <input class="form-check-input check" type="radio" />
+            <label class="form-check-label">
+              <button class="botaoCheck">
+                <img class="listaImagem" src="{{marc.url}}" />
+              </button>
+            </label>
+          </div>
         </div>
       </div>
+
+    <div class="compraevenda">
+      <div class="container">
+        <div class="card-group cards">
+          <div class="card separaCard">
+            <button class="buttonCard" routerLink="/compras">
+              <img
+                class="card-img-top cardImagem"
+                src="../../assets/images/comprar.jpg"
+              />
+              <h1 class="legendaImagem">Compre um veículo</h1>
+            </button>
+          </div>
+
+          <div class="card">
+            <button class="buttonCard" [routerLink]="['/vendas']">
+              <img
+                class="card-img-top cardImagem"
+                src="../../assets/images/vendajpg.png"
+              />
+
+              <h1 class="legendaImagem">Venda seu veículo</h1>
+            </button>
+          </div>
+        </div>
     </div>
   </div>
 </div>
