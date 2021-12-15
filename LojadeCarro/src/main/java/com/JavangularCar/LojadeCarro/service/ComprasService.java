@@ -20,4 +20,8 @@ public class ComprasService {
     public List<Compras> listarCompras() {
         return comprasRepository.findAll();
     }
+
+    public void marcaVendido(Long idCarro){
+        comprasRepository.marcaVendido(idCarro);
+    }
 }

@@ -23,6 +23,8 @@ public class ComprasController {
 
     @PostMapping
     public Compras createCompras(@RequestBody Compras compras){
+        //Função para marcar o carro como vendido.
+        comprasService.marcaVendido(compras.getCarro().getId());
         return comprasService.createCompras(compras);
     }
 }

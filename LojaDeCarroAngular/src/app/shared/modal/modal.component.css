@@ -8,13 +8,13 @@
     background-color: #DAA520;
 }
 .modal-header{
-    border: #DAA520 1px solid;
+    border: #DAA520 0px solid;
 }
 .modal-body{
-    border: #DAA520 1px solid;
+    border: #DAA520 0px solid;
 }
 .modal-footer{
-    border: #DAA520 1px solid;    
+    border: #DAA520 0px solid;    
     display: flex;
     justify-content: center;
 }

@@ -5,11 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Repository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 
 
@@ -36,6 +38,7 @@ public interface CarroRepository extends JpaRepository<Carro, Long> {
                              @Param("valorFim") Double valorFim,
                              @Param("quilometragem") Double quilometragem,
                              Pageable pageable);
+
 
 
 }

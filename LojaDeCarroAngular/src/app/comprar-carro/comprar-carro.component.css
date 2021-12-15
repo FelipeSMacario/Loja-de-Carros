@@ -4,7 +4,6 @@
 .form{
     display: flex;
     flex-direction: column;
-    flex: 1 1 auto;
     padding: 20px;
     background-color: #bcbcbc; 
     border: 1px solid #DAA520;
@@ -14,11 +13,11 @@
 
 .marcaModelo{
     display: flex;
+    flex-direction: row;
     justify-content: center;
 }
 .marcaModelo .input{  
-    width: 294px;    
-    flex: 1 0 300px;
+    width: 295px;    
 }
 
 .marcaModelo .margin{
