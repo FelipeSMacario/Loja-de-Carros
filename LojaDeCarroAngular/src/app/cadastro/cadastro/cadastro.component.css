@@ -1,56 +1,67 @@
-.conteudo{
-    background-image: url("../../../assets/images/cadastro2.jpg");
-    background-repeat: no-repeat;
-    background-size: cover;
-    height: 100%;     
-    padding-top: 100px;
-    padding-left: 600px;
+.conteudo {
+  background-image: url("../../../assets/images/home2.jfif");
+  background-position: 100%;
+  height:auto;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
 }
 
-.titulo{
-    display: block;    
-    text-align: center;  
-    color: #DAA520;
-    text-shadow: #282828 1px 1px; 
-    font-size: 30px;
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    margin-bottom: 10px;
+.container {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
 }
 
-.form{
-    padding: 15px;
-    width: 700px;
-    border: solid 1px #DAA520;
-    background-color: #bcbcbc;
-    color: #DAA520;
+.titulo {
+  display: block;
+  text-align: center;
+  color: #daa520;
+  text-shadow: #282828 1px 1px;
+  font-size: 30px;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  margin-bottom: 10px;
 }
-.botaoDIV{
-    display: block;
-    text-align: center;
-}
-.botao{
-    text-align: center;
-    background-color: #DAA520;
-    height: 60px;
-    width: 100%;
-    font-size: 20px;
-    border: #282828 2px solid;
-    color: #282828;
 
+.form {
+  padding: 15px;
+  width: 700px;
+  border: solid 1px #daa520;
+  background-color: #bcbcbc;
+  color: #daa520;
 }
-.botao:hover{
-    background-color: orange;
-    border: #282828 2px solid;
-    color: #282828;
+.botaoDIV {
+  display: block;
+  text-align: center;
 }
-.linha{
-    margin-top: 10px;
-    margin-bottom: 20px;
+.botao {
+  text-align: center;
+  background-color: #daa520;
+  height: 60px;
+  width: 100%;
+  font-size: 20px;
+  border: #282828 2px solid;
+  color: #282828;
 }
-.span{
-    margin-top: 5px;
-    font-size: 18px;
-    text-align: center;
-    font-family: Georgia, 'Times New Roman', Times, serif;
-    text-shadow: #282828 1px 1px; 
+.botao:hover {
+  background-color: orange;
+  border: #282828 2px solid;
+  color: #282828;
+}
+.linha {
+  margin-top: 10px;
+  margin-bottom: 20px;
+}
+.span {
+  margin-top: 5px;
+  font-size: 18px;
+  text-align: center;
+  font-family: Georgia, "Times New Roman", Times, serif;
+  text-shadow: #282828 1px 1px;
 }

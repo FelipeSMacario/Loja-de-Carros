@@ -21,30 +21,23 @@
         </div>
       </div>
 
-    <div class="compraevenda">
-      <div class="container">
-        <div class="card-group cards">
-          <div class="card separaCard">
-            <button class="buttonCard" routerLink="/compras">
-              <img
-                class="card-img-top cardImagem"
-                src="../../assets/images/comprar.jpg"
-              />
-              <h1 class="legendaImagem">Compre um veículo</h1>
-            </button>
-          </div>
-
-          <div class="card">
-            <button class="buttonCard" [routerLink]="['/vendas']">
-              <img
-                class="card-img-top cardImagem"
-                src="../../assets/images/vendajpg.png"
-              />
-
-              <h1 class="legendaImagem">Venda seu veículo</h1>
-            </button>
+      <div class="row">
+        <div class="col-sm-6">
+          <div class="card btn" id="card" [routerLink]="['/compras']">
+            <div class="card-body">
+              <h5 class="card-title">Compre um veículo</h5>
+              
+            </div>
           </div>
         </div>
-    </div>
+        <div class="col-sm-6">
+          <div class="card btn" id="card2" [routerLink]="['/vendas']">
+            <div class="card-body">
+              <h5 class="card-title">Venda seu veículo</h5>
+             
+            </div>
+          </div>
+        </div>
+      </div>
   </div>
 </div>
