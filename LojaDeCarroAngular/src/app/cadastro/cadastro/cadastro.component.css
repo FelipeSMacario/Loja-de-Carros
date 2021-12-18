@@ -15,6 +15,7 @@
   margin-bottom: 20px;
   display: flex;
   flex-direction: row;
+  height: auto;
   justify-content: center;
   align-items: center;
 }

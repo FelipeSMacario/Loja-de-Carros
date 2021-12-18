@@ -60,9 +60,10 @@ export class CarroComponent implements OnInit {
           this.carroMarca = car.marca.nome;
           this.carroModelo = car.modelo.nome;
           let usuario = JSON.parse(localStorage.getItem('usuario')!);
-          car.usuario.id == usuario.id
-            ? (this.igual = true)
-            : (this.igual = false);
+          if(usuario){
+            car.usuario.id == usuario.id ? (this.igual = true): (this.igual = false);
+          } 
+          
         },
         error: (err) => console.log(err),
       });

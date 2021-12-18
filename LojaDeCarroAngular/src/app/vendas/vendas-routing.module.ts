@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from '../guards/auth.guard';
+import { ChildGuard } from '../guards/child.guard';
 import { ListarVendasComponent } from './listar-vendas/listar-vendas.component';
 
 const routes: Routes = [
@@ -10,6 +12,7 @@ const routes: Routes = [
   {
     path: ':id',
     component: ListarVendasComponent,
+    
   },
 ];
 

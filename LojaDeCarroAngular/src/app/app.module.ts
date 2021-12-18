@@ -47,6 +47,8 @@ import { AlertModalComponent } from './shared/modal/alert-modal/alert-modal.comp
 import { BsModalService } from 'ngx-bootstrap/modal';
 import {MatMenuModule} from '@angular/material/menu';
 import { ComprarCarroComponent } from './comprar-carro/comprar-carro.component';
+import { AuthGuard } from './guards/auth.guard';
+import { ChildGuard } from './guards/child.guard';
 
 @NgModule({
   declarations: [
@@ -101,7 +103,7 @@ import { ComprarCarroComponent } from './comprar-carro/comprar-carro.component';
     BsDropdownModule.forRoot(),
   ],
   
-  providers: [BsModalService],
+  providers: [BsModalService, AuthGuard, ChildGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

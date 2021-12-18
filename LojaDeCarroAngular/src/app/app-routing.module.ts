@@ -1,5 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from './guards/auth.guard';
+import { ChildGuard } from './guards/child.guard';
 
 const routes: Routes = [
   {
@@ -9,7 +11,8 @@ const routes: Routes = [
   },
   {
     path : "cadastro",
-    loadChildren: () => import("./cadastro/cadastro.module").then(m => m.CadastroModule)
+    loadChildren: () => import("./cadastro/cadastro.module").then(m => m.CadastroModule),
+    
   },
 
   {
@@ -19,12 +22,13 @@ const routes: Routes = [
 
   {
     path : "compras",
-    loadChildren: () => import("./compras/compras.module").then(m => m.ComprasModule)
+    loadChildren: () => import("./compras/compras.module").then(m => m.ComprasModule),
   },
 
   {
     path : "carro",
-    loadChildren: () => import("./carro/carro.module").then(m => m.CarroModule)
+    loadChildren: () => import("./carro/carro.module").then(m => m.CarroModule),
+    
   },
   {
     path : "home",
@@ -32,11 +36,14 @@ const routes: Routes = [
   },
   {
     path : "vendas",
-    loadChildren: () => import("./vendas/vendas.module").then(m => m.VendasModule)
+    loadChildren: () => import("./vendas/vendas.module").then(m => m.VendasModule),
+    canActivate : [AuthGuard],
+    canActivateChild : [ChildGuard]
   },
   {
     path : "comprar",
-    loadChildren: () => import("./comprar-carro/comprar-carro.module").then(m => m.ComprarCarroModule)
+    loadChildren: () => import("./comprar-carro/comprar-carro.module").then(m => m.ComprarCarroModule),
+    canActivate : [AuthGuard]
   }
   
 ];
