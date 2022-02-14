@@ -6,16 +6,15 @@
   background-repeat: no-repeat;
   background-size: cover;
   display: flex;
-  flex-direction: row;
-  align-items: center;
 }
 
 .container {
   margin-top: 20px;
   margin-bottom: 20px;
   display: flex;
+  height: 84vh;
+  display: flex;
   flex-direction: row;
-  height: auto;
   justify-content: center;
   align-items: center;
 }
