@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
+@CrossOrigin(origins = "http://192.168.49.2:30000")
 @Api(tags = "Carroceria")
 @RestController
 @RequestMapping("carroceria")
