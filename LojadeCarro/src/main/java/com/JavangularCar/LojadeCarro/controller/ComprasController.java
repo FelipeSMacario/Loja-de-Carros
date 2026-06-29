@@ -2,14 +2,14 @@ package com.JavangularCar.LojadeCarro.controller;
 
 import com.JavangularCar.LojadeCarro.model.Compras;
 import com.JavangularCar.LojadeCarro.service.ComprasService;
-import io.swagger.annotations.Api;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200")
-@Api(tags = "Compras")
+@CrossOrigin(origins = "http://192.168.49.2:30000")
+@Tag(name = "Compras")
 @RestController
 @RequestMapping("/compras")
 public class ComprasController {

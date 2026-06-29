@@ -4,7 +4,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 
 @Data
 @Table(name = "Imagens")
@@ -20,6 +20,6 @@ public class Imagens {
     private String url;
 
     @ManyToOne
-    private Carro carro;
+    private com.JavangularCar.LojadeCarro.model.Carro carro;
 
 }
