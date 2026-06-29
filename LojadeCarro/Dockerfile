@@ -1,17 +1,10 @@
-# Etapa 1: Build com Maven
-FROM maven:3.8.5-eclipse-temurin-11 AS build
-WORKDIR /app
+FROM mysql:8.4
 
-COPY pom.xml .
-COPY src ./src
+# Define senha do root e banco inicial
+ENV MYSQL_ROOT_PASSWORD=root123
+ENV MYSQL_DATABASE=loja_de_carros
 
-RUN mvn clean package -DskipTests
+# Copia script de inicialização para dentro do container
+COPY init.sql /docker-entrypoint-initdb.d/
 
-# Etapa 2: Imagem final com JDK
-FROM eclipse-temurin:11-jdk
-WORKDIR /app
-
-COPY --from=build /app/target/LojadeCarro-0.0.1-SNAPSHOT.jar app.jar
-
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
+EXPOSE 3306

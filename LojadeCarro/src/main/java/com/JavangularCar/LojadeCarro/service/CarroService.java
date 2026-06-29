@@ -1,9 +1,7 @@
 package com.JavangularCar.LojadeCarro.service;
 
 import com.JavangularCar.LojadeCarro.model.Carro;
-import com.JavangularCar.LojadeCarro.model.Marca;
 import com.JavangularCar.LojadeCarro.repository.CarroRepository;
-import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
