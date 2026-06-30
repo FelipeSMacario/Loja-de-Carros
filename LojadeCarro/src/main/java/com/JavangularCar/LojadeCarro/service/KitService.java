@@ -1,6 +1,6 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Kit;
+import com.JavangularCar.LojadeCarro.entity.Kit;
 import com.JavangularCar.LojadeCarro.repository.KitRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

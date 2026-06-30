@@ -1,8 +1,8 @@
-package com.JavangularCar.LojadeCarro.model;
-
-import lombok.Data;
+package com.JavangularCar.LojadeCarro.entity;
 
 import jakarta.persistence.*;
+import lombok.Data;
+
 import java.time.LocalDateTime;
 
 
@@ -30,13 +30,13 @@ public class Carro {
     private String motor;
 
     @Column(name = "AnoFabricacao", nullable = false)
-    private int anoFabricacao;
+    private Integer anoFabricacao;
 
     @Column(name = "DataCadastro", nullable = false)
     private LocalDateTime dtCadastro;
 
     @Column(name = "Ativo", nullable = false)
-    private boolean ativo;
+    private boolean ativo = true;
 
     @ManyToOne
     @JoinColumn(name = "carroceria_id", nullable = false)

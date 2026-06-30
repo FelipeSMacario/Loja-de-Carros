@@ -1,47 +1,69 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Carroceria;
+import com.JavangularCar.LojadeCarro.dto.request.CarroceriaRequest;
+import com.JavangularCar.LojadeCarro.dto.response.CarroceriaResponse;
+import com.JavangularCar.LojadeCarro.exception.CarroceriaException;
+import com.JavangularCar.LojadeCarro.mapper.CarroceriaMapper;
 import com.JavangularCar.LojadeCarro.repository.CarroceriaRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
+@Slf4j
 @Service
 public class CarroceriaService {
     @Autowired
     CarroceriaRepository carroceriaRepository;
 
-    public Carroceria createCarroceria (@RequestBody Carroceria carroceria){
-        return carroceriaRepository.save(carroceria);
+    @Autowired
+    CarroceriaMapper carroceriaMapper;
+
+    public CarroceriaResponse createCarroceria(CarroceriaRequest carroceriaRequest) {
+        log.info("Inicio da createCarroceria");
+        var carroceriaEntity = carroceriaMapper.toEntity(carroceriaRequest);
+        var carroceriaResponse = carroceriaRepository.save(carroceriaEntity);
+        log.info("Carroceria salva com sucesso!");
+
+        return carroceriaMapper.toRecord(carroceriaResponse);
     }
 
-    public List<Carroceria> listarCarroceria(){
-        return carroceriaRepository.findAll();
-    }
-    public ResponseEntity<Carroceria> findCarroceriaById(Long id){
-        return carroceriaRepository.findById(id)
-                                                .map(record -> ResponseEntity.ok().body(record))
-                                                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-    }
-
-    public ResponseEntity updateCarroceria(@RequestBody Carroceria carroceria, Long id){
-        return carroceriaRepository.findById(id)
-                                                .map(record -> {
-                                                    record.setNome(carroceria.getNome());
-                                                    Carroceria update = carroceriaRepository.save(carroceria);
-                                                    return  ResponseEntity.ok().body(update);
-                                                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public List<CarroceriaResponse> listarCarroceria() {
+        log.info("Inicio da listarCarroceria");
+        return carroceriaRepository
+                .findAll()
+                .stream()
+                .map(carroceriaMapper::toRecord)
+                .toList();
     }
 
-    public ResponseEntity deleteCarroceria(Long id){
+    public CarroceriaResponse findCarroceriaById(Long id) {
+        log.info("Inicio da findCarroceriaById com id: {}", id);
+        var carroceriaEntity = carroceriaRepository.findById(id)
+                .stream().findFirst()
+                .orElseThrow(() -> new CarroceriaException(id));
+
+        return carroceriaMapper.toRecord(carroceriaEntity);
+
+    }
+
+    public CarroceriaResponse updateCarroceria(CarroceriaRequest carroceriaRequest, Long id) {
+        log.info("Inicio da updateCarroceria com o id: {}", id);
         return carroceriaRepository.findById(id)
-                                                .map(record -> {
-                                                    carroceriaRepository.deleteById(id);
-                                                    return ResponseEntity.ok().build();
-                                                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(record -> {
+                    record.setNome(carroceriaRequest.nome());
+                    var update = carroceriaRepository.save(record);
+                    log.warn("Carroceria atualizado com sucesso!");
+                    return carroceriaMapper.toRecord(update);
+                }).orElseThrow(() -> new CarroceriaException(id));
+    }
+
+    public void deleteCarroceria(Long id) {
+        log.info("Inicio da deleteCarroceria com o id: {}", id);
+        var carroceriaEntity = carroceriaRepository.findById(id)
+                .orElseThrow(() -> new CarroceriaException(id));
+
+        carroceriaRepository.delete(carroceriaEntity);
     }
 }

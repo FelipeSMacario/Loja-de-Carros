@@ -1,4 +1,4 @@
-package com.JavangularCar.LojadeCarro.model;
+package com.JavangularCar.LojadeCarro.entity;
 
 import lombok.Data;
 import lombok.Getter;
@@ -7,18 +7,19 @@ import lombok.Setter;
 import jakarta.persistence.*;
 
 @Data
-@Table(name = "Marca")
+@Table(name = "Imagens")
 @Entity
 @Getter
 @Setter
-public class Marca {
+public class Imagens {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "Nome")
-    private String nome;
-
-    @Column(name = "URL")
     private String url;
+
+    @ManyToOne
+    private com.JavangularCar.LojadeCarro.entity.Carro carro;
+
 }

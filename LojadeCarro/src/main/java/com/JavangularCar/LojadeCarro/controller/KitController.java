@@ -1,6 +1,6 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Kit;
+import com.JavangularCar.LojadeCarro.entity.Kit;
 import com.JavangularCar.LojadeCarro.service.KitService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

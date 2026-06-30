@@ -1,0 +1,53 @@
+População inicial da tabela marca
+INSERT INTO marca (nome, url) VALUES
+                                  ('Fiat', 'https://www.fiat.com.br'),
+                                  ('Volkswagen', 'https://www.vw.com.br'),
+                                  ('Chevrolet', 'https://www.chevrolet.com.br'),
+                                  ('Toyota', 'https://www.toyota.com.br'),
+                                  ('Hyundai', 'https://www.hyundai.com.br'),
+                                  ('Jeep', 'https://www.jeep.com.br'),
+                                  ('Renault', 'https://www.renault.com.br'),
+                                  ('Honda', 'https://www.honda.com.br'),
+                                  ('Nissan', 'https://www.nissan.com.br'),
+                                  ('Ford', 'https://www.ford.com.br');
+
+-- População inicial da tabela modelo
+INSERT INTO modelo (nome, marca_id) VALUES
+                                        ('Argo', 1), ('Cronos', 1), ('Mobi', 1), ('Toro', 1), ('Pulse', 1),
+                                        ('Gol', 2), ('Polo', 2), ('Virtus', 2), ('T-Cross', 2), ('Nivus', 2),
+                                        ('Onix', 3), ('Onix Plus', 3), ('Tracker', 3), ('S10', 3), ('Spin', 3),
+                                        ('Corolla', 4), ('Corolla Cross', 4), ('Hilux', 4), ('Yaris', 4), ('SW4', 4),
+                                        ('HB20', 5), ('HB20S', 5), ('Creta', 5), ('Tucson', 5), ('Santa Fe', 5),
+                                        ('Renegade', 6), ('Compass', 6), ('Commander', 6), ('Cherokee', 6), ('Wrangler', 6),
+                                        ('Kwid', 7), ('Logan', 7), ('Sandero', 7), ('Duster', 7), ('Captur', 7),
+                                        ('Civic', 8), ('City', 8), ('HR-V', 8), ('Fit', 8), ('WR-V', 8),
+                                        ('Kicks', 9), ('Versa', 9), ('Frontier', 9), ('Sentra', 9), ('March', 9),
+                                        ('Ka', 10), ('EcoSport', 10), ('Ranger', 10), ('Fusion', 10), ('Focus', 10);
+
+-- População inicial da tabela cores
+INSERT INTO cores (nome) VALUES
+                             ('Vermelho'),
+                             ('Preto'),
+                             ('Branco'),
+                             ('Azul'),
+                             ('Amarelo'),
+                             ('Prata'),
+                             ('Verde'),
+                             ('Marrom'),
+                             ('Laranja'),
+                             ('Bege');
+
+-- População inicial da tabela combustivel
+INSERT INTO combustivel (nome) VALUES
+                                   ('Gasolina'),
+                                   ('Etanol'),
+                                   ('Flex');
+-- População inicial da tabela carroceria
+INSERT INTO caracteristica (nome) VALUES
+                                      ('Sedan'),
+                                      ('Hatch'),
+                                      ('Picape'),
+                                      ('SUV');
+
+INSERT INTO usuario (cpf, dt_nascimento, email, nome, password)
+    -> VALUES ('15152736799', STR_TO_DATE('14/05/1991', '%d/%m/%Y'), 'felipesmacario@gmail.com', 'Felipe', '123');

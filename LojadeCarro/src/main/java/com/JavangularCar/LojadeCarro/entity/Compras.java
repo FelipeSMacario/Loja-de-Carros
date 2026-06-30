@@ -1,4 +1,4 @@
-package com.JavangularCar.LojadeCarro.model;
+package com.JavangularCar.LojadeCarro.entity;
 
 import lombok.Data;
 import lombok.Getter;

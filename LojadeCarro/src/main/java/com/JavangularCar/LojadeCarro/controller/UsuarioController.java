@@ -1,10 +1,11 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Usuario;
+import com.JavangularCar.LojadeCarro.entity.Usuario;
 import com.JavangularCar.LojadeCarro.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.web.bind.annotation.*;
@@ -35,7 +36,8 @@ public class UsuarioController {
     @GetMapping("/{id}")
     @Operation(summary = "Buscar usuário por id")
     public ResponseEntity<Usuario> findUsuarioBId (@PathVariable Long id){
-        return usuarioService.findUsuarioBId(id);
+        var response = usuarioService.findUsuarioBId(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar usuário buscando por id")

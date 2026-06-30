@@ -1,18 +1,12 @@
 package com.JavangularCar.LojadeCarro.repository;
 
-import com.JavangularCar.LojadeCarro.model.Carro;
+import com.JavangularCar.LojadeCarro.entity.Carro;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Repository;
-
-import jakarta.transaction.Transactional;
-import java.time.LocalDateTime;
 
 
 @Repository

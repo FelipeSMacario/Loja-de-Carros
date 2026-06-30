@@ -1,13 +1,13 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Usuario;
+import com.JavangularCar.LojadeCarro.entity.Usuario;
 import com.JavangularCar.LojadeCarro.repository.UsuarioRepository;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -31,31 +31,30 @@ public class UsuarioService {
         return usuarioRepository.findAll();
     }
 
-    public ResponseEntity<Usuario> findUsuarioBId(Long id){
+    public Usuario findUsuarioBId(Long id) {
         return usuarioRepository.findById(id)
-                .map(record ->
-                    ResponseEntity.ok().body(record))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .stream().findFirst()
+                .orElseThrow(() -> new ServiceException("Usuário não encontrado"));
     }
 
-    public ResponseEntity updateUsuario (@RequestBody Usuario usuario, Long id){
+    public ResponseEntity updateUsuario(@RequestBody Usuario usuario, Long id) {
         return usuarioRepository.findById(id)
-                                .map(record -> {
-                                    record.setCpf(usuario.getCpf());
-                                    record.setDtNascimento(usuario.getDtNascimento());
-                                    record.setNome(usuario.getNome());
-                                    record.setEmail(usuario.getEmail());
-                                    record.setPassword(encoder.encode(usuario.getPassword()));
-                                    Usuario update = usuarioRepository.save(record);
-                                    return ResponseEntity.ok().body(update);
-                                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(record -> {
+                    record.setCpf(usuario.getCpf());
+                    record.setDtNascimento(usuario.getDtNascimento());
+                    record.setNome(usuario.getNome());
+                    record.setEmail(usuario.getEmail());
+                    record.setPassword(encoder.encode(usuario.getPassword()));
+                    Usuario update = usuarioRepository.save(record);
+                    return ResponseEntity.ok().body(update);
+                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    public ResponseEntity deleteUsuario (Long id){
+    public ResponseEntity deleteUsuario(Long id) {
         return usuarioRepository.findById(id)
-                                .map(record -> {
-                                    usuarioRepository.deleteById(id);
-                                    return ResponseEntity.ok().build();
-                                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(record -> {
+                    usuarioRepository.deleteById(id);
+                    return ResponseEntity.ok().build();
+                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 }

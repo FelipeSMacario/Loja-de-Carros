@@ -1,8 +1,6 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import ch.qos.logback.core.joran.util.StringToObjectConverter;
-import com.JavangularCar.LojadeCarro.model.Carro;
-import com.JavangularCar.LojadeCarro.model.Imagens;
+import com.JavangularCar.LojadeCarro.entity.Imagens;
 import com.JavangularCar.LojadeCarro.repository.ImagensRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

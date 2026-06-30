@@ -1,7 +1,8 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Cores;
+import com.JavangularCar.LojadeCarro.entity.Cores;
 import com.JavangularCar.LojadeCarro.repository.CoresRepository;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,10 +23,10 @@ public class CoresService {
     public List<Cores> listarCores(){
         return coresRepository.findAll();
     }
-    public ResponseEntity<Cores> findCoresById(Long id){
+    public Cores findCoresById(Long id){
         return coresRepository.findById(id)
-                                .map(record -> ResponseEntity.ok().body(record))
-                                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                                .stream().findFirst()
+                                .orElseThrow(() -> new ServiceException("Cor não encontrada"));
     }
     public ResponseEntity updateCores(@RequestBody Cores cores, Long id){
         return coresRepository.findById(id)

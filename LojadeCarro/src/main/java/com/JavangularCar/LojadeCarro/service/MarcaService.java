@@ -1,7 +1,11 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Marca;
+import com.JavangularCar.LojadeCarro.dto.request.MarcaRequest;
+import com.JavangularCar.LojadeCarro.dto.response.MarcaResponse;
+import com.JavangularCar.LojadeCarro.entity.Marca;
+import com.JavangularCar.LojadeCarro.mapper.MarcaMapper;
 import com.JavangularCar.LojadeCarro.repository.MarcaRepository;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,18 +19,24 @@ public class MarcaService {
     @Autowired
     MarcaRepository marcaRepository;
 
-    public Marca createMarca(Marca marca) {
-        return marcaRepository.save(marca);
+    @Autowired
+    private MarcaMapper marcaMapper;
+
+    public MarcaResponse createMarca(MarcaRequest marcaDTO) {
+        var marca = marcaMapper.toEntity(marcaDTO);
+        var marcaEntity = marcaRepository.save(marca);
+
+        return marcaMapper.toRecord(marcaEntity);
     }
 
     public List<Marca> listarMarcas() {
         return marcaRepository.findByOrderByNomeAsc();
     }
 
-    public ResponseEntity<Marca> findMarcaById(Long id) {
+    public Marca findMarcaById(Long id) {
         return marcaRepository.findById(id)
-                .map(record -> ResponseEntity.ok().body(record))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .stream().findFirst()
+                .orElseThrow(() -> new ServiceException("Marca não encontrada"));
     }
 
     public ResponseEntity updateMarca(@RequestBody Marca marca, Long id) {

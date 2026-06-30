@@ -1,10 +1,13 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Marca;
+import com.JavangularCar.LojadeCarro.dto.request.MarcaRequest;
+import com.JavangularCar.LojadeCarro.dto.response.MarcaResponse;
+import com.JavangularCar.LojadeCarro.entity.Marca;
 import com.JavangularCar.LojadeCarro.service.MarcaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,7 +24,7 @@ public class MarcaController {
 
     @PostMapping
     @Operation(summary = "Criar uma nova marca")
-    public Marca createMarca(@RequestBody Marca marca) {
+    public MarcaResponse createMarca(@RequestBody MarcaRequest marca) {
         return marcaService.createMarca(marca);
     }
 
@@ -34,7 +37,8 @@ public class MarcaController {
     @GetMapping("/{id}")
     @Operation(summary = "Buscar marca por id")
     public ResponseEntity<Marca> findMarcaById(@PathVariable Long id) {
-        return marcaService.findMarcaById(id);
+        var response = marcaService.findMarcaById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{id}")

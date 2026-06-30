@@ -1,10 +1,11 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Cores;
+import com.JavangularCar.LojadeCarro.entity.Cores;
 import com.JavangularCar.LojadeCarro.service.CoresService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,8 @@ public class CoresController {
     @GetMapping("/{id}")
     @Operation(summary = "Buscar cor por id")
     public ResponseEntity<Cores> findCoresById(@PathVariable Long id){
-        return coresService.findCoresById(id);
+        var response = coresService.findCoresById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PutMapping("/{id}")

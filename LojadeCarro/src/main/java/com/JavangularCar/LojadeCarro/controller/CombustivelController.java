@@ -1,10 +1,11 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Combustivel;
+import com.JavangularCar.LojadeCarro.entity.Combustivel;
 import com.JavangularCar.LojadeCarro.service.CombustivelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,7 +33,8 @@ public class CombustivelController {
     @GetMapping("/{id}")
     @Operation(summary = "Buscar combustível por id")
     public ResponseEntity<Combustivel> findCombustivelById(@PathVariable Long id){
-        return combustivelService.findCombustivelById(id);
+        var response = combustivelService.findCombustivelById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar combustível buscando por id")

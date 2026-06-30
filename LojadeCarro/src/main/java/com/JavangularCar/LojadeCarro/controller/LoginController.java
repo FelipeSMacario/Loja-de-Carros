@@ -1,6 +1,6 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Usuario;
+import com.JavangularCar.LojadeCarro.entity.Usuario;
 import com.JavangularCar.LojadeCarro.service.LoginService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

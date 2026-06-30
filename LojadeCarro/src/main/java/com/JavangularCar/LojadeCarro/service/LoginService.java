@@ -1,6 +1,6 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Usuario;
+import com.JavangularCar.LojadeCarro.entity.Usuario;
 import com.JavangularCar.LojadeCarro.repository.LoginRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

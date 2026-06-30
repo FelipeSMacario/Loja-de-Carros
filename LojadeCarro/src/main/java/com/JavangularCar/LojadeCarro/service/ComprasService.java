@@ -1,6 +1,6 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Compras;
+import com.JavangularCar.LojadeCarro.entity.Compras;
 import com.JavangularCar.LojadeCarro.repository.ComprasRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

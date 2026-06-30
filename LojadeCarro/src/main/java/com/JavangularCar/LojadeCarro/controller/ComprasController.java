@@ -1,6 +1,6 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Compras;
+import com.JavangularCar.LojadeCarro.entity.Compras;
 import com.JavangularCar.LojadeCarro.service.ComprasService;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;

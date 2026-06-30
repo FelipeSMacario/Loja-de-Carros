@@ -1,6 +1,6 @@
 package com.JavangularCar.LojadeCarro.repository;
 
-import com.JavangularCar.LojadeCarro.model.Kit;
+import com.JavangularCar.LojadeCarro.entity.Kit;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

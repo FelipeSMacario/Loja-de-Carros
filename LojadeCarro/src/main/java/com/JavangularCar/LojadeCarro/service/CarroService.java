@@ -1,6 +1,9 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Carro;
+import com.JavangularCar.LojadeCarro.dto.request.CarroRequest;
+import com.JavangularCar.LojadeCarro.dto.response.CarroResponse;
+import com.JavangularCar.LojadeCarro.entity.Carro;
+import com.JavangularCar.LojadeCarro.mapper.CarroMapper;
 import com.JavangularCar.LojadeCarro.repository.CarroRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -10,6 +13,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.time.LocalDateTime;
+
 
 @Service
 
@@ -17,8 +22,43 @@ public class CarroService {
     @Autowired
     CarroRepository carroRepository;
 
-    public Carro createCarro(Carro carro) {
-        return carroRepository.save(carro);
+    @Autowired
+    CarroMapper carroMapper;
+
+    @Autowired
+    private CarroceriaService carroceriaService;
+
+    @Autowired
+    private MarcaService marcaService;
+
+    @Autowired
+    private CoresService coresService;
+
+    @Autowired
+    private ModeloService modeloService;
+
+    @Autowired
+    private UsuarioService usuarioService;
+
+    @Autowired
+    private CombustivelService combustivelService;
+
+    public CarroResponse createCarro(CarroRequest carroDTO) {
+        try {
+            var carroEntity = carroMapper.toEntity(carroDTO);
+            //carroEntity.setCarroceria(carroceriaService.findCarroceriaById(carroDTO.idCarroceria()));
+            carroEntity.setMarca(marcaService.findMarcaById(carroDTO.idMarca()));
+            carroEntity.setCores(coresService.findCoresById(carroDTO.idCores()));
+            carroEntity.setModelo(modeloService.findModeloById(carroDTO.idModelo()));
+            carroEntity.setUsuario(usuarioService.findUsuarioBId(carroDTO.idUsuario()));
+            carroEntity.setCombustivel(combustivelService.findCombustivelById(carroDTO.idCombustivel()));
+            carroEntity.setDtCadastro(LocalDateTime.now());
+            var carro = carroRepository.save(carroEntity);
+
+            return carroMapper.toRecord(carro);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public Page<Carro> listarCarros(Pageable pageable) {

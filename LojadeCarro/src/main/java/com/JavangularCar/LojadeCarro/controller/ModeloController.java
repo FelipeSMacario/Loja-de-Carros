@@ -1,10 +1,11 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Modelo;
+import com.JavangularCar.LojadeCarro.entity.Modelo;
 import com.JavangularCar.LojadeCarro.service.ModeloService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,7 +34,8 @@ public class ModeloController {
     @GetMapping("/{id}")
     @Operation(summary = "Buscar modelo por id")
     public ResponseEntity<Modelo> findModeloById(@PathVariable Long id) {
-        return modeloService.findModeloById(id);
+        var response = modeloService.findModeloById(id);
+        return ResponseEntity.status(HttpStatus.OK).body(response);
     }
 
     @PostMapping("/{id}")

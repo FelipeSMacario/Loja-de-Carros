@@ -1,7 +1,7 @@
 package com.JavangularCar.LojadeCarro.controller;
 
 
-import com.JavangularCar.LojadeCarro.model.Imagens;
+import com.JavangularCar.LojadeCarro.entity.Imagens;
 import com.JavangularCar.LojadeCarro.service.ImagensService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,9 +1,12 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Carro;
+import com.JavangularCar.LojadeCarro.dto.request.CarroRequest;
+import com.JavangularCar.LojadeCarro.dto.response.CarroResponse;
+import com.JavangularCar.LojadeCarro.entity.Carro;
 import com.JavangularCar.LojadeCarro.service.CarroService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Carro")
 @RestController
 @RequestMapping("carro")
+@Slf4j
 public class CarroController {
 
     @Autowired
@@ -23,8 +27,8 @@ public class CarroController {
 
     @PostMapping
     @Operation(summary = "Criar um novo carro")
-    public Carro createCarro(@RequestBody Carro carro) {
-        return carroService.createCarro(carro);
+    public CarroResponse createCarro(@RequestBody CarroRequest carroDTO) {
+        return carroService.createCarro(carroDTO);
 
     }
 
