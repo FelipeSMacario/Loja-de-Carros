@@ -1,47 +1,65 @@
 package com.JavangularCar.LojadeCarro.service;
 
+import com.JavangularCar.LojadeCarro.dto.request.CoresRequest;
+import com.JavangularCar.LojadeCarro.dto.response.CoresResponse;
 import com.JavangularCar.LojadeCarro.entity.Cores;
+import com.JavangularCar.LojadeCarro.exception.CoresException;
+import com.JavangularCar.LojadeCarro.mapper.CoresMapper;
 import com.JavangularCar.LojadeCarro.repository.CoresRepository;
-import org.hibernate.service.spi.ServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class CoresService {
-    @Autowired
-    CoresRepository coresRepository;
 
-    public Cores createCores(@RequestBody Cores cores){
-        return coresRepository.save(cores);
+    private final CoresRepository coresRepository;
+
+    private final CoresMapper coresMapper;
+
+    public CoresResponse createCores(@RequestBody CoresRequest request) {
+        log.debug("Inicio da createCoresService com a response: {}", request);
+        var coresEntity = coresMapper.toEntity(request);
+        var coresResponse = coresRepository.save(coresEntity);
+        log.info("Cores salva com sucesso!");
+
+        return coresMapper.toRecord(coresResponse);
     }
 
-    public List<Cores> listarCores(){
-        return coresRepository.findAll();
+    public List<CoresResponse> listarCores() {
+        log.info("Inicio da listarCoresService");
+        return coresRepository.findAll()
+                .stream()
+                .map(coresMapper::toRecord)
+                .toList();
     }
-    public Cores findCoresById(Long id){
+
+    public CoresResponse findCoresById(Long id) {
+        log.info("Inicio da findCoresByIdService com id: {}", id);
         return coresRepository.findById(id)
-                                .stream().findFirst()
-                                .orElseThrow(() -> new ServiceException("Cor não encontrada"));
+                .map(coresMapper::toRecord)
+                .orElseThrow(() -> new CoresException(id));
     }
-    public ResponseEntity updateCores(@RequestBody Cores cores, Long id){
+
+    public CoresResponse updateCores(@RequestBody Cores cores, Long id) {
+        log.info("Inicio da updateCoresService com o id: {}", id);
         return coresRepository.findById(id)
-                                .map(record -> {
-                                    record.setNome(cores.getNome());
-                                    Cores update = coresRepository.save(record);
-                                    return ResponseEntity.ok().body(update);
-                                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(record -> {
+                    record.setNome(cores.getNome());
+                    var update = coresRepository.save(record);
+                    return coresMapper.toRecord(update);
+                }).orElseThrow(() -> new CoresException(id));
     }
-    public ResponseEntity deleteCores(Long id){
-        return coresRepository.findById(id)
-                                .map(record -> {
-                                    coresRepository.deleteById(id);
-                                    return ResponseEntity.ok().build();
-                                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+
+    public void deleteCores(Long id) {
+        log.info("Inicio da deleteCoresService com o id: {}", id);
+        var corEntity = coresRepository.findById(id).orElseThrow(() -> new CoresException(id));
+        coresRepository.deleteById(corEntity.getId());
     }
 
 }

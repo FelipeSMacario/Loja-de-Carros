@@ -47,11 +47,11 @@ public class CarroService {
         try {
             var carroEntity = carroMapper.toEntity(carroDTO);
             //carroEntity.setCarroceria(carroceriaService.findCarroceriaById(carroDTO.idCarroceria()));
-            carroEntity.setMarca(marcaService.findMarcaById(carroDTO.idMarca()));
-            carroEntity.setCores(coresService.findCoresById(carroDTO.idCores()));
-            carroEntity.setModelo(modeloService.findModeloById(carroDTO.idModelo()));
-            carroEntity.setUsuario(usuarioService.findUsuarioBId(carroDTO.idUsuario()));
-            carroEntity.setCombustivel(combustivelService.findCombustivelById(carroDTO.idCombustivel()));
+//            carroEntity.setMarca(marcaService.findMarcaById(carroDTO.idMarca()));
+//            carroEntity.setCores(coresService.findCoresById(carroDTO.idCores()));
+//            carroEntity.setModelo(modeloService.findModeloById(carroDTO.idModelo()));
+//            carroEntity.setUsuario(usuarioService.findUsuarioBId(carroDTO.idUsuario()));
+//            carroEntity.setCombustivel(combustivelService.findCombustivelById(carroDTO.idCombustivel()));
             carroEntity.setDtCadastro(LocalDateTime.now());
             var carro = carroRepository.save(carroEntity);
 
