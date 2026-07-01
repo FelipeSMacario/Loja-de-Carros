@@ -5,7 +5,7 @@ import com.JavangularCar.LojadeCarro.dto.response.UsuarioResponse;
 import com.JavangularCar.LojadeCarro.entity.Usuario;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "sprint")
+@Mapper(componentModel = "spring")
 public interface UsuarioMapper {
     Usuario toEntity(UsuarioRequest usuarioRequest);
     UsuarioResponse toResponse(Usuario usuario);
