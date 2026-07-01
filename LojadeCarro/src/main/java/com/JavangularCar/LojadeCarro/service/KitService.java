@@ -1,57 +1,74 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Kit;
+import com.JavangularCar.LojadeCarro.dto.request.KitRequest;
+import com.JavangularCar.LojadeCarro.dto.response.KitResponse;
+import com.JavangularCar.LojadeCarro.exception.KitException;
+import com.JavangularCar.LojadeCarro.mapper.KitMapper;
 import com.JavangularCar.LojadeCarro.repository.KitRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class KitService {
-    @Autowired
-    KitRepository kitRepository;
 
-    public Kit createKit(@RequestBody Kit kit){
-        return kitRepository.save(kit);
+    private final KitRepository kitRepository;
+    private final KitMapper kitMapper;
+    private final CarroService carroService;
+
+    public KitResponse createKit(KitRequest request) {
+        log.debug("Inicio da createKitService com a response: {}", request);
+        var kitEntity = kitMapper.toEntity(request);
+        var kitResponse = kitRepository.save(kitEntity);
+
+        log.info("Kit salva com sucesso!");
+
+        return kitMapper.toResponse(kitResponse);
     }
-    public List<Kit> listarKit(){
-        return kitRepository.findAll();
+
+    public List<KitResponse> listarKit() {
+        log.info("Inicio da listarKitService");
+        return kitRepository
+                .findAll()
+                .stream()
+                .map(kitMapper::toResponse)
+                .toList();
 
     }
 
-    public ResponseEntity<Kit> findKitById(Long id){
+    public KitResponse filtrarKit(Long id) {
+        log.info("Inicio da findKitByIdService com id: {}", id);
         return kitRepository.findById(id)
-                            .map(record -> ResponseEntity.ok().body(record))
-                            .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-    }
-
-    public Kit filtrarKit(Long id){
-        return kitRepository.filtrarKit(id);
+                .map(kitMapper::toResponse)
+                .orElseThrow(() -> new KitException(id));
     }
 
 
-    public ResponseEntity updateKit(@RequestBody Kit kit, Long id){
+    public KitResponse updateKit(KitRequest request, Long id) {
+        log.info("Inicio da updateKitService com o id: {}", id);
         return kitRepository.findById(id)
-                            .map(record -> {
-                                record.setAutomatico(kit.isAutomatico());
-                                record.setCarro(kit.getCarro());
-                                record.setArCondicionado(kit.isArCondicionado());
-                                record.setDirecaoHidraulica(kit.isDirecaoHidraulica());
-                                record.setFreioABS(kit.isFreioABS());
-                                record.setRodaLigaLeve(kit.isRodaLigaLeve());
-                                Kit update = kitRepository.save(record);
-                                return ResponseEntity.ok().body(update);
-                            }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(record -> {
+                    record.setAutomatico(request.automatico());
+                    record.setCarro(carroService.buscaCarro(request.idCarro()));
+                    record.setArCondicionado(request.arCondicionado());
+                    record.setDirecaoHidraulica(request.direcaoHidraulica());
+                    record.setFreioABS(request.freioABS());
+                    record.setRodaLigaLeve(request.rodaLigaLeve());
+                    var update = kitRepository.save(record);
+                    log.info("Kit atualizado com sucesso!");
+                    return kitMapper.toResponse(update);
+                }).orElseThrow(() -> new KitException(id));
     }
-    public ResponseEntity deleteKit(Long id){
-        return kitRepository.findById(id)
-                            .map(record -> {
-                                kitRepository.deleteById(id);
-                                return ResponseEntity.ok().build();
-                            }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+
+    public void deleteKit(Long id) {
+        log.info("Inicio da deleteKitService com o id: {}", id);
+        kitRepository.findById(id)
+                .orElseThrow(() -> new KitException(id));
+
+        kitRepository.deleteById(id);
     }
 }

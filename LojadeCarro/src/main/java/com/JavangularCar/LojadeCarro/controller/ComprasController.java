@@ -1,30 +1,49 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Compras;
+import com.JavangularCar.LojadeCarro.dto.request.ComprasRequest;
+import com.JavangularCar.LojadeCarro.dto.response.ComprasResponse;
+import com.JavangularCar.LojadeCarro.entity.Compras;
 import com.JavangularCar.LojadeCarro.service.ComprasService;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://192.168.49.2:30000")
+@RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Compras")
 @RestController
 @RequestMapping("/compras")
 public class ComprasController {
-    @Autowired
-    ComprasService comprasService;
+    private final ComprasService comprasService;
 
     @GetMapping
-    public List<Compras> listarCompras(){
-        return comprasService.listarCompras();
+    public ResponseEntity<List<ComprasResponse>> findAll(){
+        log.info("Buscando todas as compras.");
+        var response = comprasService.listarCompras();
+
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping
-    public Compras createCompras(@RequestBody Compras compras){
-        //Função para marcar o carro como vendido.
-        comprasService.marcaVendido(compras.getCarro().getId());
-        return comprasService.createCompras(compras);
+    public ResponseEntity<ComprasResponse> create(@RequestBody @Valid ComprasRequest compras){
+        log.info("Criando uma nova compra");
+        var response =  comprasService.createCompras(compras);
+
+        var location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
+
+        log.info("Compra criado com sucesso");
+        log.debug("Resposta uma nova compra: {}", response);
+        return ResponseEntity.created(location).body(response);
     }
 }

@@ -1,50 +1,81 @@
 package com.JavangularCar.LojadeCarro.controller;
 
-import com.JavangularCar.LojadeCarro.model.Carroceria;
+import com.JavangularCar.LojadeCarro.dto.request.CarroceriaRequest;
+import com.JavangularCar.LojadeCarro.dto.response.CarroceriaResponse;
 import com.JavangularCar.LojadeCarro.service.CarroceriaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://192.168.49.2:30000")
+@RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Carroceria")
 @RestController
-@RequestMapping("carroceria")
+@RequestMapping("/carrocerias")
 public class CarroceriaController {
-    @Autowired
-    CarroceriaService carroceriaService;
+
+    private final CarroceriaService carroceriaService;
 
     @PostMapping
     @Operation(summary = "Criar uma nova carroceria")
-    public Carroceria createCarroceria(@RequestBody Carroceria carroceria) {
-        return carroceriaService.createCarroceria(carroceria);
+    public ResponseEntity<CarroceriaResponse> create(@RequestBody @Valid CarroceriaRequest request) {
+        log.info("Criando uma nova carroceria");
+        var response = carroceriaService.createCarroceria(request);
+
+        var location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
+
+        log.info("Carroceria criado com sucesso");
+        log.debug("Resposta uma nova carroceria: {}", response);
+        return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping()
     @Operation(summary = "Listar todas as carrocerias")
-    public List<Carroceria> listarCarroceria() {
-        return carroceriaService.listarCarroceria();
+    public ResponseEntity<List<CarroceriaResponse>> findAll() {
+        log.info("Buscando todas as carrocerias.");
+        var response = carroceriaService.listarCarroceria();
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar carroceria por id")
-    public ResponseEntity<Carroceria> findCarroceriaById(@PathVariable Long id) {
-        return carroceriaService.findCarroceriaById(id);
+    public ResponseEntity<CarroceriaResponse> findById(@PathVariable Long id) {
+        log.info("Buscando a carroceria por id: {}", id);
+        var response = carroceriaService.findCarroceriaById(id);
+
+        log.debug("Resposta carroceria por id: {}", response);
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar carroceria buscando por id")
-    public ResponseEntity updateCarroceria(@RequestBody Carroceria carroceria, @PathVariable Long id) {
-        return carroceriaService.updateCarroceria(carroceria, id);
+    public ResponseEntity<CarroceriaResponse> update(@RequestBody @Valid CarroceriaRequest request, @PathVariable Long id) {
+        log.info("Atualizando a carroceria por id: {}", id);
+        var response = carroceriaService.updateCarroceria(request, id);
+
+        log.debug("Resposta atualizar carroceria por id: {}", response);
+        return ResponseEntity.ok(response);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Deletar uma carroceria buscando por id")
-    public ResponseEntity deleteCarroceria(@PathVariable Long id) {
-        return carroceriaService.deleteCarroceria(id);
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        log.info("Deletando a carroceria por id: {}", id);
+        carroceriaService.deleteCarroceria(id);
+
+        log.info("Carroceria deletado com sucesso. Id: {}", id);
+        return ResponseEntity.noContent().build();
     }
 }

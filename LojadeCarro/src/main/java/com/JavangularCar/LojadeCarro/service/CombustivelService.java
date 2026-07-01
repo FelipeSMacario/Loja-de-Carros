@@ -1,7 +1,14 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Combustivel;
+import com.JavangularCar.LojadeCarro.dto.request.CombustivelRequest;
+import com.JavangularCar.LojadeCarro.dto.response.CombustivelResponse;
+import com.JavangularCar.LojadeCarro.entity.Combustivel;
+import com.JavangularCar.LojadeCarro.exception.CombustivelException;
+import com.JavangularCar.LojadeCarro.mapper.CombustivelMapper;
 import com.JavangularCar.LojadeCarro.repository.CombustivelRepositor;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.hibernate.service.spi.ServiceException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,36 +17,58 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class CombustivelService {
-    @Autowired
-    CombustivelRepositor combustivelRepositor;
 
+    private final CombustivelRepositor combustivelRepositor;
+    private final CombustivelMapper combustivelMapper;
 
-    public Combustivel createCombustivel(@RequestBody Combustivel combustivel){
-        return combustivelRepositor.save(combustivel);
+    public CombustivelResponse createCombustivel(CombustivelRequest request) {
+        log.debug("Inicio da createCombustivelService com a response: {}", request);
+        var combustivelEntity = combustivelMapper.toEntity(request);
+        var combustivelResponse = combustivelRepositor.save(combustivelEntity);
+
+        return combustivelMapper.toRecord(combustivelResponse);
     }
-    public List<Combustivel> listarCombustivel(){
-        return combustivelRepositor.findAll();
+
+    public List<CombustivelResponse> listarCombustivel() {
+        log.info("Inicio da listarCarroceriaService");
+        return combustivelRepositor.findAll().stream()
+                .map(combustivelMapper::toRecord)
+                .toList();
     }
-    public ResponseEntity<Combustivel> findCombustivelById(Long id){
+
+    public CombustivelResponse findCombustivelById(Long id) {
+        log.info("Inicio da findCombustivelByIdService com id: {}", id);
         return combustivelRepositor.findById(id)
-                                    .map(record -> ResponseEntity.ok().body(record))
-                                    .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(combustivelMapper::toRecord)
+                .orElseThrow(() -> new CombustivelException(id));
     }
-    public ResponseEntity updateCombustivel(@RequestBody Combustivel combustivel, Long id){
+
+    public CombustivelResponse updateCombustivel(CombustivelRequest request, Long id) {
+        log.info("Inicio da updateCombustivelService com o id: {}", id);
         return combustivelRepositor.findById(id)
-                                    .map(record -> {
-                                        record.setNome(combustivel.getNome());
-                                        Combustivel update = combustivelRepositor.save(record);
-                                        return ResponseEntity.ok().body(update);
-                                    }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(record -> {
+                    record.setNome(request.nome());
+                    var update = combustivelRepositor.save(record);
+                    log.info("Combustível atualizado com sucesso!");
+                    return combustivelMapper.toRecord(update);
+                }).orElseThrow(() -> new CombustivelException(id));
     }
-    public ResponseEntity deleteCombustivel(Long id){
+
+    public void deleteCombustivel(Long id) {
+        log.info("Inicio da deleteCombustivelService com o id: {}", id);
+        var combustivelEntity = combustivelRepositor.findById(id)
+                .orElseThrow(() -> new CombustivelException(id));
+
+        combustivelRepositor.deleteById(combustivelEntity.getId());
+    }
+
+    public Combustivel buscaCombustivel(Long id) {
+        log.info("Inicio da buscaCombustivelService com id: {}", id);
         return combustivelRepositor.findById(id)
-                                    .map(record -> {
-                                        combustivelRepositor.deleteById(id);
-                                        return ResponseEntity.ok().build();
-                                    }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseThrow(() -> new CombustivelException(id));
     }
 }

@@ -1,69 +1,96 @@
 package com.JavangularCar.LojadeCarro.controller;
 
 
-import com.JavangularCar.LojadeCarro.model.Imagens;
+import com.JavangularCar.LojadeCarro.dto.request.ImagensRequest;
+import com.JavangularCar.LojadeCarro.dto.response.ImagensResponse;
 import com.JavangularCar.LojadeCarro.service.ImagensService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-
 import java.util.List;
 
-@CrossOrigin(origins = "http://192.168.49.2:30000")
+@RequiredArgsConstructor
+@Slf4j
 @Tag(name = "Imagens")
 @RestController
-@RequestMapping("imagens")
+@RequestMapping("/imagens")
 public class ImagensController {
 
-    @Autowired
-    ImagensService imagensService;
+    private final ImagensService imagensService;
 
     @PostMapping
-    @Operation(summary  = "Leitura de cada arquivo, cria uma cópia e salva seu URL")
-    public void createImagens(@RequestParam("file") MultipartFile[] file, @RequestParam("id")String id) throws IOException {
-        for (int c = 0; c < file.length; c ++){
-            Imagens imagens = new Imagens();
+    @Operation(summary = "Realiza o upload das imagens e associa ao carro")
+    public ResponseEntity<Void> create(
+            @RequestParam("file") MultipartFile[] files,
+            @RequestParam("id") String id) throws IOException {
 
-            //Converter a do carro enviada pelo FORMDATA do angular ID de String para LONG
-            Long id2 = Long.parseLong(id);
+        log.info("Realizando upload de {} imagem(ns) para o carro {}", files.length, id);
 
-            imagensService.createImagem(imagens, file[c], id2);
+        imagensService.create(files, id);
 
-            //Função que insere o id do carro após a criação da imagem
-            imagensService.updateEstoque(id2, imagens.getId());
+        log.info("Upload realizado com sucesso para o carro {}", id);
 
-            //Função que filtra a primeira imagem inserida e define como imagem Default no carro
-            if (c == 0) {
-                imagensService.imagemCarroDefault(imagens.getUrl(), id2);
-            }
-        }
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping
     @Operation(summary = "Listar todas as imagens")
-    public List<Imagens> listarImagens(){
-        return imagensService.listarImagens();
+    public ResponseEntity<List<ImagensResponse>> findAll() {
+
+        log.info("Buscando todas as imagens");
+
+        var response = imagensService.listarImagens();
+
+        log.debug("Quantidade de imagens encontradas: {}", response.size());
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar image por id do carro")
-    public ResponseEntity<Imagens> findImagemById(@PathVariable Long id){
-        return imagensService.findImagensById(id);
+    @Operation(summary = "Buscar imagem pelo ID")
+    public ResponseEntity<ImagensResponse> findById(@PathVariable Long id) {
+
+        log.info("Buscando imagem. Id: {}", id);
+
+        var response = imagensService.findImagensById(id);
+
+        log.debug("Imagem encontrada. Id: {}", id);
+
+        return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar imagem buscando por id")
-    public ResponseEntity updateImagem(@RequestBody Imagens imagens, @PathVariable Long id){
-        return imagensService.updateImagens(imagens, id);
+    @Operation(summary = "Atualizar imagem")
+    public ResponseEntity<ImagensResponse> update(
+            @RequestBody @Valid ImagensRequest imagens,
+            @PathVariable Long id) {
+
+        log.info("Atualizando imagem. Id: {}", id);
+
+        var response = imagensService.updateImagens(imagens, id);
+
+        log.info("Imagem atualizada com sucesso. Id: {}", id);
+
+        return ResponseEntity.ok(response);
     }
+
     @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar uma imagem buscando por id")
-    public ResponseEntity deleteImagem(@PathVariable Long id){
-        return imagensService.deleteImagens(id);
+    @Operation(summary = "Excluir imagem")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+
+        log.info("Removendo imagem. Id: {}", id);
+
+        imagensService.deleteImagens(id);
+
+        log.info("Imagem removida com sucesso. Id: {}", id);
+
+        return ResponseEntity.noContent().build();
     }
 }

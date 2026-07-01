@@ -1,10 +1,9 @@
-package com.JavangularCar.LojadeCarro.model;
+package com.JavangularCar.LojadeCarro.entity;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
-
-import jakarta.persistence.*;
 
 @Data
 @Table(name = "Imagens")
@@ -20,6 +19,6 @@ public class Imagens {
     private String url;
 
     @ManyToOne
-    private com.JavangularCar.LojadeCarro.model.Carro carro;
+    private Carro carro;
 
 }

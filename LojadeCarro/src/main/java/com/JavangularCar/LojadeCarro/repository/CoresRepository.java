@@ -1,6 +1,6 @@
 package com.JavangularCar.LojadeCarro.repository;
 
-import com.JavangularCar.LojadeCarro.model.Cores;
+import com.JavangularCar.LojadeCarro.entity.Cores;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

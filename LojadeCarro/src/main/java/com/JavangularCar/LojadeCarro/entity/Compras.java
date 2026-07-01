@@ -1,10 +1,13 @@
-package com.JavangularCar.LojadeCarro.model;
+package com.JavangularCar.LojadeCarro.entity;
 
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
 import jakarta.persistence.*;
+
+import java.math.BigDecimal;
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Data
@@ -26,7 +29,7 @@ public class Compras {
     @ManyToOne
     private Usuario comprador;
 
-    private Double valor;
+    private BigDecimal valor;
 
-    private LocalDateTime dataVenda;
+    private Instant dataVenda;
 }

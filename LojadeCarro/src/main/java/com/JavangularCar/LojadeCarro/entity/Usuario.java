@@ -1,13 +1,13 @@
-package com.JavangularCar.LojadeCarro.model;
+package com.JavangularCar.LojadeCarro.entity;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import jakarta.persistence.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.Collection;
 
 @Data
@@ -24,11 +24,11 @@ public class Usuario implements UserDetails {
 
     private String email;
 
-    private  String password;
+    private String password;
 
     private String cpf;
 
-    private LocalDateTime dtNascimento;
+    private LocalDate dtNascimento;
 
     private String nome;
 
@@ -41,8 +41,9 @@ public class Usuario implements UserDetails {
     public String getUsername() {
         return this.email;
     }
+
     @Override
-    public String getPassword(){
+    public String getPassword() {
         return this.password;
     }
 

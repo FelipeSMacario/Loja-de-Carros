@@ -1,49 +1,73 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.model.Marca;
+import com.JavangularCar.LojadeCarro.dto.request.MarcaRequest;
+import com.JavangularCar.LojadeCarro.dto.response.MarcaResponse;
+import com.JavangularCar.LojadeCarro.entity.Marca;
+import com.JavangularCar.LojadeCarro.exception.MarcaException;
+import com.JavangularCar.LojadeCarro.mapper.MarcaMapper;
 import com.JavangularCar.LojadeCarro.repository.MarcaRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class MarcaService {
-    @Autowired
-    MarcaRepository marcaRepository;
+    private final MarcaRepository marcaRepository;
 
-    public Marca createMarca(Marca marca) {
-        return marcaRepository.save(marca);
+    private final MarcaMapper marcaMapper;
+
+    public MarcaResponse createMarca(MarcaRequest request) {
+        log.debug("Inicio da createMarcaService com a response: {}", request);
+        var marca = marcaMapper.toEntity(request);
+        var marcaEntity = marcaRepository.save(marca);
+        log.info("Marca salva com sucesso!");
+
+        return marcaMapper.toRecord(marcaEntity);
     }
 
-    public List<Marca> listarMarcas() {
-        return marcaRepository.findByOrderByNomeAsc();
+    public List<MarcaResponse> listarMarcas() {
+        log.info("Inicio da listarMarcaService");
+        return marcaRepository.findByOrderByNomeAsc()
+                .stream()
+                .map(marcaMapper::toRecord)
+                .toList();
     }
 
-    public ResponseEntity<Marca> findMarcaById(Long id) {
+    public MarcaResponse findMarcaById(Long id) {
+        log.info("Inicio da findMarcaByIdService com id: {}", id);
         return marcaRepository.findById(id)
-                .map(record -> ResponseEntity.ok().body(record))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(marcaMapper::toRecord)
+                .orElseThrow(() -> new MarcaException(id));
     }
 
-    public ResponseEntity updateMarca(@RequestBody Marca marca, Long id) {
+    public MarcaResponse updateMarca(MarcaRequest request, Long id) {
+        log.info("Inicio da updateMarcaService com o id: {}", id);
         return marcaRepository.findById(id)
                 .map(record -> {
-                    record.setNome(marca.getNome());
-                    record.setUrl(marca.getUrl());
-                    Marca update = marcaRepository.save(record);
-                    return ResponseEntity.ok().body(update);
-                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                    record.setNome(request.nome());
+                    record.setUrl(request.url());
+                    var update = marcaRepository.save(record);
+                    return marcaMapper.toRecord(update);
+                }).orElseThrow(() -> new MarcaException(id));
     }
 
-    public ResponseEntity deleteMarca(Long id) {
+    public void deleteMarca(Long id) {
+        log.info("Inicio da deleteMarcaService com o id: {}", id);
+        var marcaEntity = marcaRepository.findById(id)
+                .orElseThrow(() -> new MarcaException(id));
+
+        marcaRepository.deleteById(marcaEntity.getId());
+
+    }
+
+    public Marca buscaMarca(Long id) {
+        log.info("Inicio da buscaMarcaService com o id: {}", id);
         return marcaRepository.findById(id)
-                .map(record -> {
-                    marcaRepository.deleteById(id);
-                    return ResponseEntity.ok().build();
-                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseThrow(() -> new MarcaException(id));
     }
 }
