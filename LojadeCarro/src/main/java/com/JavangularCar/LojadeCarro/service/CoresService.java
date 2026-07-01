@@ -62,4 +62,10 @@ public class CoresService {
         coresRepository.deleteById(corEntity.getId());
     }
 
+    public Cores buscaCores(Long id) {
+        log.info("Inicio da buscaCoresService com o id: {}", id);
+        return  coresRepository.findById(id)
+                .orElseThrow(() -> new CoresException(id));
+    }
+
 }

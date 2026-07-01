@@ -2,6 +2,7 @@ package com.JavangularCar.LojadeCarro.service;
 
 import com.JavangularCar.LojadeCarro.dto.request.CarroceriaRequest;
 import com.JavangularCar.LojadeCarro.dto.response.CarroceriaResponse;
+import com.JavangularCar.LojadeCarro.entity.Carroceria;
 import com.JavangularCar.LojadeCarro.exception.CarroceriaException;
 import com.JavangularCar.LojadeCarro.mapper.CarroceriaMapper;
 import com.JavangularCar.LojadeCarro.repository.CarroceriaRepository;
@@ -61,5 +62,11 @@ public class CarroceriaService {
                 .orElseThrow(() -> new CarroceriaException(id));
 
         carroceriaRepository.deleteById(carroceriaEntity.getId());
+    }
+
+    public Carroceria buscaCarroceria(Long id) {
+        log.info("Inicio da buscaCarroceriaService com id: {}", id);
+        return carroceriaRepository.findById(id)
+                .orElseThrow(() -> new CarroceriaException(id));
     }
 }

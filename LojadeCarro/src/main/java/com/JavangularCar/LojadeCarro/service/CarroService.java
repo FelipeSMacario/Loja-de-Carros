@@ -3,8 +3,12 @@ package com.JavangularCar.LojadeCarro.service;
 import com.JavangularCar.LojadeCarro.dto.request.CarroRequest;
 import com.JavangularCar.LojadeCarro.dto.response.CarroResponse;
 import com.JavangularCar.LojadeCarro.entity.Carro;
+import com.JavangularCar.LojadeCarro.exception.CarroException;
 import com.JavangularCar.LojadeCarro.mapper.CarroMapper;
 import com.JavangularCar.LojadeCarro.repository.CarroRepository;
+import jakarta.validation.constraints.NotNull;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,128 +20,100 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.time.LocalDateTime;
 
 
+@Slf4j
 @Service
-
+@RequiredArgsConstructor
 public class CarroService {
-    @Autowired
-    CarroRepository carroRepository;
+    private final CarroRepository carroRepository;
 
-    @Autowired
-    CarroMapper carroMapper;
+    private final CarroMapper carroMapper;
 
-    @Autowired
-    private CarroceriaService carroceriaService;
+    private final CarroceriaService carroceriaService;
 
-    @Autowired
-    private MarcaService marcaService;
+    private final MarcaService marcaService;
 
-    @Autowired
-    private CoresService coresService;
+    private final CoresService coresService;
 
-    @Autowired
-    private ModeloService modeloService;
+    private final ModeloService modeloService;
 
-    @Autowired
-    private UsuarioService usuarioService;
+    private final UsuarioService usuarioService;
 
-    @Autowired
-    private CombustivelService combustivelService;
+    private final CombustivelService combustivelService;
 
-    public CarroResponse createCarro(CarroRequest carroDTO) {
-        try {
-            var carroEntity = carroMapper.toEntity(carroDTO);
-            //carroEntity.setCarroceria(carroceriaService.findCarroceriaById(carroDTO.idCarroceria()));
-//            carroEntity.setMarca(marcaService.findMarcaById(carroDTO.idMarca()));
-//            carroEntity.setCores(coresService.findCoresById(carroDTO.idCores()));
-//            carroEntity.setModelo(modeloService.findModeloById(carroDTO.idModelo()));
-//            carroEntity.setUsuario(usuarioService.findUsuarioBId(carroDTO.idUsuario()));
-//            carroEntity.setCombustivel(combustivelService.findCombustivelById(carroDTO.idCombustivel()));
-            carroEntity.setDtCadastro(LocalDateTime.now());
-            var carro = carroRepository.save(carroEntity);
+    public CarroResponse createCarro(CarroRequest request) {
+        log.debug("Inicio da createCarroService com a response: {}", request);
+        var carroEntity = carroMapper.toEntity(request);
+        carroEntity.setCarroceria(carroceriaService.buscaCarroceria(request.idCarroceria()));
+        carroEntity.setMarca(marcaService.buscaMarca(request.idMarca()));
+        carroEntity.setCores(coresService.buscaCores(request.idCores()));
+        carroEntity.setModelo(modeloService.buscaModelo(request.idModelo()));
+        carroEntity.setUsuario(usuarioService.buscaUsuario(request.idUsuario()));
+        carroEntity.setCombustivel(combustivelService.buscaCombustivel(request.idCombustivel()));
+        carroEntity.setDtCadastro(LocalDateTime.now());
+        var carro = carroRepository.save(carroEntity);
 
-            return carroMapper.toRecord(carro);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
+        log.info("Carro salvo com sucesso!");
+        return carroMapper.toRecord(carro);
+
     }
 
-    public Page<Carro> listarCarros(Pageable pageable) {
-        return carroRepository.findAll(pageable);
+    public Page<CarroResponse> listarCarros(Pageable pageable) {
+        log.info("Inicio da listarCarrosService");
+        return carroRepository
+                .findAll(pageable)
+                .map(carroMapper::toRecord);
     }
 
-    public ResponseEntity<Carro> findCarroById(Long id) {
+    public CarroResponse findCarroById(Long id) {
+        log.info("Inicio da findCarroByIdService com id: {}", id);
         return carroRepository.findById(id)
-                .map(record -> ResponseEntity.ok().body(record))
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .map(carroMapper::toRecord)
+                .orElseThrow(() -> new CarroException(id));
 
     }
 
-    public ResponseEntity updateCarro(@RequestBody Carro carro, Long id) {
+    public CarroResponse updateCarro(CarroRequest request, Long id) {
+        log.info("Inicio da updateCarroService com o id: {}", id);
         return carroRepository.findById(id)
                 .map(record -> {
-                    record.setQuilometragem(carro.getQuilometragem());
-                    record.setAtivo(carro.isAtivo());
-                    record.setUrl(carro.getUrl());
-                    record.setValor(carro.getValor());
-                    record.setPlaca(carro.getPlaca());
-                    record.setMotor(carro.getMotor());
-
-                    record.setAnoFabricacao(carro.getAnoFabricacao());
-                    record.setDtCadastro(carro.getDtCadastro());
-
-                    record.setCarroceria(carro.getCarroceria());
-                    record.setMarca(carro.getMarca());
-                    record.setCores(carro.getCores());
-                    record.setModelo(carro.getModelo());
-                    record.setUsuario(carro.getUsuario());
-                    record.setCombustivel(carro.getCombustivel());
-                    record.setUrl(carro.getUrl());
-                    record.setValor(carro.getValor());
-                    record.setAnoFabricacao(carro.getAnoFabricacao());
-                    record.setDtCadastro(carro.getDtCadastro());
-                    record.setUsuario(carro.getUsuario());
-                    record.setAtivo(carro.isAtivo());
-                    Carro update = carroRepository.save(record);
-                    return ResponseEntity.ok().body(update);
+                    carroMapper.toUpdate(request, record);
+                    var update = carroRepository.save(record);
+                    return carroMapper.toRecord(update);
                 })
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                .orElseThrow(() -> new CarroException(id));
     }
 
-    public ResponseEntity deleteCarro(Long id) {
-        return carroRepository.findById(id)
-                .map(record -> {
-                    carroRepository.deleteById(id);
-                    return ResponseEntity.ok().build();
-                })
-                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public void deleteCarro(Long id) {
+        log.info("Inicio da deleteCarroService com o id: {}", id);
+        carroRepository.findById(id)
+                .orElseThrow(() -> new CarroException(id));
+
+        carroRepository.deleteById(id);
 
     }
 
-    public Page<Carro> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem, Pageable pageable) {
-        return carroRepository.FindByCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable);
+    public Page<CarroResponse> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem, Pageable pageable) {
+        return carroRepository
+                .FindByCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable)
+                .map(carroMapper::toRecord);
     }
 
 
-
-    public ResponseEntity macarVendido(@RequestBody Carro carro, Long id) {
+    public CarroResponse macarVendido(CarroRequest request, Long id) {
+        log.info("Inicio da macarVendidoService com o id: {}", id);
         return carroRepository.findById(id).map(
-                record -> {
-                    record.setQuilometragem(carro.getQuilometragem());
-                    record.setAtivo(false);
-                    record.setUrl(carro.getUrl());
-                    record.setValor(carro.getValor());
-                    record.setPlaca(carro.getPlaca());
-                    record.setMotor(carro.getMotor());
-                    record.setAnoFabricacao(carro.getAnoFabricacao());
-                    record.setDtCadastro(carro.getDtCadastro());
-                    record.setCarroceria(carro.getCarroceria());
-                    record.setMarca(carro.getMarca());
-                    record.setCores(carro.getCores());
-                    record.setModelo(carro.getModelo());
-                    record.setUsuario(carro.getUsuario());
-                    record.setCombustivel(carro.getCombustivel());
-                    Carro update = carroRepository.save(record);
-                    return ResponseEntity.ok().body(update);
-                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                        record -> {
+                            carroMapper.toUpdate(request, record);
+                            record.setAtivo(false);
+                            var update = carroRepository.save(record);
+                            return carroMapper.toRecord(update);
+                        })
+                .orElseThrow(() -> new CarroException(id));
+    }
+
+    public Carro buscaCarro(Long id) {
+        log.info("Inicio da buscaCarroService com o id: {}", id);
+        return carroRepository.findById(id)
+                .orElseThrow(() -> new CarroException(id));
     }
 }

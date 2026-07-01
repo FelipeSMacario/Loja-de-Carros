@@ -31,7 +31,7 @@ public class MarcaService {
     }
 
     public List<MarcaResponse> listarMarcas() {
-        log.info("Inicio da listarCarroceriaService");
+        log.info("Inicio da listarMarcaService");
         return marcaRepository.findByOrderByNomeAsc()
                 .stream()
                 .map(marcaMapper::toRecord)
@@ -51,7 +51,7 @@ public class MarcaService {
                 .map(record -> {
                     record.setNome(request.nome());
                     record.setUrl(request.url());
-                    Marca update = marcaRepository.save(record);
+                    var update = marcaRepository.save(record);
                     return marcaMapper.toRecord(update);
                 }).orElseThrow(() -> new MarcaException(id));
     }
@@ -63,5 +63,11 @@ public class MarcaService {
 
         marcaRepository.deleteById(marcaEntity.getId());
 
+    }
+
+    public Marca buscaMarca(Long id) {
+        log.info("Inicio da buscaMarcaService com o id: {}", id);
+        return marcaRepository.findById(id)
+                .orElseThrow(() -> new MarcaException(id));
     }
 }

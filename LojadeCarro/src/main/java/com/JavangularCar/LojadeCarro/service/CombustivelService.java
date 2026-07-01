@@ -65,4 +65,10 @@ public class CombustivelService {
 
         combustivelRepositor.deleteById(combustivelEntity.getId());
     }
+
+    public Combustivel buscaCombustivel(Long id) {
+        log.info("Inicio da buscaCombustivelService com id: {}", id);
+        return combustivelRepositor.findById(id)
+                .orElseThrow(() -> new CombustivelException(id));
+    }
 }

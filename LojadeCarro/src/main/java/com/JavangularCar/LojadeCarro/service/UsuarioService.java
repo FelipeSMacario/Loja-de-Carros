@@ -1,60 +1,81 @@
 package com.JavangularCar.LojadeCarro.service;
 
+import com.JavangularCar.LojadeCarro.dto.request.UsuarioRequest;
+import com.JavangularCar.LojadeCarro.dto.response.UsuarioResponse;
 import com.JavangularCar.LojadeCarro.entity.Usuario;
+import com.JavangularCar.LojadeCarro.exception.UsuarioException;
+import com.JavangularCar.LojadeCarro.mapper.UsuarioMapper;
 import com.JavangularCar.LojadeCarro.repository.UsuarioRepository;
-import org.hibernate.service.spi.ServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class UsuarioService {
-    @Autowired
-    UsuarioRepository usuarioRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final UsuarioMapper usuarioMapper;
 
     BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
 
-    public Usuario createUsuario(@RequestBody Usuario usuario) {
-        usuario.setPassword(encoder.encode(usuario.getPassword()));
-        return usuarioRepository.save(usuario);
+    public UsuarioResponse createUsuario(@RequestBody UsuarioRequest usuario) {
+        log.debug("Inicio da createUsuarioService com a response: {}", usuario);
+        var usuarioEntity = usuarioMapper.toEntity(usuario);
+        usuarioEntity.setPassword(encoder.encode(usuario.password()));
+        var usuarioResponse = usuarioRepository.save(usuarioEntity);
+
+        log.info("Usuário salva com sucesso!");
+
+        return usuarioMapper.toResponse(usuarioResponse);
     }
 
-    public List<Usuario> listarUsuario() {
-        return usuarioRepository.findAll();
+    public List<UsuarioResponse> listarUsuario() {
+        log.info("Inicio da listarUsuarioService");
+        return usuarioRepository.findAll()
+                .stream().map(usuarioMapper::toResponse)
+                .toList();
     }
 
-    public Usuario findUsuarioBId(Long id) {
+    public UsuarioResponse findUsuarioBId(Long id) {
+        log.info("Inicio da findMarcaByIdService com id: {}", id);
         return usuarioRepository.findById(id)
-                .stream().findFirst()
-                .orElseThrow(() -> new ServiceException("Usuário não encontrado"));
+                .map(usuarioMapper::toResponse)
+                .orElseThrow(() -> new UsuarioException(id));
     }
 
-    public ResponseEntity updateUsuario(@RequestBody Usuario usuario, Long id) {
-        return usuarioRepository.findById(id)
-                .map(record -> {
-                    record.setCpf(usuario.getCpf());
-                    record.setDtNascimento(usuario.getDtNascimento());
-                    record.setNome(usuario.getNome());
-                    record.setEmail(usuario.getEmail());
-                    record.setPassword(encoder.encode(usuario.getPassword()));
-                    Usuario update = usuarioRepository.save(record);
-                    return ResponseEntity.ok().body(update);
-                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
-    }
-
-    public ResponseEntity deleteUsuario(Long id) {
+    public UsuarioResponse updateUsuario(@RequestBody UsuarioRequest usuario, Long id) {
+        log.info("Inicio da updateUsuarioService com o id: {}", id);
         return usuarioRepository.findById(id)
                 .map(record -> {
-                    usuarioRepository.deleteById(id);
-                    return ResponseEntity.ok().build();
-                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                    record.setCpf(usuario.cpf());
+                    record.setDtNascimento(usuario.dtNascimento());
+                    record.setNome(usuario.nome());
+                    record.setEmail(usuario.email());
+                    record.setPassword(encoder.encode(usuario.password()));
+                    var update = usuarioRepository.save(record);
+                    return usuarioMapper.toResponse(update);
+                }).orElseThrow(() -> new UsuarioException(id));
+    }
+
+    public void deleteUsuario(Long id) {
+        log.info("Inicio da deleteUsuarioService com o id: {}", id);
+        usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioException(id));
+
+        usuarioRepository.deleteById(id);
+    }
+
+    public Usuario buscaUsuario(Long id) {
+        log.info("Inicio da buscaUsuarioService com o id: {}", id);
+        return usuarioRepository.findById(id)
+                .orElseThrow(() -> new UsuarioException(id));
     }
 }

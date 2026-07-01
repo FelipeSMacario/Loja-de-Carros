@@ -68,4 +68,9 @@ public class ModeloService {
 
     }
 
+    public Modelo buscaModelo(Long id) {
+        log.info("Inicio da buscaModeloService com o id: {}", id);
+        return moleloRepository.findById(id)
+                .orElseThrow(() -> new ModeloException(id));
+    }
 }
