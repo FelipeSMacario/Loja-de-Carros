@@ -45,7 +45,7 @@ public class MarcaService {
                 .orElseThrow(() -> new MarcaException(id));
     }
 
-    public MarcaResponse updateMarca(@RequestBody MarcaRequest request, Long id) {
+    public MarcaResponse updateMarca(MarcaRequest request, Long id) {
         log.info("Inicio da updateMarcaService com o id: {}", id);
         return marcaRepository.findById(id)
                 .map(record -> {

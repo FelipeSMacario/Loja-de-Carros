@@ -1,7 +1,6 @@
 package com.JavangularCar.LojadeCarro.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "Resposta para criação das marcas")
 public record MarcaResponse(@Schema(example = "1", description = "ID da cor")
@@ -9,5 +8,5 @@ public record MarcaResponse(@Schema(example = "1", description = "ID da cor")
                             @Schema(example = "Ford", description = "Nome da marca")
                             String nome,
                             @Schema(example = "https://upload.wikimedia.org/wikipedia/commons/3/3e/Ford_logo_flat.svg", description = "URL da marca")
-                            @NotBlank String url) {
+                            String url) {
 }
