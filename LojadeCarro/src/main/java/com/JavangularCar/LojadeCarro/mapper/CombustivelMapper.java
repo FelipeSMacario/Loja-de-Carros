@@ -5,7 +5,7 @@ import com.JavangularCar.LojadeCarro.dto.response.CombustivelResponse;
 import com.JavangularCar.LojadeCarro.entity.Combustivel;
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "String")
+@Mapper(componentModel = "spring")
 public interface CombustivelMapper {
     Combustivel toEntity(CombustivelRequest record);
     CombustivelResponse toRecord(Combustivel record);

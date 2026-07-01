@@ -1,50 +1,70 @@
 package com.JavangularCar.LojadeCarro.service;
 
+import com.JavangularCar.LojadeCarro.dto.request.ModeloRequest;
+import com.JavangularCar.LojadeCarro.dto.response.ModeloResponse;
 import com.JavangularCar.LojadeCarro.entity.Modelo;
+import com.JavangularCar.LojadeCarro.exception.ModeloException;
+import com.JavangularCar.LojadeCarro.mapper.ModeloMapper;
 import com.JavangularCar.LojadeCarro.repository.MoleloRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.service.spi.ServiceException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class ModeloService {
-    @Autowired
-    MoleloRepository moleloRepository;
+    private final MoleloRepository moleloRepository;
 
-    public Modelo createModelo(Modelo modelo) {
-        return moleloRepository.save(modelo);
+    private final ModeloMapper modeloMapper;
+
+    public ModeloResponse createModelo(ModeloRequest request) {
+        log.debug("Inicio da createModeloService com a response: {}", request);
+        var carroceriaEntity = modeloMapper.toEntity(request);
+        var carroceriaResponse = moleloRepository.save(carroceriaEntity);
+
+        log.info("Modelo salva com sucesso!");
+
+        return modeloMapper.toRecord(carroceriaResponse);
     }
 
-    public List<Modelo> listarModelo() {
-        return moleloRepository.findAll();
+    public List<ModeloResponse> listarModelo() {
+        log.info("Inicio da listarModeloService");
+        return moleloRepository.findAll()
+                .stream()
+                .map(modeloMapper::toRecord)
+                .toList();
     }
 
-    public Modelo findModeloById(Long id) {
+    public ModeloResponse findModeloById(Long id) {
+        log.info("Inicio da findModeloByIdService com id: {}", id);
         return moleloRepository.findById(id)
-                .stream().findFirst()
-                .orElseThrow(() -> new ServiceException("Modelo não encontrado"));
+                .map(modeloMapper::toRecord)
+                .orElseThrow(() -> new ModeloException(id));
     }
 
-    public ResponseEntity updateModelo(Modelo modelo, Long id) {
+    public ModeloResponse updateModelo(ModeloRequest request, Long id) {
+        log.info("Inicio da updateModeloService com o id: {}", id);
         return moleloRepository.findById(id)
                 .map(record -> {
-                    record.setMarca(modelo.getMarca());
-                    record.setNome(modelo.getNome());
-                    Modelo update = moleloRepository.save(record);
-                    return ResponseEntity.ok().body(update);
-                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+                    record.setNome(request.nome());
+                    var update = moleloRepository.save(record);
+                    log.info("Modelo atualizado com sucesso!");
+                    return modeloMapper.toRecord(update);
+                }).orElseThrow(() -> new ModeloException(id));
     }
 
-    public ResponseEntity deleteModelo(Long id) {
-        return moleloRepository.findById(id)
-                .map(record -> {
-                    moleloRepository.deleteById(id);
-                    return ResponseEntity.ok().build();
-                }).orElse(ResponseEntity.status(HttpStatus.NOT_FOUND).build());
+    public void deleteModelo(Long id) {
+        log.info("Inicio da deleteModeloService com o id: {}", id);
+        var modeloEntity = moleloRepository.findById(id)
+                .orElseThrow(() -> new ModeloException(id));
+
+        moleloRepository.deleteById(modeloEntity.getId());
 
     }
 
