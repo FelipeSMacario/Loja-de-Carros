@@ -10,12 +10,11 @@
     </parent>
     <groupId>com.JavangularCar</groupId>
     <artifactId>LojadeCarro</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <name>LojadeCarro</name>
     <description>Demo project for Spring Boot</description>
     <properties>
         <java.version>25</java.version>
-        <maven.compiler.source>25</maven.compiler.source>
     </properties>
     <dependencies>
         <dependency>

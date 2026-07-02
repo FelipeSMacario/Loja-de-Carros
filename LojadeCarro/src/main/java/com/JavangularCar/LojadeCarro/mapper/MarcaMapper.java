@@ -9,5 +9,5 @@ import org.mapstruct.Mapper;
 public interface MarcaMapper {
     Marca toEntity(MarcaRequest record);
 
-    MarcaResponse toRecord(Marca marca);
+    MarcaResponse toResponse(Marca marca);
 }

@@ -1,0 +1,275 @@
+package com.JavangularCar.LojadeCarro.service;
+
+import com.JavangularCar.LojadeCarro.dto.request.MarcaRequest;
+import com.JavangularCar.LojadeCarro.dto.response.MarcaResponse;
+import com.JavangularCar.LojadeCarro.exception.MarcaException;
+import com.JavangularCar.LojadeCarro.factory.marca.MarcaEntityFactory;
+import com.JavangularCar.LojadeCarro.factory.marca.MarcaRequestFactory;
+import com.JavangularCar.LojadeCarro.factory.marca.MarcaResponseFactory;
+import com.JavangularCar.LojadeCarro.mapper.MarcaMapper;
+import com.JavangularCar.LojadeCarro.repository.MarcaRepository;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
+import java.util.Optional;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.*;
+
+@ExtendWith(MockitoExtension.class)
+public class MarcaServiceTest {
+
+    @Mock
+    private MarcaMapper marcaMapper;
+
+    @Mock
+    private MarcaRepository marcaRepository;
+
+    @InjectMocks
+    private MarcaService marcaService;
+
+    @Test
+    @DisplayName("Valida a criação da marca")
+    void deveCriarMarcaComSucesso() {
+        var request = MarcaRequestFactory.criarRequest()
+                .comTodosOsCampos()
+                .build();
+        var entity = MarcaEntityFactory.criaMarca()
+                .comTodosOsCampos()
+                .build();
+
+        var response = MarcaResponseFactory.criarResponse().comTodosOsCampos().build();
+        when(marcaMapper.toEntity(request)).thenReturn(entity);
+        when(marcaRepository.save(entity)).thenReturn(entity);
+        when(marcaMapper.toResponse(entity)).thenReturn(response);
+        MarcaResponse resultado = marcaService.createMarca(request);
+
+        assertThat("Ford").isEqualTo(resultado.nome());
+
+        verify(marcaMapper).toEntity(request);
+
+        verify(marcaRepository).save(entity);
+    }
+
+    @Test
+    @DisplayName("Valida a busca da marca por ID")
+    void deveBuscarMarcaPorID() {
+        // Arrange
+        Long id = 1L;
+
+        var entity = MarcaEntityFactory.criaMarca()
+                .comTodosOsCampos()
+                .build();
+
+        var response = MarcaResponseFactory.criarResponse()
+                .comTodosOsCampos()
+                .build();
+
+        when(marcaRepository.findById(id))
+                .thenReturn(Optional.of(entity));
+
+        when(marcaMapper.toResponse(entity))
+                .thenReturn(response);
+
+        // Act
+        var resultado = marcaService.findMarcaById(id);
+
+        // Assert
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.id()).isEqualTo(1L);
+        assertThat(resultado.nome()).isEqualTo("Ford");
+        assertThat(resultado.url()).isEqualTo("https://www.google.com");
+
+        verify(marcaRepository).findById(id);
+        verify(marcaMapper).toResponse(entity);
+
+    }
+
+    @Test
+    @DisplayName("Valida a exceção de marca não encontrada")
+    void deveLancarExcecao() {
+        Long id = 2L;
+
+        when(marcaRepository.findById(id))
+                .thenReturn(Optional.empty());
+
+        var exception = assertThrows(
+                MarcaException.class,
+                () -> marcaService.findMarcaById(id)
+        );
+
+        assertThat(exception)
+                .hasMessage("Marca não encontrada com o id: 2");
+
+        verify(marcaRepository).findById(id);
+
+    }
+
+    @Test
+    @DisplayName("Deve validar a atualização de uma marca")
+    void deveAtualizarMarca() {
+        // Arrange
+        Long id = 1L;
+
+        var request = new MarcaRequest("Chevrolet", "https://www.google.com");
+        var entity = MarcaEntityFactory.criaMarca().comTodosOsCampos().build();
+        var response = new MarcaResponse(
+                id,
+                "Chevrolet",
+                "https://www.google.com"
+        );
+
+        when(marcaRepository.findById(id))
+                .thenReturn(Optional.of(entity));
+
+        when(marcaRepository.save(entity))
+                .thenReturn(entity);
+
+        when(marcaMapper.toResponse(entity))
+                .thenReturn(response);
+
+        // Act
+        var resultado = marcaService.updateMarca(request, id);
+
+        // Assert
+        assertThat(entity.getNome())
+                .isEqualTo("Chevrolet");
+
+        assertThat(entity.getUrl())
+                .isEqualTo("https://www.google.com");
+
+        assertThat(resultado.nome())
+                .isEqualTo("Chevrolet");
+
+        verify(marcaRepository).findById(id);
+        verify(marcaRepository).save(entity);
+        verify(marcaMapper).toResponse(entity);
+    }
+
+    @Test
+    @DisplayName("Deve lançar a exceção durante a atualização da marca")
+    void deveLancarExcecaoAoAtualizarMarca() {
+        Long id = 99L;
+
+        var request = MarcaRequestFactory.criarRequest()
+                .comTodosOsCampos()
+                .build();
+
+        when(marcaRepository.findById(id))
+                .thenReturn(Optional.empty());
+
+        var exception = assertThrows(
+                MarcaException.class,
+                () -> marcaService.updateMarca(request, id)
+        );
+
+        assertThat(exception)
+                .hasMessage("Marca não encontrada com o id: 99");
+
+        verify(marcaRepository).findById(id);
+    }
+
+    @Test
+    @DisplayName("Deve deletar uma marca pelo ID")
+    void deveDeletarMarcaPorID() {
+        // Arrange
+        Long id = 1L;
+
+        var entity = MarcaEntityFactory.criaMarca()
+                .comTodosOsCampos()
+                .build();
+
+        when(marcaRepository.findById(id))
+                .thenReturn(Optional.of(entity));
+
+        // Act
+        marcaService.deleteMarca(id);
+
+        // Assert
+        verify(marcaRepository).findById(id);
+        verify(marcaRepository).deleteById(id);
+    }
+
+    @Test
+    @DisplayName("Deve lançar uma exceção durante a exclusão da marca")
+    void deveLancarExcecaoAoExcluirMarca() {
+        // Arrange
+        Long id = 99L;
+        when(marcaRepository.findById(id))
+                .thenReturn(Optional.empty());
+
+        // Assert
+        var exception = assertThrows(
+                MarcaException.class,
+                () -> marcaService.deleteMarca(id));
+
+        assertThat(exception)
+                .hasMessage("Marca não encontrada com o id: 99");
+
+        verify(marcaRepository).findById(id);
+        verify(marcaRepository, never()).deleteById(anyLong());
+    }
+
+    @Test
+    @DisplayName("Deve buscar todas as marcas")
+    void deveListarTodasAsMarcas() {
+        // Arrange
+        var chevrolet = MarcaEntityFactory.criaMarca()
+                .comId(1L)
+                .comNome("Chevrolet")
+                .comURL("https://www.google.com")
+                .build();
+
+        var fiat = MarcaEntityFactory.criaMarca()
+                .comId(2L)
+                .comNome("Fiat")
+                .comURL("https://www.google.com")
+                .build();
+
+        var marcasEntity = List.of(chevrolet, fiat);
+
+        var chevroletResponse = MarcaResponseFactory.criarResponse()
+                .comId(1L)
+                .comNome("Chevrolet")
+                .build();
+
+        var fiatResponse = MarcaResponseFactory.criarResponse()
+                .comId(2L)
+                .comNome("Fiat")
+                .build();
+
+        when(marcaRepository.findByOrderByNomeAsc())
+                .thenReturn(marcasEntity);
+
+        when(marcaMapper.toResponse(chevrolet))
+                .thenReturn(chevroletResponse);
+
+        when(marcaMapper.toResponse(fiat))
+                .thenReturn(fiatResponse);
+
+        // Act
+        var resultado = marcaService.listarMarcas();
+
+        // Assert
+        assertThat(resultado)
+                .hasSize(2)
+                .extracting(MarcaResponse::nome)
+                .containsExactly("Chevrolet", "Fiat");
+
+        verify(marcaRepository).findByOrderByNomeAsc();
+
+        verify(marcaMapper).toResponse(chevrolet);
+        verify(marcaMapper).toResponse(fiat);
+
+        verifyNoMoreInteractions(marcaRepository);
+        verifyNoMoreInteractions(marcaMapper);
+
+    }
+
+}
