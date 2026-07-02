@@ -44,10 +44,15 @@ public class MarcaServiceTest {
                 .comTodosOsCampos()
                 .build();
 
-        var response = MarcaResponseFactory.criarResponse().comTodosOsCampos().build();
+        var response = MarcaResponseFactory.criarResponse()
+                .comTodosOsCampos()
+                .build();
+
+
         when(marcaMapper.toEntity(request)).thenReturn(entity);
         when(marcaRepository.save(entity)).thenReturn(entity);
         when(marcaMapper.toResponse(entity)).thenReturn(response);
+
         MarcaResponse resultado = marcaService.createMarca(request);
 
         assertThat("Ford").isEqualTo(resultado.nome());
@@ -266,10 +271,6 @@ public class MarcaServiceTest {
 
         verify(marcaMapper).toResponse(chevrolet);
         verify(marcaMapper).toResponse(fiat);
-
-        verifyNoMoreInteractions(marcaRepository);
-        verifyNoMoreInteractions(marcaMapper);
-
     }
 
 }

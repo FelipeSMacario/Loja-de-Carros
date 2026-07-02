@@ -26,7 +26,7 @@ public class CarroceriaService {
         var carroceriaResponse = carroceriaRepository.save(carroceriaEntity);
         log.info("Carroceria salva com sucesso!");
 
-        return carroceriaMapper.toRecord(carroceriaResponse);
+        return carroceriaMapper.toResponse(carroceriaResponse);
     }
 
     public List<CarroceriaResponse> listarCarroceria() {
@@ -34,14 +34,14 @@ public class CarroceriaService {
         return carroceriaRepository
                 .findAll()
                 .stream()
-                .map(carroceriaMapper::toRecord)
+                .map(carroceriaMapper::toResponse)
                 .toList();
     }
 
     public CarroceriaResponse findCarroceriaById(Long id) {
         log.info("Inicio da findCarroceriaByIdService com id: {}", id);
         return carroceriaRepository.findById(id)
-                .map(carroceriaMapper::toRecord)
+                .map(carroceriaMapper::toResponse)
                 .orElseThrow(() -> new CarroceriaException(id));
     }
 
@@ -52,7 +52,7 @@ public class CarroceriaService {
                     record.setNome(carroceriaRequest.nome());
                     var update = carroceriaRepository.save(record);
                     log.info("Carroceria atualizado com sucesso!");
-                    return carroceriaMapper.toRecord(update);
+                    return carroceriaMapper.toResponse(update);
                 }).orElseThrow(() -> new CarroceriaException(id));
     }
 
