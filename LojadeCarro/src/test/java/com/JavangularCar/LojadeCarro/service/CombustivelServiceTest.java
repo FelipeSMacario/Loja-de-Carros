@@ -94,7 +94,9 @@ public class CombustivelServiceTest {
 
         // Assert
         assertThat(resultado).isNotEmpty();
-        assertThat(resultado).hasSize(2).extracting(CombustivelResponse::nome, CombustivelResponse::id).containsExactly(tuple("Gasolina", ID_COMBUSTIVEL), tuple("Eletrico", 2L));
+        assertThat(resultado).hasSize(2)
+                .extracting(CombustivelResponse::nome, CombustivelResponse::id)
+                .containsExactly(tuple("Gasolina", ID_COMBUSTIVEL), tuple("Eletrico", 2L));
 
         verify(combustivelRepository).findAll();
         verify(combustivelMapper).toResponse(eletrico);

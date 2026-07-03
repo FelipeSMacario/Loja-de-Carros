@@ -8,5 +8,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface CoresMapper {
     Cores toEntity(CoresRequest request);
-    CoresResponse toRecord(Cores cores);
+    CoresResponse toResponse(Cores cores);
 }

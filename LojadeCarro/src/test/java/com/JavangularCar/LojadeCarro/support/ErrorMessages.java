@@ -6,7 +6,7 @@ public final class ErrorMessages {
     public static final String MARCA = "Marca";
     public static final String MODELO = "Modelo";
     public static final String COMBUSTIVEL = "Combustível";
-    public static final String COR = "Cor";
+    public static final String CORES = "Cor";
     public static final String CARROCERIA = "Carroceria";
 
 }

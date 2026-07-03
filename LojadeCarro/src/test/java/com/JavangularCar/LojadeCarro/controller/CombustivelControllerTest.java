@@ -248,4 +248,19 @@ public class CombustivelControllerTest {
         ).andExpect(status().isNoContent());
         verify(combustivelService).deleteCombustivel( ID_VALIDO);
     }
+
+    @Test
+    @DisplayName("Deve lançar 404 ao deletar um combustível")
+    void deveLancar404NaoDeletarCombustivel() throws Exception {
+        //Arrange
+        doThrow(new CombustivelException(ID_INVALIDO))
+            .when(combustivelService).deleteCombustivel( ID_VALIDO);
+        //Act + Assert
+        mockMvc.perform(
+                delete(URL + "/" + ID_VALIDO)
+        ).andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404));
+
+        verify(combustivelService).deleteCombustivel( ID_VALIDO);
+    }
 }

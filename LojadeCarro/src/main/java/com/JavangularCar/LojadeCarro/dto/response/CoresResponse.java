@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 
 @Schema(description = "Resposta para criação das cores")
 public record CoresResponse(@Schema(example = "1", description = "ID da cor")
-                            String id,
+                            Long id,
                             @Schema(example = "Branco", description = "Nome da cor")
                             String nome) {
 }
