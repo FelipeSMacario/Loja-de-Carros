@@ -16,6 +16,9 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static com.JavangularCar.LojadeCarro.support.ErrorMessages.ID_NOT_FOUND;
+import static com.JavangularCar.LojadeCarro.support.ErrorMessages.MARCA;
+import static com.JavangularCar.LojadeCarro.support.TestConstants.ID_INVALIDO;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -163,7 +166,7 @@ public class MarcaControllerTest {
                 ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
                 .andExpect(jsonPath("$.message")
-                        .value(MSG_MARCA_EXCEPTION + id));
+                        .value(String.format(ID_NOT_FOUND, MARCA, ID_INVALIDO)));
 
         verify(marcaService).findMarcaById(id);
     }
@@ -218,7 +221,8 @@ public class MarcaControllerTest {
                                 .content(objectMapper.writeValueAsString(request))
                 ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message").value(MSG_MARCA_EXCEPTION + id));
+                .andExpect(jsonPath("$.message")
+                        .value(String.format(ID_NOT_FOUND, MARCA, ID_INVALIDO)));
 
         verify(marcaService).updateMarca(request, id);
     }
@@ -273,7 +277,8 @@ public class MarcaControllerTest {
         mockMvc.perform(delete(MARCAS_URL + "/" + id))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message").value(MSG_MARCA_EXCEPTION + id));
+                .andExpect(jsonPath("$.message")
+                        .value(String.format(ID_NOT_FOUND, MARCA, ID_INVALIDO)));
 
         verify(marcaService).deleteMarca(id);
     }

@@ -17,6 +17,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static com.JavangularCar.LojadeCarro.support.ErrorMessages.*;
+import static com.JavangularCar.LojadeCarro.support.TestConstants.ID_INVALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -188,7 +190,7 @@ public class CarroceriaServiceTest {
         );
 
         assertThat(exception)
-                .hasMessage("Carroceria não encontrada com o id: " + id);
+                .hasMessage(String.format(ID_NOT_FOUND, CARROCERIA, ID_INVALIDO));
 
         verify(carroceriaRepository).findById(id);
     }
@@ -258,7 +260,7 @@ public class CarroceriaServiceTest {
         //Assert
         var exception = assertThrows(CarroceriaException.class, () -> carroceriaService.updateCarroceria(request, id));
         assertThat(exception)
-                .hasMessage(CARROCERIA_NAO_ENCONTRADA_COM_O_ID + id);
+                .hasMessage(String.format(ID_NOT_FOUND, CARROCERIA, ID_INVALIDO));
 
         verify(carroceriaRepository).findById(id);
     }
@@ -288,17 +290,17 @@ public class CarroceriaServiceTest {
     @DisplayName("Deve lançar uma exceção ao deletar uma carroceria")
     void deveLancarExcecaoAoDeletarCarroceria() {
         //Arrange
-        Long id = ID_CARROCERIA_EXCECAO;
-        when(carroceriaRepository.findById(id))
+        when(carroceriaRepository.findById(ID_INVALIDO))
                 .thenReturn(Optional.empty());
 
         //Assert
-        var exception = assertThrows(CarroceriaException.class, () -> carroceriaService.deleteCarroceria(id));
+        var exception = assertThrows(CarroceriaException.class,
+                () -> carroceriaService.deleteCarroceria(ID_INVALIDO));
 
         assertThat(exception)
-                .hasMessage(CARROCERIA_NAO_ENCONTRADA_COM_O_ID + id);
+                .hasMessage(String.format(ID_NOT_FOUND, CARROCERIA, ID_INVALIDO));
 
-        verify(carroceriaRepository).findById(id);
+        verify(carroceriaRepository).findById(ID_INVALIDO);
 
     }
 }

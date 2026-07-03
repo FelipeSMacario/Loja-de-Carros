@@ -18,6 +18,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import java.util.List;
 import java.util.Optional;
 
+import static com.JavangularCar.LojadeCarro.support.ErrorMessages.ID_NOT_FOUND;
+import static com.JavangularCar.LojadeCarro.support.ErrorMessages.MARCA;
+import static com.JavangularCar.LojadeCarro.support.TestConstants.ID_INVALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
@@ -99,20 +102,18 @@ public class MarcaServiceTest {
     @Test
     @DisplayName("Valida a exceção de marca não encontrada")
     void deveLancarExcecao() {
-        Long id = 2L;
-
-        when(marcaRepository.findById(id))
+        when(marcaRepository.findById(ID_INVALIDO))
                 .thenReturn(Optional.empty());
 
         var exception = assertThrows(
                 MarcaException.class,
-                () -> marcaService.findMarcaById(id)
+                () -> marcaService.findMarcaById(ID_INVALIDO)
         );
 
         assertThat(exception)
-                .hasMessage("Marca não encontrada com o id: 2");
+                .hasMessage(String.format(ID_NOT_FOUND, MARCA, ID_INVALIDO));
 
-        verify(marcaRepository).findById(id);
+        verify(marcaRepository).findById(ID_INVALIDO);
 
     }
 
@@ -175,7 +176,7 @@ public class MarcaServiceTest {
         );
 
         assertThat(exception)
-                .hasMessage("Marca não encontrada com o id: 99");
+                .hasMessage(String.format(ID_NOT_FOUND, MARCA, ID_INVALIDO));
 
         verify(marcaRepository).findById(id);
     }
@@ -215,7 +216,7 @@ public class MarcaServiceTest {
                 () -> marcaService.deleteMarca(id));
 
         assertThat(exception)
-                .hasMessage("Marca não encontrada com o id: 99");
+                .hasMessage(String.format(ID_NOT_FOUND, MARCA, ID_INVALIDO));
 
         verify(marcaRepository).findById(id);
         verify(marcaRepository, never()).deleteById(anyLong());

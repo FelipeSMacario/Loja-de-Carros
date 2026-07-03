@@ -16,18 +16,18 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
+import static com.JavangularCar.LojadeCarro.support.ErrorMessages.CARROCERIA;
+import static com.JavangularCar.LojadeCarro.support.ErrorMessages.ID_NOT_FOUND;
+import static com.JavangularCar.LojadeCarro.support.TestConstants.ID_INVALIDO;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 
 @WebMvcTest(CarroceriaController.class)
 @AutoConfigureMockMvc(addFilters = false)
 public class CarroceriaControllerTest {
     private static final String URL = "/carrocerias";
+    private static final String MSG_CARROCERIA_NAO_ENCONTRADA = "Carroceria não encontrada com o id:";
     private static final Long ID_CARROCERIA = 1L;
     private static final Long ID_CARROCERIA_EXCEPTION = 99L;
 
@@ -114,7 +114,7 @@ public class CarroceriaControllerTest {
         mockMvc.perform(
                         get(URL)
                 ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.[0].size()").value(2))
+                .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$.[0].id").value(ID_CARROCERIA))
                 .andExpect(jsonPath("$.[0].nome").value("Hatch"))
                 .andExpect(jsonPath("$.[1].id").value(2L))
@@ -160,7 +160,9 @@ public class CarroceriaControllerTest {
         mockMvc.perform(
                         get(URL + "/" + id)
                 ).andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404));
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message")
+                        .value(String.format(ID_NOT_FOUND, CARROCERIA, ID_INVALIDO)));
 
         verify(carroceriaService).findCarroceriaById(id);
     }
@@ -240,7 +242,8 @@ public class CarroceriaControllerTest {
                                 .content(objectMapper.writeValueAsString(request))
                 ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message").exists());
+                .andExpect(jsonPath("$.message")
+                        .value(String.format(ID_NOT_FOUND, CARROCERIA, ID_INVALIDO)));
 
         verify(carroceriaService).updateCarroceria(request, id);
     }
@@ -270,7 +273,8 @@ public class CarroceriaControllerTest {
                         delete(URL + "/" + id)
                 ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message").exists());
+                .andExpect(jsonPath("$.message")
+                        .value(String.format(ID_NOT_FOUND, CARROCERIA, ID_INVALIDO)));
         verify(carroceriaService).deleteCarroceria(id);
     }
 }

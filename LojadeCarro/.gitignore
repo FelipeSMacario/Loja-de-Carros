@@ -35,3 +35,4 @@ build/
 ### Custom ignores ###
 Dockerfile
 init.sql
+insert.sql
