@@ -1,7 +1,6 @@
 package com.JavangularCar.LojadeCarro.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotNull;
 
 @Schema(description = "Resposta para criação das kits")
 public record KitResponse(@Schema(example = "1", description = "Id do kit")
@@ -21,5 +20,9 @@ public record KitResponse(@Schema(example = "1", description = "Id do kit")
                           @Schema(example = "true", description = "Carro possui bancos de couro?")
                           boolean bancoCouro,
                           @Schema(example = "1", description = "ID do carro com essas características")
-                          Long idCarro) {
+                          Long idCarro,
+                          @Schema(example = "Chevrolet", description = "Descrição da marca do carro")
+                          String marca,
+                          @Schema(example = "Onix", description = "Descrição do modelo do carro")
+                          String modelo) {
 }

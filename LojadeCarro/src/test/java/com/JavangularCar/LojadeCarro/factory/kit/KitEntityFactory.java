@@ -1,6 +1,9 @@
 package com.JavangularCar.LojadeCarro.factory.kit;
 
+import com.JavangularCar.LojadeCarro.entity.Carro;
 import com.JavangularCar.LojadeCarro.entity.Kit;
+import com.JavangularCar.LojadeCarro.factory.carro.CarroEntityFactory;
+import jakarta.persistence.ManyToOne;
 import lombok.RequiredArgsConstructor;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -20,13 +23,20 @@ public final class KitEntityFactory {
 
     public KitEntityFactory comTodosOsCampos() {
         kit.setId(1L);
-       // kit.setNome("Hatch");
+        kit.setFreioABS(true);
+        kit.setRodaLigaLeve(true);
+        kit.setAutomatico(true);
+        kit.setDirecaoHidraulica(true);
+        kit.setArCondicionado(true);
+        kit.setQuatroPortas(true);
+        kit.setBancoCouro(true);
+        kit.setCarro(CarroEntityFactory.criarEntity().comTodosOsCampos().build());
         return this;
     }
 
 
     public KitEntityFactory comNome(String nome) {
-       // kit.setNome(nome);
+        // kit.setNome(nome);
         return this;
     }
 

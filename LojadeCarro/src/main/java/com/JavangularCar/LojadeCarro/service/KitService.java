@@ -23,6 +23,8 @@ public class KitService {
     public KitResponse createKit(KitRequest request) {
         log.debug("Inicio da createKitService com a response: {}", request);
         var kitEntity = kitMapper.toEntity(request);
+        var carro = carroService.buscaCarro(request.idCarro());
+        kitEntity.setCarro(carro);
         var kitResponse = kitRepository.save(kitEntity);
 
         log.info("Kit salva com sucesso!");
@@ -52,12 +54,8 @@ public class KitService {
         log.info("Inicio da updateKitService com o id: {}", id);
         return kitRepository.findById(id)
                 .map(record -> {
-                    record.setAutomatico(request.automatico());
+                    kitMapper.toUpdate(request, record);
                     record.setCarro(carroService.buscaCarro(request.idCarro()));
-                    record.setArCondicionado(request.arCondicionado());
-                    record.setDirecaoHidraulica(request.direcaoHidraulica());
-                    record.setFreioABS(request.freioABS());
-                    record.setRodaLigaLeve(request.rodaLigaLeve());
                     var update = kitRepository.save(record);
                     log.info("Kit atualizado com sucesso!");
                     return kitMapper.toResponse(update);

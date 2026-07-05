@@ -9,8 +9,6 @@ import jakarta.persistence.*;
 @Data
 @Table(name = "Kit")
 @Entity
-@Getter
-@Setter
 public class Kit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,8 +28,7 @@ public class Kit {
 
     private boolean bancoCouro;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "carro_id", nullable = false)
     private Carro carro;
-
-
 }

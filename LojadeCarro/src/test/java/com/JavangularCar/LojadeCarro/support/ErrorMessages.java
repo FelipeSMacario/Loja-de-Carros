@@ -10,5 +10,6 @@ public final class ErrorMessages {
     public static final String CARROCERIA = "Carroceria";
     public static final String USUARIO = "Usuário";
     public static final String CARRO = "Carro";
+    public static final String KIT = "Kit";
 
 }
