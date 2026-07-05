@@ -2,17 +2,14 @@ package com.JavangularCar.LojadeCarro.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Collections;
 
 @Data
-@Getter
-@Setter
 @Entity
 @Table(name = "Usuario")
 
@@ -21,20 +18,16 @@ public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
+    private String nome;
+    private String password;
+    private String cpf;
+    private LocalDate dtNascimento;
     private String email;
 
-    private String password;
-
-    private String cpf;
-
-    private LocalDate dtNascimento;
-
-    private String nome;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
+        return Collections.emptyList();
     }
 
     @Override

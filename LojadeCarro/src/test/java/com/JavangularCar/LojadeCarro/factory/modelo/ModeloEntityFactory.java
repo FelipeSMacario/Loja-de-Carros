@@ -12,7 +12,7 @@ public final class ModeloEntityFactory {
 
     private final Modelo modelo;
     Marca marca = MarcaEntityFactory
-            .criaMarca()
+            .criarEntity()
             .comId(3L)
             .comNome("Chevrolet")
             .comURL("https://www.chevrolet.com")
@@ -51,7 +51,7 @@ public final class ModeloEntityFactory {
 
     public ModeloEntityFactory comMarca(Long id, String nome, String url) {
         modelo.setMarca(MarcaEntityFactory
-                .criaMarca()
+                .criarEntity()
                 .comId(id)
                 .comNome(nome)
                 .comURL(url)

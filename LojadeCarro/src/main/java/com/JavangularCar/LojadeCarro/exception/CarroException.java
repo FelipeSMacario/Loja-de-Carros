@@ -4,6 +4,6 @@ public class CarroException extends RuntimeException {
     public CarroException() {
     }
     public CarroException(Long id) {
-        super("Carro não encontrado(a) com o id " + id);
+        super("Carro não encontrado(a) com o id: " + id);
     }
 }

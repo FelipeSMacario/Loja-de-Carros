@@ -20,11 +20,10 @@ import java.util.List;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
+    private final BCryptPasswordEncoder encoder;
 
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
 
-
-    public UsuarioResponse createUsuario(@RequestBody UsuarioRequest usuario) {
+    public UsuarioResponse createUsuario(UsuarioRequest usuario) {
         log.debug("Inicio da createUsuarioService com a response: {}", usuario);
         var usuarioEntity = usuarioMapper.toEntity(usuario);
         usuarioEntity.setPassword(encoder.encode(usuario.password()));

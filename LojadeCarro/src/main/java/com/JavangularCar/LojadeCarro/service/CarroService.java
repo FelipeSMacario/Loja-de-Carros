@@ -1,21 +1,17 @@
 package com.JavangularCar.LojadeCarro.service;
 
 import com.JavangularCar.LojadeCarro.dto.request.CarroRequest;
+import com.JavangularCar.LojadeCarro.dto.request.FiltrarCamposCarroRequest;
 import com.JavangularCar.LojadeCarro.dto.response.CarroResponse;
 import com.JavangularCar.LojadeCarro.entity.Carro;
 import com.JavangularCar.LojadeCarro.exception.CarroException;
 import com.JavangularCar.LojadeCarro.mapper.CarroMapper;
 import com.JavangularCar.LojadeCarro.repository.CarroRepository;
-import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 
@@ -53,7 +49,7 @@ public class CarroService {
         var carro = carroRepository.save(carroEntity);
 
         log.info("Carro salvo com sucesso!");
-        return carroMapper.toRecord(carro);
+        return carroMapper.toResponse(carro);
 
     }
 
@@ -61,13 +57,13 @@ public class CarroService {
         log.info("Inicio da listarCarrosService");
         return carroRepository
                 .findAll(pageable)
-                .map(carroMapper::toRecord);
+                .map(carroMapper::toResponse);
     }
 
     public CarroResponse findCarroById(Long id) {
         log.info("Inicio da findCarroByIdService com id: {}", id);
         return carroRepository.findById(id)
-                .map(carroMapper::toRecord)
+                .map(carroMapper::toResponse)
                 .orElseThrow(() -> new CarroException(id));
 
     }
@@ -78,7 +74,7 @@ public class CarroService {
                 .map(record -> {
                     carroMapper.toUpdate(request, record);
                     var update = carroRepository.save(record);
-                    return carroMapper.toRecord(update);
+                    return carroMapper.toResponse(update);
                 })
                 .orElseThrow(() -> new CarroException(id));
     }
@@ -92,21 +88,28 @@ public class CarroService {
 
     }
 
-    public Page<CarroResponse> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem, Pageable pageable) {
+    public Page<CarroResponse> filtrarCampos(FiltrarCamposCarroRequest filtro, Pageable pageable) {
         return carroRepository
-                .FindByCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable)
-                .map(carroMapper::toRecord);
+                .FindByCampos(filtro.marca(),
+                        filtro.modelo(),
+                        filtro.anoInicio(),
+                        filtro.anoFim(),
+                        filtro.valorInicio(),
+                        filtro.valorFim(),
+                        filtro.quilometragem(),
+                        pageable)
+                .map(carroMapper::toResponse);
     }
 
 
-    public CarroResponse macarVendido(CarroRequest request, Long id) {
+    public CarroResponse marcarVendido(CarroRequest request, Long id) {
         log.info("Inicio da macarVendidoService com o id: {}", id);
         return carroRepository.findById(id).map(
                         record -> {
                             carroMapper.toUpdate(request, record);
                             record.setAtivo(false);
                             var update = carroRepository.save(record);
-                            return carroMapper.toRecord(update);
+                            return carroMapper.toResponse(update);
                         })
                 .orElseThrow(() -> new CarroException(id));
     }

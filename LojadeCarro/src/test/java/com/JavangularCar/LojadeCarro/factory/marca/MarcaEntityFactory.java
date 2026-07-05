@@ -14,7 +14,7 @@ public final class MarcaEntityFactory {
         this.marca = new Marca();
     }
 
-    public static MarcaEntityFactory criaMarca() {
+    public static MarcaEntityFactory criarEntity() {
         return new MarcaEntityFactory();
     }
 

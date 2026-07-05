@@ -51,7 +51,7 @@ public class ModeloServiceTest {
                 .comTodosOsCampos()
                 .build();
         var marcaEntity = MarcaEntityFactory
-                .criaMarca()
+                .criarEntity()
                 .comTodosOsCampos()
                 .build();
         var entity = ModeloEntityFactory
@@ -229,7 +229,7 @@ public class ModeloServiceTest {
                 .build();
 
         var marcaEntity = MarcaEntityFactory
-                .criaMarca()
+                .criarEntity()
                 .comTodosOsCampos()
                 .build();
         var response = ModeloResponseFactory

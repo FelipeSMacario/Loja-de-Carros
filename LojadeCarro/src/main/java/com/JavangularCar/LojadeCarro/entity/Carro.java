@@ -3,6 +3,7 @@ package com.JavangularCar.LojadeCarro.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
@@ -21,7 +22,7 @@ public class Carro {
     private String url;
 
     @Column(name = "Valor", nullable = false)
-    private Double valor;
+    private BigDecimal valor;
 
     @Column(name = "Placa", nullable = false)
     private String placa;

@@ -43,7 +43,7 @@ public class MarcaServiceTest {
         var request = MarcaRequestFactory.criarRequest()
                 .comTodosOsCampos()
                 .build();
-        var entity = MarcaEntityFactory.criaMarca()
+        var entity = MarcaEntityFactory.criarEntity()
                 .comTodosOsCampos()
                 .build();
 
@@ -71,7 +71,7 @@ public class MarcaServiceTest {
         // Arrange
         Long id = 1L;
 
-        var entity = MarcaEntityFactory.criaMarca()
+        var entity = MarcaEntityFactory.criarEntity()
                 .comTodosOsCampos()
                 .build();
 
@@ -124,7 +124,7 @@ public class MarcaServiceTest {
         Long id = 1L;
 
         var request = new MarcaRequest("Chevrolet", "https://www.google.com");
-        var entity = MarcaEntityFactory.criaMarca().comTodosOsCampos().build();
+        var entity = MarcaEntityFactory.criarEntity().comTodosOsCampos().build();
         var response = new MarcaResponse(
                 id,
                 "Chevrolet",
@@ -187,7 +187,7 @@ public class MarcaServiceTest {
         // Arrange
         Long id = 1L;
 
-        var entity = MarcaEntityFactory.criaMarca()
+        var entity = MarcaEntityFactory.criarEntity()
                 .comTodosOsCampos()
                 .build();
 
@@ -226,13 +226,13 @@ public class MarcaServiceTest {
     @DisplayName("Deve buscar todas as marcas")
     void deveListarTodasAsMarcas() {
         // Arrange
-        var chevrolet = MarcaEntityFactory.criaMarca()
+        var chevrolet = MarcaEntityFactory.criarEntity()
                 .comId(1L)
                 .comNome("Chevrolet")
                 .comURL("https://www.google.com")
                 .build();
 
-        var fiat = MarcaEntityFactory.criaMarca()
+        var fiat = MarcaEntityFactory.criarEntity()
                 .comId(2L)
                 .comNome("Fiat")
                 .comURL("https://www.google.com")

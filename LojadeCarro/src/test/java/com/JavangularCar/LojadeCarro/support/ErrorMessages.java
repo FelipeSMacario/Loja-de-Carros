@@ -8,5 +8,7 @@ public final class ErrorMessages {
     public static final String COMBUSTIVEL = "Combustível";
     public static final String CORES = "Cor";
     public static final String CARROCERIA = "Carroceria";
+    public static final String USUARIO = "Usuário";
+    public static final String CARRO = "Carro";
 
 }
