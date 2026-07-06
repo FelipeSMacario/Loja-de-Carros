@@ -1,49 +1,36 @@
 package com.JavangularCar.LojadeCarro.service;
 
-import com.JavangularCar.LojadeCarro.entity.Usuario;
+import com.JavangularCar.LojadeCarro.dto.response.UsuarioResponse;
+import com.JavangularCar.LojadeCarro.exception.LoginSenhaException;
+import com.JavangularCar.LojadeCarro.mapper.UsuarioMapper;
 import com.JavangularCar.LojadeCarro.repository.LoginRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-
+@Slf4j
 @Service
+@RequiredArgsConstructor
 public class LoginService {
-    @Autowired
-    LoginRepository loginRepository;
+    private final LoginRepository loginRepository;
 
-    BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+    private final BCryptPasswordEncoder encoder;
+    private final UsuarioMapper usuarioMapper;
 
-    public ResponseEntity<Usuario> logar(String login, String password) {
+    public UsuarioResponse logar(String login, String password) {
+        log.info("Buscando login {}", login);
+        return loginRepository.findByEmail(login)
+                .map(log -> {
+                            if (!encoder.matches(password, log.getPassword())) {
+                                throw new LoginSenhaException();
+                            }
+                            return usuarioMapper.toResponse(log);
 
-        Optional<Usuario> usuario = loginRepository.findByEmail(login);
-        if (usuario.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        } else {
-            Boolean valid = encoder.matches(password, usuario.get().getPassword());
-            if (valid) return ResponseEntity.status(HttpStatus.OK).body(usuario.get());
-            else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-        }
-    }
-
-
-    public ResponseEntity<Boolean> logar2(String login, String password) {
-
-        Optional<Usuario> usuario = loginRepository.findByEmail(login);
-
-        if (usuario.isEmpty()) return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(false);
-
-        Boolean valid = false;
-
-        Usuario usu = usuario.get();
-        valid = encoder.matches(password, usu.getPassword());
-
-        HttpStatus status = ((valid) ? HttpStatus.OK : HttpStatus.UNAUTHORIZED);
-
-        return ResponseEntity.status(status).body(valid);
+                        }
+                )
+                .orElseThrow(LoginSenhaException::new);
 
     }
+
 }

@@ -1,5 +1,6 @@
 package com.JavangularCar.LojadeCarro.controller;
 
+import com.JavangularCar.LojadeCarro.dto.response.UsuarioResponse;
 import com.JavangularCar.LojadeCarro.entity.Usuario;
 import com.JavangularCar.LojadeCarro.service.LoginService;
 import io.swagger.v3.oas.annotations.Hidden;
@@ -23,7 +24,10 @@ public class LoginController {
 
     @GetMapping()
     @Operation(summary = "Logar usuário na API")
-    public ResponseEntity<Usuario> logar(@RequestParam String login, @RequestParam String password){
-        return loginService.logar(login, password);
+    public ResponseEntity<UsuarioResponse> logar(@RequestParam String login,
+                                                 @RequestParam String password){
+        var usuario = loginService.logar(login, password);
+
+        return ResponseEntity.ok(usuario);
     }
 }

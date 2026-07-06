@@ -76,5 +76,17 @@ public class GlobalExceptionHandler {
         log.warn("businessException: {}", ex.getMessage());
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
+    @ExceptionHandler(SecurityException.class)
+    public ResponseEntity<ResponseError> securityException(SecurityException ex,
+                                                           HttpServletRequest request) {
+        ResponseError response = new ResponseError(
+                ex.getMessage(),
+                HttpStatus.UNAUTHORIZED.value(),
+                LocalDateTime.now(),
+                request.getRequestURI()
+        );
+        log.warn("businessException: {}", ex.getMessage());
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+    }
 
 }

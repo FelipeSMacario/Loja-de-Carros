@@ -9,6 +9,9 @@ import org.springframework.stereotype.Service;
 
 import jakarta.transaction.Transactional;
 
+import java.util.List;
+import java.util.Optional;
+
 @Service
 public interface ImagensRepository extends JpaRepository<Imagens, Long> {
 
@@ -21,5 +24,10 @@ public interface ImagensRepository extends JpaRepository<Imagens, Long> {
     @Transactional
     @Query(value = "UPDATE lojadecarro.carro SET url = :urlDefault WHERE id = :idCarro", nativeQuery = true)
     void imagemCarroDefault(@Param("urlDefault") String urlDefault, @Param("idCarro") Long idCarro);
+
+    Optional<Imagens> findByIdAndCarroId(Long idImagem, Long idCarro);
+
+    List<Imagens> findByCarroId(Long idCarro);
+
 
 }

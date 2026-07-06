@@ -24,7 +24,7 @@ public final class CarroEntityFactory {
     public CarroEntityFactory comTodosOsCampos() {
         carro.setId(1L);
         carro.setQuilometragem(67000.98);
-        carro.setUrl("www.google.com");
+        carro.setUrl("https://bucket/imagens/onix.jpg");
         carro.setValor(new BigDecimal(58000));
         carro.setPlaca("QUV1F836");
         carro.setMotor("1.0");

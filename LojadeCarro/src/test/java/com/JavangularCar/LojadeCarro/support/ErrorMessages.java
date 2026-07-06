@@ -11,5 +11,8 @@ public final class ErrorMessages {
     public static final String USUARIO = "Usuário";
     public static final String CARRO = "Carro";
     public static final String KIT = "Kit";
+    public static final String IMAGENS = "Imagem";
+    public static final String LOGIN = "Login";
+
 
 }
