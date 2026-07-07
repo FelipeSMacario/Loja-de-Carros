@@ -62,7 +62,7 @@ public class KitController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar kit buscando por id")
-    public ResponseEntity<KitResponse> updateKit(@RequestBody @Valid KitRequest request, Long id) {
+    public ResponseEntity<KitResponse> updateKit(@RequestBody @Valid KitRequest request, @PathVariable Long id) {
         log.info("Atualizando a kit por id: {}", id);
         var response = kitService.updateKit(request, id);
 
