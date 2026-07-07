@@ -445,8 +445,8 @@ public class CarroServiceTest {
         verifyNoMoreInteractions(carroRepository);
     }
     @Test
-    @DisplayName("Deve buscar um carro por ID")
-    void buscaCarroPorId() {
+    @DisplayName("Deve buscar  um carro entity por ID")
+    void buscaCarroEntityPorId() {
         //Arrange
         var entity = criarCarroEntity();
 
@@ -471,7 +471,7 @@ public class CarroServiceTest {
                         BigDecimal.valueOf(58000),
                         67000.98D,
                         2020,
-                        "www.google.com",
+                        "https://bucket/imagens/onix.jpg",
                         true
                 );
         verify(carroRepository).findById(ID_VALIDO);

@@ -4,10 +4,12 @@ import com.JavangularCar.LojadeCarro.dto.request.ComprasRequest;
 import com.JavangularCar.LojadeCarro.dto.response.ComprasResponse;
 import com.JavangularCar.LojadeCarro.mapper.ComprasMapper;
 import com.JavangularCar.LojadeCarro.repository.ComprasRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.util.List;
 
 @Slf4j
@@ -16,17 +18,21 @@ import java.util.List;
 public class ComprasService {
     private final ComprasRepository comprasRepository;
     private final ComprasMapper comprasMapper;
+    private final UsuarioService usuarioService;
     private final CarroService carroService;
 
+    @Transactional
     public ComprasResponse createCompras(ComprasRequest request) {
         log.debug("Inicio da createComprasService com a response: {}", request);
         var compraEntity = comprasMapper.toEntity(request);
-
-        this.marcaVendido(carroService.buscaCarro(request.carroId()).getId());
-
+        compraEntity.setDataVenda(Instant.now());
+        compraEntity.setCarro(carroService.buscaCarro(request.carroId()));
+        compraEntity.setComprador(usuarioService.buscaUsuario(request.compradorId()));
+        compraEntity.setVendedor(usuarioService.buscaUsuario(request.vendedorId()));
         var comprasResponse = comprasRepository.save(compraEntity);
         log.info("Compra salva com sucesso!");
 
+        this.marcarComoVendido(request.carroId());
         return comprasMapper.toResponse(comprasResponse);
 
     }
@@ -38,7 +44,7 @@ public class ComprasService {
                 .toList();
     }
 
-    public void marcaVendido(Long idCarro) {
+    public void marcarComoVendido(Long idCarro) {
         comprasRepository.marcaVendido(idCarro);
     }
 }
