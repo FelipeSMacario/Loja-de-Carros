@@ -8,7 +8,7 @@ import java.math.BigDecimal;
 
 @Schema(description = "Request para o cadastro de um carro para venda")
 public record CarroRequest(@Schema(example = "123000", description = "quilometragem do carro")
-                           @NotBlank Double quilometragem,
+                           @NotNull Double quilometragem,
                            @Schema(example =
                            "https://4bossnews.com.br/wp-content/uploads/2024/10/Ferrari-F80-4Boss_01-1024x536-1.jpg",
                                    description = "Foto do carro")

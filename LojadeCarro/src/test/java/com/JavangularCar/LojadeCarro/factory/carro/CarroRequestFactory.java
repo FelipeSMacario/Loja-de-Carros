@@ -44,6 +44,10 @@ public class CarroRequestFactory {
         this.idCombustivel = 1L;
         return this;
     }
+    public CarroRequestFactory comCores(Long cor) {
+        this.idCores = cor;
+        return this;
+    }
 
     public CarroRequest build() {
         return new CarroRequest(

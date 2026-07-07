@@ -33,7 +33,7 @@ public class CarroResponseFactory {
         this.marca = "Chevrolet";
         this.modelo = "Onix";
         this.valor = new BigDecimal(58000);
-        this.quilometragem = 67000.98;
+        this.quilometragem = 67000.98D;
         this.anoFabricacao = 2020;
         this.url = "www.google.com";
         this.ativo = true;
