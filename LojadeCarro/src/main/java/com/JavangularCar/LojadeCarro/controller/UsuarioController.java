@@ -60,7 +60,7 @@ public class UsuarioController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar usuário buscando por id")
-    public ResponseEntity<UsuarioResponse> updateUsuario(@RequestBody UsuarioRequest usuario, @PathVariable Long id) {
+    public ResponseEntity<UsuarioResponse> updateUsuario(@RequestBody @Valid UsuarioRequest usuario, @PathVariable Long id) {
         log.info("Atualizando o usuário por id: {}", id);
         var response = usuarioService.updateUsuario(usuario, id);
 

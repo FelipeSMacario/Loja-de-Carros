@@ -102,8 +102,6 @@ public class ComprasServiceTest {
         assertThat(entity.getDataVenda()).isNotNull();
 
         verify(comprasMapper).toEntity(request);
-        when(carroService.buscaCarro(request.carroId()))
-                .thenReturn(carroEntity);
         verify(usuarioService).buscaUsuario(request.vendedorId());
         verify(usuarioService).buscaUsuario(request.compradorId());
 

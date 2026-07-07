@@ -23,7 +23,7 @@ public class UsuarioRequestFactory {
     public UsuarioRequestFactory comTodosOsCampos() {
         this.nome = "Felipe Soares Macário";
         this.password = "123456";
-        this.cpf = "1234567890";
+        this.cpf = "15152736799";
         this.dtNascimento = LocalDate.of(1991, 5, 14);
         this.email = "felipesmacario@gmail.com";
         return this;
@@ -31,6 +31,10 @@ public class UsuarioRequestFactory {
 
     public UsuarioRequestFactory comNome(String nome) {
         this.nome = nome;
+        return this;
+    }
+    public UsuarioRequestFactory comSenha(String senha) {
+        this.password = senha;
         return this;
     }
 
