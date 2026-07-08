@@ -15,5 +15,5 @@ public interface KitMapper {
     @Mapping(source = "carro.modelo.nome", target = "modelo")
     KitResponse toResponse(Kit kit);
 
-    void toUpdate(KitRequest request, @MappingTarget Kit record);
+    void toUpdate(KitRequest request, @MappingTarget Kit kit);
 }

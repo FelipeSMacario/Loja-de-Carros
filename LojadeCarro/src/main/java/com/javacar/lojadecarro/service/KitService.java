@@ -53,10 +53,10 @@ public class KitService {
     public KitResponse updateKit(KitRequest request, Long id) {
         log.info("Inicio da updateKitService com o id: {}", id);
         return kitRepository.findById(id)
-                .map(record -> {
-                    kitMapper.toUpdate(request, record);
-                    record.setCarro(carroService.buscaCarro(request.idCarro()));
-                    var update = kitRepository.save(record);
+                .map(kitEntity -> {
+                    kitMapper.toUpdate(request, kitEntity);
+                    kitEntity.setCarro(carroService.buscaCarro(request.idCarro()));
+                    var update = kitRepository.save(kitEntity);
                     log.info("Kit atualizado com sucesso!");
                     return kitMapper.toResponse(update);
                 }).orElseThrow(() -> new KitException(id));

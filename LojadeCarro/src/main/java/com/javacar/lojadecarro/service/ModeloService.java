@@ -50,10 +50,10 @@ public class ModeloService {
     public ModeloResponse updateModelo(ModeloRequest request, Long id) {
         log.info("Inicio da updateModeloService com o id: {}", id);
         return modeloRepository.findById(id)
-                .map(record -> {
-                    record.setNome(request.nome());
-                    record.setMarca(marcaService.buscaMarca(request.idMarca()));
-                    var update = modeloRepository.save(record);
+                .map(modeloEntity -> {
+                    modeloEntity.setNome(request.nome());
+                    modeloEntity.setMarca(marcaService.buscaMarca(request.idMarca()));
+                    var update = modeloRepository.save(modeloEntity);
                     log.info("Modelo atualizado com sucesso!");
                     return modeloMapper.toResponse(update);
                 }).orElseThrow(() -> new ModeloException(id));

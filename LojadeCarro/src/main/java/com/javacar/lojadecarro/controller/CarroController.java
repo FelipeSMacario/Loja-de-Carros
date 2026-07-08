@@ -95,7 +95,7 @@ public class CarroController {
 
     @GetMapping("/search")
     @Operation(summary = "Paginação que busca o carro por parãmetros")
-    public ResponseEntity<Page<CarroResponse>> FiltrarCampos(FiltrarCamposCarroRequest filtro, @PageableDefault(size = 9) Pageable pageable) {
+    public ResponseEntity<Page<CarroResponse>> filtrarCampos(FiltrarCamposCarroRequest filtro, @PageableDefault(size = 9) Pageable pageable) {
         log.info("Paginação do carro");
         var response = carroService.filtrarCampos(filtro, pageable);
 

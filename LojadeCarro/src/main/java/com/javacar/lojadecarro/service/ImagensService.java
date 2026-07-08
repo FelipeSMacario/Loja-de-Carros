@@ -62,11 +62,9 @@ public class ImagensService {
 
         return imagensRepository
                 .findByCarroId(idCarro)
-                .map(im -> {
-                    return im.stream().map(
-                            imagensMapper::toResponse
-                    ).toList();
-                })
+                .map(im -> im.stream()
+                        .map(imagensMapper::toResponse)
+                        .toList())
                 .orElseThrow(() -> new ImagensException(idCarro));
 
     }
@@ -86,12 +84,12 @@ public class ImagensService {
         log.info("Atualizando imagem {}", id);
 
         return imagensRepository.findById(id)
-                .map(record -> {
+                .map(imagensEntity -> {
 
-                    record.setCarro(carroService.buscaCarro(request.carroId()));
-                    record.setUrl(request.url());
+                    imagensEntity.setCarro(carroService.buscaCarro(request.carroId()));
+                    imagensEntity.setUrl(request.url());
 
-                    Imagens imagemAtualizada = imagensRepository.save(record);
+                    Imagens imagemAtualizada = imagensRepository.save(imagensEntity);
 
                     return imagensMapper.toResponse(imagemAtualizada);
 

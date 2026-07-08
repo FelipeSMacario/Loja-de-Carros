@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public interface CarroceriaMapper {
-    Carroceria toEntity(CarroceriaRequest record);
+    Carroceria toEntity(CarroceriaRequest carroceriaRequest);
 
     CarroceriaResponse toResponse(Carroceria carroceria);
 }

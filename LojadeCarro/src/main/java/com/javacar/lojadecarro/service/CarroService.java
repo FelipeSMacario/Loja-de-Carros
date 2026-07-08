@@ -14,6 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+
+import static com.javacar.lojadecarro.utils.Utils.ZONE;
 
 
 @Slf4j
@@ -45,7 +48,7 @@ public class CarroService {
         carroEntity.setModelo(modeloService.buscaModelo(request.idModelo()));
         carroEntity.setUsuario(usuarioService.buscaUsuario(request.idUsuario()));
         carroEntity.setCombustivel(combustivelService.buscaCombustivel(request.idCombustivel()));
-        carroEntity.setDtCadastro(LocalDateTime.now());
+        carroEntity.setDtCadastro(LocalDateTime.now(ZONE));
         var carro = carroRepository.save(carroEntity);
 
         log.info("Carro salvo com sucesso!");
@@ -71,9 +74,9 @@ public class CarroService {
     public CarroResponse updateCarro(CarroRequest request, Long id) {
         log.info("Inicio da updateCarroService com o id: {}", id);
         return carroRepository.findById(id)
-                .map(record -> {
-                    carroMapper.toUpdate(request, record);
-                    var update = carroRepository.save(record);
+                .map(carroEntity -> {
+                    carroMapper.toUpdate(request, carroEntity);
+                    var update = carroRepository.save(carroEntity);
                     return carroMapper.toResponse(update);
                 })
                 .orElseThrow(() -> new CarroException(id));
@@ -90,13 +93,7 @@ public class CarroService {
 
     public Page<CarroResponse> filtrarCampos(FiltrarCamposCarroRequest filtro, Pageable pageable) {
         return carroRepository
-                .FindByCampos(filtro.marca(),
-                        filtro.modelo(),
-                        filtro.anoInicio(),
-                        filtro.anoFim(),
-                        filtro.valorInicio(),
-                        filtro.valorFim(),
-                        filtro.quilometragem(),
+                .findByCampos(filtro,
                         pageable)
                 .map(carroMapper::toResponse);
     }
@@ -105,10 +102,10 @@ public class CarroService {
     public CarroResponse marcarVendido(CarroRequest request, Long id) {
         log.info("Inicio da macarVendidoService com o id: {}", id);
         return carroRepository.findById(id).map(
-                        record -> {
-                            carroMapper.toUpdate(request, record);
-                            record.setAtivo(false);
-                            var update = carroRepository.save(record);
+                        marcaEntity -> {
+                            carroMapper.toUpdate(request, marcaEntity);
+                            marcaEntity.setAtivo(false);
+                            var update = carroRepository.save(marcaEntity);
                             return carroMapper.toResponse(update);
                         })
                 .orElseThrow(() -> new CarroException(id));

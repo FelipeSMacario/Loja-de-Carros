@@ -49,9 +49,9 @@ public class CoresService {
     public CoresResponse updateCores(CoresRequest request, Long id) {
         log.info("Inicio da updateCoresService com o id: {}", id);
         return coresRepository.findById(id)
-                .map(record -> {
-                    record.setNome(request.nome());
-                    var update = coresRepository.save(record);
+                .map(coresEntity -> {
+                    coresEntity.setNome(request.nome());
+                    var update = coresRepository.save(coresEntity);
                     return coresMapper.toResponse(update);
                 }).orElseThrow(() -> new CoresException(id));
     }

@@ -328,16 +328,16 @@ class CarroServiceTest {
     void filtraCarroPorCampo() {
         // Arrange
         var pageable = PageRequest.of(0, 10);
-        var marca = "Chevrolet";
-        var modelo = "Onix";
-        var anoInicio = 2020;
-        var anoFim = 2021;
-        var valorInicio = 58000D;
-        var valorFim = 65000D;
-        var quilometragem = 58000D;
+        var filtros = new FiltrarCamposCarroRequest(
+                "Chevrolet",
+                "Onix",
+                2020,
+                2021,
+                58000D,
+                65000D,
+                58000D
+        );
 
-        var filtro =
-                new FiltrarCamposCarroRequest(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem);
 
         var onix = criarCarroEntity();
 
@@ -362,7 +362,7 @@ class CarroServiceTest {
                 .build();
 
         when(carroRepository.
-                FindByCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable))
+                findByCampos(filtros, pageable))
                 .thenReturn(pagina);
 
         when(carroMapper.toResponse(onix))
@@ -372,7 +372,7 @@ class CarroServiceTest {
                 .thenReturn(celtaResponse);
 
         // Act
-        var resultado = carroService.filtrarCampos(filtro, pageable);
+        var resultado = carroService.filtrarCampos(filtros, pageable);
 
         // Assert
         assertThat(resultado.getContent())
@@ -390,7 +390,7 @@ class CarroServiceTest {
         assertThat(resultado.getNumber()).isZero();
         assertThat(resultado.getSize()).isEqualTo(10);
 
-        verify(carroRepository).FindByCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable);
+        verify(carroRepository).findByCampos(filtros, pageable);
         verify(carroMapper).toResponse(onix);
         verify(carroMapper).toResponse(celta);
 

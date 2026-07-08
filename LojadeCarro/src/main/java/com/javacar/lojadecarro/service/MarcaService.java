@@ -47,10 +47,10 @@ public class MarcaService {
     public MarcaResponse updateMarca(MarcaRequest request, Long id) {
         log.info("Inicio da updateMarcaService com o id: {}", id);
         return marcaRepository.findById(id)
-                .map(record -> {
-                    record.setNome(request.nome());
-                    record.setUrl(request.url());
-                    var update = marcaRepository.save(record);
+                .map(marcaEntity -> {
+                    marcaEntity.setNome(request.nome());
+                    marcaEntity.setUrl(request.url());
+                    var update = marcaRepository.save(marcaEntity);
                     return marcaMapper.toResponse(update);
                 }).orElseThrow(() -> new MarcaException(id));
     }

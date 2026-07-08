@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring", uses = MarcaMapper.class)
 public interface ModeloMapper {
-    Modelo toEntity(ModeloRequest record);
+    Modelo toEntity(ModeloRequest modeloRequest);
 
     @Mapping(source = "marca", target = "marcaResponse")
     ModeloResponse toResponse(Modelo modelo);

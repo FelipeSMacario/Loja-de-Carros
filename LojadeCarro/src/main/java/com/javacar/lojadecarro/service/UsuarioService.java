@@ -51,13 +51,13 @@ public class UsuarioService {
     public UsuarioResponse updateUsuario(@RequestBody UsuarioRequest usuario, Long id) {
         log.info("Inicio da updateUsuarioService com o id: {}", id);
         return usuarioRepository.findById(id)
-                .map(record -> {
-                    record.setCpf(usuario.cpf());
-                    record.setDtNascimento(usuario.dtNascimento());
-                    record.setNome(usuario.nome());
-                    record.setEmail(usuario.email());
-                    record.setPassword(encoder.encode(usuario.password()));
-                    var update = usuarioRepository.save(record);
+                .map(usuarioEntity -> {
+                    usuarioEntity.setCpf(usuario.cpf());
+                    usuarioEntity.setDtNascimento(usuario.dtNascimento());
+                    usuarioEntity.setNome(usuario.nome());
+                    usuarioEntity.setEmail(usuario.email());
+                    usuarioEntity.setPassword(encoder.encode(usuario.password()));
+                    var update = usuarioRepository.save(usuarioEntity);
                     return usuarioMapper.toResponse(update);
                 }).orElseThrow(() -> new UsuarioException(id));
     }
