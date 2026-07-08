@@ -13,9 +13,6 @@ public class CoresResponseFactory {
         return new CoresResponseFactory();
     }
 
-    public static CoresResponseFactory criarResponse(CoresResponse coresResponse) {
-        return new CoresResponseFactory();
-    }
 
     public CoresResponseFactory comTodosOsCampos() {
         this.id = 1L;

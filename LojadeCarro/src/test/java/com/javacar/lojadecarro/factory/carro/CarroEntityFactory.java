@@ -35,12 +35,6 @@ public final class CarroEntityFactory {
         return this;
     }
 
-
-    public CarroEntityFactory comNome(String placa) {
-        carro.setPlaca(placa);
-        return this;
-    }
-
     public CarroEntityFactory comId(Long id) {
         carro.setId(id);
         return this;

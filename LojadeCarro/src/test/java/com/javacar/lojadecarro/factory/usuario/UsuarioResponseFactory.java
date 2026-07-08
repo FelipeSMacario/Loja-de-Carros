@@ -14,9 +14,6 @@ public class UsuarioResponseFactory {
         return new UsuarioResponseFactory();
     }
 
-    public static UsuarioResponseFactory criarResponse(UsuarioResponse usuarioResponse) {
-        return new UsuarioResponseFactory();
-    }
 
     public UsuarioResponseFactory comTodosOsCampos() {
         this.id = 1L;

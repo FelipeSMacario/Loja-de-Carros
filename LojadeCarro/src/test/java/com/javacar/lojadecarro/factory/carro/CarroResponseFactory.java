@@ -1,7 +1,6 @@
 package com.javacar.lojadecarro.factory.carro;
 
 import com.javacar.lojadecarro.dto.response.CarroResponse;
-import com.javacar.lojadecarro.dto.response.CarroceriaResponse;
 
 import java.math.BigDecimal;
 
@@ -23,9 +22,6 @@ public class CarroResponseFactory {
         return new CarroResponseFactory();
     }
 
-    public static CarroResponseFactory criarResponse(CarroceriaResponse marcaResponse) {
-        return new CarroResponseFactory();
-    }
 
     public CarroResponseFactory comTodosOsCampos() {
         this.id = 1L;

@@ -1,10 +1,10 @@
 package com.javacar.lojadecarro.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javacar.lojadecarro.exception.CombustivelException;
 import com.javacar.lojadecarro.factory.combustivel.CombustivelRequestFactory;
 import com.javacar.lojadecarro.factory.combustivel.CombustivelResponseFactory;
 import com.javacar.lojadecarro.service.CombustivelService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +26,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(CombustivelController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class CombustivelControllerTest {
+class CombustivelControllerTest {
     private static final String URL = "/combustiveis";
 
     @Autowired
@@ -77,10 +77,10 @@ public class CombustivelControllerTest {
                 .thenThrow(new RuntimeException("Erro inesperado"));
         //Act + Assert
         mockMvc.perform(
-                post(URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
-        ).andExpect(status().isInternalServerError())
+                        post(URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.status").value(500));
         verify(combustivelService).createCombustivel(request);
     }
@@ -207,10 +207,10 @@ public class CombustivelControllerTest {
 
         //Act + Assert
         mockMvc.perform(
-                put(URL + "/" + ID_VALIDO)
-                .contentType(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-        ).andExpect(status().isBadRequest())
+                        put(URL + "/" + ID_VALIDO)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.status").value(400));
 
         verifyNoInteractions(combustivelService);
@@ -246,7 +246,7 @@ public class CombustivelControllerTest {
         mockMvc.perform(
                 delete(URL + "/" + ID_VALIDO)
         ).andExpect(status().isNoContent());
-        verify(combustivelService).deleteCombustivel( ID_VALIDO);
+        verify(combustivelService).deleteCombustivel(ID_VALIDO);
     }
 
     @Test
@@ -254,13 +254,13 @@ public class CombustivelControllerTest {
     void deveLancar404NaoDeletarCombustivel() throws Exception {
         //Arrange
         doThrow(new CombustivelException(ID_INVALIDO))
-            .when(combustivelService).deleteCombustivel( ID_VALIDO);
+                .when(combustivelService).deleteCombustivel(ID_VALIDO);
         //Act + Assert
         mockMvc.perform(
-                delete(URL + "/" + ID_VALIDO)
-        ).andExpect(status().isNotFound())
+                        delete(URL + "/" + ID_VALIDO)
+                ).andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.status").value(404));
 
-        verify(combustivelService).deleteCombustivel( ID_VALIDO);
+        verify(combustivelService).deleteCombustivel(ID_VALIDO);
     }
 }

@@ -21,7 +21,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(LoginController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class LoginControllerTest {
+class LoginControllerTest {
     private static final String URL = "/login";
     @Autowired
     private MockMvc mockMvc;
@@ -34,7 +34,7 @@ public class LoginControllerTest {
 
     @Test
     @DisplayName("Deve logar com sucesso")
-    public void logarSucesso() throws Exception {
+    void logarSucesso() throws Exception {
         //Arrange
         var login = "felespe";
         var password = "12345";
@@ -50,7 +50,7 @@ public class LoginControllerTest {
                 ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(ID_VALIDO))
                 .andExpect(jsonPath("$.nome").value("Felipe"))
-                .andExpect(jsonPath("$.email").value("felipesmacario@gmail.com"));;
+                .andExpect(jsonPath("$.email").value("felipesmacario@gmail.com"));
 
         verify(loginService).logar(login, password);
         verifyNoMoreInteractions(loginService);
@@ -58,7 +58,7 @@ public class LoginControllerTest {
 
     @Test
     @DisplayName("Deve retornar 401 quando as credenciais forem inválidas")
-    public void retornar401aoInserirLogin() throws Exception {
+    void retornar401aoInserirLogin() throws Exception {
         //Arrange
         var login = "felespeErrado";
         var password = "12345";
@@ -81,7 +81,7 @@ public class LoginControllerTest {
 
     @Test
     @DisplayName("Deve retornar 400 ao nao informar a senha")
-    public void retorna400aoNaoInformarSenha() throws Exception {
+    void retorna400aoNaoInformarSenha() throws Exception {
         //Arrange
         var login = "felespe";
         //Act + Assert

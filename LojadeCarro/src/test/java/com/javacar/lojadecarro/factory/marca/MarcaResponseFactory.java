@@ -13,9 +13,6 @@ public class MarcaResponseFactory {
         return new MarcaResponseFactory();
     }
 
-    public static MarcaResponseFactory criarResponse (MarcaResponse marcaResponse) {
-        return new MarcaResponseFactory();
-    }
 
     public MarcaResponseFactory comTodosOsCampos() {
         this.id = 1L;

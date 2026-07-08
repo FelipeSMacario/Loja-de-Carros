@@ -34,7 +34,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(ImagensController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class ImagensControllerTest {
+class ImagensControllerTest {
     private static final String URL = "/imagens";
     @Autowired
     private MockMvc mockMvc;

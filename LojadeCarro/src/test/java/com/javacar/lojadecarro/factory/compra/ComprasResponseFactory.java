@@ -17,10 +17,6 @@ public class ComprasResponseFactory {
         return new ComprasResponseFactory();
     }
 
-    public static ComprasResponseFactory criarResponse(ComprasResponseFactory comprasResponseFactory) {
-        return new ComprasResponseFactory();
-    }
-
     public ComprasResponseFactory comTodosOsCampos() {
         this.id = 1L;
         this.valor = BigDecimal.valueOf(200000);

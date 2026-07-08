@@ -1,12 +1,12 @@
 package com.javacar.lojadecarro.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.exception.UsuarioException;
 import com.javacar.lojadecarro.factory.usuario.UsuarioRequestFactory;
 import com.javacar.lojadecarro.factory.usuario.UsuarioResponseFactory;
 import com.javacar.lojadecarro.service.UsuarioService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(UsuarioController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class UsuarioControllerTest {
+class UsuarioControllerTest {
     private static final String URL = "/usuario";
     @Autowired
     private MockMvc mockMvc;
@@ -41,7 +41,7 @@ public class UsuarioControllerTest {
 
     @Test
     @DisplayName("Deve buscar um usuário")
-    public void deveBuscarUmUsuario() throws Exception {
+    void deveBuscarUmUsuario() throws Exception {
         //Arrange
         var request = criarUsuarioRequest();
         var response = criarUsuarioResponse();
@@ -112,10 +112,10 @@ public class UsuarioControllerTest {
 
         //Act + Assert
         mockMvc.perform(
-                post(URL)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
-        ).andExpect(status().isInternalServerError())
+                        post(URL)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.status").value(500));
 
         verify(usuarioService).createUsuario(request);

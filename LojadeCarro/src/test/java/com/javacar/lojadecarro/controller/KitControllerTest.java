@@ -1,14 +1,12 @@
 package com.javacar.lojadecarro.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javacar.lojadecarro.dto.request.KitRequest;
 import com.javacar.lojadecarro.dto.response.KitResponse;
-import com.javacar.lojadecarro.entity.Kit;
 import com.javacar.lojadecarro.exception.KitException;
-import com.javacar.lojadecarro.factory.kit.KitEntityFactory;
 import com.javacar.lojadecarro.factory.kit.KitRequestFactory;
 import com.javacar.lojadecarro.factory.kit.KitResponseFactory;
 import com.javacar.lojadecarro.service.KitService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,7 +28,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(KitController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class KitControllerTest {
+class KitControllerTest {
     private static final String URL = "/kits";
 
     @Autowired
@@ -44,7 +42,7 @@ public class KitControllerTest {
 
     @Test
     @DisplayName("Deve cadastrar um kit")
-    public void deveCadastrarUmKit() throws Exception {
+    void deveCadastrarUmKit() throws Exception {
         //Arrange
         var request = criarKitRequest();
         var response = criarKitResponse();
@@ -169,14 +167,14 @@ public class KitControllerTest {
         var response = criarKitResponse();
 
         when(kitService.updateKit(request, ID_VALIDO))
-        .thenReturn(response);
+                .thenReturn(response);
 
         //Act + Assert
         mockMvc.perform(
-                put(URL + "/" + ID_VALIDO)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))
-        ).andExpect(status().isOk())
+                        put(URL + "/" + ID_VALIDO)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(objectMapper.writeValueAsString(request))
+                ).andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(ID_VALIDO));
 
         verify(kitService).updateKit(request, ID_VALIDO);
@@ -259,12 +257,6 @@ public class KitControllerTest {
                 .build();
     }
 
-    private Kit criarKitEntity() {
-        return KitEntityFactory
-                .criarEntity()
-                .comTodosOsCampos()
-                .build();
-    }
 
     private KitResponse criarKitResponse() {
         return KitResponseFactory

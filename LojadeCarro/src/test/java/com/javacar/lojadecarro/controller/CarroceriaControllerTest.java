@@ -1,10 +1,10 @@
 package com.javacar.lojadecarro.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javacar.lojadecarro.exception.CarroceriaException;
 import com.javacar.lojadecarro.factory.carroceria.CarroceriaRequestFactory;
 import com.javacar.lojadecarro.factory.carroceria.CarroceriaResponseFactory;
 import com.javacar.lojadecarro.service.CarroceriaService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,9 +25,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(CarroceriaController.class)
 @AutoConfigureMockMvc(addFilters = false)
-public class CarroceriaControllerTest {
+class CarroceriaControllerTest {
     private static final String URL = "/carrocerias";
-    private static final String MSG_CARROCERIA_NAO_ENCONTRADA = "Carroceria não encontrada com o id:";
     private static final Long ID_CARROCERIA = 1L;
     private static final Long ID_CARROCERIA_EXCEPTION = 99L;
 

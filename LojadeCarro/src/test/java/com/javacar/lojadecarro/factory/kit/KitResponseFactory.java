@@ -1,6 +1,5 @@
 package com.javacar.lojadecarro.factory.kit;
 
-import com.javacar.lojadecarro.dto.response.CarroceriaResponse;
 import com.javacar.lojadecarro.dto.response.KitResponse;
 
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
@@ -18,13 +17,10 @@ public class KitResponseFactory {
     private String marca;
     private String modelo;
 
-    private KitResponseFactory() {}
-
-    public static KitResponseFactory criarResponse() {
-        return new KitResponseFactory();
+    private KitResponseFactory() {
     }
 
-    public static KitResponseFactory criarResponse (CarroceriaResponse marcaResponse) {
+    public static KitResponseFactory criarResponse() {
         return new KitResponseFactory();
     }
 
@@ -59,11 +55,12 @@ public class KitResponseFactory {
 
 
     public KitResponseFactory comId(Long id) {
-        this.id= id;
+        this.id = id;
         return this;
     }
+
     public KitResponseFactory comFreio(boolean freioABS) {
-        this.freioABS= freioABS;
+        this.freioABS = freioABS;
         return this;
     }
 

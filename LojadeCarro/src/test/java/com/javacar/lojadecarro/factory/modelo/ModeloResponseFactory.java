@@ -1,6 +1,5 @@
 package com.javacar.lojadecarro.factory.modelo;
 
-import com.javacar.lojadecarro.dto.response.CoresResponse;
 import com.javacar.lojadecarro.dto.response.MarcaResponse;
 import com.javacar.lojadecarro.dto.response.ModeloResponse;
 import com.javacar.lojadecarro.factory.marca.MarcaResponseFactory;
@@ -13,16 +12,12 @@ public class ModeloResponseFactory {
             .comId(3L)
             .comNome("Chevrolet")
             .comURL("https://www.chevrolet.com")
-            .build();;
+            .build();
 
     private ModeloResponseFactory() {
     }
 
     public static ModeloResponseFactory criarResponse() {
-        return new ModeloResponseFactory();
-    }
-
-    public static ModeloResponseFactory criarResponse(CoresResponse coresResponse) {
         return new ModeloResponseFactory();
     }
 

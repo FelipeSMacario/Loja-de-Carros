@@ -1,6 +1,5 @@
 package com.javacar.lojadecarro.factory.imagens;
 
-import com.javacar.lojadecarro.dto.response.CarroceriaResponse;
 import com.javacar.lojadecarro.dto.response.ImagensResponse;
 
 public class ImagensResponseFactory {
@@ -12,10 +11,6 @@ public class ImagensResponseFactory {
     }
 
     public static ImagensResponseFactory criarResponse() {
-        return new ImagensResponseFactory();
-    }
-
-    public static ImagensResponseFactory criarResponse(CarroceriaResponse marcaResponse) {
         return new ImagensResponseFactory();
     }
 

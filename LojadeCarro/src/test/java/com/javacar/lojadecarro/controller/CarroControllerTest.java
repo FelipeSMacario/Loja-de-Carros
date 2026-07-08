@@ -1,13 +1,12 @@
 package com.javacar.lojadecarro.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javacar.lojadecarro.dto.request.CarroRequest;
-import com.javacar.lojadecarro.dto.request.FiltrarCamposCarroRequest;
 import com.javacar.lojadecarro.dto.response.CarroResponse;
 import com.javacar.lojadecarro.exception.CarroException;
 import com.javacar.lojadecarro.factory.carro.CarroRequestFactory;
 import com.javacar.lojadecarro.factory.carro.CarroResponseFactory;
 import com.javacar.lojadecarro.service.CarroService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -301,7 +300,6 @@ public class CarroControllerTest {
     @DisplayName("Deve buscar os carros via search")
     void deveBuscarOsCarrosViaSearch() throws Exception {
         //Arrange
-        var campos = new FiltrarCamposCarroRequest(null, null, 2000, null, null, null, null);
         var response = CarroResponseFactory.criarResponse()
                 .comTodosOsCampos()
                 .build();

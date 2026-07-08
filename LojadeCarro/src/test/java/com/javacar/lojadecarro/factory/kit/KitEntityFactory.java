@@ -33,11 +33,6 @@ public final class KitEntityFactory {
     }
 
 
-    public KitEntityFactory comNome(String nome) {
-        // kit.setNome(nome);
-        return this;
-    }
-
     public KitEntityFactory comId(Long id) {
         kit.setId(id);
         return this;

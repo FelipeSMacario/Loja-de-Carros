@@ -12,10 +12,6 @@ public class CombustivelResponseFactory {
         return new CombustivelResponseFactory();
     }
 
-    public static CombustivelResponseFactory criarResponse (CombustivelResponse combustivelResponse) {
-        return new CombustivelResponseFactory();
-    }
-
     public CombustivelResponseFactory comTodosOsCampos() {
         this.id = 1L;
         this.nome = "Gasolina";
