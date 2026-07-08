@@ -62,7 +62,7 @@ public class CoresController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar cor buscando por id")
-    public ResponseEntity<CoresResponse> updateCores(@RequestBody Cores cores, @PathVariable Long id){
+    public ResponseEntity<CoresResponse> updateCores(@RequestBody @Valid CoresRequest cores, @PathVariable Long id){
         log.info("Atualizando a cor por id: {}", id);
         var response = coresService.updateCores(cores, id);
 

@@ -57,7 +57,7 @@ public class ModeloController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{id}")
+    @PutMapping("/{id}")
     @Operation(summary = "Atualizar modelo buscando por id")
     public ResponseEntity<ModeloResponse> update(@RequestBody @Valid ModeloRequest request, @PathVariable Long id) {
         log.info("Atualizando o modelos por id: {}", id);

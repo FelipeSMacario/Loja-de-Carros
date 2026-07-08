@@ -1,7 +1,7 @@
 package com.JavangularCar.LojadeCarro.exception;
 
-public class UsuarioException extends RuntimeException {
+public class UsuarioException extends BusinessException {
     public UsuarioException(Long id) {
-        super("Usuario não encontrado com o id: " + id);
+        super("Usuário não encontrado(a) com o id: " + id);
     }
 }

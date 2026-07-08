@@ -9,5 +9,5 @@ import org.mapstruct.Mapper;
 public interface CarroceriaMapper {
     Carroceria toEntity(CarroceriaRequest record);
 
-    CarroceriaResponse toRecord(Carroceria carroceria);
+    CarroceriaResponse toResponse(Carroceria carroceria);
 }

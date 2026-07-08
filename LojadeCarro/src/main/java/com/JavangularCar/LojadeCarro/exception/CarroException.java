@@ -1,9 +1,7 @@
 package com.JavangularCar.LojadeCarro.exception;
 
-public class CarroException extends RuntimeException {
-    public CarroException() {
-    }
+public class CarroException extends BusinessException {
     public CarroException(Long id) {
-        super("Nenhum carro identificado com o id " + id);
+        super("Carro não encontrado(a) com o id: " + id);
     }
 }

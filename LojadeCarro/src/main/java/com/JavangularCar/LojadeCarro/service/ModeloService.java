@@ -5,12 +5,9 @@ import com.JavangularCar.LojadeCarro.dto.response.ModeloResponse;
 import com.JavangularCar.LojadeCarro.entity.Modelo;
 import com.JavangularCar.LojadeCarro.exception.ModeloException;
 import com.JavangularCar.LojadeCarro.mapper.ModeloMapper;
-import com.JavangularCar.LojadeCarro.repository.MoleloRepository;
+import com.JavangularCar.LojadeCarro.repository.ModeloRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.service.spi.ServiceException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,58 +16,61 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class ModeloService {
-    private final MoleloRepository moleloRepository;
+    private final ModeloRepository modeloRepository;
 
     private final ModeloMapper modeloMapper;
+    private final MarcaService marcaService;
 
     public ModeloResponse createModelo(ModeloRequest request) {
         log.debug("Inicio da createModeloService com a response: {}", request);
-        var carroceriaEntity = modeloMapper.toEntity(request);
-        var carroceriaResponse = moleloRepository.save(carroceriaEntity);
+        var modeloEntity = modeloMapper.toEntity(request);
+        modeloEntity.setMarca(marcaService.buscaMarca(request.idMarca()));
+        var modeloResponse = modeloRepository.save(modeloEntity);
 
         log.info("Modelo salva com sucesso!");
 
-        return modeloMapper.toRecord(carroceriaResponse);
+        return modeloMapper.toResponse(modeloResponse);
     }
 
     public List<ModeloResponse> listarModelo() {
         log.info("Inicio da listarModeloService");
-        return moleloRepository.findAll()
+        return modeloRepository.findAll()
                 .stream()
-                .map(modeloMapper::toRecord)
+                .map(modeloMapper::toResponse)
                 .toList();
     }
 
     public ModeloResponse findModeloById(Long id) {
         log.info("Inicio da findModeloByIdService com id: {}", id);
-        return moleloRepository.findById(id)
-                .map(modeloMapper::toRecord)
+        return modeloRepository.findById(id)
+                .map(modeloMapper::toResponse)
                 .orElseThrow(() -> new ModeloException(id));
     }
 
     public ModeloResponse updateModelo(ModeloRequest request, Long id) {
         log.info("Inicio da updateModeloService com o id: {}", id);
-        return moleloRepository.findById(id)
+        return modeloRepository.findById(id)
                 .map(record -> {
                     record.setNome(request.nome());
-                    var update = moleloRepository.save(record);
+                    record.setMarca(marcaService.buscaMarca(request.idMarca()));
+                    var update = modeloRepository.save(record);
                     log.info("Modelo atualizado com sucesso!");
-                    return modeloMapper.toRecord(update);
+                    return modeloMapper.toResponse(update);
                 }).orElseThrow(() -> new ModeloException(id));
     }
 
     public void deleteModelo(Long id) {
         log.info("Inicio da deleteModeloService com o id: {}", id);
-        var modeloEntity = moleloRepository.findById(id)
+        var modeloEntity = modeloRepository.findById(id)
                 .orElseThrow(() -> new ModeloException(id));
 
-        moleloRepository.deleteById(modeloEntity.getId());
+        modeloRepository.deleteById(modeloEntity.getId());
 
     }
 
     public Modelo buscaModelo(Long id) {
         log.info("Inicio da buscaModeloService com o id: {}", id);
-        return moleloRepository.findById(id)
+        return modeloRepository.findById(id)
                 .orElseThrow(() -> new ModeloException(id));
     }
 }

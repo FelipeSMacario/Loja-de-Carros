@@ -1,9 +1,9 @@
 package com.JavangularCar.LojadeCarro.repository;
 
-import com.JavangularCar.LojadeCarro.entity.Combustivel;
+import com.JavangularCar.LojadeCarro.entity.Modelo;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface CombustivelRepositor extends JpaRepository<Combustivel, Long> {
+public interface ModeloRepository extends JpaRepository<Modelo, Long> {
 }

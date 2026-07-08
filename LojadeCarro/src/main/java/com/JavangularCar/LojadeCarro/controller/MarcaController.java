@@ -2,15 +2,12 @@ package com.JavangularCar.LojadeCarro.controller;
 
 import com.JavangularCar.LojadeCarro.dto.request.MarcaRequest;
 import com.JavangularCar.LojadeCarro.dto.response.MarcaResponse;
-import com.JavangularCar.LojadeCarro.entity.Marca;
 import com.JavangularCar.LojadeCarro.service.MarcaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -28,7 +25,7 @@ public class MarcaController {
 
     @PostMapping
     @Operation(summary = "Criar uma nova marca")
-    public ResponseEntity<MarcaResponse> create(@RequestBody MarcaRequest request) {
+    public ResponseEntity<MarcaResponse> create(@RequestBody @Valid MarcaRequest request) {
         log.info("Criando uma nova marca");
         var response = marcaService.createMarca(request);
 

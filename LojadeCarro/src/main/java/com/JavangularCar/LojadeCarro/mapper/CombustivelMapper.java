@@ -8,5 +8,5 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface CombustivelMapper {
     Combustivel toEntity(CombustivelRequest record);
-    CombustivelResponse toRecord(Combustivel record);
+    CombustivelResponse toResponse(Combustivel record);
 }

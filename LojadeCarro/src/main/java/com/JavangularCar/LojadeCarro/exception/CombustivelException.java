@@ -1,7 +1,7 @@
 package com.JavangularCar.LojadeCarro.exception;
 
-public class CombustivelException extends RuntimeException {
+public class CombustivelException extends BusinessException {
     public CombustivelException(Long id) {
-        super("Combustível não encontrado com o id: " + id);
+        super("Combustível não encontrado(a) com o id: " + id);
     }
 }

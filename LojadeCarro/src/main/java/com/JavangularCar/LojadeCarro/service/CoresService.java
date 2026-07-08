@@ -28,31 +28,31 @@ public class CoresService {
         var coresResponse = coresRepository.save(coresEntity);
         log.info("Cores salva com sucesso!");
 
-        return coresMapper.toRecord(coresResponse);
+        return coresMapper.toResponse(coresResponse);
     }
 
     public List<CoresResponse> listarCores() {
         log.info("Inicio da listarCoresService");
         return coresRepository.findAll()
                 .stream()
-                .map(coresMapper::toRecord)
+                .map(coresMapper::toResponse)
                 .toList();
     }
 
     public CoresResponse findCoresById(Long id) {
         log.info("Inicio da findCoresByIdService com id: {}", id);
         return coresRepository.findById(id)
-                .map(coresMapper::toRecord)
+                .map(coresMapper::toResponse)
                 .orElseThrow(() -> new CoresException(id));
     }
 
-    public CoresResponse updateCores(@RequestBody Cores cores, Long id) {
+    public CoresResponse updateCores(CoresRequest request, Long id) {
         log.info("Inicio da updateCoresService com o id: {}", id);
         return coresRepository.findById(id)
                 .map(record -> {
-                    record.setNome(cores.getNome());
+                    record.setNome(request.nome());
                     var update = coresRepository.save(record);
-                    return coresMapper.toRecord(update);
+                    return coresMapper.toResponse(update);
                 }).orElseThrow(() -> new CoresException(id));
     }
 

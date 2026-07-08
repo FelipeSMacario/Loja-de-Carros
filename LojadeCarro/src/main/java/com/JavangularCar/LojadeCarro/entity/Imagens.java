@@ -2,14 +2,10 @@ package com.JavangularCar.LojadeCarro.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-@Data
-@Table(name = "Imagens")
 @Entity
-@Getter
-@Setter
+@Table(name = "Imagens")
+@Data
 public class Imagens {
 
     @Id
@@ -18,7 +14,14 @@ public class Imagens {
 
     private String url;
 
-    @ManyToOne
-    private Carro carro;
+    private String nomeArquivo;
 
+    private String contentType;
+
+    private Long tamanho;
+
+    private Boolean principal;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    private Carro carro;
 }

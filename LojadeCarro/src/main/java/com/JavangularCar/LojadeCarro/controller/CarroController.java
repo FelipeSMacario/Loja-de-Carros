@@ -1,15 +1,14 @@
 package com.JavangularCar.LojadeCarro.controller;
 
 import com.JavangularCar.LojadeCarro.dto.request.CarroRequest;
+import com.JavangularCar.LojadeCarro.dto.request.FiltrarCamposCarroRequest;
 import com.JavangularCar.LojadeCarro.dto.response.CarroResponse;
-import com.JavangularCar.LojadeCarro.entity.Carro;
 import com.JavangularCar.LojadeCarro.service.CarroService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
@@ -78,7 +77,7 @@ public class CarroController {
     @Operation(summary = "Marca o carro como vendido o retirando da lista de carros disponíveis")
     public ResponseEntity<CarroResponse> marcaVendido(@RequestBody @Valid CarroRequest carro, @PathVariable Long id){
         log.info("Atualizando o carro para vendido por id: {}", id);
-        var response = carroService.macarVendido(carro, id);
+        var response = carroService.marcarVendido(carro, id);
 
         log.debug("Resposta atualizar carro para vendido por id: {}", response);
         return ResponseEntity.ok(response);
@@ -96,9 +95,9 @@ public class CarroController {
 
     @GetMapping("/search")
     @Operation(summary = "Paginação que busca o carro por parãmetros")
-    public ResponseEntity<Page<CarroResponse>> FiltrarCampos(String marca, String modelo, Integer anoInicio, Integer anoFim, Double valorInicio, Double valorFim, Double quilometragem, @PageableDefault(size = 9) Pageable pageable) {
+    public ResponseEntity<Page<CarroResponse>> FiltrarCampos(FiltrarCamposCarroRequest filtro, @PageableDefault(size = 9) Pageable pageable) {
         log.info("Paginação do carro");
-        var response = carroService.FiltrarCampos(marca, modelo, anoInicio, anoFim, valorInicio, valorFim, quilometragem, pageable);
+        var response = carroService.filtrarCampos(filtro, pageable);
 
         return ResponseEntity.ok(response);
     }

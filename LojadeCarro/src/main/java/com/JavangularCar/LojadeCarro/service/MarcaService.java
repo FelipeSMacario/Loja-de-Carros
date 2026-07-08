@@ -9,7 +9,6 @@ import com.JavangularCar.LojadeCarro.repository.MarcaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
 
@@ -27,21 +26,21 @@ public class MarcaService {
         var marcaEntity = marcaRepository.save(marca);
         log.info("Marca salva com sucesso!");
 
-        return marcaMapper.toRecord(marcaEntity);
+        return marcaMapper.toResponse(marcaEntity);
     }
 
     public List<MarcaResponse> listarMarcas() {
         log.info("Inicio da listarMarcaService");
         return marcaRepository.findByOrderByNomeAsc()
                 .stream()
-                .map(marcaMapper::toRecord)
+                .map(marcaMapper::toResponse)
                 .toList();
     }
 
     public MarcaResponse findMarcaById(Long id) {
         log.info("Inicio da findMarcaByIdService com id: {}", id);
         return marcaRepository.findById(id)
-                .map(marcaMapper::toRecord)
+                .map(marcaMapper::toResponse)
                 .orElseThrow(() -> new MarcaException(id));
     }
 
@@ -52,7 +51,7 @@ public class MarcaService {
                     record.setNome(request.nome());
                     record.setUrl(request.url());
                     var update = marcaRepository.save(record);
-                    return marcaMapper.toRecord(update);
+                    return marcaMapper.toResponse(update);
                 }).orElseThrow(() -> new MarcaException(id));
     }
 
