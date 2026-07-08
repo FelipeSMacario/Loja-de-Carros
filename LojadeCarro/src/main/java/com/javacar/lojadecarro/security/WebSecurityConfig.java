@@ -33,6 +33,8 @@ public class WebSecurityConfig {
                 )
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // Stateless REST API: CSRF protection is unnecessary because authentication
+                // is not based on HTTP sessions/cookies.
                 .csrf(csrf -> csrf.disable());
 
         return http.build();

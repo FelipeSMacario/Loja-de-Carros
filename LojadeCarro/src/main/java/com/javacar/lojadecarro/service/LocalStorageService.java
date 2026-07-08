@@ -18,12 +18,19 @@ public class LocalStorageService implements StorageService {
     public String upload(MultipartFile file, Long idCarro) throws IOException {
 
         Path pasta = root.resolve(idCarro.toString());
-
         Files.createDirectories(pasta);
 
-        String nomeArquivo = UUID.randomUUID() + "_" + file.getOriginalFilename();
+        String nomeOriginal = Paths.get(file.getOriginalFilename())
+                .getFileName()
+                .toString();
 
-        Path destino = pasta.resolve(nomeArquivo);
+        String nomeArquivo = UUID.randomUUID() + "_" + nomeOriginal;
+
+        Path destino = pasta.resolve(nomeArquivo).normalize();
+
+        if (!destino.startsWith(pasta)) {
+            throw new IllegalArgumentException("Nome de arquivo inválido.");
+        }
 
         file.transferTo(destino);
 
