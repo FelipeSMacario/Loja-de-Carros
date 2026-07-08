@@ -12,10 +12,6 @@ public class CarroceriaResponseFactory {
         return new CarroceriaResponseFactory();
     }
 
-    public static CarroceriaResponseFactory criarResponse (CarroceriaResponse marcaResponse) {
-        return new CarroceriaResponseFactory();
-    }
-
     public CarroceriaResponseFactory comTodosOsCampos() {
         this.id = 1L;
         this.nome = "Hatch";

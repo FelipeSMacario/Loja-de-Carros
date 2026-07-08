@@ -27,7 +27,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-public class CombustivelServiceTest {
+class CombustivelServiceTest {
 
     private static final Long ID_COMBUSTIVEL = 1L;
     private static final Long ID_COMBUSTIVEL_EXCECAO = 99L;

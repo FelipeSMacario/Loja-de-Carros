@@ -30,7 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class ComprasServiceTest {
+class ComprasServiceTest {
     @Mock
     private ComprasRepository comprasRepository;
     @Mock

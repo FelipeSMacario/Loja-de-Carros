@@ -3,6 +3,7 @@ package com.javacar.lojadecarro.factory.usuario;
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 public class UsuarioRequestFactory {
     private String nome;
@@ -23,7 +24,7 @@ public class UsuarioRequestFactory {
         this.nome = "Felipe Soares Macário";
         this.password = "123456";
         this.cpf = "15152736799";
-        this.dtNascimento = LocalDate.of(1991, 5, 14);
+        this.dtNascimento = LocalDate.of(1991, Month.MAY, 14);
         this.email = "felipesmacario@gmail.com";
         return this;
     }

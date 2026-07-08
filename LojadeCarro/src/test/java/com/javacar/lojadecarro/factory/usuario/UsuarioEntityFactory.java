@@ -4,6 +4,7 @@ import com.javacar.lojadecarro.entity.Usuario;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.Month;
 
 import static lombok.AccessLevel.PRIVATE;
 
@@ -25,7 +26,7 @@ public final class UsuarioEntityFactory {
         usuario.setNome("Felipe Soares Macário");
         usuario.setPassword("123456");
         usuario.setCpf("1234567890");
-        usuario.setDtNascimento(LocalDate.of(1991, 5, 14));
+        usuario.setDtNascimento(LocalDate.of(1991, Month.MAY, 14));
         usuario.setEmail("felipesmacario@gmail.com");
         return this;
     }
