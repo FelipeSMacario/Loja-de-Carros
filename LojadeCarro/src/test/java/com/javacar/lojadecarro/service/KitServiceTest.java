@@ -127,13 +127,19 @@ class KitServiceTest {
         var entity2 = KitEntityFactory
                 .criarEntity()
                 .comTodosOsCampos()
+                .comId(2L)
                 .build();
         var entity = List.of(entity1, entity2);
 
-        var response1 = criarKitResponse();
-        var response2 = KitResponseFactory
+        var response1 = KitResponseFactory
                 .criarResponse()
                 .comTodosOsCampos()
+                .comId(ID_VALIDO)
+                .build();
+
+        var response2 = KitResponseFactory
+                .criarResponse()
+                .comTodosOsCamposExcetoId()
                 .comId(2L)
                 .build();
 
@@ -154,11 +160,10 @@ class KitServiceTest {
                 .extracting(
                         KitResponse::id,
                         KitResponse::idCarro
-                ).containsExactly(
-                        tuple(2L,
-                                ID_VALIDO),
-                        tuple(2L,
-                                ID_VALIDO)
+                )
+                .containsExactly(
+                        tuple(1L, ID_VALIDO),
+                        tuple(2L, ID_VALIDO)
                 );
 
         verify(kitRepository).findAll();
