@@ -27,7 +27,7 @@ public interface ImagensRepository extends JpaRepository<Imagens, Long> {
 
     Optional<Imagens> findByIdAndCarroId(Long idImagem, Long idCarro);
 
-    List<Imagens> findByCarroId(Long idCarro);
+    Optional<List<Imagens>> findByCarroId(Long idCarro);
 
 
 }

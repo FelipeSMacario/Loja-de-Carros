@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,10 +60,15 @@ public class ImagensService {
         log.info("Listando imagens do carro {}", idCarro);
 
 
-        return imagensRepository.findByCarroId(idCarro)
-                .stream()
-                .map(imagensMapper::toResponse)
-                .toList();
+        return imagensRepository
+                .findByCarroId(idCarro)
+                .map(im -> {
+                    return im.stream().map(
+                            imagensMapper::toResponse
+                    ).toList();
+                })
+                .orElseThrow(() -> new ImagensException(idCarro));
+
     }
 
     public ImagensResponse findImagensById(Long id) {

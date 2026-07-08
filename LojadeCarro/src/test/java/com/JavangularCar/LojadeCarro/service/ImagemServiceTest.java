@@ -118,7 +118,7 @@ public class ImagemServiceTest {
         var imagem2Response = ImagensResponseFactory.criarResponse().comTodosOsCampos().comId(2L).build();
 
         when(imagensRepository.findByCarroId(ID_VALIDO))
-                .thenReturn(entity);
+                .thenReturn(Optional.of(entity));
 
         when(imagensMapper.toResponse(imagem1)).thenReturn(imagem1Response);
         when(imagensMapper.toResponse(imagem2)).thenReturn(imagem2Response);
@@ -140,6 +140,25 @@ public class ImagemServiceTest {
         verify(imagensMapper).toResponse(imagem2);
 
         verifyNoMoreInteractions(imagensRepository, imagensMapper);
+    }
+
+    @Test
+    @DisplayName("Deve retornar uma exceção ao listar imagens")
+    void deveRetornarUmaExceao() throws IOException {
+        //Arrange
+        when(imagensRepository.findByCarroId(ID_INVALIDO))
+                .thenReturn(Optional.empty());
+        //Act
+        var excecao = assertThrows(ImagensException.class,
+                () -> imagensService.listarImagens(ID_INVALIDO));
+        //Assert
+        assertThat(excecao)
+                .hasMessage(String.format(ID_NOT_FOUND, IMAGENS, ID_INVALIDO));
+
+        verify(imagensRepository).findByCarroId(ID_INVALIDO);
+        verifyNoMoreInteractions(imagensRepository);
+
+        verifyNoInteractions(imagensMapper);
     }
 
     @Test

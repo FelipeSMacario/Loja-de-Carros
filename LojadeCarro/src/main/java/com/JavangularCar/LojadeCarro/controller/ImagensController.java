@@ -21,13 +21,13 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/carros/{idCarro}/imagens")
+@RequestMapping("/imagens")
 @Tag(name = "Imagens")
 public class ImagensController {
 
     private final ImagensService imagensService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, value = "/{idCarro}")
     @Operation(summary = "Realiza o upload das imagens do carro")
     public ResponseEntity<List<ImagensResponse>> create(
             @PathVariable Long idCarro,
@@ -43,7 +43,7 @@ public class ImagensController {
                 .body(response);
     }
 
-    @GetMapping
+    @GetMapping(value = "/carro/{idCarro}")
     @Operation(summary = "Listar imagens do carro")
     public ResponseEntity<List<ImagensResponse>> findAll(
             @PathVariable Long idCarro) {
