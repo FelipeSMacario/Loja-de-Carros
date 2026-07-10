@@ -5,9 +5,13 @@ on:
     branches:
       - master
 
+  push:
+    branches:
+      - master
+
 jobs:
-  build-and-test:
-    name: Build and Test
+  ci:
+    name: Continuous Integration
     runs-on: ubuntu-latest
 
     steps:
