@@ -23,3 +23,7 @@ jobs:
       - name: Run tests
         working-directory: LojadeCarro
         run: mvn test
+
+      - name: Run tests with coverage
+        working-directory: LojadeCarro
+        run: mvn clean verify
