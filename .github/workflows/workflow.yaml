@@ -27,3 +27,9 @@ jobs:
       - name: Run tests with coverage
         working-directory: LojadeCarro
         run: mvn clean verify
+
+      - name: Upload JaCoCo Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: LojadeCarro/target/site/jacoco
