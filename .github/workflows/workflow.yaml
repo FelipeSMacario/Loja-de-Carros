@@ -2,13 +2,12 @@ name: Continuous Integration
 
 on:
   pull_request:
-
-  push:
     branches:
       - master
 
 jobs:
-  build:
+  build-and-test:
+    name: Build and Test
     runs-on: ubuntu-latest
 
     steps:
