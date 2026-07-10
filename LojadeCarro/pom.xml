@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.JavangularCar</groupId>
     <artifactId>LojadeCarro</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.1-SNAPSHOT</version>
     <name>LojadeCarro</name>
     <description>Demo project for Spring Boot</description>
     <properties>
