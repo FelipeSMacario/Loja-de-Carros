@@ -1,10 +1,9 @@
-FROM mysql:8.4
+FROM eclipse-temurin:25-jre
 
-# Define senha do root e banco inicial
-ENV MYSQL_ROOT_PASSWORD=root123
-ENV MYSQL_DATABASE=loja_de_carros
+WORKDIR /app
 
-# Copia script de inicialização para dentro do container
-COPY init.sql /docker-entrypoint-initdb.d/
+COPY target/*.jar app.jar
 
-EXPOSE 3306
+EXPOSE 8080
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
