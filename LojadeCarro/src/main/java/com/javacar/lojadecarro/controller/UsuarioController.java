@@ -1,7 +1,10 @@
 package com.javacar.lojadecarro.controller;
 
+import com.javacar.lojadecarro.dto.request.RoleRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
+import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
+import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +22,7 @@ import java.util.List;
 @Slf4j
 @Tag(name = "Usuario")
 @RestController
-@RequestMapping("usuario")
+@RequestMapping("usuarios")
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
@@ -43,9 +46,9 @@ public class UsuarioController {
 
     @GetMapping
     @Operation(summary = "Listar todos os usuário")
-    public ResponseEntity<List<UsuarioResponse>> listarUsuario() {
+    public ResponseEntity<List<UsuarioResponse>> listarUsuario(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
         log.info("Buscando todos os usuários.");
-        var response = usuarioService.listarUsuario();
+        var response = usuarioService.listarUsuario(status);
 
         return ResponseEntity.ok(response);
     }
@@ -67,13 +70,55 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar uma usuário buscando por id")
-    public ResponseEntity<Void> deleteUsuario(@PathVariable Long id) {
-        log.info("Deletando o usuário por id: {}", id);
-        usuarioService.deleteUsuario(id);
+    @PatchMapping("/inativar/{id}")
+    @Operation(summary = "Inativar uma usuário buscando por id")
+    public ResponseEntity<UsuarioResponse> inativar(@PathVariable Long id) {
+        log.info("Inativando o usuário por id: {}", id);
+        var response = usuarioService.alterarStatus(id, false);
 
-        log.info("Usuário deletado com sucesso. Id: {}", id);
-        return ResponseEntity.noContent().build();
+        log.info("Usuário inativado com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/ativar/{id}")
+    @Operation(summary = "Ativar uma usuário buscando por id")
+    public ResponseEntity<UsuarioResponse> ativar(@PathVariable Long id) {
+        log.info("Ativando o usuário por id: {}", id);
+        var response = usuarioService.alterarStatus(id, true);
+
+        log.info("Usuário ativado com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/{id}/roles")
+    @Operation(summary = "Cadastrar uma role para um usuário")
+    public ResponseEntity<UsuarioRolesResponse> cadastrarRole(@PathVariable Long id,
+                                                              @RequestBody List<RoleRequest> requests) {
+        log.info("Ativando o usuário por id: {}", id);
+        var response = usuarioService.adicionarRoles(id, requests);
+
+        log.info("Usuário ativado com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
+    }
+
+    @DeleteMapping("/{id}/roles/{roleId}")
+    @Operation(summary = "Desvincular uma role para um usuário")
+    public ResponseEntity<UsuarioRolesResponse> desvincularRole(@PathVariable Long id,
+                                                                @PathVariable Long roleId) {
+        log.info("Ativando o usuário por id: {}", id);
+        var response = usuarioService.desvincularRole(id, roleId);
+
+        log.info("Usuário ativado com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/{id}/roles")
+    @Operation(summary = "Buscar as roles para um usuário")
+    public ResponseEntity<UsuarioRolesResponse> buscarRoleUsuario(@PathVariable Long id) {
+        log.info("Ativando o usuário por id: {}", id);
+        var response = usuarioService.buscarRoleUsuario(id);
+
+        log.info("Usuário ativado com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
     }
 }

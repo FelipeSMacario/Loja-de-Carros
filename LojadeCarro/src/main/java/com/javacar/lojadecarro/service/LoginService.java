@@ -1,7 +1,7 @@
 package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
-import com.javacar.lojadecarro.exception.LoginSenhaException;
+import com.javacar.lojadecarro.exception.security.LoginSenhaException;
 import com.javacar.lojadecarro.mapper.UsuarioMapper;
 import com.javacar.lojadecarro.repository.LoginRepository;
 import lombok.RequiredArgsConstructor;

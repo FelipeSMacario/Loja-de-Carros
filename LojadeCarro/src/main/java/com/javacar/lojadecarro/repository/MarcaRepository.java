@@ -10,6 +10,5 @@ import java.util.List;
 public interface MarcaRepository extends JpaRepository<Marca, Long> {
 
 
-    public List<Marca> findByOrderByNomeAsc();
-
+    List<Marca> findByAtivo(boolean b);
 }

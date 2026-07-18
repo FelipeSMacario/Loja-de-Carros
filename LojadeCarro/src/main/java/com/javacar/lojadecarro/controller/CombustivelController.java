@@ -2,6 +2,7 @@ package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.request.CombustivelRequest;
 import com.javacar.lojadecarro.dto.response.CombustivelResponse;
+import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.service.CombustivelService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,9 +43,10 @@ public class CombustivelController {
 
     @GetMapping
     @Operation(summary = "Listar todos os combustíveis")
-    public ResponseEntity<List<CombustivelResponse>> findAll() {
+    public ResponseEntity<List<CombustivelResponse>> findAll(@RequestParam(defaultValue = "ATIVAS")
+                                                                 StatusFiltro status) {
         log.info("Buscando todos as combustíveis.");
-        var response = combustivelService.listarCombustivel();
+        var response = combustivelService.listarCombustivel(status);
 
         return ResponseEntity.ok(response);
     }
@@ -70,13 +72,24 @@ public class CombustivelController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
+    @PatchMapping("/ativar/{id}")
     @Operation(summary = "Deletar um combustível buscando por id")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
+    public ResponseEntity<CombustivelResponse> ativar(@PathVariable Long id) {
         log.info("Deletando o combustível por id: {}", id);
-        combustivelService.deleteCombustivel(id);
+        var response = combustivelService.alterarStatus(id, false);
 
         log.info("Combustível deletado com sucesso. Id: {}", id);
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(response);
     }
+
+    @PatchMapping("/inativar/{id}")
+    @Operation(summary = "Deletar um combustível buscando por id")
+    public ResponseEntity<CombustivelResponse> inativar(@PathVariable Long id) {
+        log.info("Deletando o combustível por id: {}", id);
+        var response = combustivelService.alterarStatus(id, true);
+
+        log.info("Combustível deletado com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -1,21 +1,17 @@
 package com.javacar.lojadecarro.entity;
 
-import lombok.Data;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.*;
-
-@Data
-@Table(name = "Combustivel")
-@Entity
 @Getter
 @Setter
-public class Combustivel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@NoArgsConstructor
+@Entity
+public class Combustivel extends EntidadeBase {
 
-    @Column(name = "Nome")
+    @Column(nullable = false, unique = true, length = 30)
     private String nome;
 }

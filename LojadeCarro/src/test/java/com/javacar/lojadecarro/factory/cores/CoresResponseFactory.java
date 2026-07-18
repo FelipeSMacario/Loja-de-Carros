@@ -1,6 +1,6 @@
 package com.javacar.lojadecarro.factory.cores;
 
-import com.javacar.lojadecarro.dto.response.CoresResponse;
+import com.javacar.lojadecarro.dto.response.CorResponse;
 
 public class CoresResponseFactory {
     private Long id;
@@ -35,7 +35,7 @@ public class CoresResponseFactory {
         return this;
     }
 
-    public CoresResponse build() {
-        return new CoresResponse(id, nome);
+    public CorResponse build() {
+        return new CorResponse(id, nome);
     }
 }

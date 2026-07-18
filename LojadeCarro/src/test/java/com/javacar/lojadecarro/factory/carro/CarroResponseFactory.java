@@ -1,6 +1,6 @@
 package com.javacar.lojadecarro.factory.carro;
 
-import com.javacar.lojadecarro.dto.response.CarroResponse;
+import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 
 import java.math.BigDecimal;
 
@@ -48,8 +48,8 @@ public class CarroResponseFactory {
     }
 
 
-    public CarroResponse build() {
-        return new CarroResponse(id,
+    public VeiculoResponse build() {
+        return new VeiculoResponse(id,
                 placa,
                 marca,
                 modelo,

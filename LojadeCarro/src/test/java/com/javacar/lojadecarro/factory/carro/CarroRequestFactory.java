@@ -1,6 +1,6 @@
 package com.javacar.lojadecarro.factory.carro;
 
-import com.javacar.lojadecarro.dto.request.CarroRequest;
+import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 
 import java.math.BigDecimal;
 
@@ -49,8 +49,8 @@ public class CarroRequestFactory {
         return this;
     }
 
-    public CarroRequest build() {
-        return new CarroRequest(
+    public VeiculoRequest build() {
+        return new VeiculoRequest(
                 quilometragem,
                 url,
                 valor,

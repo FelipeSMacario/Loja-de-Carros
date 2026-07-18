@@ -2,6 +2,7 @@ package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.request.MarcaRequest;
 import com.javacar.lojadecarro.dto.response.MarcaResponse;
+import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.service.MarcaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,9 +43,9 @@ public class MarcaController {
 
     @GetMapping
     @Operation(summary = "Listar todas as marcas")
-    public ResponseEntity<List<MarcaResponse>> findAll() {
+    public ResponseEntity<List<MarcaResponse>> findAll(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
         log.info("Buscando todas as marcas.");
-        var response = marcaService.listarMarcas();
+        var response = marcaService.listarMarcas(status);
 
         return ResponseEntity.ok(response);
     }
@@ -69,13 +70,23 @@ public class MarcaController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar uma marca buscando por id")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        log.info("Deletando a marca por id: {}", id);
-        marcaService.deleteMarca(id);
+    @PutMapping("/inativar/{id}")
+    @Operation(summary = "Inativar uma marca buscando por id")
+    public ResponseEntity<MarcaResponse> inativar(@PathVariable Long id) {
+        log.info("Inativar a marca por id: {}", id);
+        var response = marcaService.alterarStatus(id, false);
 
-        log.info("Marca deletada com sucesso. Id: {}", id);
-        return ResponseEntity.noContent().build();
+        log.info("Marca inativada com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
     }
+    @PutMapping("/ativar/{id}")
+    @Operation(summary = "Ativar uma marca buscando por id")
+    public ResponseEntity<MarcaResponse> ativar(@PathVariable Long id) {
+        log.info("Ativar a marca por id: {}", id);
+        var response = marcaService.alterarStatus(id, true);
+
+        log.info("Marca ativada com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
+    }
+
 }

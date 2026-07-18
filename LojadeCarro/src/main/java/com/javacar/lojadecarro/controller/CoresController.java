@@ -1,7 +1,8 @@
 package com.javacar.lojadecarro.controller;
 
-import com.javacar.lojadecarro.dto.request.CoresRequest;
-import com.javacar.lojadecarro.dto.response.CoresResponse;
+import com.javacar.lojadecarro.dto.request.CorRequest;
+import com.javacar.lojadecarro.dto.response.CorResponse;
+import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.service.CoresService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -24,7 +25,7 @@ public class CoresController {
 
     @PostMapping
     @Operation(summary = "Criar uma nova cor")
-    public ResponseEntity<CoresResponse> create(@RequestBody @Valid CoresRequest request){
+    public ResponseEntity<CorResponse> create(@RequestBody @Valid CorRequest request) {
         log.info("Criando uma nova cor");
         var response = coresService.createCores(request);
 
@@ -41,15 +42,17 @@ public class CoresController {
 
     @GetMapping
     @Operation(summary = "Listar todas as cores")
-    public ResponseEntity<List<CoresResponse>> findAll(){
+    public ResponseEntity<List<CorResponse>> findAll(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
         log.info("Buscando todas as cores.");
-        var response = coresService.listarCores();
+        var response = coresService.listarCores(status);
+
+        log.debug("Retorno da listagem das cores: {}", response);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar cor por id")
-    public ResponseEntity<CoresResponse> findCoresById(@PathVariable Long id){
+    public ResponseEntity<CorResponse> findCoresById(@PathVariable Long id) {
         log.info("Buscando a cor por id: {}", id);
         var response = coresService.findCoresById(id);
 
@@ -59,20 +62,31 @@ public class CoresController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar cor buscando por id")
-    public ResponseEntity<CoresResponse> updateCores(@RequestBody @Valid CoresRequest cores, @PathVariable Long id){
+    public ResponseEntity<CorResponse> updateCores(@RequestBody @Valid CorRequest cores, @PathVariable Long id) {
         log.info("Atualizando a cor por id: {}", id);
         var response = coresService.updateCores(cores, id);
 
         log.debug("Resposta atualizar cor por id: {}", response);
         return ResponseEntity.ok(response);
     }
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar uma cor buscando por id")
-    public ResponseEntity<Void> deleteCores(@PathVariable Long id){
-        log.info("Deletando a cor por id: {}", id);
-        coresService.deleteCores(id);
 
-        log.info("Cor deletada com sucesso. Id: {}", id);
-        return ResponseEntity.noContent().build();
+    @PutMapping("/inativar/{id}")
+    @Operation(summary = "Inativa uma cor buscando por id")
+    public ResponseEntity<CorResponse> inativar(@PathVariable Long id) {
+        log.info("Inativando uma cor por id: {}", id);
+        var response = coresService.alterarStatus(id, false);
+
+        log.info("Cor inativada com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/ativar/{id}")
+    @Operation(summary = "Ativa uma cor buscando por id")
+    public ResponseEntity<CorResponse> ativar(@PathVariable Long id) {
+        log.info("Ativando uma cor por id: {}", id);
+        var response = coresService.alterarStatus(id, true);
+
+        log.info("Cor ativada com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
     }
 }

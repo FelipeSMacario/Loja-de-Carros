@@ -2,6 +2,7 @@ package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.request.ModeloRequest;
 import com.javacar.lojadecarro.dto.response.ModeloResponse;
+import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.service.ModeloService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,7 +27,7 @@ public class ModeloController {
     @Operation(summary = "Criar um novo modelo")
     public ResponseEntity<ModeloResponse> createModelo(@RequestBody @Valid ModeloRequest request) {
         log.info("Criando um novo modelo");
-        var response =  modeloService.createModelo(request);
+        var response = modeloService.createModelo(request);
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -41,9 +42,9 @@ public class ModeloController {
 
     @GetMapping
     @Operation(summary = "Listar todos os modelos")
-    public ResponseEntity<List<ModeloResponse>> listarModelo() {
+    public ResponseEntity<List<ModeloResponse>> listarModelo(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
         log.info("Buscando todos os modelos.");
-        var response = modeloService.listarModelo();
+        var response = modeloService.listarModelo(status);
         return ResponseEntity.ok(response);
     }
 
@@ -67,13 +68,24 @@ public class ModeloController {
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar uma modelo buscando por id")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        log.info("Deletando o modelos por id: {}", id);
-         modeloService.deleteModelo(id);
+    @PutMapping("/inativar/{id}")
+    @Operation(summary = "Inativar um modelo buscando por id")
+    public ResponseEntity<ModeloResponse> inativar(@PathVariable Long id) {
+        log.info("Inativar o modelo por id: {}", id);
+        var response = modeloService.alterarStatus(id, false);
 
-        log.info("Modelo deletado com sucesso. Id: {}", id);
-        return ResponseEntity.noContent().build();
+        log.info("Modelo inativado com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
     }
+
+    @PutMapping("/ativar/{id}")
+    @Operation(summary = "Ativar um modelo buscando por id")
+    public ResponseEntity<ModeloResponse> ativar(@PathVariable Long id) {
+        log.info("Ativar o modelo por id: {}", id);
+        var response = modeloService.alterarStatus(id, true);
+
+        log.info("Modelo ativar com sucesso. Id: {}", id);
+        return ResponseEntity.ok(response);
+    }
+
 }

@@ -1,16 +1,17 @@
 package com.javacar.lojadecarro.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Table(name = "Caracteristica")
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
-public class Carroceria {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "Nome")
+public class Carroceria extends EntidadeBase {
+    @Column(nullable = false, unique = true, length = 30)
     private String nome;
+
 }

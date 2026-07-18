@@ -1,6 +1,6 @@
 package com.javacar.lojadecarro.factory.cores;
 
-import com.javacar.lojadecarro.entity.Cores;
+import com.javacar.lojadecarro.entity.Cor;
 import lombok.RequiredArgsConstructor;
 
 import static lombok.AccessLevel.PRIVATE;
@@ -8,10 +8,10 @@ import static lombok.AccessLevel.PRIVATE;
 @RequiredArgsConstructor(access = PRIVATE)
 public final class CoresEntityFactory {
 
-    private final Cores cores;
+    private final Cor cor;
 
     private CoresEntityFactory() {
-        this.cores = new Cores();
+        this.cor = new Cor();
     }
 
     public static CoresEntityFactory criarEntity() {
@@ -19,27 +19,27 @@ public final class CoresEntityFactory {
     }
 
     public CoresEntityFactory comTodosOsCampos() {
-        cores.setId(1L);
-        cores.setNome("Branco");
+        cor.setId(1L);
+        cor.setNome("Branco");
         return this;
     }
 
     public CoresEntityFactory comTodosOsCamposExcetoId() {
-        cores.setNome("Branco");
+        cor.setNome("Branco");
         return this;
     }
 
     public CoresEntityFactory comNome(String nome) {
-        cores.setNome(nome);
+        cor.setNome(nome);
         return this;
     }
 
     public CoresEntityFactory comId(Long id) {
-        cores.setId(id);
+        cor.setId(id);
         return this;
     }
 
-    public Cores build() {
-        return cores;
+    public Cor build() {
+        return cor;
     }
 }

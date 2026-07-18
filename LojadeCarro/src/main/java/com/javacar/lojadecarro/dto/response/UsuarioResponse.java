@@ -7,6 +7,8 @@ public record UsuarioResponse(@Schema(example = "1", description = "ID da usuár
                               Long id,
                               @Schema(example = "Felipe", description = "Nome do usuário")
                               String nome,
+                              @Schema(example = "15153769788", description = "CPF do usuário")
+                              String cpf,
                               @Schema(example = "felipesmacario@gmail.com", description = "Email do usuário")
                               String email) {
 }

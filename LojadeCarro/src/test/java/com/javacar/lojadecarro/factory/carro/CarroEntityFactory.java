@@ -1,50 +1,50 @@
-package com.javacar.lojadecarro.factory.carro;
-
-import com.javacar.lojadecarro.entity.Carro;
-import lombok.RequiredArgsConstructor;
-
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-
-import static lombok.AccessLevel.PRIVATE;
-
-@RequiredArgsConstructor(access = PRIVATE)
-public final class CarroEntityFactory {
-
-    private final Carro carro;
-
-    private CarroEntityFactory() {
-        this.carro = new Carro();
-    }
-
-    public static CarroEntityFactory criarEntity() {
-        return new CarroEntityFactory();
-    }
-
-    public CarroEntityFactory comTodosOsCampos() {
-        carro.setId(1L);
-        carro.setQuilometragem(67000.98);
-        carro.setUrl("https://bucket/imagens/onix.jpg");
-        carro.setValor(new BigDecimal(58000));
-        carro.setPlaca("QUV1F836");
-        carro.setMotor("1.0");
-        carro.setAnoFabricacao(2020);
-        carro.setDtCadastro(LocalDateTime.now());
-        carro.setAtivo(true);
-
-        return this;
-    }
-
-    public CarroEntityFactory comId(Long id) {
-        carro.setId(id);
-        return this;
-    }
-    public CarroEntityFactory comPlaca(String placa) {
-        carro.setPlaca(placa);
-        return this;
-    }
-
-    public Carro build() {
-        return carro;
-    }
-}
+//package com.javacar.lojadecarro.factory.carro;
+//
+//import com.javacar.lojadecarro.entity.Veiculo;
+//import lombok.RequiredArgsConstructor;
+//
+//import java.math.BigDecimal;
+//import java.time.LocalDateTime;
+//
+//import static lombok.AccessLevel.PRIVATE;
+//
+//@RequiredArgsConstructor(access = PRIVATE)
+//public final class CarroEntityFactory {
+//
+//    private final Veiculo veiculo;
+//
+//    private CarroEntityFactory() {
+//        this.veiculo = new Veiculo();
+//    }
+//
+//    public static CarroEntityFactory criarEntity() {
+//        return new CarroEntityFactory();
+//    }
+//
+//    public CarroEntityFactory comTodosOsCampos() {
+//        veiculo.setId(1L);
+//        //veiculo.setQuilometragem(67000.98);
+//        //veiculo.setUrl("https://bucket/imagens/onix.jpg");
+//        veiculo.setValor(new BigDecimal(58000));
+//        veiculo.setPlaca("QUV1F836");
+//        veiculo.setMotor("1.0");
+//        veiculo.setAnoFabricacao(2020);
+//       // veiculo.setDtCadastro(LocalDateTime.now());
+//      //  veiculo.setAtivo(true);
+//
+//        return this;
+//    }
+//
+//    public CarroEntityFactory comId(Long id) {
+//        veiculo.setId(id);
+//        return this;
+//    }
+//    public CarroEntityFactory comPlaca(String placa) {
+//        veiculo.setPlaca(placa);
+//        return this;
+//    }
+//
+//    public Veiculo build() {
+//        return veiculo;
+//    }
+//}

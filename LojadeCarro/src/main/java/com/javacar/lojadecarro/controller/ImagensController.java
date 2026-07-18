@@ -1,12 +1,10 @@
 package com.javacar.lojadecarro.controller;
 
 
-import com.javacar.lojadecarro.dto.request.ImagensRequest;
 import com.javacar.lojadecarro.dto.response.ImagensResponse;
 import com.javacar.lojadecarro.service.ImagensService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -27,57 +25,16 @@ public class ImagensController {
 
     private final ImagensService imagensService;
 
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE, value = "/{idCarro}")
-    @Operation(summary = "Realiza o upload das imagens do carro")
-    public ResponseEntity<List<ImagensResponse>> create(
-            @PathVariable Long idCarro,
-            @RequestParam("files") MultipartFile[] files) throws IOException {
-
-        log.info("Recebida requisição de upload de {} imagem(ns) para o carro {}",
-                files.length, idCarro);
-
-        var response = imagensService.create(files, idCarro);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
-    }
-
-    @GetMapping(value = "/carro/{idCarro}")
-    @Operation(summary = "Listar imagens do carro")
-    public ResponseEntity<List<ImagensResponse>> findAll(
-            @PathVariable Long idCarro) {
-
-        log.info("Buscando imagens do carro {}", idCarro);
-
-        var response = imagensService.listarImagens(idCarro);
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{idImagem}")
-    @Operation(summary = "Buscar imagem pelo ID")
-    public ResponseEntity<ImagensResponse> findById(
+    @PatchMapping("/{idImagem}")
+    @Operation(summary = "Atualizar qual imagem será de perfil")
+    public ResponseEntity<Void> update(
             @PathVariable Long idImagem) {
-
-        log.info("Buscando imagem {}", idImagem);
-
-        var response = imagensService.findImagensById(idImagem);
-
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{idImagem}")
-    @Operation(summary = "Atualizar informações da imagem")
-    public ResponseEntity<ImagensResponse> update(
-            @PathVariable Long idImagem,
-            @RequestBody @Valid ImagensRequest request) {
 
         log.info("Atualizando imagem {}", idImagem);
 
-        var response = imagensService.updateImagens(request, idImagem);
+        imagensService.definirPrincipal(idImagem);
 
-        return ResponseEntity.ok(response);
+        return ResponseEntity.noContent().build();
     }
 
     @DeleteMapping("/{idImagem}")
@@ -87,7 +44,7 @@ public class ImagensController {
 
         log.info("Removendo imagem {}", idImagem);
 
-        imagensService.deleteImagens(idImagem);
+        imagensService.delete(idImagem);
 
         return ResponseEntity.noContent().build();
     }

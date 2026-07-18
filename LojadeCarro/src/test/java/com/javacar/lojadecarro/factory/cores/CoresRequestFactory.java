@@ -1,6 +1,6 @@
 package com.javacar.lojadecarro.factory.cores;
 
-import com.javacar.lojadecarro.dto.request.CoresRequest;
+import com.javacar.lojadecarro.dto.request.CorRequest;
 
 public class CoresRequestFactory {
     private String nome;
@@ -21,7 +21,7 @@ public class CoresRequestFactory {
         return this;
     }
 
-    public CoresRequest build() {
-        return new CoresRequest(nome);
+    public CorRequest build() {
+        return new CorRequest(nome);
     }
 }

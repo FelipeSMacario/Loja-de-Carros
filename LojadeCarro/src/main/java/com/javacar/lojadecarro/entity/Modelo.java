@@ -1,20 +1,14 @@
 package com.javacar.lojadecarro.entity;
 
-import lombok.Data;
-
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "Modelo")
-public class Modelo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "Nome")
+public class Modelo extends EntidadeBase {
+    @Column(nullable = false, unique = true, length = 20)
     private String nome;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Marca marca;
 }

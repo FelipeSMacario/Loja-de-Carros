@@ -7,6 +7,6 @@ public record ImagensResponse(@Schema(example = "1", description = "ID da imagem
                               Long id,
                               @Schema(example = "https://upload.wikimedia.org/wikipedia/commons/3/3e/Ford_logo_flat.svg", description = "URL da marca")
                               String url,
-                              @Schema(example = "1", description = "ID do carro cadastrado")
-                              Long idCarro) {
+                              @Schema(example = "true", description = "Identificar se a imagem é a do perfil")
+                              boolean principal) {
 }
