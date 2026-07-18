@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.controller;
 
+import com.javacar.lojadecarro.dto.request.FiltrarVendaRequest;
 import com.javacar.lojadecarro.dto.request.VendasRequest;
 import com.javacar.lojadecarro.dto.response.VendasResponse;
 import com.javacar.lojadecarro.service.VendasService;
@@ -7,11 +8,12 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
-import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -22,17 +24,18 @@ public class VendaController {
     private final VendasService vendasService;
 
     @GetMapping
-    public ResponseEntity<List<VendasResponse>> findAll(){
-        log.info("Buscando todas as compras.");
-        var response = vendasService.listarVendas();
+    public ResponseEntity<Page<VendasResponse>> listarVendas(@PageableDefault(size = 9) Pageable pageable,
+                                                             FiltrarVendaRequest filtro) {
+        log.info("Buscando todas as vendas.");
+        var response = vendasService.listarVendas(pageable);
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
-    public ResponseEntity<VendasResponse> create(@RequestBody @Valid VendasRequest request){
+    public ResponseEntity<VendasResponse> create(@RequestBody @Valid VendasRequest request) {
         log.info("Criando uma nova compra");
-        var response =  vendasService.create(request);
+        var response = vendasService.create(request);
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()

@@ -8,21 +8,19 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "Venda")
 public class Venda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(
-            name = "data_venda",
             nullable = false,
             updatable = false,
             insertable = false
     )
     private LocalDateTime dataVenda;
 
-    @Column(name = "valor_venda", nullable = false)
+    @Column(nullable = false)
     private BigDecimal valorVenda;
 
     @OneToOne(fetch = FetchType.LAZY)

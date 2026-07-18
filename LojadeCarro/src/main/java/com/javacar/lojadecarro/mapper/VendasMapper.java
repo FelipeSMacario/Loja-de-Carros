@@ -8,7 +8,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface VendasMapper {
-    @Mapping(source = "veiculoId", target = "carro.id")
+    @Mapping(source = "veiculoId", target = "veiculo.id")
     @Mapping(source = "compradorId", target = "comprador.id")
     @Mapping(source = "vendedorId", target = "vendedor.id")
     Venda toEntity(VendasRequest request);

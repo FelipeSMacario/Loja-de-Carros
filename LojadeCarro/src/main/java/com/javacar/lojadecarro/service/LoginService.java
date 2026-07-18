@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.service;
 
+import com.javacar.lojadecarro.dto.request.LoginRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.exception.security.LoginSenhaException;
 import com.javacar.lojadecarro.mapper.UsuarioMapper;
@@ -18,14 +19,14 @@ public class LoginService {
     private final BCryptPasswordEncoder encoder;
     private final UsuarioMapper usuarioMapper;
 
-    public UsuarioResponse logar(String login, String password) {
-        log.info("Buscando login {}", login);
-        return loginRepository.findByEmail(login)
-                .map(log -> {
-                            if (!encoder.matches(password, log.getPassword())) {
+    public UsuarioResponse autenticar(LoginRequest loginRequest) {
+        log.info("Buscando login {}", loginRequest.login());
+        return loginRepository.findByEmail(loginRequest.login())
+                .map(usuario -> {
+                            if (!encoder.matches(loginRequest.senha(), usuario.getPassword())) {
                                 throw new LoginSenhaException();
                             }
-                            return usuarioMapper.toResponse(log);
+                            return usuarioMapper.toResponse(usuario);
 
                         }
                 )

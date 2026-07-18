@@ -10,6 +10,8 @@ import com.javacar.lojadecarro.repository.VendasRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -48,11 +50,11 @@ public class VendasService {
 
     }
 
-    public List<VendasResponse> listarVendas() {
+    public Page<VendasResponse> listarVendas(Pageable pageable) {
         log.info("Inicio da listarComprasService");
-        return vendasRepository.findAll()
-                .stream().map(vendasMapper::toResponse)
-                .toList();
+
+        return vendasRepository.findAll(pageable)
+                .map(vendasMapper::toResponse);
     }
 
     private Usuario validaVendedor(Long idVendedor, Veiculo veiculo) {
