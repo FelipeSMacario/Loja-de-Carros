@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.entity;
 
+import com.javacar.lojadecarro.exception.business.BusinessException;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,6 +15,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+
+import static com.javacar.lojadecarro.enums.Entidade.ROLE;
+import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 
 @Getter
 @Setter
@@ -83,4 +87,34 @@ public class Usuario extends EntidadeBase implements UserDetails, Serializable {
     public boolean isEnabled() {
         return ativo;
     }
+
+    public void alteraStatus(boolean novoStatus) {
+        if (this.ativo == novoStatus) {
+            throw new BusinessException(novoStatus ? USUARIO.jaAtiva() : USUARIO.jaInativa());
+        }
+        this.ativo = novoStatus;
+    }
+
+    public void adicionarRole(Role role) {
+        if (possuiRole(role.getId())) {
+            throw new BusinessException(ROLE.jaAtiva());
+        }
+
+        roles.add(new UsuarioRole(this, role));
+    }
+
+    private boolean possuiRole(Long roleId) {
+        return roles.stream()
+                .anyMatch(usuarioRole -> usuarioRole.getRole().getId().equals(roleId));
+    }
+    public void removerRole(Long roleId) {
+        boolean removido = roles.removeIf(
+                usuarioRole -> usuarioRole.getRole().getId().equals(roleId)
+        );
+
+        if (!removido) {
+            throw new BusinessException("O usuário não possui uma role com o id informado.");
+        }
+    }
+
 }

@@ -55,5 +55,4 @@ public class Imagem {
         this.tamanho = upload.tamanho();
         this.principal = false;
     }
-
 }

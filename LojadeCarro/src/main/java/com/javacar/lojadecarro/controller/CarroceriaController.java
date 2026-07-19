@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.request.CarroceriaRequest;
+import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.CarroceriaResponse;
 import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.service.CarroceriaService;
@@ -25,10 +26,10 @@ public class CarroceriaController {
     private final CarroceriaService carroceriaService;
 
     @PostMapping
-    @Operation(summary = "Criar uma nova carroceria")
-    public ResponseEntity<CarroceriaResponse> create(@RequestBody @Valid CarroceriaRequest request) {
-        log.info("Criando uma nova carroceria");
-        var response = carroceriaService.createCarroceria(request);
+    @Operation(summary = "Cadastrar uma nova carroceria")
+    public ResponseEntity<CarroceriaResponse> criar(@RequestBody @Valid CarroceriaRequest request) {
+        log.debug("Recebendo uma requisição de cadastro de carroceria com o corpo: {}", request);
+        var response = carroceriaService.criar(request);
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -36,59 +37,56 @@ public class CarroceriaController {
                 .buildAndExpand(response.id())
                 .toUri();
 
-        log.info("Carroceria criado com sucesso");
-        log.debug("Resposta uma nova carroceria: {}", response);
+        log.info("Carroceria criada  com sucesso com o id: {}", response.id());
+        log.debug("Resposta da criação da carroceria: {}", response);
         return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping()
     @Operation(summary = "Listar todas as carrocerias")
-    public ResponseEntity<List<CarroceriaResponse>> findAll(@RequestParam(defaultValue = "ATIVAS")
+    public ResponseEntity<List<CarroceriaResponse>> listar(@RequestParam(defaultValue = "ATIVAS")
                                                             StatusFiltro status) {
-        log.info("Buscando carrocerias. Status: {}", status);
-        var response = carroceriaService.listarCarroceria(status);
+        log.debug("Iniciando a busca de todas as carrocerias com o status: {}", status);
+        var response = carroceriaService.listar(status);
+
+        log.debug("Consulta de todas as carrocerias com o status: {} realizada com sucesso", status);
+        log.debug("A consulta de todas as carrocerias retornou com o tamanho de: {} valores", response.size());
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar carroceria por id")
-    public ResponseEntity<CarroceriaResponse> findById(@PathVariable Long id) {
-        log.info("Buscando a carroceria por id: {}", id);
-        var response = carroceriaService.findCarroceriaById(id);
+    @Operation(summary = "Buscar uma carroceria por id")
+    public ResponseEntity<CarroceriaResponse> buscaPorId(@PathVariable Long id) {
+        log.debug("Buscando uma carroceria por id: {}", id);
+        var response = carroceriaService.buscaPorId(id);
 
+        log.info("Consulta da carroceria com o id: {} realizada com sucesso", id);
         log.debug("Resposta carroceria por id: {}", response);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar carroceria buscando por id")
-    public ResponseEntity<CarroceriaResponse> update(@RequestBody @Valid CarroceriaRequest request, @PathVariable Long id) {
-        log.info("Atualizando a carroceria por id: {}", id);
-        var response = carroceriaService.updateCarroceria(request, id);
+    @Operation(summary = "Atualizar carroceria por id")
+    public ResponseEntity<CarroceriaResponse> atualizar(@RequestBody @Valid CarroceriaRequest request,
+                                                     @PathVariable Long id) {
+        log.debug("Iniciando a atualização da carroceria com id: {} e com o corpo: {}", id, request);
+        var response = carroceriaService.atualizar(request, id);
 
+        log.info("Carroceria com o id: {} atualizada com sucesso", response.id());
         log.debug("Resposta atualizar carroceria por id: {}", response);
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/inativar/{id}")
-    @Operation(summary = "Inativar uma carroceria por id")
-    public ResponseEntity<CarroceriaResponse> inativar(@PathVariable Long id) {
-        log.info("Inativando a carroceria por id: {}", id);
-        var response = carroceriaService.alterarStatus(id, false);
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "Alterar o status da carroceria")
+    public ResponseEntity<CarroceriaResponse> alterarStatus(@PathVariable Long id, @RequestBody @Valid StatusRequest request) {
+        log.debug("Solicitação para alterar o status da carroceria para: {}", request.ativo());
+        var response = carroceriaService.alterarStatus(id, request);
 
-        log.info("Carroceria inativada com sucesso. Id: {}", id);
+        log.info("Carroceria alterada com sucesso. status= {}", response.ativo());
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/ativar/{id}")
-    @Operation(summary = "Ativar uma carroceria por id")
-    public ResponseEntity<CarroceriaResponse> ativar(@PathVariable Long id) {
-        log.info("Ativando a carroceria por id: {}", id);
-        var response = carroceriaService.alterarStatus(id, true);
-
-        log.info("Carroceria ativada com sucesso. Id: {}", id);
-        return ResponseEntity.ok(response);
-    }
 
 }

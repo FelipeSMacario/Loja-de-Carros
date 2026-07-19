@@ -1,10 +1,10 @@
 package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.request.AlterarStatusRequest;
-import com.javacar.lojadecarro.dto.request.FiltrarCamposCarroRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagensResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
+import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.service.VeiculoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,11 +35,11 @@ public class VeiculoController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Cadastrar um novo veiculo")
-    public ResponseEntity<VeiculoResponse> createVeiculo(@RequestBody
-                                                         @Valid VeiculoRequest request,
-                                                         @RequestParam("files") MultipartFile[] files) throws IOException {
-        log.info("Incluindo um novo carro para venda");
-        var response = veiculoService.createVeiculo(request, files);
+    public ResponseEntity<VeiculoResponse> criar(@RequestBody
+                                                 @Valid VeiculoRequest request,
+                                                 @RequestParam("files") MultipartFile[] files) throws IOException {
+        log.debug("Cadastrar um novo veiculo com o corpo: {}", request);
+        var response = veiculoService.criar(request, files);
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -47,77 +47,78 @@ public class VeiculoController {
                 .buildAndExpand(response.id())
                 .toUri();
 
-        log.info("Marca criado com sucesso");
-        log.debug("Resposta uma nova marca: {}", response);
+        log.info("Veiculo criado com sucesso com o id: {}", response.id());
+        log.debug("Resposta um novo veiculo: {}", response);
         return ResponseEntity.created(location).body(response);
 
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os carros")
-    public ResponseEntity<Page<VeiculoResponse>> listarVeiculos(@PageableDefault(size = 9) Pageable pageable) {
-        log.info("Buscando todos os carros.");
-        var response = veiculoService.listarVeiculos(pageable);
+    @Operation(summary = "Listar todos os veiculos")
+    public ResponseEntity<Page<VeiculoResponse>> listar(@PageableDefault(size = 9) Pageable pageable,
+                                                        @RequestParam(required = false) StatusVeiculo status) {
+        log.debug("Buscando todos os veiculos com o status: {}.", status);
+        var response = veiculoService.listar(pageable, status);
+
+        log.debug("Consulta retornou {} elementos", response.getNumberOfElements());
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar um carro por id")
-    public ResponseEntity<VeiculoResponse> findVeiculoById(@PathVariable Long id) {
-        log.info("Buscando o carro por id: {}", id);
-        var response = veiculoService.findVeiculoById(id);
+    @Operation(summary = "Buscar um veiculo por id")
+    public ResponseEntity<VeiculoResponse> buscarPorId(@PathVariable Long id) {
+        log.debug("Buscando o veiculo por id: {}", id);
+        var response = veiculoService.buscarPorId(id);
 
-        log.debug("Resposta do carro por id: {}", response);
+        log.info("Consulta do veiculo realizada com sucesso. id={}", id);
+        log.debug("Resposta do veiculo por id: {}", response);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
-    @Operation(summary = "Atualizar um carro buscando por id")
-    public ResponseEntity<VeiculoResponse> updateVeiculo(@RequestBody @Valid VeiculoRequest request, @PathVariable Long id) {
-        log.info("Atualizando o carro por id: {}", id);
-        var response = veiculoService.updateVeiculo(request, id);
+    @Operation(summary = "Atualizar um veiculo buscando por id")
+    public ResponseEntity<VeiculoResponse> atualizar(@RequestBody @Valid VeiculoRequest request, @PathVariable Long id) {
+        log.debug("Atualizando o veiculo com id: {} para o corpo: {}", id, request);
+        var response = veiculoService.atualizar(request, id);
 
-        log.debug("Resposta atualizar carro por id: {}", response);
+        log.info("Veiculo com o id: {} atualizado com sucesso", id);
+        log.debug("Resposta para atualizar o veiculo por id: {}", response);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/status")
-    @Operation(summary = "Marca o carro como vendido o retirando da lista de carros disponíveis")
-    public ResponseEntity<VeiculoResponse> marcaVendido(@PathVariable Long id,
-                                                        @RequestBody @Valid AlterarStatusRequest request) {
-        log.info("Atualizando o carro para vendido por id: {}", id);
+    @Operation(summary = "Alterar o status do veiculo")
+    public ResponseEntity<VeiculoResponse> alterarStatus(@PathVariable Long id,
+                                                         @RequestBody @Valid AlterarStatusRequest request) {
+        log.debug("Alterando status do veiculo com id: {} para o status: {}", id, request.status());
         var response = veiculoService.alterarStatus(id, request);
 
-        log.debug("Resposta atualizar carro para vendido por id: {}", response);
-        return ResponseEntity.ok(response);
-    }
-
-
-    @GetMapping("/search")
-    @Operation(summary = "Paginação que busca o carro por parãmetros")
-    public ResponseEntity<Page<VeiculoResponse>> filtrarCampos(FiltrarCamposCarroRequest filtro, @PageableDefault(size = 9) Pageable pageable) {
-        log.info("Paginação do carro");
-        var response = veiculoService.filtrarCampos(filtro, pageable);
-
+        log.info("Status do veiculo com o id: {} alterado com sucesso", id);
+        log.debug("Resposta da alteração de status para o id: {}. Resposta: {}", id, response);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}/imagens")
     @Operation(summary = "Listar as imagens do veículo")
     public ResponseEntity<List<ImagensResponse>> listarImagens(@PathVariable Long id) {
-        log.info("Paginação do carro");
+        log.debug("Listando as imagens do veiculo com o id: {}", id);
         var response = veiculoService.listarImagens(id);
+
+        log.debug("Consulta de todas as imagens para o veiculo com id: {} realizada com sucesso", id);
+        log.debug("A consulta de todas as imagens do veiculo retornou com o tamanho de: {} valores", response.size());
 
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{idVeiculo}/opcionais")
+    @DeleteMapping("/{idVeiculo}/opcionais")
     @Operation(summary = "Desvincular opcional do veiculo")
     public ResponseEntity<Void> desvincularOpcionais(@PathVariable Long idVeiculo,
-                                                     @RequestBody List<Long> ids) {
-        log.info("Paginação do carro");
+                                                     @RequestParam List<Long> ids) {
+        log.debug("Desvinculando opcionais {} do usuário com id: {}", ids, idVeiculo);
         veiculoService.desvincularOpcionais(idVeiculo, ids);
+
+        log.info("Opcionais desvinculados com sucesso. Id: {}", idVeiculo);
 
         return ResponseEntity.noContent().build();
     }
@@ -126,11 +127,11 @@ public class VeiculoController {
     @Operation(summary = "Vincular opcional do veiculo")
     public ResponseEntity<Void> vincularOpcionais(@PathVariable Long idVeiculo,
                                                   @RequestBody List<Long> ids) {
-        log.info("Paginação do carro");
+        log.debug("Vinculando opcionais {} do usuário com id: {}", ids, idVeiculo);
         veiculoService.vincularOpcionais(idVeiculo, ids);
 
+        log.info("Opcionais vinculados com sucesso. Id: {}", idVeiculo);
         return ResponseEntity.noContent().build();
     }
-
 
 }

@@ -17,9 +17,7 @@ public class RolesService {
     private final RoleRepository roleRepository;
     private final RoleMapper roleMapper;
 
-    public List<RoleResponse> listarRoles(StatusFiltro status) {
-        log.info("Inicio da listagem de roles com o filtro: {}", status);
-
+    public List<RoleResponse> listar(StatusFiltro status) {
         var listaRoles =
                 switch (status) {
                     case TODAS -> roleRepository.findAll();

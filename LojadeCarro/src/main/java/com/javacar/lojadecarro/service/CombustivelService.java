@@ -4,11 +4,10 @@ import com.javacar.lojadecarro.dto.request.CombustivelRequest;
 import com.javacar.lojadecarro.dto.response.CombustivelResponse;
 import com.javacar.lojadecarro.entity.Combustivel;
 import com.javacar.lojadecarro.enums.StatusFiltro;
-import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.mapper.CombustivelMapper;
 import com.javacar.lojadecarro.repository.CombustivelRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
-import com.javacar.lojadecarro.validation.StatusValidation;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,19 +24,16 @@ public class CombustivelService {
     private final CombustivelRepository combustivelRepository;
     private final CombustivelMapper combustivelMapper;
     private final EntityValidation entityValidation;
-    private final StatusValidation statusValidation;
 
+    @Transactional
     public CombustivelResponse createCombustivel(CombustivelRequest request) {
-        log.debug("Inicio da criação do combustível com a request: {}", request);
         var combustivelEntity = combustivelMapper.toEntity(request);
-        var combustivelResponse = combustivelRepository.save(combustivelEntity);
+        var combustivel = combustivelRepository.save(combustivelEntity);
 
-        return combustivelMapper.toResponse(combustivelResponse);
+        return combustivelMapper.toResponse(combustivel);
     }
 
-    public List<CombustivelResponse> listarCombustivel(StatusFiltro status) {
-        log.info("Inicio da listar combustiveis com o status: {}", status);
-
+    public List<CombustivelResponse> listarCombustiveis(StatusFiltro status) {
         var listaCombustiveis =
                 switch (status) {
                     case TODAS -> combustivelRepository.findAll();
@@ -51,39 +47,26 @@ public class CombustivelService {
     }
 
     public CombustivelResponse findCombustivelById(Long id) {
-        log.info("Inicio do filtro de combustível com id: {}", id);
-        return combustivelRepository.findById(id)
-                .map(combustivelMapper::toResponse)
-                .orElseThrow(() -> new NotFoundException(COMBUSTIVEL, id));
+        return combustivelMapper.toResponse(buscaCombustivel(id));
     }
 
+    @Transactional
     public CombustivelResponse updateCombustivel(CombustivelRequest request, Long id) {
-        log.info("Inicio da atualização de combustivel com o id: {} e a request: {}", id, request);
-        return combustivelRepository.findById(id)
-                .map(combustivelEntity -> {
-                    combustivelMapper.toUpdate(request, combustivelEntity);
-                    var update = combustivelRepository.save(combustivelEntity);
-                    log.info("Combustível atualizado com sucesso!");
-                    return combustivelMapper.toResponse(update);
-                })
-                .orElseThrow(() -> new NotFoundException(COMBUSTIVEL, id));
+        var combustivel = buscaCombustivel(id);
+        combustivelMapper.toUpdate(request, combustivel);
+
+        return combustivelMapper.toResponse(combustivel);
     }
 
+    @Transactional
     public CombustivelResponse alterarStatus(Long id, boolean status) {
-        log.info("Inicio da alteração de status do combustível com o id: {} para o status: {}", id, status ? "ATIVA" : "INATIVAS");
-        var combustivelFiltrado = entityValidation.obterOuLancarErro(combustivelRepository.findById(id), COMBUSTIVEL, id);
+        var combustivel = buscaCombustivel(id);
+        combustivel.alteraStatus(status);
 
-        statusValidation.defineValidacao(status, COMBUSTIVEL, combustivelFiltrado);
-        combustivelFiltrado.setAtivo(false);
-        combustivelRepository.save(combustivelFiltrado);
-
-        log.info("Combustível com o ID: {} foi desativado", id);
-        return combustivelMapper.toResponse(combustivelFiltrado);
+        return combustivelMapper.toResponse(combustivel);
     }
 
     public Combustivel buscaCombustivel(Long id) {
-        log.info("Inicio da busca por combustivel com id: {}", id);
-        return combustivelRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(COMBUSTIVEL, id));
+        return entityValidation.obterOuLancarErro(combustivelRepository.findById(id), COMBUSTIVEL, id);
     }
 }

@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 import static com.javacar.lojadecarro.enums.StatusVeiculo.VENDIDO;
 import static com.javacar.lojadecarro.utils.Utils.ZONE;
@@ -30,29 +29,25 @@ public class VendasService {
     private final VeiculoService veiculoService;
 
     @Transactional
-    public VendasResponse create(VendasRequest request) {
-        log.debug("Inicio da createComprasService com a response: {}", request);
+    public VendasResponse criar(VendasRequest request) {
         var veiculo = veiculoService.buscaVeiculo(request.veiculoId());
-        var venda = vendasMapper.toEntity(request);
 
         var vendedor = validaVendedor(request.vendedorId(), veiculo);
         var comprador = validaComprador(request.compradorId(), vendedor);
 
-        venda.setDataVenda(LocalDateTime.now(ZONE));
-        venda.setVeiculo(veiculo);
-        venda.setComprador(comprador);
-        venda.setVendedor(vendedor);
+        var vendaEntity = vendasMapper.toEntity(request);
+        vendaEntity.setDataVenda(LocalDateTime.now(ZONE));
+        vendaEntity.setVeiculo(veiculo);
+        vendaEntity.setComprador(comprador);
+        vendaEntity.setVendedor(vendedor);
         veiculo.alterarStatus(VENDIDO);
-        var comprasResponse = vendasRepository.save(venda);
-        log.info("Compra salva com sucesso!");
+        var venda = vendasRepository.save(vendaEntity);
 
-        return vendasMapper.toResponse(comprasResponse);
+        return vendasMapper.toResponse(venda);
 
     }
 
-    public Page<VendasResponse> listarVendas(Pageable pageable) {
-        log.info("Inicio da listarComprasService");
-
+    public Page<VendasResponse> listar(Pageable pageable) {
         return vendasRepository.findAll(pageable)
                 .map(vendasMapper::toResponse);
     }

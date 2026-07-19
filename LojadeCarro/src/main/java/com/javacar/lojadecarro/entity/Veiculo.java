@@ -12,6 +12,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.javacar.lojadecarro.enums.Entidade.OPCIONAL;
+
 
 @Getter
 @Setter
@@ -101,9 +103,6 @@ public class Veiculo {
         imagens.add(imagem);
     }
 
-    public void adicionarOpcional(Opcional opcional) {
-        opcionais.add(new VeiculoOpcional(this, opcional));
-    }
 
     public void removerOpcional(Long idOpcional) {
         boolean removido = opcionais.removeIf(
@@ -121,6 +120,9 @@ public class Veiculo {
         if (novoStatus == null) {
             throw new BusinessException("Status inválido");
         }
+        if (this.statusVeiculo == novoStatus) {
+            throw new BusinessException("Status informado correspondente ao status atual");
+        }
         if (this.statusVeiculo == StatusVeiculo.VENDIDO) {
             throw new BusinessException(
                     "Um veículo vendido não pode ter seu status alterado."
@@ -129,5 +131,18 @@ public class Veiculo {
 
 
         this.statusVeiculo = novoStatus;
+    }
+
+    public boolean possuiOpcional(Long idOpcional) {
+        return this.getOpcionais().stream().anyMatch(op -> op.getOpcional().getId().equals(idOpcional));
+    }
+
+    public void adicionarOpcional(Opcional opcional) {
+
+        if (possuiOpcional(opcional.getId())) {
+            throw new BusinessException(OPCIONAL.jaAtiva());
+        }
+
+        opcionais.add(new VeiculoOpcional(this, opcional));
     }
 }

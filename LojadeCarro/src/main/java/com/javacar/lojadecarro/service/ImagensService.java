@@ -29,7 +29,7 @@ public class ImagensService {
     public List<Imagem> create(MultipartFile[] files, Veiculo veiculo)
             throws IOException {
 
-        List<Imagem> imagens = new ArrayList<>();
+        var imagens = new ArrayList<Imagem>();
 
         for (MultipartFile file : files) {
             UploadResult upload = storageService.upload(file, veiculo.getId());
@@ -52,23 +52,23 @@ public class ImagensService {
 
     @Transactional
     public void definirPrincipal(Long idImagem) {
-
-        var imagem = imagensRepository.findById(idImagem)
-                .orElseThrow(() -> new NotFoundException(IMAGEM, idImagem));
+        var imagem = buscaImagem(idImagem);
 
         imagensRepository.desmarcarPrincipal(imagem.getVeiculo().getId());
 
         imagem.setPrincipal(true);
-
-        imagensRepository.save(imagem);
     }
 
     @Transactional
-    public void delete(Long idImagem) {
-        var imagem = imagensRepository.findById(idImagem)
-                .orElseThrow(() -> new NotFoundException(IMAGEM, idImagem));
-
+    public void delete(Long idImagem) throws IOException {
+        var imagem = buscaImagem(idImagem);
+        storageService.delete(imagem.getObjectKey());
         imagensRepository.delete(imagem);
+    }
+
+    public Imagem buscaImagem(Long idImagem) {
+        return imagensRepository.findById(idImagem)
+                .orElseThrow(() -> new NotFoundException(IMAGEM, idImagem));
     }
 
 }

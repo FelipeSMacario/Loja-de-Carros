@@ -20,7 +20,6 @@ public class LoginService {
     private final UsuarioMapper usuarioMapper;
 
     public UsuarioResponse autenticar(LoginRequest loginRequest) {
-        log.info("Buscando login {}", loginRequest.login());
         return loginRepository.findByEmail(loginRequest.login())
                 .map(usuario -> {
                             if (!encoder.matches(loginRequest.senha(), usuario.getPassword())) {

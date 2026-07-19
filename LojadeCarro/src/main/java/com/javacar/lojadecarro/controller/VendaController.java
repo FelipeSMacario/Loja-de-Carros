@@ -1,9 +1,9 @@
 package com.javacar.lojadecarro.controller;
 
-import com.javacar.lojadecarro.dto.request.FiltrarVendaRequest;
 import com.javacar.lojadecarro.dto.request.VendasRequest;
 import com.javacar.lojadecarro.dto.response.VendasResponse;
 import com.javacar.lojadecarro.service.VendasService;
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,18 +24,21 @@ public class VendaController {
     private final VendasService vendasService;
 
     @GetMapping
-    public ResponseEntity<Page<VendasResponse>> listarVendas(@PageableDefault(size = 9) Pageable pageable,
-                                                             FiltrarVendaRequest filtro) {
-        log.info("Buscando todas as vendas.");
-        var response = vendasService.listarVendas(pageable);
+    @Operation(summary = "Listar todos as vendas")
+    public ResponseEntity<Page<VendasResponse>> listar(@PageableDefault(size = 9) Pageable pageable) {
+        log.debug("Buscando todos as vendas");
+        var response = vendasService.listar(pageable);
+
+        log.debug("Consulta retornou {} elementos", response.getNumberOfElements());
 
         return ResponseEntity.ok(response);
     }
 
     @PostMapping
-    public ResponseEntity<VendasResponse> create(@RequestBody @Valid VendasRequest request) {
-        log.info("Criando uma nova compra");
-        var response = vendasService.create(request);
+    @Operation(summary = "Cadastrar uma nova venda")
+    public ResponseEntity<VendasResponse> criar(@RequestBody @Valid VendasRequest request) {
+        log.debug("Cadastrar uma nova venda com o corpo: {}", request);
+        var response = vendasService.criar(request);
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -43,7 +46,8 @@ public class VendaController {
                 .buildAndExpand(response.id())
                 .toUri();
 
-        log.info("Compra criado com sucesso");
+        log.info("Venda criada com sucesso com o id: {}", response.id());
+        log.debug("Resposta uma nova venda: {}", response);
         return ResponseEntity.created(location).body(response);
     }
 }

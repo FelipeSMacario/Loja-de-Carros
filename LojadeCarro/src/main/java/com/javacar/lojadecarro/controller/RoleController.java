@@ -1,6 +1,5 @@
 package com.javacar.lojadecarro.controller;
 
-import com.javacar.lojadecarro.dto.response.CorResponse;
 import com.javacar.lojadecarro.dto.response.RoleResponse;
 import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.service.RolesService;
@@ -26,13 +25,12 @@ public class RoleController {
 
     @GetMapping
     @Operation(summary = "Listar todas as roles")
-    public ResponseEntity<List<RoleResponse>> findAll(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
-        log.info("Buscando todas as roles.");
-        var response = rolesService.listarRoles(status);
+    public ResponseEntity<List<RoleResponse>> listar(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
+        log.debug("Buscando todas as roles com o status: {}.", status);
+        var response = rolesService.listar(status);
 
-        log.debug("Retorno da listagem das roles: {}", response);
+        log.debug("Consulta de todas as roles com o status: {} realizada com sucesso", status);
+        log.debug("A consulta de todos as roles retornou com o tamanho de: {} valores", response.size());
         return ResponseEntity.ok(response);
     }
-
-
 }

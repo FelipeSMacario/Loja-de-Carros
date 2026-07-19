@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.request.CombustivelRequest;
+import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.CombustivelResponse;
 import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.service.CombustivelService;
@@ -24,10 +25,10 @@ public class CombustivelController {
     private final CombustivelService combustivelService;
 
     @PostMapping
-    @Operation(summary = "Criar um novo combustível")
-    public ResponseEntity<CombustivelResponse> create(@RequestBody
-                                                      @Valid CombustivelRequest request) {
-        log.info("Criando um novo combustível");
+    @Operation(summary = "Cadastrar um novo combustível")
+    public ResponseEntity<CombustivelResponse> createCombustivel(@RequestBody
+                                                                 @Valid CombustivelRequest request) {
+        log.debug("Cadastrando um novo combustível com o corpo: {}", request);
         var response = combustivelService.createCombustivel(request);
 
         var location = ServletUriComponentsBuilder
@@ -36,27 +37,30 @@ public class CombustivelController {
                 .buildAndExpand(response.id())
                 .toUri();
 
-        log.info("Combustível criado com sucesso");
+        log.info("Combustível com o id: {} criado com sucesso", response.id());
         log.debug("Resposta um novo combustível: {}", response);
         return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping
     @Operation(summary = "Listar todos os combustíveis")
-    public ResponseEntity<List<CombustivelResponse>> findAll(@RequestParam(defaultValue = "ATIVAS")
-                                                                 StatusFiltro status) {
-        log.info("Buscando todos as combustíveis.");
-        var response = combustivelService.listarCombustivel(status);
+    public ResponseEntity<List<CombustivelResponse>> listarCombustiveis(@RequestParam(defaultValue = "ATIVAS")
+                                                                        StatusFiltro status) {
+        log.debug("Buscando todos as combustíveis com o status: {}.", status);
+        var response = combustivelService.listarCombustiveis(status);
 
+        log.debug("Consulta de todos os combustiveis com o status: {} realizada com sucesso", status);
+        log.debug("A consulta de todos os combustiveis retornou com o tamanho de: {} valores", response.size());
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar combustível por id")
     public ResponseEntity<CombustivelResponse> findById(@PathVariable Long id) {
-        log.info("Buscando o combustível por id: {}", id);
+        log.debug("Buscando o combustível por id: {}", id);
         var response = combustivelService.findCombustivelById(id);
 
+        log.info("Busca do combustivel com id: {} realizada com sucesso", id);
         log.debug("Resposta do combustível por id: {}", response);
         return ResponseEntity.ok(response);
     }
@@ -64,31 +68,22 @@ public class CombustivelController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar combustível buscando por id")
     public ResponseEntity<CombustivelResponse> update(@RequestBody @Valid CombustivelRequest request, @PathVariable Long id) {
-        log.info("Atualizando o combustível por id: {}", id);
+        log.debug("Atualizando o combustível com id: {} para o corpo: {}", id, request);
         var response = combustivelService.updateCombustivel(request, id);
 
-
+        log.info("Combustivel com o id: {} atualizado com sucesso", id);
         log.debug("Resposta para atualizar  o combustível por id: {}", response);
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/ativar/{id}")
-    @Operation(summary = "Deletar um combustível buscando por id")
-    public ResponseEntity<CombustivelResponse> ativar(@PathVariable Long id) {
-        log.info("Deletando o combustível por id: {}", id);
-        var response = combustivelService.alterarStatus(id, false);
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "Alterar o status de um combustível")
+    public ResponseEntity<CombustivelResponse> alterarStatus(@PathVariable Long id, @RequestBody @Valid StatusRequest request) {
+        log.debug("Alterando status do combustível com id: {} para o status: {}", id, request.ativo());
+        var response = combustivelService.alterarStatus(id, request.ativo());
 
-        log.info("Combustível deletado com sucesso. Id: {}", id);
-        return ResponseEntity.ok(response);
-    }
-
-    @PatchMapping("/inativar/{id}")
-    @Operation(summary = "Deletar um combustível buscando por id")
-    public ResponseEntity<CombustivelResponse> inativar(@PathVariable Long id) {
-        log.info("Deletando o combustível por id: {}", id);
-        var response = combustivelService.alterarStatus(id, true);
-
-        log.info("Combustível deletado com sucesso. Id: {}", id);
+        log.info("Status do combustivel com o id: {} alterado com sucesso", id);
+        log.debug("Resposta da alteração de status para o id: {}. Resposta: {}", id, response);
         return ResponseEntity.ok(response);
     }
 

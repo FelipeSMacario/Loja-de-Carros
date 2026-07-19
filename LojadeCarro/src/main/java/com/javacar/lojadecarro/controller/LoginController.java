@@ -23,8 +23,8 @@ public class LoginController {
     @PostMapping()
     @Operation(summary = "Autenticar usuário")
     public ResponseEntity<UsuarioResponse> autenticar(@RequestBody @Valid LoginRequest loginRequest) {
-        log.info("Iniciando login");
         var usuario = loginService.autenticar(loginRequest);
+        log.info("Autenticação realizada com sucesso");
 
         return ResponseEntity.ok(usuario);
     }

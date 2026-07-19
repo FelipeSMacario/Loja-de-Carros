@@ -1,14 +1,15 @@
 package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.request.MarcaRequest;
+import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.MarcaResponse;
 import com.javacar.lojadecarro.entity.Marca;
 import com.javacar.lojadecarro.enums.StatusFiltro;
-import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.mapper.MarcaMapper;
 import com.javacar.lojadecarro.repository.MarcaRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
 import com.javacar.lojadecarro.validation.StatusValidation;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,18 +27,15 @@ public class MarcaService {
     private final EntityValidation entityValidation;
     private final StatusValidation statusValidation;
 
-    public MarcaResponse createMarca(MarcaRequest request) {
-        log.debug("Inicio da createMarcaService com a response: {}", request);
-        var marca = marcaMapper.toEntity(request);
-        var marcaEntity = marcaRepository.save(marca);
-        log.info("Marca salva com sucesso!");
+    @Transactional
+    public MarcaResponse criar(MarcaRequest request) {
+        var marcaEntity = marcaMapper.toEntity(request);
+        var marca = marcaRepository.save(marcaEntity);
 
-        return marcaMapper.toResponse(marcaEntity);
+        return marcaMapper.toResponse(marca);
     }
 
-    public List<MarcaResponse> listarMarcas(StatusFiltro status) {
-        log.info("Inicio da listarMarcaService");
-
+    public List<MarcaResponse> listar(StatusFiltro status) {
         var listaMarcas =
                 switch (status) {
                     case TODAS -> marcaRepository.findAll();
@@ -51,47 +49,26 @@ public class MarcaService {
                 .toList();
     }
 
-    public MarcaResponse findMarcaById(Long id) {
-        log.info("Inicio da findMarcaByIdService com id: {}", id);
-        return marcaRepository.findById(id)
-                .map(marcaMapper::toResponse)
-                .orElseThrow(() -> new NotFoundException(MARCA, id));
+    public MarcaResponse buscarPorId(Long id) {
+        return marcaMapper.toResponse(buscaMarca(id));
     }
 
-    public MarcaResponse updateMarca(MarcaRequest request, Long id) {
-        log.info("Inicio da updateMarcaService com o id: {}", id);
-        return marcaRepository.findById(id)
-                .map(marcaEntity -> {
-                    marcaMapper.toUpdate(request, marcaEntity);
-                    var update = marcaRepository.save(marcaEntity);
-                    return marcaMapper.toResponse(update);
-                }).orElseThrow(() -> new NotFoundException(MARCA, id));
+    @Transactional
+    public MarcaResponse atualizar(MarcaRequest request, Long id) {
+        var marca = buscaMarca(id);
+        marcaMapper.toUpdate(request, marca);
+        return marcaMapper.toResponse(marca);
     }
 
-    public MarcaResponse alterarStatus(Long id, boolean status) {
-        log.info("Inicio da deleteMarcaService com o id: {}", id);
-        var marcaFiltrada = entityValidation.obterOuLancarErro(
-                marcaRepository.findById(id),
-                MARCA,
-                id
-        );
-        statusValidation.defineValidacao(
-                status,
-                MARCA,
-                marcaFiltrada
-        );
-        marcaFiltrada.setAtivo(false);
-
-        var marcaAtualizada = marcaRepository.save(marcaFiltrada);
-
-        log.info("Marca com o ID: {} foi desativada", id);
-        return marcaMapper.toResponse(marcaAtualizada);
+    @Transactional
+    public MarcaResponse alterarStatus(Long id, StatusRequest request) {
+        var marca = buscaMarca(id);
+        marca.alterarStatus(request.ativo());
+        return marcaMapper.toResponse(marca);
 
     }
 
     public Marca buscaMarca(Long id) {
-        log.info("Inicio da buscaMarcaService com o id: {}", id);
-        return marcaRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException(MARCA, id));
+        return entityValidation.obterOuLancarErro(marcaRepository.findById(id), MARCA, id);
     }
 }

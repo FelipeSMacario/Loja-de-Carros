@@ -1,14 +1,14 @@
 package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.request.OpcionalRequest;
+import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.OpcionalResponse;
 import com.javacar.lojadecarro.entity.Opcional;
 import com.javacar.lojadecarro.enums.StatusFiltro;
-import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.mapper.OpcionalMapper;
 import com.javacar.lojadecarro.repository.OpcionalRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
-import com.javacar.lojadecarro.validation.StatusValidation;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -25,20 +25,16 @@ public class OpcionalService {
     private final OpcionalRepository opcionalRepository;
     private final OpcionalMapper opcionalMapper;
     private final EntityValidation entityValidation;
-    private final StatusValidation statusValidation;
 
-    public OpcionalResponse createKit(OpcionalRequest request) {
-        log.debug("Inicio da createKitService com a response: {}", request);
-        var kitEntity = opcionalMapper.toEntity(request);
-        var kitResponse = opcionalRepository.save(kitEntity);
+    @Transactional
+    public OpcionalResponse criar(OpcionalRequest request) {
+        var opcionalEntity = opcionalMapper.toEntity(request);
+        var opcional = opcionalRepository.save(opcionalEntity);
 
-        log.info("Kit salva com sucesso!");
-
-        return opcionalMapper.toResponse(kitResponse);
+        return opcionalMapper.toResponse(opcional);
     }
 
-    public List<OpcionalResponse> listarOpcionais(StatusFiltro status) {
-        log.info("Inicio da listarKitService");
+    public List<OpcionalResponse> listar(StatusFiltro status) {
         var listaOpcionais =
                 switch (status) {
                     case TODAS -> opcionalRepository.findAll();
@@ -52,49 +48,35 @@ public class OpcionalService {
 
     }
 
-    public OpcionalResponse filtrarKit(Long id) {
-        log.info("Inicio da findKitByIdService com id: {}", id);
-        return opcionalRepository.findById(id)
-                .map(opcionalMapper::toResponse)
-                .orElseThrow(() -> new NotFoundException(OPCIONAL, id));
+    public OpcionalResponse buscarPorId(Long id) {
+        return opcionalMapper.toResponse(buscaOpcional(id));
     }
 
 
-    public OpcionalResponse updateKit(OpcionalRequest request, Long id) {
-        log.info("Inicio da updateKitService com o id: {}", id);
-        return opcionalRepository.findById(id)
-                .map(kitEntity -> {
-                    opcionalMapper.toUpdate(request, kitEntity);
-                    var update = opcionalRepository.save(kitEntity);
-                    log.info("Kit atualizado com sucesso!");
-                    return opcionalMapper.toResponse(update);
-                }).orElseThrow(() -> new NotFoundException(OPCIONAL, id));
+    @Transactional
+    public OpcionalResponse atualizar(OpcionalRequest request, Long id) {
+        var opcional = buscaOpcional(id);
+        opcionalMapper.toUpdate(request, opcional);
+
+        return opcionalMapper.toResponse(opcional);
     }
 
-    public OpcionalResponse alterarStatus(Long id, boolean status) {
-        log.info("Inicio da deleteKitService com o id: {}", id);
-        var opcionalFiltrado = entityValidation.obterOuLancarErro(
-                opcionalRepository.findById(id),
-                OPCIONAL,
-                id
-        );
+    @Transactional
+    public OpcionalResponse alterarStatus(Long id, StatusRequest request) {
+        var opcional = buscaOpcional(id);
+        opcional.alteraStatus(request.ativo());
 
-        statusValidation.defineValidacao(
-                status,
-                OPCIONAL,
-                opcionalFiltrado
-        );
-
-        opcionalFiltrado.setAtivo(status);
-        var opcionalAtualizado = opcionalRepository.save(opcionalFiltrado);
-
-        log.info("Opcional com o ID: {} foi desativado", id);
-        return opcionalMapper.toResponse(opcionalAtualizado);
-
-
+        return opcionalMapper.toResponse(opcional);
     }
 
     public List<Opcional> buscarOpcionais(List<Long> ids) {
-      return opcionalRepository.findAllByIdIn(ids);
+        return opcionalRepository.findAllByIdIn(ids);
+    }
+
+    public Opcional buscaOpcional(Long id) {
+        return entityValidation.obterOuLancarErro(
+                opcionalRepository.findById(id),
+                OPCIONAL,
+                id);
     }
 }
