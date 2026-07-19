@@ -4,8 +4,8 @@
 //import com.javacar.lojadecarro.dto.request.OpcionalRequest;
 //import com.javacar.lojadecarro.dto.response.OpcionalResponse;
 //import com.javacar.lojadecarro.exception.OpcionalException;
-//import com.javacar.lojadecarro.factory.kit.KitRequestFactory;
-//import com.javacar.lojadecarro.factory.kit.KitResponseFactory;
+//import com.javacar.lojadecarro.factory.Opcional.KitRequestFactory;
+//import com.javacar.lojadecarro.factory.Opcional.KitResponseFactory;
 //import com.javacar.lojadecarro.service.OpcionalService;
 //import org.junit.jupiter.api.DisplayName;
 //import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@
 //    private OpcionalService opcionalService;
 //
 //    @Test
-//    @DisplayName("Deve cadastrar um kit")
+//    @DisplayName("Deve cadastrar um Opcional")
 //    void deveCadastrarUmKit() throws Exception {
 //        //Arrange
 //        var request = criarKitRequest();
@@ -64,7 +64,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve retornar 400 ao cadastrar um kit sem id do carro")
+//    @DisplayName("Deve retornar 400 ao cadastrar um Opcional sem id do carro")
 //    void deveRetornar400aoCadastrarUmKitSemCarroId() throws Exception {
 //        //Arrange
 //        var request = KitRequestFactory.criarRequest().comTodosOsCampos().comId(null).build();
@@ -81,7 +81,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve retornar 404 ao buscar kit com ID do carro invalido")
+//    @DisplayName("Deve retornar 404 ao buscar Opcional com ID do carro invalido")
 //    void deveRetornar404aoCadastrarUmKitComIDInvalido() throws Exception {
 //        //Arrange
 //        var request = criarKitRequest();
@@ -127,7 +127,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve buscar um kit por ID")
+//    @DisplayName("Deve buscar um Opcional por ID")
 //    void deveBuscarUmKitPorID() throws Exception {
 //        //Arrange
 //        var response = criarKitResponse();
@@ -145,7 +145,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve retornar 404 ao buscar um kit por ID")
+//    @DisplayName("Deve retornar 404 ao buscar um Opcional por ID")
 //    void deveRetornar404aoBuscarUmKitPorID() throws Exception {
 //        //Arrange
 //
@@ -160,7 +160,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve atualizar o kit")
+//    @DisplayName("Deve atualizar o Opcional")
 //    void deveAtualizarUmKit() throws Exception {
 //        //Arrange
 //        var request = criarKitRequest();
@@ -182,7 +182,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve retornar 400 na atualização do kit ao buscar o kit sem id do carro")
+//    @DisplayName("Deve retornar 400 na atualização do Opcional ao buscar o Opcional sem id do carro")
 //    void deveRetornar400aoCadastrarUmKitSemId() throws Exception {
 //        //Arrange
 //        var request = KitRequestFactory.criarRequest().comTodosOsCampos().comId(null).build();
@@ -198,7 +198,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve retornar 404 na atualização do kit ao buscar o kit com o id do carro invalido")
+//    @DisplayName("Deve retornar 404 na atualização do Opcional ao buscar o Opcional com o id do carro invalido")
 //    void deveRetornar404aoCadastrarUmKitComIdInvalido() throws Exception {
 //        //Arrange
 //        var request = criarKitRequest();
@@ -221,7 +221,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve deletar um kit")
+//    @DisplayName("Deve deletar um Opcional")
 //    void deveDeletarUmKit() throws Exception {
 //        //Arrange
 //        //Act + Assert
@@ -234,7 +234,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve retornar 404 ao buscar um kit com id do carro invalido")
+//    @DisplayName("Deve retornar 404 ao buscar um Opcional com id do carro invalido")
 //    void deveRetornar404aoCadastrarUmKitSemIdComIdInvalido() throws Exception {
 //        //Arrange
 //        doThrow(new OpcionalException(ID_INVALIDO))

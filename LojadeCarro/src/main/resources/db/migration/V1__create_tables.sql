@@ -158,11 +158,7 @@ CREATE TABLE veiculo
             REFERENCES usuario (id),
 
     CONSTRAINT uk_veiculo_placa
-        UNIQUE (placa),
-
-    CONSTRAINT fk_veiculo_status
-        FOREIGN KEY (status_veiculo_id)
-            REFERENCES status_veiculo (id)
+        UNIQUE (placa)
 );
 CREATE TABLE imagem
 (
@@ -269,9 +265,6 @@ CREATE INDEX idx_veiculo_combustivel
 
 CREATE INDEX idx_veiculo_cor
     ON veiculo (cor_id);
-
-CREATE INDEX idx_veiculo_status
-    ON veiculo (status_veiculo_id);
 
 CREATE INDEX idx_veiculo_data_cadastro
     ON veiculo (data_cadastro);

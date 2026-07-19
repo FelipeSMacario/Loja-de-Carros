@@ -7,9 +7,9 @@
 //import com.javacar.lojadecarro.exception.CarroException;
 //import com.javacar.lojadecarro.exception.KitException;
 //import com.javacar.lojadecarro.factory.carro.CarroEntityFactory;
-//import com.javacar.lojadecarro.factory.kit.KitEntityFactory;
-//import com.javacar.lojadecarro.factory.kit.KitRequestFactory;
-//import com.javacar.lojadecarro.factory.kit.KitResponseFactory;
+//import com.javacar.lojadecarro.factory.Opcional.KitEntityFactory;
+//import com.javacar.lojadecarro.factory.Opcional.KitRequestFactory;
+//import com.javacar.lojadecarro.factory.Opcional.KitResponseFactory;
 //import com.javacar.lojadecarro.mapper.KitMapper;
 //import com.javacar.lojadecarro.repository.KitRepository;
 //import org.junit.jupiter.api.DisplayName;
@@ -44,7 +44,7 @@
 //    private KitService kitService;
 //
 //    @Test
-//    @DisplayName("Deve cadastrar um kit")
+//    @DisplayName("Deve cadastrar um Opcional")
 //    void deveCadastrarUmKit() {
 //        //Arrange
 //        var request = criarKitRequest();
@@ -84,7 +84,7 @@
 //
 //
 //    @Test
-//    @DisplayName("Deve lançar uma exceção ao cadastrar um kit")
+//    @DisplayName("Deve lançar uma exceção ao cadastrar um Opcional")
 //    void deveLancarUmaExcecaoAoCadastrarUmKit() {
 //        //Arrange
 //        var request = KitRequestFactory
@@ -174,7 +174,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve filtrar um kit por ID")
+//    @DisplayName("Deve filtrar um Opcional por ID")
 //    void deveFiltrarUmKitPorID() {
 //        //Arrange
 //        var entity = criarKitEntity();
@@ -199,7 +199,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve lançar uma exceção ao filtrar um kit por ID")
+//    @DisplayName("Deve lançar uma exceção ao filtrar um Opcional por ID")
 //    void deveLancarUmaExcecaoAoFiltrarUmKitPorID() {
 //        //Arrange
 //        when(kitRepository.findById(ID_INVALIDO))
@@ -218,7 +218,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve atualizar um kit")
+//    @DisplayName("Deve atualizar um Opcional")
 //    void deveAtualizarUmKit() {
 //        //Arrange
 //        var request = KitRequestFactory
@@ -294,7 +294,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve lançar uma exceção ao atualizar um kit")
+//    @DisplayName("Deve lançar uma exceção ao atualizar um Opcional")
 //    void deveLancarUmaExcecaoAoAtualizarUmKit() {
 //        //Arrange
 //        var request = criarKitRequest();
@@ -315,7 +315,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve deletar um kit")
+//    @DisplayName("Deve deletar um Opcional")
 //    void deveDeletarUmKit() {
 //        //Arrange
 //        var entity = criarKitEntity();
@@ -329,7 +329,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve lançar uma exceção ao deletar um kit")
+//    @DisplayName("Deve lançar uma exceção ao deletar um Opcional")
 //    void deveLancarUmaExcecaoAoDeletarUmKit() {
 //        //Arrange
 //        when(kitRepository.findById(ID_INVALIDO))
