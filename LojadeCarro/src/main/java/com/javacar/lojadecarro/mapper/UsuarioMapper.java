@@ -13,10 +13,14 @@ import org.mapstruct.MappingTarget;
 import java.util.List;
 import java.util.Set;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = RoleMapper.class)
 public interface UsuarioMapper {
+
     Usuario toEntity(UsuarioRequest usuarioRequest);
-    Usuario toUpdate(UsuarioRequest usuarioRequest, @MappingTarget Usuario usuario);
+
+    Usuario toUpdate(UsuarioRequest usuarioRequest,
+                     @MappingTarget Usuario usuario);
+
     UsuarioResponse toResponse(Usuario usuario);
 
     @Mapping(target = "roles", source = "roles")
@@ -26,8 +30,10 @@ public interface UsuarioMapper {
         return roles.stream()
                 .map(usuarioRole -> new RoleResponse(
                         usuarioRole.getRole().getId(),
-                        usuarioRole.getRole().getNome()
+                        usuarioRole.getRole().getNome(),
+                        usuarioRole.getRole().isAtivo()
                 ))
                 .toList();
     }
+
 }

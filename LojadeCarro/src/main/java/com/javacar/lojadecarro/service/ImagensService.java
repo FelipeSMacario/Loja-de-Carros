@@ -26,7 +26,7 @@ public class ImagensService {
     private final StorageService storageService;
 
     @Transactional
-    public List<Imagem> create(MultipartFile[] files, Veiculo veiculo)
+    public List<Imagem> criar(MultipartFile[] files, Veiculo veiculo)
             throws IOException {
 
         var imagens = new ArrayList<Imagem>();

@@ -6,5 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record OpcionalResponse(@Schema(example = "1", description = "Id do opcional")
                                Long id,
                                @Schema(example = "Freio ABS", description = "Nome do opcional")
-                               String nome) {
+                               String nome,
+                               @Schema(example = "true", description = "Status da marca")
+                               boolean ativo) {
 }

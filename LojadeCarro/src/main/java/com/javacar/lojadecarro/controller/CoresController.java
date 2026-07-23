@@ -42,13 +42,13 @@ public class CoresController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todas as cores")
+    @Operation(summary = "Listar todas as cor")
     public ResponseEntity<List<CorResponse>> listar(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
-        log.debug("Buscando todas as cores com o status: {}.", status);
+        log.debug("Buscando todas as cor com o status: {}.", status);
         var response = coresService.listar(status);
 
-        log.debug("Consulta de todas as cores com o status: {} realizada com sucesso", status);
-        log.debug("A consulta de todos as cores retornou com o tamanho de: {} valores", response.size());
+        log.debug("Consulta de todas as cor com o status: {} realizada com sucesso", status);
+        log.debug("A consulta de todos as cor retornou com o tamanho de: {} valores", response.size());
         return ResponseEntity.ok(response);
     }
 

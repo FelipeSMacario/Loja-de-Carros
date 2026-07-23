@@ -133,7 +133,7 @@ public class Veiculo {
         this.statusVeiculo = novoStatus;
     }
 
-    public boolean possuiOpcional(Long idOpcional) {
+    private boolean possuiOpcional(Long idOpcional) {
         return this.getOpcionais().stream().anyMatch(op -> op.getOpcional().getId().equals(idOpcional));
     }
 

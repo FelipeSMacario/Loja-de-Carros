@@ -9,6 +9,8 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface CorMapper {
     Cor toEntity(CorRequest request);
-    Cor toUpdate(CorRequest request,  @MappingTarget Cor cor);
+
+    void toUpdate(CorRequest request, @MappingTarget Cor cor);
+
     CorResponse toResponse(Cor cor);
 }

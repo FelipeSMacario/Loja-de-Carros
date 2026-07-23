@@ -9,6 +9,7 @@ import org.mapstruct.MappingTarget;
 @Mapper(componentModel = "spring")
 public interface MarcaMapper {
     Marca toEntity(MarcaRequest marcaRequest);
+
     void toUpdate(MarcaRequest marcaRequest, @MappingTarget Marca marcaEntity);
 
     MarcaResponse toResponse(Marca marca);

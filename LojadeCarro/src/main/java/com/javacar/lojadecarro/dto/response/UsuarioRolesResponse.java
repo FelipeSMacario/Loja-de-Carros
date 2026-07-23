@@ -7,11 +7,11 @@ import java.util.List;
 @Schema(description = "Resposta para o vinculo das roles")
 public record UsuarioRolesResponse
         (@Schema(example = "1", description = "Id do usuário")
-         String id,
+         Long id,
          @Schema(example = "Felipe", description = "Nome do usuário")
          String nome,
          @Schema(example = "15135736744", description = "Cpf do usuário")
          String cpf,
-         @Schema(example = "ADMIN", description = "Nome da role")
+         @Schema(example = "{id: 1, nome: ADMIN, ativo: true}", description = "Roles que o usuario possui")
          List<RoleResponse> roles) {
 }

@@ -30,7 +30,7 @@ public class Usuario extends EntidadeBase implements UserDetails, Serializable {
     @Column(unique = true, nullable = false, length = 11)
     private String cpf;
 
-    @Column(name = "data_nascimento", nullable = false)
+    @Column(nullable = false)
     private LocalDate dataNascimento;
 
     @Column(unique = true, nullable = false, length = 255)

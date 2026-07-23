@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.request.CombustivelRequest;
+import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.CombustivelResponse;
 import com.javacar.lojadecarro.entity.Combustivel;
 import com.javacar.lojadecarro.enums.StatusFiltro;
@@ -26,7 +27,7 @@ public class CombustivelService {
     private final EntityValidation entityValidation;
 
     @Transactional
-    public CombustivelResponse createCombustivel(CombustivelRequest request) {
+    public CombustivelResponse criar(CombustivelRequest request) {
         var combustivelEntity = combustivelMapper.toEntity(request);
         var combustivel = combustivelRepository.save(combustivelEntity);
 
@@ -46,12 +47,12 @@ public class CombustivelService {
                 .toList();
     }
 
-    public CombustivelResponse findCombustivelById(Long id) {
+    public CombustivelResponse buscaPorId(Long id) {
         return combustivelMapper.toResponse(buscaCombustivel(id));
     }
 
     @Transactional
-    public CombustivelResponse updateCombustivel(CombustivelRequest request, Long id) {
+    public CombustivelResponse atualizar(CombustivelRequest request, Long id) {
         var combustivel = buscaCombustivel(id);
         combustivelMapper.toUpdate(request, combustivel);
 
@@ -59,9 +60,9 @@ public class CombustivelService {
     }
 
     @Transactional
-    public CombustivelResponse alterarStatus(Long id, boolean status) {
+    public CombustivelResponse alterarStatus(Long id, StatusRequest request) {
         var combustivel = buscaCombustivel(id);
-        combustivel.alteraStatus(status);
+        combustivel.alteraStatus(request.ativo());
 
         return combustivelMapper.toResponse(combustivel);
     }

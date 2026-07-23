@@ -29,7 +29,7 @@ public class CombustivelController {
     public ResponseEntity<CombustivelResponse> createCombustivel(@RequestBody
                                                                  @Valid CombustivelRequest request) {
         log.debug("Cadastrando um novo combustível com o corpo: {}", request);
-        var response = combustivelService.createCombustivel(request);
+        var response = combustivelService.criar(request);
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -58,7 +58,7 @@ public class CombustivelController {
     @Operation(summary = "Buscar combustível por id")
     public ResponseEntity<CombustivelResponse> findById(@PathVariable Long id) {
         log.debug("Buscando o combustível por id: {}", id);
-        var response = combustivelService.findCombustivelById(id);
+        var response = combustivelService.buscaPorId(id);
 
         log.info("Busca do combustivel com id: {} realizada com sucesso", id);
         log.debug("Resposta do combustível por id: {}", response);
@@ -69,7 +69,7 @@ public class CombustivelController {
     @Operation(summary = "Atualizar combustível buscando por id")
     public ResponseEntity<CombustivelResponse> update(@RequestBody @Valid CombustivelRequest request, @PathVariable Long id) {
         log.debug("Atualizando o combustível com id: {} para o corpo: {}", id, request);
-        var response = combustivelService.updateCombustivel(request, id);
+        var response = combustivelService.atualizar(request, id);
 
         log.info("Combustivel com o id: {} atualizado com sucesso", id);
         log.debug("Resposta para atualizar  o combustível por id: {}", response);
@@ -78,9 +78,10 @@ public class CombustivelController {
 
     @PatchMapping("/{id}/status")
     @Operation(summary = "Alterar o status de um combustível")
-    public ResponseEntity<CombustivelResponse> alterarStatus(@PathVariable Long id, @RequestBody @Valid StatusRequest request) {
+    public ResponseEntity<CombustivelResponse> alterarStatus(@PathVariable Long id,
+                                                             @RequestBody @Valid StatusRequest request) {
         log.debug("Alterando status do combustível com id: {} para o status: {}", id, request.ativo());
-        var response = combustivelService.alterarStatus(id, request.ativo());
+        var response = combustivelService.alterarStatus(id, request);
 
         log.info("Status do combustivel com o id: {} alterado com sucesso", id);
         log.debug("Resposta da alteração de status para o id: {}. Resposta: {}", id, response);

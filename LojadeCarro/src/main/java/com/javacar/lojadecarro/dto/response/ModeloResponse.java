@@ -7,6 +7,8 @@ public record ModeloResponse(@Schema(example = "1", description = "ID do modelo"
                              Long id,
                              @Schema(example = "Onix", description = "Nome do modelo")
                              String nome,
+                             @Schema(example = "true", description = "Status do modelo")
+                             boolean ativo,
                              @Schema(example = "{ \"id\": 3, \"nome\": \"Chevrolet\", \"url\": \"https://www.chevrolet.com.br\" }")
                              MarcaResponse marcaResponse) {
 }

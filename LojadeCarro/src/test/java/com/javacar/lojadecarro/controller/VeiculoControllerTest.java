@@ -3,8 +3,8 @@
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import com.javacar.lojadecarro.dto.request.CarroRequest;
 //import com.javacar.lojadecarro.dto.response.CarroResponse;
-//import com.javacar.lojadecarro.factory.carro.CarroRequestFactory;
-//import com.javacar.lojadecarro.factory.carro.CarroResponseFactory;
+//import com.javacar.lojadecarro.factory.veiculo.CarroRequestFactory;
+//import com.javacar.lojadecarro.factory.veiculo.CarroResponseFactory;
 //import com.javacar.lojadecarro.service.CarroService;
 //import org.junit.jupiter.api.DisplayName;
 //import org.junit.jupiter.api.Test;
@@ -31,7 +31,7 @@
 //@WebMvcTest(CarroController.class)
 //@AutoConfigureMockMvc(addFilters = false)
 //public class VeiculoControllerTest {
-//    private static final String URL = "/carro";
+//    private static final String URL = "/veiculo";
 //    public static final String VENDIDO = "/vendido/";
 //    @Autowired
 //    private MockMvc mockMvc;
@@ -67,7 +67,7 @@
 //
 //
 //    @Test
-//    @DisplayName("Deve lançar 400 ao cadastrar um carro")
+//    @DisplayName("Deve lançar 400 ao cadastrar um veiculo")
 //    void deveLancar400aoCadastrarCompra() throws Exception {
 //        //Arrange
 //        var request = CarroRequestFactory
@@ -112,7 +112,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve filtrar um carro por ID")
+//    @DisplayName("Deve filtrar um veiculo por ID")
 //    void deveFiltrarCarroPorID() throws Exception {
 //        //Arrange
 //        var response = criarCarroResponse();
@@ -130,7 +130,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve lançar 404 ao buscar um carro por ID")
+//    @DisplayName("Deve lançar 404 ao buscar um veiculo por ID")
 //    void deveLancar404aoBuscarCarroPorID() throws Exception {
 //        //Arrange
 //        when(carroService.findCarroById(ID_INVALIDO))
@@ -147,7 +147,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve atualizar o carro pod ID")
+//    @DisplayName("Deve atualizar o veiculo pod ID")
 //    void deveAtualizarCarroPorID() throws Exception {
 //        //Arrange
 //        var request = criarCarroRequest();
@@ -168,7 +168,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve lançar 400 ao atualizar um carro")
+//    @DisplayName("Deve lançar 400 ao atualizar um veiculo")
 //    void deveLancar400aoAtualizarCarroPorID() throws Exception {
 //        //Arrange
 //        var request = CarroRequestFactory
@@ -187,7 +187,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve lançar 404 ao atualizar um carro")
+//    @DisplayName("Deve lançar 404 ao atualizar um veiculo")
 //    void deveLancar404aoAtualizarCarroPorID() throws Exception {
 //        //Arrange
 //        var request = criarCarroRequest();
@@ -207,7 +207,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve marcar o carro como vendido")
+//    @DisplayName("Deve marcar o veiculo como vendido")
 //    void deveMarcarCarroComoVendido() throws Exception {
 //        //Arrange
 //        var request = criarCarroRequest();
@@ -227,7 +227,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve lançar 400 o carro como vendido")
+//    @DisplayName("Deve lançar 400 o veiculo como vendido")
 //    void deveLancar400aoMarcarCarroComoVendido() throws Exception {
 //        //Arrange
 //        var request = CarroRequestFactory
@@ -247,7 +247,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve lançar 404 o carro como vendido")
+//    @DisplayName("Deve lançar 404 o veiculo como vendido")
 //    void deveLancar404aoMarcarCarroComoVendido() throws Exception {
 //        //Arrange
 //        var request = CarroRequestFactory
@@ -269,7 +269,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve deletar o carro por ID")
+//    @DisplayName("Deve deletar o veiculo por ID")
 //    void deveDeletarCarroPorID() throws Exception {
 //        //Arrange
 //        doNothing().when(carroService).deleteCarro(ID_VALIDO);
@@ -281,7 +281,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve lançar 404 ao deletar o carro por ID")
+//    @DisplayName("Deve lançar 404 ao deletar o veiculo por ID")
 //    void deveLancar404aoDeletarCarroPorId() throws Exception {
 //        //Arrange
 //        doThrow(new VeiculoNotFoundException(ID_INVALIDO))

@@ -2,7 +2,7 @@ package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.request.AlterarStatusRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
-import com.javacar.lojadecarro.dto.response.ImagensResponse;
+import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.service.VeiculoService;
@@ -37,7 +37,7 @@ public class VeiculoController {
     @Operation(summary = "Cadastrar um novo veiculo")
     public ResponseEntity<VeiculoResponse> criar(@RequestBody
                                                  @Valid VeiculoRequest request,
-                                                 @RequestParam("files") MultipartFile[] files) throws IOException {
+                                                 @RequestPart("files") MultipartFile[] files) throws IOException {
         log.debug("Cadastrar um novo veiculo com o corpo: {}", request);
         var response = veiculoService.criar(request, files);
 
@@ -100,13 +100,13 @@ public class VeiculoController {
     }
 
     @GetMapping("/{id}/imagens")
-    @Operation(summary = "Listar as imagens do veículo")
-    public ResponseEntity<List<ImagensResponse>> listarImagens(@PathVariable Long id) {
-        log.debug("Listando as imagens do veiculo com o id: {}", id);
+    @Operation(summary = "Listar as imagem do veículo")
+    public ResponseEntity<List<ImagemResponse>> listarImagens(@PathVariable Long id) {
+        log.debug("Listando as imagem do veiculo com o id: {}", id);
         var response = veiculoService.listarImagens(id);
 
-        log.debug("Consulta de todas as imagens para o veiculo com id: {} realizada com sucesso", id);
-        log.debug("A consulta de todas as imagens do veiculo retornou com o tamanho de: {} valores", response.size());
+        log.debug("Consulta de todas as imagem para o veiculo com id: {} realizada com sucesso", id);
+        log.debug("A consulta de todas as imagem do veiculo retornou com o tamanho de: {} valores", response.size());
 
         return ResponseEntity.ok(response);
     }

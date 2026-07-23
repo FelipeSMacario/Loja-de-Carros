@@ -1,8 +1,8 @@
 //package com.javacar.lojadecarro.controller;
 //
 //import com.javacar.lojadecarro.dto.response.ImagensResponse;
-//import com.javacar.lojadecarro.factory.imagens.ImagensRequestFactory;
-//import com.javacar.lojadecarro.factory.imagens.ImagensResponseFactory;
+//import com.javacar.lojadecarro.factory.imagem.ImagensRequestFactory;
+//import com.javacar.lojadecarro.factory.imagem.ImagensResponseFactory;
 //import com.javacar.lojadecarro.service.ImagensService;
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import org.junit.jupiter.api.DisplayName;
@@ -34,7 +34,7 @@
 //@WebMvcTest(ImagensController.class)
 //@AutoConfigureMockMvc(addFilters = false)
 //class ImagensControllerTest {
-//    private static final String URL = "/imagens";
+//    private static final String URL = "/imagem";
 //    @Autowired
 //    private MockMvc mockMvc;
 //
@@ -124,7 +124,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve listar as imagens pelo ID do carro")
+//    @DisplayName("Deve listar as imagem pelo ID do veiculo")
 //    void deveListarImagemPorID() throws Exception {
 //        //Arrange
 //        var response = List.of(criarImagemResponse(), ImagensResponseFactory
@@ -137,7 +137,7 @@
 //                .thenReturn(response);
 //        //Act + Assert
 //        mockMvc.perform(
-//                        get(URL + "/carro/{idVeiculo}", ID_VALIDO)
+//                        get(URL + "/veiculo/{idVeiculo}", ID_VALIDO)
 //                ).andExpect(status().isOk())
 //                .andExpect(jsonPath("$.length()").value(2))
 //                .andExpect(jsonPath("$[0].id").value(ID_VALIDO))
@@ -150,14 +150,14 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve retornar 404 ao buscar imagens do carro por ID")
+//    @DisplayName("Deve retornar 404 ao buscar imagem do veiculo por ID")
 //    void deveRetornar404AoBuscarImagemPorID() throws Exception {
 //        //Arrange
 //        when(imagensService.listarImagens(ID_INVALIDO))
 //                .thenThrow(new ImagemNotFoundException(ID_INVALIDO));
 //        //Act + Assert
 //        mockMvc.perform(
-//                get(URL + "/carro/{idVeiculo}", ID_INVALIDO)
+//                get(URL + "/veiculo/{idVeiculo}", ID_INVALIDO)
 //        ).andExpect(status().isNotFound())
 //                .andExpect(jsonPath("$.status").value("404"))
 //                .andExpect(jsonPath("$.message").value(String.format(ID_NOT_FOUND, IMAGENS, ID_INVALIDO)));

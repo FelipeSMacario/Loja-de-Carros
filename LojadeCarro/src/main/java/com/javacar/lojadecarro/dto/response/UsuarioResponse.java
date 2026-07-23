@@ -10,5 +10,7 @@ public record UsuarioResponse(@Schema(example = "1", description = "ID da usuár
                               @Schema(example = "15153769788", description = "CPF do usuário")
                               String cpf,
                               @Schema(example = "felipesmacario@gmail.com", description = "Email do usuário")
-                              String email) {
+                              String email,
+                              @Schema(example = "true", description = "Status da usuário")
+                              boolean ativo) {
 }

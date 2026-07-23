@@ -4,10 +4,12 @@
 //import com.javacar.lojadecarro.dto.response.ImagensResponse;
 //import com.javacar.lojadecarro.entity.Veiculo;
 //import com.javacar.lojadecarro.entity.Imagem;
-//import com.javacar.lojadecarro.factory.carro.CarroEntityFactory;
-//import com.javacar.lojadecarro.factory.imagens.ImagensEntityFactory;
-//import com.javacar.lojadecarro.factory.imagens.ImagensRequestFactory;
-//import com.javacar.lojadecarro.factory.imagens.ImagensResponseFactory;
+//import com.javacar.lojadecarro.factory.helper.ImagemHelper;
+//import com.javacar.lojadecarro.factory.veiculo.CarroEntityFactory;
+//import com.javacar.lojadecarro.factory.imagem.ImagensEntityFactory;
+//import com.javacar.lojadecarro.factory.imagem.ImagensRequestFactory;
+//import com.javacar.lojadecarro.factory.imagem.ImagensResponseFactory;
+//import com.javacar.lojadecarro.mapper.ImagemMapper;
 //import com.javacar.lojadecarro.mapper.ImagensMapper;
 //import com.javacar.lojadecarro.repository.ImagensRepository;
 //import org.junit.jupiter.api.DisplayName;
@@ -39,7 +41,7 @@
 //    @Mock
 //    private ImagensRepository imagensRepository;
 //    @Mock
-//    private ImagensMapper imagensMapper;
+//    private ImagemMapper imagensMapper;
 //    @Mock
 //    private CarroService carroService;
 //    @Mock
@@ -52,13 +54,9 @@
 //    void deveRealizarUploadDeUmaImagem() throws IOException {
 //
 //        // Arrange
-//        Long idVeiculo = ID_VALIDO;
+//        var imagem = ImagemHelper.criarImagemEntity();
 //
-//        var carro = criarCarroEntity();
-//
-//        var imagem = criarImagemEntity();
-//
-//        var response = criarImagemResponse();
+//        var response = ImagemHelper.criarImagemResponse();
 //
 //        MultipartFile file = new MockMultipartFile(
 //                "files",
@@ -70,7 +68,7 @@
 //        MultipartFile[] files = {file};
 //
 //        when(carroService.buscaCarro(idVeiculo))
-//                .thenReturn(carro);
+//                .thenReturn(veiculo);
 //
 //        when(storageService.upload(file, idVeiculo))
 //                .thenReturn("https://bucket/imagens/onix.jpg");
@@ -83,13 +81,13 @@
 //
 //        // Act
 //        List<ImagensResponse> resultado =
-//                imagensService.create(files, idVeiculo);
+//                imagensService.criar(files, idVeiculo);
 //
 //        // Assert
 //        assertThat(resultado)
 //                .hasSize(1);
 //
-////        assertThat(carro.getUrl())
+////        assertThat(veiculo.getUrl())
 ////                .isEqualTo("https://bucket/imagens/onix.jpg");
 //
 //        verify(carroService).buscaCarro(idVeiculo);
@@ -106,7 +104,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve listar as imagens")
+//    @DisplayName("Deve listar as imagem")
 //    void deveListarAsImagens(){
 //        //Arrange
 //        var imagem1 = criarImagemEntity();
@@ -142,7 +140,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve retornar uma exceção ao listar imagens")
+//    @DisplayName("Deve retornar uma exceção ao listar imagem")
 //    void deveRetornarUmaExceao()  {
 //        //Arrange
 //        when(imagensRepository.findByVeiculoId(ID_INVALIDO))

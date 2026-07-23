@@ -10,7 +10,7 @@ import java.util.List;
 
 @Schema(description = "Request para o cadastro de um veiculo")
 public record VeiculoRequest(@Schema(example = "123000", description = "quilometragem do veiculo")
-                             @NotNull Double quilometragem,
+                             @NotNull Integer quilometragem,
                              @Schema(example = "100000", description = "Valor do veiculo")
                              @NotNull BigDecimal valor,
                              @Schema(example = "123", description = "Placa do veiculo")

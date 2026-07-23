@@ -1,7 +1,7 @@
 package com.javacar.lojadecarro.controller;
 
-import com.javacar.lojadecarro.dto.request.VendasRequest;
-import com.javacar.lojadecarro.dto.response.VendasResponse;
+import com.javacar.lojadecarro.dto.request.VendaRequest;
+import com.javacar.lojadecarro.dto.response.VendaResponse;
 import com.javacar.lojadecarro.service.VendasService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +25,7 @@ public class VendaController {
 
     @GetMapping
     @Operation(summary = "Listar todos as vendas")
-    public ResponseEntity<Page<VendasResponse>> listar(@PageableDefault(size = 9) Pageable pageable) {
+    public ResponseEntity<Page<VendaResponse>> listar(@PageableDefault(size = 9) Pageable pageable) {
         log.debug("Buscando todos as vendas");
         var response = vendasService.listar(pageable);
 
@@ -36,7 +36,7 @@ public class VendaController {
 
     @PostMapping
     @Operation(summary = "Cadastrar uma nova venda")
-    public ResponseEntity<VendasResponse> criar(@RequestBody @Valid VendasRequest request) {
+    public ResponseEntity<VendaResponse> criar(@RequestBody @Valid VendaRequest request) {
         log.debug("Cadastrar uma nova venda com o corpo: {}", request);
         var response = vendasService.criar(request);
 

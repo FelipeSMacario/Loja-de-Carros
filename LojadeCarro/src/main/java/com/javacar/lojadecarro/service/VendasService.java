@@ -1,7 +1,7 @@
 package com.javacar.lojadecarro.service;
 
-import com.javacar.lojadecarro.dto.request.VendasRequest;
-import com.javacar.lojadecarro.dto.response.VendasResponse;
+import com.javacar.lojadecarro.dto.request.VendaRequest;
+import com.javacar.lojadecarro.dto.response.VendaResponse;
 import com.javacar.lojadecarro.entity.Usuario;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.exception.business.BusinessException;
@@ -29,7 +29,7 @@ public class VendasService {
     private final VeiculoService veiculoService;
 
     @Transactional
-    public VendasResponse criar(VendasRequest request) {
+    public VendaResponse criar(VendaRequest request) {
         var veiculo = veiculoService.buscaVeiculo(request.veiculoId());
 
         var vendedor = validaVendedor(request.vendedorId(), veiculo);
@@ -47,7 +47,7 @@ public class VendasService {
 
     }
 
-    public Page<VendasResponse> listar(Pageable pageable) {
+    public Page<VendaResponse> listar(Pageable pageable) {
         return vendasRepository.findAll(pageable)
                 .map(vendasMapper::toResponse);
     }

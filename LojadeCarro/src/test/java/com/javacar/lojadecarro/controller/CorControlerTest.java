@@ -1,7 +1,7 @@
 //package com.javacar.lojadecarro.controller;
 //
-//import com.javacar.lojadecarro.factory.cores.CoresRequestFactory;
-//import com.javacar.lojadecarro.factory.cores.CoresResponseFactory;
+//import com.javacar.lojadecarro.factory.cor.CoresRequestFactory;
+//import com.javacar.lojadecarro.factory.cor.CoresResponseFactory;
 //import com.javacar.lojadecarro.service.CoresService;
 //import com.fasterxml.jackson.databind.ObjectMapper;
 //import org.junit.jupiter.api.DisplayName;
@@ -26,7 +26,7 @@
 //@WebMvcTest(CoresController.class)
 //@AutoConfigureMockMvc(addFilters = false)
 //class CorControlerTest {
-//    private static final String URL = "/cores";
+//    private static final String URL = "/cor";
 //
 //    @Autowired
 //    private MockMvc mockMvc;
@@ -87,7 +87,7 @@
 //    }
 //
 //    @Test
-//    @DisplayName("Deve listar as cores")
+//    @DisplayName("Deve listar as cor")
 //    void deveListarAsCores() throws Exception {
 //        //Arrange
 //        var brancoResponse = CoresResponseFactory

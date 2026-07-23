@@ -8,5 +8,5 @@ public record CarroceriaResponse(@Schema(example = "1", description = "ID da car
                                  @Schema(example = "Hatch", description = "Nome da carroceria")
                                  String nome,
                                  @Schema(example = "true", description = "Status da carroceria")
-                                 String ativo) {
+                                 boolean ativo) {
 }

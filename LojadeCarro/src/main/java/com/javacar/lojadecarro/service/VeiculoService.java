@@ -2,14 +2,14 @@ package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.request.AlterarStatusRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
-import com.javacar.lojadecarro.dto.response.ImagensResponse;
+import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.entity.Opcional;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
-import com.javacar.lojadecarro.mapper.ImagensMapper;
+import com.javacar.lojadecarro.mapper.ImagemMapper;
 import com.javacar.lojadecarro.mapper.VeiculoMapper;
 import com.javacar.lojadecarro.repository.VeiculoRepository;
 import jakarta.transaction.Transactional;
@@ -46,7 +46,7 @@ public class VeiculoService {
     private final ImagensService imagensService;
     private final UsuarioService usuarioService;
     private final CombustivelService combustivelService;
-    private final ImagensMapper imagensMapper;
+    private final ImagemMapper imagensMapper;
 
     @Transactional
     public VeiculoResponse criar(VeiculoRequest request, MultipartFile[] files) throws IOException {
@@ -62,8 +62,6 @@ public class VeiculoService {
 
         return veiculoMapper.toResponse(veiculo);
     }
-
-
 
 
     public Page<VeiculoResponse> listar(Pageable pageable, StatusVeiculo statusVeiculo) {
@@ -85,6 +83,7 @@ public class VeiculoService {
     public VeiculoResponse atualizar(VeiculoRequest request, Long id) {
         var veiculo = buscaVeiculo(id);
         veiculoMapper.toUpdate(request, veiculo);
+
         preencherRelacionamentos(request, veiculo);
         return veiculoMapper.toResponse(veiculo);
     }
@@ -102,7 +101,7 @@ public class VeiculoService {
                 .orElseThrow(() -> new NotFoundException(VEICULO, id));
     }
 
-    public List<ImagensResponse> listarImagens(Long id) {
+    public List<ImagemResponse> listarImagens(Long id) {
         return buscaVeiculo(id)
                 .getImagens()
                 .stream()
@@ -112,7 +111,7 @@ public class VeiculoService {
     }
 
     private void adicionarImagens(MultipartFile[] files, Veiculo veiculo) throws IOException {
-        var imagens = imagensService.create(files, veiculo);
+        var imagens = imagensService.criar(files, veiculo);
 
         imagens.forEach(veiculo::adicionarImagem);
     }
@@ -159,6 +158,7 @@ public class VeiculoService {
         validaOpcionaisExistentes(opcionais, ids);
         opcionais.forEach(veiculo::adicionarOpcional);
     }
+
     private void preencherRelacionamentos(VeiculoRequest request, Veiculo veiculoEntity) {
         veiculoEntity.setCarroceria(carroceriaService.buscaCarroceria(request.idCarroceria()));
         veiculoEntity.setCor(coresService.buscaCor(request.idCores()));

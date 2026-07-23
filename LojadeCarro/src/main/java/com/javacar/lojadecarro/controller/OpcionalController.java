@@ -18,7 +18,7 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Opcional")
+@Tag(name = "opcional")
 @RestController
 @RequestMapping("/opcional")
 public class OpcionalController {
@@ -36,7 +36,7 @@ public class OpcionalController {
                 .buildAndExpand(response.id())
                 .toUri();
 
-        log.info("Opcional criado com sucesso com o id: {}", response.id());
+        log.info("opcional criado com sucesso com o id: {}", response.id());
         log.debug("Resposta uma novo opcional: {}", response);
         return ResponseEntity.created(location).body(response);
     }

@@ -10,7 +10,7 @@ import org.mapstruct.MappingTarget;
 public interface CarroceriaMapper {
     Carroceria toEntity(CarroceriaRequest carroceriaRequest);
 
-    Carroceria toUpdate(CarroceriaRequest request, @MappingTarget Carroceria carroceria);
+    void toUpdate(CarroceriaRequest request, @MappingTarget Carroceria carroceria);
 
     CarroceriaResponse toResponse(Carroceria carroceria);
 }
