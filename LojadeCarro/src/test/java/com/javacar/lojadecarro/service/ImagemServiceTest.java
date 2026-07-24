@@ -1,343 +1,356 @@
 package com.javacar.lojadecarro.service;
 
-import com.javacar.lojadecarro.dto.request.ImagensRequest;
-import com.javacar.lojadecarro.dto.response.ImagensResponse;
-import com.javacar.lojadecarro.entity.Carro;
-import com.javacar.lojadecarro.entity.Imagens;
-import com.javacar.lojadecarro.exception.ImagensException;
-import com.javacar.lojadecarro.factory.carro.CarroEntityFactory;
-import com.javacar.lojadecarro.factory.imagens.ImagensEntityFactory;
-import com.javacar.lojadecarro.factory.imagens.ImagensRequestFactory;
-import com.javacar.lojadecarro.factory.imagens.ImagensResponseFactory;
-import com.javacar.lojadecarro.mapper.ImagensMapper;
+import com.javacar.lojadecarro.dto.response.UploadResult;
+import com.javacar.lojadecarro.entity.Imagem;
+import com.javacar.lojadecarro.exception.notfound.NotFoundException;
+import com.javacar.lojadecarro.factory.imagem.ImagemEntityFactory;
 import com.javacar.lojadecarro.repository.ImagensRepository;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static com.javacar.lojadecarro.support.ErrorMessages.ID_NOT_FOUND;
-import static com.javacar.lojadecarro.support.ErrorMessages.IMAGENS;
-import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
+import static com.javacar.lojadecarro.enums.Entidade.IMAGEM;
+import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertNotFoundResponseError;
+import static com.javacar.lojadecarro.factory.helper.ImagemHelper.*;
+import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.criarVeiculoEntity;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("Testes do serviço da imagem")
 class ImagemServiceTest {
     @Mock
     private ImagensRepository imagensRepository;
-    @Mock
-    private ImagensMapper imagensMapper;
-    @Mock
-    private CarroService carroService;
     @Mock
     private StorageService storageService;
     @InjectMocks
     private ImagensService imagensService;
 
-    @Test
-    @DisplayName("Deve realizar upload de uma imagem")
-    void deveRealizarUploadDeUmaImagem() throws IOException {
+    @Nested
+    @DisplayName("Testes referentes ao upload da imagem")
+    class CriarImagem {
+        @Test
+        @DisplayName("Deve realizar upload de uma imagem")
+        void deveRealizarUploadDeUmaImagem() throws IOException {
+            // Arrange
+            var imagemFileArray = criarListImagemFile();
+            var imagemFile = imagemFileArray[0];
+            var imagemFile2 = imagemFileArray[1];
+            var veiculo = criarVeiculoEntity();
+            var upload = criarUploadResult();
+            var upload2 = new UploadResult(
+                    1L + "onix2.jpg",
+                    "uploads",
+                    "onix2.jpg",
+                    "image/jpeg",
+                    200L
+            );
 
-        // Arrange
-        Long idCarro = ID_VALIDO;
+            when(storageService.upload(imagemFile, veiculo.getId()))
+                    .thenReturn(upload);
 
-        var carro = criarCarroEntity();
+            when(storageService.upload(imagemFile2, veiculo.getId()))
+                    .thenReturn(upload2);
 
-        var imagem = criarImagemEntity();
+            when(imagensRepository.saveAll(anyList()))
+                    .thenAnswer(invocation -> invocation.getArgument(0));
+            // Act
+            var resultado = imagensService.criar(imagemFileArray, veiculo);
 
-        var response = criarImagemResponse();
+            // Assert
+            ArgumentCaptor<List<Imagem>> captor =
+                    ArgumentCaptor.forClass(List.class);
 
-        MultipartFile file = new MockMultipartFile(
-                "files",
-                "onix.jpg",
-                "image/jpeg",
-                "conteudo".getBytes()
-        );
+            verify(imagensRepository).saveAll(captor.capture());
 
-        MultipartFile[] files = {file};
+            List<Imagem> imagensSalvas = captor.getValue();
 
-        when(carroService.buscaCarro(idCarro))
-                .thenReturn(carro);
+            assertThat(imagensSalvas).hasSize(2);
 
-        when(storageService.upload(file, idCarro))
-                .thenReturn("https://bucket/imagens/onix.jpg");
+            var imagem = imagensSalvas.getFirst();
 
-        when(imagensRepository.save(any(Imagens.class)))
-                .thenReturn(imagem);
+            assertThat(imagem.getObjectKey())
+                    .isEqualTo(upload.objectKey());
 
-        when(imagensMapper.toResponse(imagem))
-                .thenReturn(response);
+            assertThat(resultado)
+                    .containsExactlyElementsOf(imagensSalvas);
 
-        // Act
-        List<ImagensResponse> resultado =
-                imagensService.create(files, idCarro);
+            assertThat(imagem.getBucket())
+                    .isEqualTo(upload.bucket());
 
-        // Assert
-        assertThat(resultado)
-                .hasSize(1);
+            var primeiraImagem = imagensSalvas.get(0);
+            var segundaImagem = imagensSalvas.get(1);
+            assertThat(primeiraImagem.getObjectKey())
+                    .isEqualTo(upload.objectKey());
 
-        assertThat(carro.getUrl())
-                .isEqualTo("https://bucket/imagens/onix.jpg");
+            assertThat(segundaImagem.getObjectKey())
+                    .isEqualTo(upload2.objectKey());
 
-        verify(carroService).buscaCarro(idCarro);
-        verify(storageService).upload(file, idCarro);
-        verify(imagensRepository).save(any(Imagens.class));
-        verify(imagensMapper).toResponse(imagem);
+            verify(storageService).upload(imagemFile, veiculo.getId());
+            verifyNoMoreInteractions(storageService);
+        }
 
-        verifyNoMoreInteractions(
-                carroService,
-                storageService,
-                imagensRepository,
-                imagensMapper
-        );
+        @Test
+        @DisplayName("Deve lançar exceção ao fazer upload do arquivo")
+        void deveLancarExceaoAoFazerUploadDoArquivo() throws IOException {
+            //Arrange
+            var imagemFileArray = criarImagemFile();
+            var imagemFile = imagemFileArray[0];
+            var veiculo = criarVeiculoEntity();
+
+            when(storageService.upload(imagemFile, veiculo.getId()))
+                    .thenThrow(new IOException());
+
+            //ACT
+            var resultado = assertThrows(IOException.class,
+                    () -> imagensService.criar(imagemFileArray, veiculo));
+            //Assert
+            assertThat(resultado)
+                    .isInstanceOf(IOException.class);
+
+            verify(storageService).upload(imagemFile, veiculo.getId());
+            verifyNoMoreInteractions(storageService);
+
+            verifyNoInteractions(imagensRepository);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao salvar imagem no banco")
+        void deveLancarExcecaoSalvarImagemBanco() throws IOException {
+            //Arrange
+            var imagemFileArray = criarImagemFile();
+            var imagemFile = imagemFileArray[0];
+            var veiculo = criarVeiculoEntity();
+            var upload = criarUploadResult();
+            when(storageService.upload(imagemFile, veiculo.getId()))
+                    .thenReturn(upload);
+
+            when(imagensRepository.saveAll(anyList()))
+                    .thenThrow(new RuntimeException("Erro ao salvar"));
+            //ACT
+            var excecao = assertThrows(RuntimeException.class,
+                    () -> imagensService.criar(imagemFileArray, veiculo));
+            //Assert
+            assertThat(excecao)
+                    .hasMessage("Erro ao salvar");
+
+            verify(storageService).upload(imagemFile, veiculo.getId());
+            verify(storageService).delete(upload.objectKey());
+            verify(imagensRepository).saveAll(anyList());
+
+            verifyNoMoreInteractions(storageService);
+        }
     }
 
-    @Test
-    @DisplayName("Deve listar as imagens")
-    void deveListarAsImagens(){
-        //Arrange
-        var imagem1 = criarImagemEntity();
-        var imagem2 = ImagensEntityFactory.criarEntity().comTodosOsCampos().comId(2L).build();
-        var entity = List.of(imagem1, imagem2);
+    @Nested
+    @DisplayName("Testes para definir a imagem como principal")
+    class DefinirPrincipal {
+        @Test
+        @DisplayName("Deve definir a imagem como principal")
+        void deveDefinirAImagemComoPrincipal() {
+            //Arrange
+            var imagem = ImagemEntityFactory
+                    .criarEntity()
+                    .comTodosOsCampos()
+                    .comPrincipal(false)
+                    .build();
+            imagem.setVeiculo(criarVeiculoEntity());
 
-        var imagem1Response = criarImagemResponse();
-        var imagem2Response = ImagensResponseFactory.criarResponse().comTodosOsCampos().comId(2L).build();
+            when(imagensRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(imagem));
 
-        when(imagensRepository.findByCarroId(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
+            //ACT
+            imagensService.definirPrincipal(ID_VALIDO);
+            //Assert
+            assertThat(imagem.isPrincipal())
+                    .isTrue();
 
-        when(imagensMapper.toResponse(imagem1)).thenReturn(imagem1Response);
-        when(imagensMapper.toResponse(imagem2)).thenReturn(imagem2Response);
-        //Act
-        var resultado = imagensService.listarImagens(ID_VALIDO);
-        //Assert
-        assertThat(resultado)
-                .isNotNull()
-                .hasSize(2)
-                .extracting(ImagensResponse::id,
-                        ImagensResponse::url,
-                        ImagensResponse::idCarro)
-                .containsExactly(
-                        tuple(ID_VALIDO, "https://bucket/imagens/onix.jpg", 1L),
-                        tuple(2L, "https://bucket/imagens/onix.jpg", 1L));
 
-        verify(imagensRepository).findByCarroId(ID_VALIDO);
-        verify(imagensMapper).toResponse(imagem1);
-        verify(imagensMapper).toResponse(imagem2);
+            var inOrder = inOrder(imagensRepository);
 
-        verifyNoMoreInteractions(imagensRepository, imagensMapper);
+            inOrder.verify(imagensRepository).findById(ID_VALIDO);
+            inOrder.verify(imagensRepository).desmarcarPrincipal(ID_VALIDO);
+
+
+            verifyNoMoreInteractions(imagensRepository);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao definir principal")
+        void deveLancarExcecaoPrincipal() {
+            //Arrange
+            var imagem = criarImagemEntity();
+            imagem.setVeiculo(criarVeiculoEntity());
+
+            when(imagensRepository.findById(ID_VALIDO))
+                    .thenThrow(new NotFoundException(IMAGEM, ID_VALIDO));
+            //ACT
+            var excecao = assertThrows(NotFoundException.class,
+                    () -> imagensService.definirPrincipal(ID_VALIDO));
+            //Assert
+            assertNotFoundResponseError(excecao, IMAGEM, ID_VALIDO);
+
+            verify(imagensRepository).findById(ID_VALIDO);
+            verify(imagensRepository, never()).desmarcarPrincipal(imagem.getVeiculo().getId());
+        }
     }
 
-    @Test
-    @DisplayName("Deve retornar uma exceção ao listar imagens")
-    void deveRetornarUmaExceao()  {
-        //Arrange
-        when(imagensRepository.findByCarroId(ID_INVALIDO))
-                .thenReturn(Optional.empty());
-        //Act
-        var excecao = assertThrows(ImagensException.class,
-                () -> imagensService.listarImagens(ID_INVALIDO));
-        //Assert
-        assertThat(excecao)
-                .hasMessage(String.format(ID_NOT_FOUND, IMAGENS, ID_INVALIDO));
+    @Nested
+    @DisplayName("Testes da exclusão da image")
+    class DeletarImagem {
+        @Test
+        @DisplayName("Deve deletar a imagem")
+        void deveDeletarImagem() throws IOException {
+            //Arrange
+            var imagem = criarImagemEntity();
 
-        verify(imagensRepository).findByCarroId(ID_INVALIDO);
-        verifyNoMoreInteractions(imagensRepository);
+            when(imagensRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(imagem));
 
-        verifyNoInteractions(imagensMapper);
+            //ACT
+            imagensService.delete(ID_VALIDO);
+            //Assert
+            verify(imagensRepository).findById(ID_VALIDO);
+            verify(storageService).delete(imagem.getObjectKey());
+            verify(imagensRepository).delete(imagem);
+
+            verifyNoMoreInteractions(imagensRepository, storageService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção quando imagem não for encontrada")
+        void deveLancarExcecaoImagemNaoEncontrada() throws IOException {
+            //Arrange
+            when(imagensRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.empty());
+            //ACT
+            var excecao = assertThrows(NotFoundException.class,
+                    () -> imagensService.delete(ID_VALIDO)
+            );
+            //Assert
+            assertNotFoundResponseError(excecao, IMAGEM, ID_VALIDO);
+            verify(imagensRepository).findById(ID_VALIDO);
+            verify(storageService, never()).delete(anyString());
+            verify(imagensRepository, never()).delete(any());
+
+            verifyNoMoreInteractions(imagensRepository, storageService);
+
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao deletar imagem local")
+        void deveLancarExcecaoLocal() throws IOException {
+            //Arrange
+            var imagem = criarImagemEntity();
+
+            when(imagensRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(imagem));
+            doThrow(new IOException())
+                    .when(storageService).delete(imagem.getObjectKey());
+            //ACT
+            var excecao = assertThrows(IOException.class,
+                    () -> imagensService.delete(ID_VALIDO)
+            );
+            //Assert
+            assertThat(excecao)
+                    .isInstanceOf(IOException.class);
+
+            verify(imagensRepository).findById(ID_VALIDO);
+            verify(storageService).delete(imagem.getObjectKey());
+
+            verify(imagensRepository, never()).delete(imagem);
+
+            verifyNoMoreInteractions(imagensRepository, storageService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao deletar a imagem no banco")
+        void deveLancarExcecaoDeletarImagemBanco() throws IOException {
+            //Arrange
+            var imagem = criarImagemEntity();
+
+            when(imagensRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(imagem));
+
+            doThrow(new RuntimeException("Erro ao deletar a imagem no banco"))
+                    .when(imagensRepository).delete(imagem);
+            //ACT
+            var excecao = assertThrows(RuntimeException.class,
+                    () -> imagensService.delete(ID_VALIDO)
+            );
+            //Assert
+            assertThat(excecao)
+                    .hasMessage("Erro ao deletar a imagem no banco");
+
+            verify(imagensRepository).findById(ID_VALIDO);
+            verify(storageService).delete(imagem.getObjectKey());
+            verify(imagensRepository).delete(imagem);
+
+            verifyNoMoreInteractions(imagensRepository, storageService);
+        }
     }
 
-    @Test
-    @DisplayName("Deve filtrar uma imagem por ID")
-    void deveFiltrarUmaImagemPorId()  {
-        //Arrange
-        var entity = criarImagemEntity();
-        var response = criarImagemResponse();
+    @Nested
+    @DisplayName("Testes da busca da entidade da imagem")
+    class BuscarImagem {
+        @Test
+        @DisplayName("Deve buscar a entidade imagem por ID")
+        void deveBuscarImagemPorId() {
+            //Arrange
+            var imagem = criarImagemEntity();
+            when(imagensRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(imagem));
+            //ACT
+            var resultado = imagensService.buscaImagem(ID_VALIDO);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .extracting(
+                            Imagem::getId,
+                            Imagem::getNomeOriginal,
+                            Imagem::getObjectKey,
+                            Imagem::getBucket,
+                            Imagem::getContentType,
+                            Imagem::getTamanho,
+                            Imagem::isPrincipal
+                    ).containsExactly(
+                            ID_VALIDO,
+                            "nomeImagemOriginal",
+                            "imagens/2026/foto.jpg",
+                            "bucketImagem",
+                            "image/jpeg",
+                            200L,
+                            true
+                    );
 
-        when(imagensRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
+            verify(imagensRepository).findById(ID_VALIDO);
+            verifyNoMoreInteractions(imagensRepository);
+        }
 
-        when(imagensMapper.toResponse(entity))
-                .thenReturn(response);
-        //Act
-        var resultado = imagensService.findImagensById(ID_VALIDO);
-        //Assert
-        assertImagensResponse(resultado);
-
-        verify(imagensRepository).findById(ID_VALIDO);
-        verify(imagensMapper).toResponse(entity);
-
-        verifyNoMoreInteractions(imagensRepository, imagensMapper);
-    }
-
-    @Test
-    @DisplayName("Deve lançar exceção ao buscar uma imagem por ID")
-    void deveLancarUmaExcecaoAoBuscarUmaImagemPorId() {
-        //Arrange
-        when(imagensRepository.findById(ID_INVALIDO))
-                .thenReturn(Optional.empty());
-        //Act
-        var excecao = assertThrows(ImagensException.class,
-                () -> imagensService.findImagensById(ID_INVALIDO));
-        //Assert
-        AssertImagensException(excecao);
-        verify(imagensRepository).findById(ID_INVALIDO);
-        verify(imagensMapper, never()).toResponse(any());
-        verifyNoMoreInteractions(imagensRepository);
-    }
-
-    @Test
-    @DisplayName("Deve atualizar a imagem")
-    void deveAtualizarUmaImagem(){
-        //Arrange
-        var request = criarImagensRequest();
-        var entity = criarImagemEntity();
-        var response = criarImagemResponse();
-        var carroEntity = criarCarroEntity();
-
-        when(imagensRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
-
-        when(carroService.buscaCarro(request.carroId()))
-                .thenReturn(carroEntity);
-        when(imagensRepository.save(any(Imagens.class)))
-                .thenReturn(entity);
-        when(imagensMapper.toResponse(entity))
-                .thenReturn(response);
-        //Act
-        var resultado = imagensService.updateImagens(request, ID_VALIDO);
-        //Assert
-        ArgumentCaptor<Imagens> captor =
-                ArgumentCaptor.forClass(Imagens.class);
-        assertImagensResponse(resultado);
-        verify(imagensRepository).findById(ID_VALIDO);
-        verify(carroService).buscaCarro(request.carroId());
-        verify(imagensRepository).save(captor.capture());
-        verify(imagensMapper).toResponse(entity);
-        Imagens imagem = captor.getValue();
-        assertThat(imagem.getCarro())
-                .isSameAs(carroEntity);
-        assertThat(imagem.getUrl())
-                .isEqualTo("https://bucket/imagens/onix.jpg");
-
-        verifyNoMoreInteractions(imagensRepository, imagensMapper, carroService);
-    }
-
-    @Test
-    @DisplayName("Deve lançar uma exceção ao atualizar imagem")
-    void deveLancarUmaExcecaoAoAtualizarImagem(){
-        //Arrange
-        var request = criarImagensRequest();
-        when(imagensRepository.findById(ID_INVALIDO))
-                .thenReturn(Optional.empty());
-        //Act
-        var excecao = assertThrows(ImagensException.class,
-                () -> imagensService.updateImagens(request, ID_INVALIDO));
-        //Assert
-        AssertImagensException(excecao);
-        verify(imagensRepository).findById(ID_INVALIDO);
-
-        verify(carroService, never()).buscaCarro(request.carroId());
-        verify(imagensRepository, never()).save(any(Imagens.class));
-        verify(imagensMapper, never()).toResponse(any(Imagens.class));
-
-        verifyNoMoreInteractions(imagensRepository);
-    }
-
-    @Test
-    @DisplayName("Deve deletar uma imagem")
-    void deveDeletarUmaImagem() throws IOException {
-        //Arrange
-        var entity = criarImagemEntity();
-
-        when(imagensRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
-
-        //Act
-        imagensService.deleteImagens(ID_VALIDO);
-        //Assert
-        verify(imagensRepository).findById(ID_VALIDO);
-        verify(storageService).delete(entity.getUrl());
-        verify(imagensRepository).delete(entity);
-
-        verifyNoMoreInteractions(imagensRepository, storageService);
-    }
-
-    @Test
-    @DisplayName("Deve lançar uma exceção ao deletar uma imagem")
-    void deveLancarExcecaoAoDeletarImagem() throws IOException {
-        //Arrange
-        var entity = criarImagemEntity();
-
-        when(imagensRepository.findById(ID_INVALIDO))
-                .thenReturn(Optional.empty());
-        //Act
-        var excecao = assertThrows(ImagensException.class,
-                () -> imagensService.deleteImagens(ID_INVALIDO));
-        //Assert
-        AssertImagensException(excecao);
-        verify(imagensRepository).findById(ID_INVALIDO);
-
-        verify(storageService, never()).delete(anyString());
-        verify(imagensRepository, never()).delete(entity);
-
-        verifyNoMoreInteractions(imagensRepository, storageService);
-    }
-
-    private static void AssertImagensException(ImagensException excecao) {
-        assertThat(excecao)
-                .hasMessage(String.format(ID_NOT_FOUND, IMAGENS, ID_INVALIDO));
-    }
-
-    private static void assertImagensResponse(ImagensResponse resultado) {
-        assertThat(resultado)
-                .isNotNull()
-                .extracting(
-                        ImagensResponse::id,
-                        ImagensResponse::url,
-                        ImagensResponse::idCarro
-                ).containsExactly(
-                        ID_VALIDO,
-                        "https://bucket/imagens/onix.jpg",
-                        ID_VALIDO
-                );
-    }
-
-    private static Imagens criarImagemEntity() {
-        return ImagensEntityFactory.criarEntity()
-                .comTodosOsCampos()
-                .build();
-    }
-
-    private static ImagensResponse criarImagemResponse() {
-        return ImagensResponseFactory.criarResponse()
-                .comTodosOsCampos()
-                .build();
-    }
-
-    private static ImagensRequest criarImagensRequest() {
-        return ImagensRequestFactory.criarRequest()
-                .comTodosOsCampos()
-                .build();
-    }
-
-    private static Carro criarCarroEntity() {
-        return CarroEntityFactory.criarEntity()
-                .comTodosOsCampos()
-                .build();
+        @Test
+        @DisplayName("Deve lançar exceção ao buscar entidade imagem")
+        void deveLancarExcecaoBuscarEntidadeImagem() {
+            //Arrange
+            when(imagensRepository.findById(ID_VALIDO))
+                    .thenThrow(new NotFoundException(IMAGEM, ID_VALIDO));
+            //ACT
+            var excecao = assertThrows(NotFoundException.class,
+                    () -> imagensService.buscaImagem(ID_VALIDO));
+            //Assert
+            assertNotFoundResponseError(excecao, IMAGEM, ID_VALIDO);
+            verify(imagensRepository).findById(ID_VALIDO);
+            verifyNoMoreInteractions(imagensRepository);
+        }
     }
 }

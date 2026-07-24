@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.response.CombustivelResponse;
 public class CombustivelResponseFactory {
     private Long id;
     private String nome;
+    private boolean ativo;
 
     private CombustivelResponseFactory() {}
 
@@ -15,11 +16,7 @@ public class CombustivelResponseFactory {
     public CombustivelResponseFactory comTodosOsCampos() {
         this.id = 1L;
         this.nome = "Gasolina";
-        return this;
-    }
-
-    public CombustivelResponseFactory comTodosOsCamposExcetoId() {
-        this.nome = "Gasolina";
+        this.ativo = true;
         return this;
     }
 
@@ -33,8 +30,12 @@ public class CombustivelResponseFactory {
         return this;
     }
 
+    public CombustivelResponseFactory comAtivo(boolean ativo) {
+        this.ativo = ativo;
+        return this;
+    }
 
     public CombustivelResponse build() {
-        return new CombustivelResponse(id, nome);
+        return new CombustivelResponse(id, nome, ativo);
     }
 }

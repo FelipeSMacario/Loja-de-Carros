@@ -1,9 +1,8 @@
 package com.javacar.lojadecarro.service;
 
+import com.javacar.lojadecarro.dto.request.LoginRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
-import com.javacar.lojadecarro.exception.LoginSenhaException;
-import com.javacar.lojadecarro.factory.usuario.UsuarioEntityFactory;
-import com.javacar.lojadecarro.factory.usuario.UsuarioResponseFactory;
+import com.javacar.lojadecarro.exception.security.LoginSenhaException;
 import com.javacar.lojadecarro.mapper.UsuarioMapper;
 import com.javacar.lojadecarro.repository.LoginRepository;
 import org.junit.jupiter.api.DisplayName;
@@ -16,6 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Optional;
 
+import static com.javacar.lojadecarro.factory.helper.UsuarioHelper.criarUsuarioEntity;
+import static com.javacar.lojadecarro.factory.helper.UsuarioHelper.criarUsuarioResponse;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -34,21 +35,16 @@ class LoginServiceTest {
 
     private static final String PASSWORD = "123456";
     private static final String EMAIL = "felipesmacario@gmail.com";
+    private static final LoginRequest loginRequest = new LoginRequest(EMAIL, PASSWORD);
 
     @Test
     @DisplayName("Deve logar o usuário")
     void logarUsuario() {
         //Arrange
 
-        var entity = UsuarioEntityFactory
-                .criarEntity()
-                .comTodosOsCampos()
-                .build();
+        var entity = criarUsuarioEntity();
 
-        var response = UsuarioResponseFactory
-                .criarResponse()
-                .comTodosOsCampos()
-                .build();
+        var response = criarUsuarioResponse();
 
         when(loginRepository.findByEmail(EMAIL))
                 .thenReturn(Optional.of(entity));
@@ -59,7 +55,7 @@ class LoginServiceTest {
         when(usuarioMapper.toResponse(entity))
                 .thenReturn(response);
         //Act
-        var resultado = loginService.logar(EMAIL, PASSWORD);
+        var resultado = loginService.autenticar(loginRequest);
         //Assert
 
         assertThat(resultado)
@@ -88,7 +84,7 @@ class LoginServiceTest {
                 .thenReturn(Optional.empty());
         //Act
         var excecao = assertThrows(LoginSenhaException.class,
-                () -> loginService.logar(EMAIL, PASSWORD));
+                () -> loginService.autenticar(loginRequest));
         //Assert
         assertThat(excecao)
                 .hasMessage("Usuário ou senha inválidos.");
@@ -103,19 +99,16 @@ class LoginServiceTest {
     @DisplayName("Deve lançar exceção de senha incorreta")
     void deveLancarExecaoSenhaIncorreta() {
         //Arrange
-        var entity = UsuarioEntityFactory
-                .criarEntity()
-                .comTodosOsCampos()
-                .build();
+        var entity = criarUsuarioEntity();
 
         when(loginRepository.findByEmail(EMAIL))
-        .thenReturn(Optional.of(entity));
+                .thenReturn(Optional.of(entity));
 
         when(encoder.matches(PASSWORD, entity.getPassword()))
                 .thenReturn(false);
         //Act
         var excecao = assertThrows(LoginSenhaException.class,
-                () -> loginService.logar(EMAIL, PASSWORD));
+                () -> loginService.autenticar(loginRequest));
         //Assert
         assertThat(excecao)
                 .hasMessage("Usuário ou senha inválidos.");

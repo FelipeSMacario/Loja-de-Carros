@@ -1,33 +1,27 @@
 package com.javacar.lojadecarro.repository;
 
-import com.javacar.lojadecarro.entity.Imagens;
+import com.javacar.lojadecarro.entity.Imagem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Service;
-
-import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public interface ImagensRepository extends JpaRepository<Imagens, Long> {
-
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE lojadecarro.imagens SET carro_id = :idCarro WHERE id = :idImagem", nativeQuery = true)
-    void updateEstoque(@Param("idCarro") Long idCarro, @Param("idImagem") Long idImagem);
-
-    @Modifying
-    @Transactional
-    @Query(value = "UPDATE lojadecarro.carro SET url = :urlDefault WHERE id = :idCarro", nativeQuery = true)
-    void imagemCarroDefault(@Param("urlDefault") String urlDefault, @Param("idCarro") Long idCarro);
-
-    Optional<Imagens> findByIdAndCarroId(Long idImagem, Long idCarro);
-
-    Optional<List<Imagens>> findByCarroId(Long idCarro);
+public interface ImagensRepository extends JpaRepository<Imagem, Long> {
 
 
+    Optional<Imagem> findByIdAndVeiculoId(Long idImagem, Long idCarro);
+
+    Optional<List<Imagem>> findByVeiculoId(Long idCarro);
+
+
+    @Modifying(clearAutomatically = true)
+    @Query("""
+            update Imagem i
+               set i.principal = false
+             where i.veiculo.id = :idVeiculo""")
+    void desmarcarPrincipal(Long idVeiculo);
 }

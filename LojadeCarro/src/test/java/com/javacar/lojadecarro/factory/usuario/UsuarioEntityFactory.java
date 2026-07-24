@@ -23,11 +23,12 @@ public final class UsuarioEntityFactory {
 
     public UsuarioEntityFactory comTodosOsCampos() {
         usuario.setId(1L);
+        usuario.setCpf("1234567890");
+        usuario.setDataNascimento(LocalDate.of(1991, Month.MAY, 14));
+        usuario.setEmail("felipesmacario@gmail.com");
         usuario.setNome("Felipe Soares Macário");
         usuario.setPassword("123456");
-        usuario.setCpf("1234567890");
-        usuario.setDtNascimento(LocalDate.of(1991, Month.MAY, 14));
-        usuario.setEmail("felipesmacario@gmail.com");
+        usuario.setAtivo(true);
         return this;
     }
     public UsuarioEntityFactory comId(Long id) {
@@ -47,12 +48,16 @@ public final class UsuarioEntityFactory {
         usuario.setCpf(cpf);
         return this;
     }
-    public UsuarioEntityFactory comDataNascimento(LocalDate dtNascimento) {
-        usuario.setDtNascimento(dtNascimento);
+    public UsuarioEntityFactory comDataNascimento(LocalDate dataNascimento) {
+        usuario.setDataNascimento(dataNascimento);
         return this;
     }
     public UsuarioEntityFactory comEmail(String email) {
         usuario.setEmail(email);
+        return this;
+    }
+    public UsuarioEntityFactory comAtivo(boolean ativo) {
+        usuario.setAtivo(ativo);
         return this;
     }
 

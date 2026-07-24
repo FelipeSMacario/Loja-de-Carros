@@ -9,7 +9,7 @@ public class UsuarioRequestFactory {
     private String nome;
     private String password;
     private String cpf;
-    private LocalDate dtNascimento;
+    private LocalDate dataNascimento;
     private String email;
 
     public static UsuarioRequestFactory usuarioRequestFactory() {
@@ -24,17 +24,13 @@ public class UsuarioRequestFactory {
         this.nome = "Felipe Soares Macário";
         this.password = "123456";
         this.cpf = "15152736799";
-        this.dtNascimento = LocalDate.of(1991, Month.MAY, 14);
+        this.dataNascimento = LocalDate.of(1991, Month.MAY, 14);
         this.email = "felipesmacario@gmail.com";
         return this;
     }
 
     public UsuarioRequestFactory comNome(String nome) {
         this.nome = nome;
-        return this;
-    }
-    public UsuarioRequestFactory comSenha(String senha) {
-        this.password = senha;
         return this;
     }
 
@@ -48,8 +44,8 @@ public class UsuarioRequestFactory {
         return this;
     }
 
-    public UsuarioRequestFactory comDataNascimento(LocalDate dtNascimento) {
-        this.dtNascimento = dtNascimento;
+    public UsuarioRequestFactory comDataNascimento(LocalDate dataNascimento) {
+        this.dataNascimento = dataNascimento;
         return this;
     }
 
@@ -59,6 +55,6 @@ public class UsuarioRequestFactory {
     }
 
     public UsuarioRequest build() {
-        return new UsuarioRequest(nome, password, cpf, dtNascimento, email);
+        return new UsuarioRequest(nome, password, cpf, dataNascimento, email);
     }
 }

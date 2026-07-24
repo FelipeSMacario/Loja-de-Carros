@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.ModeloRequest;
 public class ModeloRequestFactory {
     private String nome;
     private Long idMarca;
+
     private ModeloRequestFactory() {
     }
 
@@ -19,6 +20,11 @@ public class ModeloRequestFactory {
     public ModeloRequestFactory comTodosOsCampos() {
         this.nome = "Onix";
         this.idMarca = 3L;
+        return this;
+    }
+
+    public ModeloRequestFactory comNome(String nome) {
+        this.nome = nome;
         return this;
     }
 

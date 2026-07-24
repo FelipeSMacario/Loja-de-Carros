@@ -7,6 +7,7 @@ import com.javacar.lojadecarro.factory.marca.MarcaResponseFactory;
 public class ModeloResponseFactory {
     private Long id;
     private String nome;
+    private boolean ativo;
     private MarcaResponse marcaResponse = MarcaResponseFactory
             .criarResponse()
             .comId(3L)
@@ -24,6 +25,7 @@ public class ModeloResponseFactory {
     public ModeloResponseFactory comTodosOsCampos() {
         this.id = 1L;
         this.nome = "Onix";
+        this.ativo = true;
         return this;
     }
 
@@ -37,7 +39,11 @@ public class ModeloResponseFactory {
         return this;
     }
 
+    public ModeloResponseFactory comAtivo(boolean ativo) {
+        this.ativo = ativo;
+        return this;
+    }
     public ModeloResponse build() {
-        return new ModeloResponse(id, nome, marcaResponse);
+        return new ModeloResponse(id, nome, ativo, marcaResponse);
     }
 }

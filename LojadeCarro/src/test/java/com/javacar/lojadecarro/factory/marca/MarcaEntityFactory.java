@@ -22,12 +22,7 @@ public final class MarcaEntityFactory {
         marca.setId(1L);
         marca.setNome("Ford");
         marca.setUrl("https://www.google.com");
-        return this;
-    }
-
-    public MarcaEntityFactory comTodosOsCamposExcetoId() {
-        marca.setNome("Ford");
-        marca.setUrl("https://www.google.com");
+        marca.setAtivo(true);
         return this;
     }
 
@@ -43,6 +38,10 @@ public final class MarcaEntityFactory {
 
     public MarcaEntityFactory comURL(String url) {
         marca.setUrl(url);
+        return this;
+    }
+    public MarcaEntityFactory comAtivo(boolean ativo) {
+        marca.setAtivo(ativo);
         return this;
     }
 

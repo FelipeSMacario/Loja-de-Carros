@@ -21,11 +21,7 @@ public final class CombustivelEntityFactory {
     public CombustivelEntityFactory comTodosOsCampos() {
         combustivel.setId(1L);
         combustivel.setNome("Gasolina");
-        return this;
-    }
-
-    public CombustivelEntityFactory comTodosOsCamposExcetoId() {
-        combustivel.setNome("Gasolina");
+        combustivel.setAtivo(true);
         return this;
     }
 
@@ -38,7 +34,10 @@ public final class CombustivelEntityFactory {
         combustivel.setId(id);
         return this;
     }
-
+    public CombustivelEntityFactory comAtivo(boolean ativo) {
+        combustivel.setAtivo(ativo);
+        return this;
+    }
 
     public Combustivel build() {
         return combustivel;

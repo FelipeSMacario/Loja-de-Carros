@@ -1,22 +1,16 @@
 package com.javacar.lojadecarro.factory.modelo;
 
-import com.javacar.lojadecarro.entity.Marca;
 import com.javacar.lojadecarro.entity.Modelo;
-import com.javacar.lojadecarro.factory.marca.MarcaEntityFactory;
+import com.javacar.lojadecarro.factory.helper.MarcaHelper;
 import lombok.RequiredArgsConstructor;
 
+import static com.javacar.lojadecarro.factory.helper.MarcaHelper.criarMarcaEntity;
 import static lombok.AccessLevel.PRIVATE;
 
 @RequiredArgsConstructor(access = PRIVATE)
 public final class ModeloEntityFactory {
 
     private final Modelo modelo;
-    Marca marca = MarcaEntityFactory
-            .criarEntity()
-            .comId(3L)
-            .comNome("Chevrolet")
-            .comURL("https://www.chevrolet.com")
-            .build();
 
     private ModeloEntityFactory() {
         this.modelo = new Modelo();
@@ -29,13 +23,8 @@ public final class ModeloEntityFactory {
     public ModeloEntityFactory comTodosOsCampos() {
         modelo.setId(1L);
         modelo.setNome("Onix");
-        modelo.setMarca(marca);
-        return this;
-    }
-
-    public ModeloEntityFactory comTodosOsCamposExcetoId() {
-        modelo.setNome("Onix");
-        modelo.setMarca(marca);
+        modelo.setMarca(criarMarcaEntity());
+        modelo.setAtivo(true);
         return this;
     }
 
@@ -49,14 +38,8 @@ public final class ModeloEntityFactory {
         return this;
     }
 
-    public ModeloEntityFactory comMarca(Long id, String nome, String url) {
-        modelo.setMarca(MarcaEntityFactory
-                .criarEntity()
-                .comId(id)
-                .comNome(nome)
-                .comURL(url)
-                .build());
-
+    public ModeloEntityFactory comAtivo(boolean ativo) {
+        modelo.setAtivo(ativo);
         return this;
     }
 

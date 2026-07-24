@@ -1,20 +1,31 @@
 package com.javacar.lojadecarro.entity;
 
-import lombok.Data;
+import com.javacar.lojadecarro.exception.business.BusinessException;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.ManyToOne;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import jakarta.persistence.*;
+import static com.javacar.lojadecarro.enums.Entidade.MODELO;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
-@Table(name = "Modelo")
-public class Modelo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "Nome")
+public class Modelo extends EntidadeBase {
+    @Column(nullable = false, unique = true, length = 20)
     private String nome;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     private Marca marca;
+
+    public void alteraStatus(boolean novoStatus) {
+        if (this.ativo == novoStatus) {
+            throw new BusinessException(novoStatus ? MODELO.jaAtiva() : MODELO.jaInativa());
+        }
+        this.ativo = novoStatus;
+    }
 }

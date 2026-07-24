@@ -6,8 +6,10 @@ public class MarcaResponseFactory {
     private Long id;
     private String nome;
     private String url;
+    private boolean ativo;
 
-    private MarcaResponseFactory() {}
+    private MarcaResponseFactory() {
+    }
 
     public static MarcaResponseFactory criarResponse() {
         return new MarcaResponseFactory();
@@ -18,12 +20,7 @@ public class MarcaResponseFactory {
         this.id = 1L;
         this.nome = "Ford";
         this.url = "https://www.google.com";
-        return this;
-    }
-
-    public MarcaResponseFactory comTodosOsCamposExcetoId() {
-        this.nome = "Ford";
-        this.url = "https://www.google.com";
+        this.ativo = true;
         return this;
     }
 
@@ -33,16 +30,21 @@ public class MarcaResponseFactory {
     }
 
     public MarcaResponseFactory comId(Long id) {
-        this.id= id;
+        this.id = id;
         return this;
     }
 
     public MarcaResponseFactory comURL(String url) {
-        this.url= url;
+        this.url = url;
+        return this;
+    }
+
+    public MarcaResponseFactory comAtivo(boolean ativo) {
+        this.ativo = ativo;
         return this;
     }
 
     public MarcaResponse build() {
-        return new MarcaResponse(id, nome, url);
+        return new MarcaResponse(id, nome, url, ativo);
     }
 }

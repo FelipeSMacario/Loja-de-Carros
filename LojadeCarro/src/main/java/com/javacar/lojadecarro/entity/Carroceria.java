@@ -1,16 +1,26 @@
 package com.javacar.lojadecarro.entity;
 
-import jakarta.persistence.*;
-import lombok.Data;
+import com.javacar.lojadecarro.exception.business.BusinessException;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
-@Table(name = "Caracteristica")
+import static com.javacar.lojadecarro.enums.Entidade.CARROCERIA;
+
+@Getter
+@Setter
+@NoArgsConstructor
 @Entity
-public class Carroceria {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @Column(name = "Nome")
+public class Carroceria extends EntidadeBase {
+    @Column(nullable = false, unique = true, length = 30)
     private String nome;
+
+    public void alterarStatus(boolean novoStatus) {
+        if (this.ativo == novoStatus) {
+            throw new BusinessException(novoStatus ? CARROCERIA.jaAtiva() : CARROCERIA.jaInativa());
+        }
+        this.ativo = novoStatus;
+    }
 }
