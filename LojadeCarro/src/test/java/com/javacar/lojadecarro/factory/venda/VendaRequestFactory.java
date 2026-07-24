@@ -23,9 +23,13 @@ public class VendaRequestFactory {
 
     public VendaRequestFactory comTodosOsCampos() {
         this.veiculoId = 1L;
-        this.compradorId = 1L;
+        this.compradorId = 2L;
         this.vendedorId = 1L;
         this.valor = BigDecimal.valueOf(200000);
+        return this;
+    }
+    public VendaRequestFactory comCompradorId(Long compradorId) {
+        this.compradorId = compradorId;
         return this;
     }
 

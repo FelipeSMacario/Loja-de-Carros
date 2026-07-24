@@ -7,7 +7,7 @@ import com.javacar.lojadecarro.factory.venda.VendaEntityFactory;
 import com.javacar.lojadecarro.factory.venda.VendaRequestFactory;
 import com.javacar.lojadecarro.factory.venda.VendaResponseFactory;
 
-public final class VendaHelper {
+public final class VendaHelper extends BaseHelper {
     public static VendaRequest criarVendaRequest() {
         return VendaRequestFactory
                 .criarRequest()

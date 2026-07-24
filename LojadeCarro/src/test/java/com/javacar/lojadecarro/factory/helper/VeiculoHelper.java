@@ -2,7 +2,8 @@ package com.javacar.lojadecarro.factory.helper;
 
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
-import com.javacar.lojadecarro.entity.*;
+import com.javacar.lojadecarro.entity.Opcional;
+import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoEntityFactory;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoRequestFactory;
@@ -13,7 +14,7 @@ import java.math.BigDecimal;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public final class VeiculoHelper extends BaseHelper{
+public final class VeiculoHelper extends BaseHelper {
     public static VeiculoRequest criarVeiculoRequest() {
         return VeiculoRequestFactory
                 .criarRequest()
@@ -34,6 +35,7 @@ public final class VeiculoHelper extends BaseHelper{
                 .comTodosOsCampos()
                 .build();
     }
+
     public static void assertVeiculoResponse(VeiculoResponse resultado) {
         assertThat(resultado)
                 .isNotNull()
@@ -94,6 +96,7 @@ public final class VeiculoHelper extends BaseHelper{
                 .containsExactlyElementsOf(cx.imagens);
 
     }
+
     public static void assertDependenciasVeiculoCompletoSemImagemEOpcional(VeiculoTestContext cx) {
 
         assertThat(cx.entity.getCarroceria())

@@ -412,8 +412,8 @@ class CorServiceTest {
     }
 
     @Test
-    @DisplayName("Deve lançar exceção do combustivel nao encontrada ao alterar status")
-    void deveLancarExcecaoQuandoCombustivelNaoEncontradaAoAlterarStatus() {
+    @DisplayName("Deve lançar exceção da cor nao encontrada ao alterar status")
+    void deveLancarExcecaoQuandoCorNaoEncontradaAoAlterarStatus() {
         //Arrange
         var request = new StatusRequest(true);
         //Assert

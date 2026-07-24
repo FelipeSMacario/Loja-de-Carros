@@ -18,7 +18,7 @@ public interface ImagensRepository extends JpaRepository<Imagem, Long> {
     Optional<List<Imagem>> findByVeiculoId(Long idCarro);
 
 
-    @Modifying
+    @Modifying(clearAutomatically = true)
     @Query("""
             update Imagem i
                set i.principal = false

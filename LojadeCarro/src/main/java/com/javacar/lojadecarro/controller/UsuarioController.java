@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -90,10 +89,10 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
-    @PostMapping("/{id}/roles")
-    @Operation(summary = "Cadastrar uma role para um usuário")
+    @PatchMapping("/{id}/roles")
+    @Operation(summary = "Vincular uma role para um usuário")
     public ResponseEntity<UsuarioRolesResponse> vincularRole(@PathVariable Long id,
-                                                          @RequestBody List<RoleRequest> requests) {
+                                                             @RequestBody List<Long> requests) {
         log.debug("Cadastrando roles para o usuário com id: {}", id);
         var response = usuarioService.vincularRole(id, requests);
 

@@ -107,9 +107,9 @@ public class Usuario extends EntidadeBase implements UserDetails, Serializable {
         return roles.stream()
                 .anyMatch(usuarioRole -> usuarioRole.getRole().getId().equals(roleId));
     }
-    public void removerRole(Long roleId) {
+    public void removerRole(Long idrole) {
         boolean removido = roles.removeIf(
-                usuarioRole -> usuarioRole.getRole().getId().equals(roleId)
+                usuarioRole -> usuarioRole.getRole().id.equals(idrole)
         );
 
         if (!removido) {

@@ -26,6 +26,10 @@ public class VendaResponseFactory {
         this.dataVenda = (LocalDateTime.now(ZONE));
         return this;
     }
+    public VendaResponseFactory comId(Long id) {
+        this.id = id;
+        return this;
+    }
 
 
     public VendaResponse build() {

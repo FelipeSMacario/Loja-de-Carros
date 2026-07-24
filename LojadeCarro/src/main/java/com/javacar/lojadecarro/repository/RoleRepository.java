@@ -9,4 +9,6 @@ import java.util.List;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
     List<Role> findByAtivo(boolean b);
+
+    List<Role> findAllByIdIn(List<Long> requests);
 }

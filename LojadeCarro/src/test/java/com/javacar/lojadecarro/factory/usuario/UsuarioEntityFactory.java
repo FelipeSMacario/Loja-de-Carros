@@ -28,6 +28,7 @@ public final class UsuarioEntityFactory {
         usuario.setEmail("felipesmacario@gmail.com");
         usuario.setNome("Felipe Soares Macário");
         usuario.setPassword("123456");
+        usuario.setAtivo(true);
         return this;
     }
     public UsuarioEntityFactory comId(Long id) {
@@ -53,6 +54,10 @@ public final class UsuarioEntityFactory {
     }
     public UsuarioEntityFactory comEmail(String email) {
         usuario.setEmail(email);
+        return this;
+    }
+    public UsuarioEntityFactory comAtivo(boolean ativo) {
+        usuario.setAtivo(ativo);
         return this;
     }
 

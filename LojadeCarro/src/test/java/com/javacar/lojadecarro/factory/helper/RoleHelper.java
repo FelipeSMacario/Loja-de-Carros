@@ -7,7 +7,12 @@ import com.javacar.lojadecarro.factory.role.RoleEntityFactory;
 import com.javacar.lojadecarro.factory.role.RoleRequestFactory;
 import com.javacar.lojadecarro.factory.role.RoleResponseFactory;
 
-public final class RoleHelper {
+import java.util.List;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
+
+public final class RoleHelper extends BaseHelper {
     public static RoleRequest criarRoleRequest() {
         return RoleRequestFactory
                 .criarRequest()
@@ -27,5 +32,34 @@ public final class RoleHelper {
                 .criarResponse()
                 .comTodosOsCampos()
                 .build();
+    }
+
+    public static List<Role> criaListRole() {
+        return List.of(
+                RoleEntityFactory
+                        .criarEntity()
+                        .comTodosOsCampos()
+                        .build(),
+                RoleEntityFactory
+                        .criarEntity()
+                        .comId(2L)
+                        .comNome("VENDEDOR")
+                        .comAtivo(true)
+                        .build()
+        );
+    }
+
+    public static void assertRoleResponse(List<RoleResponse> response, boolean ativo1, boolean ativo2) {
+        assertThat(response)
+                .isNotNull()
+                .hasSize(2)
+                .extracting(
+                        RoleResponse::id,
+                        RoleResponse::nome,
+                        RoleResponse::ativo
+                ).containsExactly(
+                        tuple(1L, "ADMIN", ativo1),
+                        tuple(2L, "VENDEDOR", ativo2)
+                );
     }
 }

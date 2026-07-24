@@ -1,15 +1,12 @@
 package com.javacar.lojadecarro.service;
 
-import com.javacar.lojadecarro.dto.request.RoleRequest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
-import com.javacar.lojadecarro.entity.Role;
 import com.javacar.lojadecarro.entity.Usuario;
 import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.exception.business.BusinessException;
-import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.mapper.UsuarioMapper;
 import com.javacar.lojadecarro.repository.RoleRepository;
 import com.javacar.lojadecarro.repository.UsuarioRepository;
@@ -20,11 +17,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.javacar.lojadecarro.enums.Entidade.ROLE;
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 
 @Slf4j
@@ -36,6 +32,7 @@ public class UsuarioService {
     private final BCryptPasswordEncoder encoder;
     private final EntityValidation entityValidation;
     private final RoleRepository roleRepository;
+    private final RolesService rolesService;
 
     @Transactional
     public UsuarioResponse criar(UsuarioRequest request) {
@@ -84,11 +81,12 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioRolesResponse vincularRole(Long id, List<RoleRequest> requests) {
+    public UsuarioRolesResponse vincularRole(Long id, List<Long> requests) {
+        validaRolesDuplicadas(requests);
+
         var usuario = buscaUsuario(id);
 
-        validaRolesDuplicadas(requests);
-        var roles = buscarRoles(requests);
+        var roles = rolesService.buscaRoles(requests);
 
         roles.forEach(usuario::adicionarRole);
 
@@ -96,20 +94,10 @@ public class UsuarioService {
     }
 
 
-    private List<Role> buscarRoles(List<RoleRequest> requests) {
-        return requests.stream()
-                .map(request -> roleRepository.findById(request.id())
-                        .orElseThrow(() -> new NotFoundException(ROLE, request.id())))
-                .toList();
-    }
+    private void validaRolesDuplicadas(List<Long> idsRoles) {
+        Set<Long> ids = new HashSet<>(idsRoles);
 
-    private void validaRolesDuplicadas(List<RoleRequest> requests) {
-        Set<Long> ids = requests
-                .stream()
-                .map(RoleRequest::id)
-                .collect(Collectors.toSet());
-
-        if (ids.size() != requests.size()) {
+        if (ids.size() != idsRoles.size()) {
             throw new BusinessException("A requisição possui roles duplicadas.");
         }
     }
@@ -118,7 +106,10 @@ public class UsuarioService {
     public UsuarioRolesResponse desvincularRole(Long id, Long roleId) {
         var usuario = buscaUsuario(id);
 
-        usuario.removerRole(roleId);
+        var role = rolesService.buscaRole(roleId);
+
+        usuario.removerRole(role.getId());
+
 
         return usuarioMapper.toUsuarioRoleResponse(usuario);
     }

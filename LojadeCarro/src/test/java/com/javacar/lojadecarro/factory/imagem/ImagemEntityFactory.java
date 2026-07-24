@@ -37,6 +37,11 @@ public final class ImagemEntityFactory {
         return this;
     }
 
+    public ImagemEntityFactory comPrincipal(boolean principal) {
+        imagem.setPrincipal(principal);
+        return this;
+    }
+
     public Imagem build() {
         return imagem;
     }

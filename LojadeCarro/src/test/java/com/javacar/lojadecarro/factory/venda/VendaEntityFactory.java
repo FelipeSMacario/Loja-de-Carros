@@ -33,6 +33,10 @@ public final class VendaEntityFactory {
         venda.setDataVenda(LocalDateTime.now(ZONE));
         return this;
     }
+    public VendaEntityFactory comId(Long id){
+        venda.setId(id);
+        return this;
+    }
 
 
     public Venda build() {

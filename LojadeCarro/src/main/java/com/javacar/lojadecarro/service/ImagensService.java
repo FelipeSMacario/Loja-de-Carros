@@ -32,7 +32,7 @@ public class ImagensService {
         var imagens = new ArrayList<Imagem>();
 
         for (MultipartFile file : files) {
-            UploadResult upload = storageService.upload(file, veiculo.getId());
+            var upload = storageService.upload(file, veiculo.getId());
             var imagem = new Imagem(upload);
             imagens.add(imagem);
         }
