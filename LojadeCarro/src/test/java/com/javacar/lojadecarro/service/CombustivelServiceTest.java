@@ -121,7 +121,7 @@ class CombustivelServiceTest {
         when(combustivelMapper.toResponse(eletrico))
                 .thenReturn(eletricoResponse);
         //ACT
-        var resultado = combustivelService.listarCombustiveis(StatusFiltro.ATIVAS);
+        var resultado = combustivelService.listar(StatusFiltro.ATIVAS);
         //Assert
         assertThat(resultado)
                 .isNotNull()
@@ -184,7 +184,7 @@ class CombustivelServiceTest {
         when(combustivelMapper.toResponse(eletrico))
                 .thenReturn(eletricoResponse);
         //ACT
-        var resultado = combustivelService.listarCombustiveis(StatusFiltro.INATIVAS);
+        var resultado = combustivelService.listar(StatusFiltro.INATIVAS);
         //Assert
         assertThat(resultado)
                 .isNotNull()
@@ -240,7 +240,7 @@ class CombustivelServiceTest {
                 .thenReturn(eletricoResponse);
 
         // Act
-        var resultado = combustivelService.listarCombustiveis(StatusFiltro.TODAS);
+        var resultado = combustivelService.listar(StatusFiltro.TODAS);
 
         // Assert
         assertThat(resultado)

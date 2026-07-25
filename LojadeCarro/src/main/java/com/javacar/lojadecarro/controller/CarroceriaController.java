@@ -80,7 +80,9 @@ public class CarroceriaController {
 
     @PatchMapping("/{id}/status")
     @Operation(summary = "Alterar o status da carroceria")
-    public ResponseEntity<CarroceriaResponse> alterarStatus(@PathVariable Long id, @RequestBody @Valid StatusRequest request) {
+    public ResponseEntity<CarroceriaResponse> alterarStatus(@PathVariable Long id,
+                                                            @RequestBody
+                                                            @Valid StatusRequest request) {
         log.debug("Solicitação para alterar o status da carroceria para: {}", request.ativo());
         var response = carroceriaService.alterarStatus(id, request);
 

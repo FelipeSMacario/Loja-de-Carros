@@ -3,8 +3,13 @@ package com.javacar.lojadecarro.factory.helper;
 import com.javacar.lojadecarro.enums.Entidade;
 import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
+import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.ResultMatcher;
 
+import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public abstract class BaseHelper {
     public static void assertNotFoundResponseError(NotFoundException exception,
@@ -23,4 +28,57 @@ public abstract class BaseHelper {
         assertThat(exception)
                 .hasMessage(mensagem);
     }
+
+    public static String mensagemNotFound(Entidade operacao, Long id) {
+        return operacao.naoEncontrada() + id;
+    }
+
+    public static void assertStatus404(ResultActions result,
+                                       Entidade entidade,
+                                       Long id) throws Exception {
+        result.andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.status").value(404))
+                .andExpect(jsonPath("$.message")
+                        .value(mensagemNotFound(entidade, id)));
+    }
+
+    public static void assertStatus400(ResultActions result) throws Exception {
+        result.andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.status").value(400))
+                .andExpect(jsonPath("$.message").exists());
+    }
+    public static void assertStatus500(ResultActions result) throws Exception {
+        result.andExpect(status().isInternalServerError())
+                .andExpect(jsonPath("$.status").value(500));
+    }
+
+    public static void assertList(ResultActions result,
+                                  Long primeiroId,
+                                  Long segundoId,
+                                  String primeiroNome,
+                                  String segundoNome,
+                                  boolean primeiroAtivo,
+                                  boolean segundoAtivo) throws Exception {
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(primeiroId))
+                .andExpect(jsonPath("$[1].id").value(segundoId))
+                .andExpect(jsonPath("$[0].nome").value(primeiroNome))
+                .andExpect(jsonPath("$[1].nome").value(segundoNome))
+                .andExpect(jsonPath("$[0].ativo").value(primeiroAtivo))
+                .andExpect(jsonPath("$[1].ativo").value(segundoAtivo));
+    }
+
+    public static void assertResult(ResultActions result,
+                                    ResultMatcher status,
+                                    long id,
+                                    String nome,
+                                    boolean ativo) throws Exception {
+        result
+                .andExpect(status)
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.nome").value(nome))
+                .andExpect(jsonPath("$.ativo").value(ativo));
+    }
+
 }

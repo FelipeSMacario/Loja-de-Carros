@@ -6,8 +6,12 @@ import com.javacar.lojadecarro.entity.Carroceria;
 import com.javacar.lojadecarro.factory.carroceria.CarroceriaEntityFactory;
 import com.javacar.lojadecarro.factory.carroceria.CarroceriaRequestFactory;
 import com.javacar.lojadecarro.factory.carroceria.CarroceriaResponseFactory;
+import org.springframework.test.web.servlet.ResultActions;
 
+import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public final class CarroceriaHelper extends BaseHelper {
     public static CarroceriaRequest criarCarroceriaRequest() {
@@ -45,5 +49,13 @@ public final class CarroceriaHelper extends BaseHelper {
                         true
                 );
     }
+
+    public static void assertResultadoCarroceria(ResultActions result) throws Exception {
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(ID_VALIDO))
+                .andExpect(jsonPath("$.nome").value("Hatch"))
+                .andExpect(jsonPath("$.ativo").value(true));
+    }
+
 
 }

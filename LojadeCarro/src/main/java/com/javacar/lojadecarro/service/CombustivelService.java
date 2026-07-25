@@ -34,7 +34,7 @@ public class CombustivelService {
         return combustivelMapper.toResponse(combustivel);
     }
 
-    public List<CombustivelResponse> listarCombustiveis(StatusFiltro status) {
+    public List<CombustivelResponse> listar(StatusFiltro status) {
         var listaCombustiveis =
                 switch (status) {
                     case TODAS -> combustivelRepository.findAll();

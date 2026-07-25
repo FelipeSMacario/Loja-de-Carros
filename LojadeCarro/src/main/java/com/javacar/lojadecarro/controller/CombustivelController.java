@@ -44,10 +44,10 @@ public class CombustivelController {
 
     @GetMapping
     @Operation(summary = "Listar todos os combustíveis")
-    public ResponseEntity<List<CombustivelResponse>> listarCombustiveis(@RequestParam(defaultValue = "ATIVAS")
+    public ResponseEntity<List<CombustivelResponse>> listar(@RequestParam(defaultValue = "ATIVAS")
                                                                         StatusFiltro status) {
         log.debug("Buscando todos as combustíveis com o status: {}.", status);
-        var response = combustivelService.listarCombustiveis(status);
+        var response = combustivelService.listar(status);
 
         log.debug("Consulta de todos os combustiveis com o status: {} realizada com sucesso", status);
         log.debug("A consulta de todos os combustiveis retornou com o tamanho de: {} valores", response.size());
@@ -56,7 +56,7 @@ public class CombustivelController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar combustível por id")
-    public ResponseEntity<CombustivelResponse> findById(@PathVariable Long id) {
+    public ResponseEntity<CombustivelResponse> buscaPorId(@PathVariable Long id) {
         log.debug("Buscando o combustível por id: {}", id);
         var response = combustivelService.buscaPorId(id);
 

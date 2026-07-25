@@ -8,7 +8,6 @@ import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.mapper.MarcaMapper;
 import com.javacar.lojadecarro.repository.MarcaRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
-import com.javacar.lojadecarro.validation.StatusValidation;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +24,6 @@ public class MarcaService {
     private final MarcaRepository marcaRepository;
     private final MarcaMapper marcaMapper;
     private final EntityValidation entityValidation;
-    private final StatusValidation statusValidation;
 
     @Transactional
     public MarcaResponse criar(MarcaRequest request) {

@@ -43,6 +43,7 @@ public class ModeloResponseFactory {
         this.ativo = ativo;
         return this;
     }
+
     public ModeloResponse build() {
         return new ModeloResponse(id, nome, ativo, marcaResponse);
     }
