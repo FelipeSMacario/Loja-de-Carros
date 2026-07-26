@@ -6,12 +6,12 @@ import com.javacar.lojadecarro.factory.imagem.ImagemEntityFactory;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.ResultActions;
-import org.springframework.test.web.servlet.ResultMatcher;
 import org.springframework.web.multipart.MultipartFile;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.util.List;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 
 public final class ImagemHelper extends BaseHelper {
@@ -85,7 +85,7 @@ public final class ImagemHelper extends BaseHelper {
                                     String segundoObjetKey,
                                     boolean primeiroPrincipal,
                                     boolean segundoPrincipal
-                                    ) throws Exception {
+    ) throws Exception {
         result
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
