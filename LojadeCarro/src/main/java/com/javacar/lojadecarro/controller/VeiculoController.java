@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.request.AlterarStatusRequest;
+import com.javacar.lojadecarro.dto.request.VeiculoOpcionaisRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
@@ -119,9 +120,9 @@ public class VeiculoController {
     @DeleteMapping("/{idVeiculo}/opcionais")
     @Operation(summary = "Desvincular opcional do veiculo")
     public ResponseEntity<Void> desvincularOpcionais(@PathVariable Long idVeiculo,
-                                                     @RequestParam List<Long> ids) {
-        log.debug("Desvinculando opcionais {} do usuário com id: {}", ids, idVeiculo);
-        veiculoService.desvincularOpcionais(idVeiculo, ids);
+                                                     @RequestParam List<Long> idsOpcionais) {
+        log.debug("Desvinculando opcionais {} do usuário com id: {}", idsOpcionais, idVeiculo);
+        veiculoService.desvincularOpcionais(idVeiculo, idsOpcionais);
 
         log.info("Opcionais desvinculados com sucesso. Id: {}", idVeiculo);
 
@@ -131,9 +132,9 @@ public class VeiculoController {
     @PatchMapping("/{idVeiculo}/opcionais")
     @Operation(summary = "Vincular opcional do veiculo")
     public ResponseEntity<Void> vincularOpcionais(@PathVariable Long idVeiculo,
-                                                  @RequestBody List<Long> ids) {
-        log.debug("Vinculando opcionais {} do usuário com id: {}", ids, idVeiculo);
-        veiculoService.vincularOpcionais(idVeiculo, ids);
+                                                  @RequestBody @Valid VeiculoOpcionaisRequest request) {
+        log.debug("Vinculando opcionais {} do usuário com id: {}", request.opcionais(), idVeiculo);
+        veiculoService.vincularOpcionais(idVeiculo, request.opcionais());
 
         log.info("Opcionais vinculados com sucesso. Id: {}", idVeiculo);
         return ResponseEntity.noContent().build();

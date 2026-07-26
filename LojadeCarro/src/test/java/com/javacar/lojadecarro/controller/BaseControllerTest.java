@@ -7,6 +7,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.List;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
 public abstract class BaseControllerTest {
@@ -76,5 +78,15 @@ public abstract class BaseControllerTest {
 
     protected ResultActions performDelete(String url) throws Exception {
         return mockMvc.perform(delete(url));
+    }
+    protected ResultActions performDelete(String url, String param, List<Long> parametros) throws Exception {
+
+        var request = delete(url);
+
+        parametros.forEach(id ->
+                request.param(param, id.toString())
+        );
+
+        return mockMvc.perform(request);
     }
 }

@@ -26,6 +26,7 @@ import static com.javacar.lojadecarro.enums.Entidade.VEICULO;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.PAUSADO;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.*;
+import static com.javacar.lojadecarro.factory.helper.ImagemHelper.assertImagem;
 import static com.javacar.lojadecarro.factory.helper.ImagemHelper.imagem;
 import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.assertVeiculo;
 import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.assertVeiculoList;
@@ -41,6 +42,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
     private static final String URL = "/veiculo";
     private static final String URL_ID = URL + "/" + ID_VALIDO;
     private static final String URL_IMAGEM = URL_ID + "/imagens";
+    private static final String URL_OPCIONAL = URL_ID + "/opcionais";
 
     @MockitoBean
     private VeiculoService veiculoService;
@@ -458,6 +460,16 @@ public class VeiculoControllerTest extends BaseControllerTest {
                     .thenReturn(cx.imagemResponseList);
             //Act + Assert
             var resultado = performGet(URL_IMAGEM);
+            assertImagem(resultado,
+                    ID_VALIDO,
+                    2L,
+                    "nomeImagemOriginal",
+                    "nomeImagemOriginal",
+                    "imagens/2026/foto.jpg",
+                    "imagens/2026/foto.jpg",
+                    true,
+                    true
+            );
 
             verify(veiculoService).listarImagens(ID_VALIDO);
             verifyNoMoreInteractions(veiculoService);
@@ -481,7 +493,6 @@ public class VeiculoControllerTest extends BaseControllerTest {
         @DisplayName("Deve lançar 400 ao inserir ID invalido")
         void deveLancar400AoInserirIdInvalido() throws Exception {
             //Arrange
-            var cx = new VeiculoTestContext();
             when(veiculoService.listarImagens(ID_VALIDO))
                     .thenThrow(new NotFoundException(VEICULO, ID_VALIDO));
             //Act + Assert
@@ -493,14 +504,125 @@ public class VeiculoControllerTest extends BaseControllerTest {
     }
 
     @Nested
-    @DisplayName("Testes para desvincular as opcionais")
-    class DesvincularOpcionais{
+    @DisplayName("Testes para desvincular os opcionais")
+    class DesvincularOpcionais {
+        @Test
+        @DisplayName("Deve desvincular os opcionais")
+        void deveDesvincularAsOpcionais() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
 
+            doNothing()
+                    .when(veiculoService)
+                    .desvincularOpcionais(ID_VALIDO, cx.idsOpcionais);
+            //Act + Assert
+            var resultado = performDelete(URL_OPCIONAL, "idsOpcionais", cx.idsOpcionais);
+            assertStatus204(resultado);
+
+            verify(veiculoService).desvincularOpcionais(ID_VALIDO, cx.idsOpcionais);
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao desvincular os opcionais")
+        void deveLancar400DesvincularAsOpcionais() throws Exception {
+            //Arrange
+            //Act + Assert
+            var resultado = performDelete(URL_OPCIONAL, "idsOpcionais", List.of());
+            assertStatus400(resultado);
+
+            verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao desvincular os opcionais com ID invalido")
+        void deveLancar400DesvincularAsOpcionaisComIdInvalido() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            //Act + Assert
+            var resultado = performDelete(URL + "/A/opcionais", "idsOpcionais", cx.idsOpcionais);
+            assertStatus400(resultado);
+
+            verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 404 ao inserir veiculo incorreto")
+        void deveLancar404AoInserirVeiculoIncorreto() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+
+            doThrow(new NotFoundException(VEICULO, ID_VALIDO))
+                    .when(veiculoService)
+                    .desvincularOpcionais(ID_VALIDO, cx.idsOpcionais);
+            //Act + Assert
+            var resultado = performDelete(URL_OPCIONAL, "idsOpcionais", cx.idsOpcionais);
+            assertStatus404(resultado, VEICULO, ID_VALIDO);
+
+            verify(veiculoService).desvincularOpcionais(ID_VALIDO, cx.idsOpcionais);
+            verifyNoMoreInteractions(veiculoService);
+        }
     }
 
     @Nested
-    @DisplayName("Testes para vincular as opcionais")
-    class VincularOpcionais{
+    @DisplayName("Testes para vincular os opcionais")
+    class VincularOpcionais {
+        @Test
+        @DisplayName("Deve vincular os opcionais")
+        void deveVincularOpcionais() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
 
+            doNothing()
+                    .when(veiculoService)
+                    .vincularOpcionais(ID_VALIDO, cx.veiculoOpcionaisRequest.opcionais());
+            //Act + Assert
+            var resultado = performPatch(URL_OPCIONAL, cx.veiculoOpcionaisRequest);
+            assertStatus204(resultado);
+
+            verify(veiculoService).vincularOpcionais(ID_VALIDO, cx.veiculoOpcionaisRequest.opcionais());
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao vincular os opcionais")
+        void deveLancar400DesvincularAsOpcionais() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            //Act + Assert
+            var resultado = performPatch(URL_OPCIONAL, cx.veiculoOpcionaisRequestIncompleto);
+            assertStatus400(resultado);
+
+            verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao vincular as opcionais com ID invalido")
+        void deveLancar400VincularAsOpcionaisComIdInvalido() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            //Act + Assert
+            var resultado = performPatch(URL + "/A/opcionais", cx.veiculoOpcionaisRequest.opcionais());
+            assertStatus400(resultado);
+
+            verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 404 ao inserir veiculo incorreto")
+        void deveLancar404AoInserirVeiculoIncorreto() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+
+            doThrow(new NotFoundException(VEICULO, ID_VALIDO))
+                    .when(veiculoService)
+                    .vincularOpcionais(ID_VALIDO, cx.veiculoOpcionaisRequest.opcionais());
+            //Act + Assert
+            var resultado = performPatch(URL_OPCIONAL, cx.veiculoOpcionaisRequest);
+            assertStatus404(resultado, VEICULO, ID_VALIDO);
+
+            verify(veiculoService).vincularOpcionais(ID_VALIDO, cx.veiculoOpcionaisRequest.opcionais());
+            verifyNoMoreInteractions(veiculoService);
+        }
     }
 }

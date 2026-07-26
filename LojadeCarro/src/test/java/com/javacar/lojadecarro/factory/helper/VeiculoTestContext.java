@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.factory.helper;
 
+import com.javacar.lojadecarro.dto.request.VeiculoOpcionaisRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
@@ -35,6 +36,9 @@ public class VeiculoTestContext {
     public final List<Opcional> opcionais = criarListaOpcionals();
     public final List<Imagem> imagens = criarListaImagem();
     public final MultipartFile[] imagemFile = criarImagemFile();
+    public final List<Long> idsOpcionais = List.of(1L, 2L);
+    public final VeiculoOpcionaisRequest veiculoOpcionaisRequest = new VeiculoOpcionaisRequest(idsOpcionais);
+    public final VeiculoOpcionaisRequest veiculoOpcionaisRequestIncompleto = new VeiculoOpcionaisRequest(null);
     public final List<ImagemResponse> imagemResponseList = List.of(ImagemResponseFactory
                     .criarResponse()
                     .comTodosOsCampos()
