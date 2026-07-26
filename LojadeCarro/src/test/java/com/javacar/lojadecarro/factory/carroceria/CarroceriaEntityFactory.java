@@ -21,6 +21,7 @@ public final class CarroceriaEntityFactory {
     public CarroceriaEntityFactory comTodosOsCampos() {
         carroceria.setId(1L);
         carroceria.setNome("Hatch");
+        carroceria.setAtivo(true);
         return this;
     }
 
@@ -32,6 +33,10 @@ public final class CarroceriaEntityFactory {
 
     public CarroceriaEntityFactory comId(Long id) {
         carroceria.setId(id);
+        return this;
+    }
+    public CarroceriaEntityFactory comAtivo(boolean ativo) {
+        carroceria.setAtivo(ativo);
         return this;
     }
 

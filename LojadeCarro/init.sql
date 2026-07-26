@@ -28,8 +28,8 @@ FLUSH PRIVILEGES;
 --                                         ('Kicks', 9), ('Versa', 9), ('Frontier', 9), ('Sentra', 9), ('March', 9),
 --                                         ('Ka', 10), ('EcoSport', 10), ('Ranger', 10), ('Fusion', 10), ('Focus', 10);
 --
--- -- População inicial da tabela cores
--- INSERT INTO cores (nome) VALUES
+-- -- População inicial da tabela cor
+-- INSERT INTO cor (nome) VALUES
 --                              ('Vermelho'),
 --                              ('Preto'),
 --                              ('Branco'),

@@ -20,7 +20,10 @@ public class CombustivelRequestFactory {
         this.nome = "Gasolina";
         return this;
     }
-
+    public CombustivelRequestFactory comNome(String nome) {
+        this.nome = nome;
+        return this;
+    }
 
     public CombustivelRequest build() {
         return new CombustivelRequest(nome);

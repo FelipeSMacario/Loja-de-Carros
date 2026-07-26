@@ -8,7 +8,7 @@ public class CarroceriaRequestFactory {
     private CarroceriaRequestFactory() {
     }
 
-    public static CarroceriaRequestFactory marcaRequestFactory() {
+    public static CarroceriaRequestFactory carroceriaRequestFactory() {
         return new CarroceriaRequestFactory();
     }
 

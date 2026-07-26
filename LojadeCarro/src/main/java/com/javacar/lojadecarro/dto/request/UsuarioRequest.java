@@ -17,7 +17,7 @@ public record UsuarioRequest(@Schema(example = "Felipe", description = "Nome do 
                              @NotBlank @CPF String cpf,
                              @Schema(description = "Data de nascimento",
                                      example = "1998-05-20")
-                             @NotNull LocalDate dtNascimento,
+                             @NotNull LocalDate dataNascimento,
                              @Schema(example = "felipesmacario@gmail.com", description = "Email do usuário")
                              @NotBlank @Email String email) {
 }

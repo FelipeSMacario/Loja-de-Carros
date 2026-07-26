@@ -6,5 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 public record CombustivelResponse(@Schema(example = "1", description = "ID do combustível")
                                   Long id,
                                   @Schema(example = "Eletrico", description = "Nome do combustível")
-                                  String nome) {
+                                  String nome,
+                                  @Schema(example = "true", description = "Status da combustivel")
+                                  boolean ativo) {
 }

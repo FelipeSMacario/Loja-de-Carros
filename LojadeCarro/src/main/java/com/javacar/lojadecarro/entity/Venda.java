@@ -1,28 +1,34 @@
 package com.javacar.lojadecarro.entity;
 
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
 import jakarta.persistence.*;
+import lombok.Data;
+
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
-@Getter
-@Setter
 @Entity
-@Table(name = "Venda")
 public class Venda {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "Data")
-    private LocalDateTime data;
+    @Column(
+            nullable = false,
+            updatable = false,
+            insertable = false
+    )
+    private LocalDateTime dataVenda;
 
-    @OneToOne
-    private Usuario usuario;
+    @Column(nullable = false)
+    private BigDecimal valorVenda;
 
-    @OneToOne
-    private Carro carro;
+    @OneToOne(fetch = FetchType.LAZY)
+    private Usuario vendedor;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private Usuario comprador;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    private Veiculo veiculo;
 }

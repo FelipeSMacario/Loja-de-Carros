@@ -1,103 +1,82 @@
 package com.javacar.lojadecarro.controller;
 
-import com.javacar.lojadecarro.dto.response.UsuarioResponse;
-import com.javacar.lojadecarro.exception.LoginSenhaException;
-import com.javacar.lojadecarro.factory.usuario.UsuarioResponseFactory;
+import com.javacar.lojadecarro.exception.security.LoginSenhaException;
+import com.javacar.lojadecarro.factory.usuario.LoginTestContext;
 import com.javacar.lojadecarro.service.LoginService;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
+import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus400;
+import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus401;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(LoginController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class LoginControllerTest {
+@DisplayName("Testes da controller de login")
+class LoginControllerTest extends BaseControllerTest {
     private static final String URL = "/login";
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
 
     @MockitoBean
     private LoginService loginService;
 
-    @Test
-    @DisplayName("Deve logar com sucesso")
-    void logarSucesso() throws Exception {
-        //Arrange
-        var login = "felespe";
-        var password = "12345";
-        var response = criarUsuarioResponse();
+    @Nested
+    @DisplayName("Testes de autenticação")
+    class Autenticacao {
+        @Test
+        @DisplayName("Deve logar com sucesso")
+        void logarSucesso() throws Exception {
+            //Arrange
+            var cx = new LoginTestContext();
 
-        when(loginService.logar(login, password))
-                .thenReturn(response);
-        //Act + Assert
-        mockMvc.perform(
-                        get(URL)
-                                .param("login", login)
-                                .param("password", password)
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(ID_VALIDO))
-                .andExpect(jsonPath("$.nome").value("Felipe"))
-                .andExpect(jsonPath("$.email").value("felipesmacario@gmail.com"));
+            when(loginService.autenticar(cx.request))
+                    .thenReturn(cx.response);
+            //Act + Assert
+            var resultado = performPost(URL, cx.request);
+            resultado.andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id").value(ID_VALIDO))
+                    .andExpect(jsonPath("$.nome").value("Felipe"))
+                    .andExpect(jsonPath("$.cpf").value("15153769788"))
+                    .andExpect(jsonPath("$.email").value("felipesmacario@gmail.com"))
+                    .andExpect(jsonPath("$.ativo").value(true));
 
-        verify(loginService).logar(login, password);
-        verifyNoMoreInteractions(loginService);
-    }
+            verify(loginService).autenticar(cx.request);
+            verifyNoMoreInteractions(loginService);
+        }
 
-    @Test
-    @DisplayName("Deve retornar 401 quando as credenciais forem inválidas")
-    void retornar401aoInserirLogin() throws Exception {
-        //Arrange
-        var login = "felespeErrado";
-        var password = "12345";
+        @Test
+        @DisplayName("Deve lançar 401 quando as credenciais forem inválidas")
+        void deveLancar401AoInserirCredenciaisInvalidas() throws Exception {
+            //Arrange
+            var cx = new LoginTestContext();
 
-        when(loginService.logar(login, password))
-                .thenThrow(new LoginSenhaException());
-        //Act + Assert
-        mockMvc.perform(
-                        get(URL)
-                                .param("login", login)
-                                .param("password", password)
-                ).andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.status").value(401))
-                .andExpect(jsonPath("$.message").value("Usuário ou senha inválidos."));
+            when(loginService.autenticar(cx.request))
+                    .thenThrow(new LoginSenhaException());
+            //Act + Assert
+            var resultado = performPost(URL, cx.request);
+            assertStatus401(resultado);
 
-        verify(loginService).logar(login, password);
+            verify(loginService).autenticar(cx.request);
 
-        verifyNoMoreInteractions(loginService);
-    }
+            verifyNoMoreInteractions(loginService);
+        }
 
-    @Test
-    @DisplayName("Deve retornar 400 ao nao informar a senha")
-    void retorna400aoNaoInformarSenha() throws Exception {
-        //Arrange
-        var login = "felespe";
-        //Act + Assert
-        mockMvc.perform(
-                        get(URL)
-                                .param("login", login)
-                ).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400));
+        @Test
+        @DisplayName("Deve lançar 400 ao nao informar a senha")
+        void deveLancar400AoNaoInformarSenha() throws Exception {
+            //Arrange
+            var cx = new LoginTestContext();
+            //Act + Assert
+            var resultado = performPost(URL, cx.requestIncompleta);
+            assertStatus400(resultado);
 
-        verifyNoInteractions(loginService);
-    }
-
-    private UsuarioResponse criarUsuarioResponse() {
-        return UsuarioResponseFactory
-                .criarResponse()
-                .comTodosOsCampos()
-                .build();
+            verifyNoInteractions(loginService);
+        }
     }
 }

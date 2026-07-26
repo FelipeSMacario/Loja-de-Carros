@@ -1,0 +1,6 @@
+- Avaliar domínio rico nas entidades
+- Avaliar separação de módulos
+- Avaliar cache Redis
+- Avaliar eventos
+- Avaliar microsserviço de imagens
+- Avaliar auditoria

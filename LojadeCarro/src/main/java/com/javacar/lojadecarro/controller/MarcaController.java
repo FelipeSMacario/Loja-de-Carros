@@ -1,7 +1,9 @@
 package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.request.MarcaRequest;
+import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.MarcaResponse;
+import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.service.MarcaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,9 +27,9 @@ public class MarcaController {
 
     @PostMapping
     @Operation(summary = "Criar uma nova marca")
-    public ResponseEntity<MarcaResponse> create(@RequestBody @Valid MarcaRequest request) {
-        log.info("Criando uma nova marca");
-        var response = marcaService.createMarca(request);
+    public ResponseEntity<MarcaResponse> criar(@RequestBody @Valid MarcaRequest request) {
+        log.debug("Cadastrar uma nova marca com o corpo: {}", request);
+        var response = marcaService.criar(request);
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -35,47 +37,56 @@ public class MarcaController {
                 .buildAndExpand(response.id())
                 .toUri();
 
-        log.info("Marca criado com sucesso");
-        log.debug("Resposta uma nova marca: {}", response);
+        log.info("Marca criada com sucesso com o id: {}", response.id());
+        log.debug("Resposta da criação da marca: {}", response);
         return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping
     @Operation(summary = "Listar todas as marcas")
-    public ResponseEntity<List<MarcaResponse>> findAll() {
-        log.info("Buscando todas as marcas.");
-        var response = marcaService.listarMarcas();
+    public ResponseEntity<List<MarcaResponse>> listar(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
+        log.debug("Buscando todas as marcas com o status: {}.", status);
+        var response = marcaService.listar(status);
+
+        log.debug("Consulta de todas as marcas com o status: {} realizada com sucesso", status);
+        log.debug("A consulta de todos as marcas retornou com o tamanho de: {} valores", response.size());
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     @Operation(summary = "Buscar marca por id")
-    public ResponseEntity<MarcaResponse> findById(@PathVariable Long id) {
-        log.info("Buscando a marca por id: {}", id);
-        var response = marcaService.findMarcaById(id);
+    public ResponseEntity<MarcaResponse> buscarPorId(@PathVariable Long id) {
+        log.debug("Buscando a marca por id: {}", id);
+        var response = marcaService.buscarPorId(id);
 
+        log.info("Consulta da marca realizada com sucesso. id={}", id);
         log.debug("Resposta da marca por id: {}", response);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar marca buscando por id")
-    public ResponseEntity<MarcaResponse> update(@RequestBody @Valid MarcaRequest request, @PathVariable Long id) {
-        log.info("Atualizando a marca por id: {}", id);
-        var response = marcaService.updateMarca(request, id);
+    public ResponseEntity<MarcaResponse> atualizar(@RequestBody @Valid MarcaRequest request,
+                                                   @PathVariable Long id) {
+        log.debug("Atualizando a marca com id: {} para o corpo: {}", id, request);
+        var response = marcaService.atualizar(request, id);
 
-        log.debug("Resposta atualizar marca por id: {}", response);
+        log.info("Marca com o id: {} atualizada com sucesso", id);
+        log.debug("Resposta para atualizar  a marca por id: {}", response);
         return ResponseEntity.ok(response);
     }
 
-    @DeleteMapping("/{id}")
-    @Operation(summary = "Deletar uma marca buscando por id")
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        log.info("Deletando a marca por id: {}", id);
-        marcaService.deleteMarca(id);
+    @PatchMapping("/{id}/status")
+    @Operation(summary = "Alterar o status de uma marca")
+    public ResponseEntity<MarcaResponse> alterarStatus(@PathVariable Long id,
+                                                       @RequestBody @Valid StatusRequest request) {
+        log.debug("Alterando status da marca com id: {} para o status: {}", id, request.ativo());
+        var response = marcaService.alterarStatus(id, request);
 
-        log.info("Marca deletada com sucesso. Id: {}", id);
-        return ResponseEntity.noContent().build();
+        log.info("Status da marca com o id: {} alterado com sucesso", id);
+        log.debug("Resposta da alteração de status para o id: {}. Resposta: {}", id, response);
+        return ResponseEntity.ok(response);
     }
+
 }

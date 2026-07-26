@@ -1,21 +1,27 @@
 package com.javacar.lojadecarro.entity;
 
-import lombok.Data;
+import com.javacar.lojadecarro.exception.business.BusinessException;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import jakarta.persistence.*;
+import static com.javacar.lojadecarro.enums.Entidade.COMBUSTIVEL;
 
-@Data
-@Table(name = "Combustivel")
-@Entity
 @Getter
 @Setter
-public class Combustivel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@NoArgsConstructor
+@Entity
+public class Combustivel extends EntidadeBase {
 
-    @Column(name = "Nome")
+    @Column(nullable = false, unique = true, length = 30)
     private String nome;
+
+    public void alteraStatus(boolean novoStatus) {
+        if (this.ativo == novoStatus) {
+            throw new BusinessException(novoStatus ? COMBUSTIVEL.jaAtiva() : COMBUSTIVEL.jaInativa());
+        }
+        this.ativo = novoStatus;
+    }
 }

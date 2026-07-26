@@ -1,11 +1,13 @@
 package com.javacar.lojadecarro.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.javacar.lojadecarro.exception.CarroceriaException;
-import com.javacar.lojadecarro.factory.carroceria.CarroceriaRequestFactory;
+import com.javacar.lojadecarro.dto.request.StatusRequest;
+import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.carroceria.CarroceriaResponseFactory;
+import com.javacar.lojadecarro.factory.carroceria.CarroceriaTestContext;
 import com.javacar.lojadecarro.service.CarroceriaService;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,19 +18,22 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static com.javacar.lojadecarro.support.ErrorMessages.CARROCERIA;
-import static com.javacar.lojadecarro.support.ErrorMessages.ID_NOT_FOUND;
-import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
+import static com.javacar.lojadecarro.enums.Entidade.CARROCERIA;
+import static com.javacar.lojadecarro.enums.StatusFiltro.ATIVAS;
+import static com.javacar.lojadecarro.enums.StatusFiltro.INATIVAS;
+import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus400;
+import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus404;
+import static com.javacar.lojadecarro.factory.helper.CarroceriaHelper.assertResultadoCarroceria;
+import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(CarroceriaController.class)
 @AutoConfigureMockMvc(addFilters = false)
+@DisplayName("Testes da controller da carroceria")
 class CarroceriaControllerTest {
     private static final String URL = "/carrocerias";
-    private static final Long ID_CARROCERIA = 1L;
-    private static final Long ID_CARROCERIA_EXCEPTION = 99L;
 
     @Autowired
     private MockMvc mockMvc;
@@ -39,241 +44,310 @@ class CarroceriaControllerTest {
     @MockitoBean
     private CarroceriaService carroceriaService;
 
-    @Test
-    @DisplayName("Deve criar uma carroceria")
-    void deveCriarCarroceria() throws Exception {
-        //Arrange
-        var request = CarroceriaRequestFactory
-                .criarRequest()
-                .comTodosOsCampos()
-                .build();
-        var response = CarroceriaResponseFactory
-                .criarResponse()
-                .comTodosOsCampos()
-                .build();
+    @Nested
+    @DisplayName("Testes da criação da carroceria")
+    class Criar {
+        @Test
+        @DisplayName("Deve criar uma carroceria")
+        void deveCriarCarroceria() throws Exception {
+            //Arrange
+            var carroceriacx = new CarroceriaTestContext();
 
-        when(carroceriaService.createCarroceria(request))
-                .thenReturn(response);
+            when(carroceriaService.criar(carroceriacx.carroceriaRequest))
+                    .thenReturn(carroceriacx.carroceriaResponse);
 
-        // Act + Assert
-        mockMvc.perform(
-                        post(URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                ).andExpect(status().isCreated())
-                .andExpect(header().exists("Location"))
+            // Act + Assert
+            mockMvc.perform(
+                            post(URL)
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .content(objectMapper.writeValueAsString(carroceriacx.carroceriaRequest))
+                    ).andExpect(status().isCreated())
+                    .andExpect(header().exists("Location"))
+                    .andExpect(jsonPath("$.id").value(ID_VALIDO))
+                    .andExpect(jsonPath("$.nome").value("Hatch"))
+                    .andExpect(jsonPath("$.ativo").value(true));
 
-                .andExpect(jsonPath("$.id").value(ID_CARROCERIA))
+            verify(carroceriaService).criar(carroceriacx.carroceriaRequest);
+            verifyNoMoreInteractions(carroceriaService);
+        }
 
-                .andExpect(jsonPath("$.nome").value("Hatch"));
+        @Test
+        @DisplayName("Deve lançar 400 ao criar uma carroceria sem nome")
+        void deveLancar400aoCriarCarroceriaSemNome() throws Exception {
+            //Arrange
+            var carroceriacx = new CarroceriaTestContext();
 
-        verify(carroceriaService).createCarroceria(request);
+            // Act + Assert
+            var resultado = mockMvc.perform(
+                    post(URL)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper
+                                    .writeValueAsString(carroceriacx.carroceriaRequestIncompleta))
+            );
+            assertStatus400(resultado);
+
+            verifyNoInteractions(carroceriaService);
+
+        }
     }
 
-    @Test
-    @DisplayName("Deve lançar 400 ao criar uma carroceria sem nome")
-    void deveLancar400aoCriarCarroceriaSemNome() throws Exception {
-        //Arrange
-        var request = CarroceriaRequestFactory
-                .criarRequest()
-                .build();
+    @Nested
+    @DisplayName("Testes da listagem de carrocerias")
+    class Listar {
 
-        // Act + Assert
-        mockMvc.perform(
-                        post(URL)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                ).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400));
+        @Test
+        @DisplayName("Deve utilizar ATIVAS como status padrão")
+        void deveListarAsCarroceriasAtivas() throws Exception {
+            //Arrange
+            var carroceriacx = new CarroceriaTestContext();
 
-        verifyNoInteractions(carroceriaService);
+            var response = List.of(carroceriacx.carroceriaResponse,
+                    carroceriacx.carroceriaResponse2);
+
+            when(carroceriaService.listar(ATIVAS))
+                    .thenReturn(response);
+
+            // Act + Assert
+            mockMvc.perform(
+                            get(URL)
+                    ).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(2))
+                    .andExpect(jsonPath("$.[0].id").value(ID_VALIDO))
+                    .andExpect(jsonPath("$.[0].nome").value("Hatch"))
+                    .andExpect(jsonPath("$.[0].ativo").value(true))
+                    .andExpect(jsonPath("$.[1].id").value(2L))
+                    .andExpect(jsonPath("$.[1].nome").value("Sedan"))
+                    .andExpect(jsonPath("$.[1].ativo").value(true));
+
+            verify(carroceriaService).listar(ATIVAS);
+            verifyNoMoreInteractions(carroceriaService);
+        }
+
+        @Test
+        @DisplayName("Deve encaminhar o status informado para a service")
+        void deveListarAsCarroceriasInativas() throws Exception {
+            //Arrange
+            var response1 = CarroceriaResponseFactory
+                    .criarResponse()
+                    .comTodosOsCampos()
+                    .comAtivo(false)
+                    .build();
+
+            var response2 = CarroceriaResponseFactory
+                    .criarResponse()
+                    .comId(2L)
+                    .comNome("Sedan")
+                    .comAtivo(false)
+                    .build();
+
+            var response = List.of(response1, response2);
+
+            when(carroceriaService.listar(INATIVAS))
+                    .thenReturn(response);
+
+            // Act + Assert
+            mockMvc.perform(
+                            get(URL)
+                                    .param("status", INATIVAS.toString())
+                    ).andExpect(status().isOk())
+                    .andExpect(jsonPath("$.length()").value(2))
+                    .andExpect(jsonPath("$.[0].id").value(ID_VALIDO))
+                    .andExpect(jsonPath("$.[0].nome").value("Hatch"))
+                    .andExpect(jsonPath("$.[0].ativo").value(false))
+                    .andExpect(jsonPath("$.[1].id").value(2L))
+                    .andExpect(jsonPath("$.[1].nome").value("Sedan"))
+                    .andExpect(jsonPath("$.[1].ativo").value(false));
+
+            verify(carroceriaService).listar(INATIVAS);
+            verifyNoMoreInteractions(carroceriaService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao informar um status invalido")
+        void deveLancar400aoInformarStatusInvalido() throws Exception {
+            //ACT + Assert
+            var resultado = mockMvc.perform(
+                    get(URL)
+                            .param("status", "123")
+            );
+            assertStatus400(resultado);
+            verifyNoInteractions(carroceriaService);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes da busca da carroceria")
+    class Buscar {
+        @Test
+        @DisplayName("Deve buscar uma carroceria por ID")
+        void deveBuscarCarroceriaPorId() throws Exception {
+            //Arrange
+
+            var carroceriacx = new CarroceriaTestContext();
+
+            when(carroceriaService.buscaPorId(ID_VALIDO))
+                    .thenReturn(carroceriacx.carroceriaResponse);
+
+            // Act + Assert
+            var resultado = mockMvc.perform(
+                    get(URL + "/" + ID_VALIDO)
+            );
+
+            assertResultadoCarroceria(resultado);
+
+            verify(carroceriaService).buscaPorId(ID_VALIDO);
+            verifyNoMoreInteractions(carroceriaService);
+        }
+
+
+        @Test
+        @DisplayName("Deve lançar 404 ao buscar uma carroceria por ID")
+        void deveLancar404aoBuscarCarroceriaPorId() throws Exception {
+            //Arrange
+            when(carroceriaService.buscaPorId(ID_VALIDO))
+                    .thenThrow(new NotFoundException(CARROCERIA, ID_VALIDO));
+
+            //ACT + Assert
+            var resultado = mockMvc.perform(
+                    get(URL + "/" + ID_VALIDO)
+            );
+
+            assertStatus404(resultado, CARROCERIA, ID_VALIDO);
+
+            verify(carroceriaService).buscaPorId(ID_VALIDO);
+            verifyNoMoreInteractions(carroceriaService);
+        }
 
     }
 
-    @Test
-    @DisplayName("Deve listar as carrocerias")
-    void deveListarAsCarrocerias() throws Exception {
-        //Arrange
-        var hatch = CarroceriaResponseFactory
-                .criarResponse()
-                .comTodosOsCampos()
-                .build();
-        var sedan = CarroceriaResponseFactory
-                .criarResponse()
-                .comId(2L)
-                .comNome("Sedan")
-                .build();
+    @Nested
+    @DisplayName("Testes da atualização da carroceria")
+    class Atualizar {
+        @Test
+        @DisplayName("Deve atualizar a carroceria")
+        void deveAtualizaraCarroceria() throws Exception {
+            //Arrange
+            var carroceriacx = new CarroceriaTestContext();
 
-        var response = List.of(hatch, sedan);
+            when(carroceriaService.atualizar(carroceriacx.carroceriaRequest, ID_VALIDO))
+                    .thenReturn(carroceriacx.carroceriaResponse);
 
-        when(carroceriaService.listarCarroceria())
-                .thenReturn(response);
+            //Act + Assert
 
-        // Act + Assert
-        mockMvc.perform(
-                        get(URL)
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$.[0].id").value(ID_CARROCERIA))
-                .andExpect(jsonPath("$.[0].nome").value("Hatch"))
-                .andExpect(jsonPath("$.[1].id").value(2L))
-                .andExpect(jsonPath("$.[1].nome").value("Sedan"));
+            var resultado = mockMvc.perform(
+                    put(URL + "/" + ID_VALIDO)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(carroceriacx.carroceriaRequest))
+            );
+            assertResultadoCarroceria(resultado);
 
-        verify(carroceriaService).listarCarroceria();
+            verify(carroceriaService).atualizar(carroceriacx.carroceriaRequest, ID_VALIDO);
+            verifyNoMoreInteractions(carroceriaService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao atualizar uma carroceria sem nome")
+        void deveLancar400aoAtualizarCarroceriaSemNome() throws Exception {
+            //Arrange
+            var carroceriacx = new CarroceriaTestContext();
+
+            // Act + Assert
+            var resultado = mockMvc.perform(
+                    put(URL + "/" + ID_VALIDO)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(carroceriacx.carroceriaRequestIncompleta))
+            );
+            assertStatus400(resultado);
+
+            verifyNoInteractions(carroceriaService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 404 ao atulizar uma carroceria")
+        void deveLancar404aoAtualizarCarroceria() throws Exception {
+            //Arrange
+            var carroceriacx = new CarroceriaTestContext();
+
+            when(carroceriaService.atualizar(carroceriacx.carroceriaRequest, ID_VALIDO))
+                    .thenThrow(new NotFoundException(CARROCERIA, ID_VALIDO));
+
+            // Act + Assert
+            var resultado = mockMvc.perform(
+                    put(URL + "/" + ID_VALIDO)
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(carroceriacx.carroceriaRequest))
+            );
+
+            assertStatus404(resultado, CARROCERIA, ID_VALIDO);
+
+            verify(carroceriaService).atualizar(carroceriacx.carroceriaRequest, ID_VALIDO);
+            verifyNoMoreInteractions(carroceriaService);
+        }
+
     }
 
-    @Test
-    @DisplayName("Deve buscar uma carroceria por ID")
-    void deveBuscarCarroceriaPorId() throws Exception {
-        //Arrange
-        var id = ID_CARROCERIA;
+    @Nested
+    @DisplayName("Testes da alteração do status da carroceria")
+    class AlterarStatus {
+        @Test
+        @DisplayName("Deve alterar o status da carroceria")
+        void deveAlterarStatusDaCarroceria() throws Exception {
+            //Arrange
+            var carroceriacx = new CarroceriaTestContext();
+            var status = new StatusRequest(true);
 
-        var response = CarroceriaResponseFactory
-                .criarResponse()
-                .comTodosOsCampos()
-                .build();
+            when(carroceriaService.alterarStatus(ID_VALIDO, status))
+                    .thenReturn(carroceriacx.carroceriaResponse);
+            //ACT + assert
+            var resultado = mockMvc.perform(
+                    patch(URL + "/" + ID_VALIDO + "/status")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(status))
+            );
+            assertResultadoCarroceria(resultado);
 
-        when(carroceriaService.findCarroceriaById(id))
-                .thenReturn(response);
+            verify(carroceriaService).alterarStatus(ID_VALIDO, status);
+            verifyNoMoreInteractions(carroceriaService);
+        }
 
-        // Act + Assert
-        mockMvc.perform(
-                        get(URL + "/" + id)
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(ID_CARROCERIA))
-                .andExpect(jsonPath("$.nome").value("Hatch"));
+        @Test
+        @DisplayName("Deve lançar 400 ao alterar status")
+        void deveLancar400aoAlterarStatusDaCarroceria() throws Exception {
+            //Arrange
+            var status = new StatusRequest(null);
+            //ACT + assert
+            var resultado = mockMvc.perform(
+                    patch(URL + "/" + ID_VALIDO + "/status")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(status))
+            );
 
-        verify(carroceriaService).findCarroceriaById(id);
+            assertStatus400(resultado);
+            verifyNoInteractions(carroceriaService);
+
+        }
+
+        @Test
+        @DisplayName("Deve lançar 404 ao alterar status")
+        void deveLancar404aoAlterarStatusDaCarroceria() throws Exception {
+            //Arrange
+            var status = new StatusRequest(true);
+
+            when(carroceriaService.alterarStatus(ID_VALIDO, status))
+                    .thenThrow(new NotFoundException(CARROCERIA, ID_VALIDO));
+            //ACT + assert
+            var resultado = mockMvc.perform(
+                    patch(URL + "/" + ID_VALIDO + "/status")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(status))
+            );
+            assertStatus404(resultado,
+                    CARROCERIA,
+                    ID_VALIDO);
+
+            verify(carroceriaService).alterarStatus(ID_VALIDO, status);
+            verifyNoMoreInteractions(carroceriaService);
+        }
     }
 
-    @Test
-    @DisplayName("Deve lançar 404 ao buscar uma carroceria por ID")
-    void deveLancar404aoBuscarCarroceriaPorId() throws Exception {
-        //Arrange
-        var id = ID_CARROCERIA_EXCEPTION;
-
-        when(carroceriaService.findCarroceriaById(id))
-                .thenThrow(new CarroceriaException(id));
-
-        //ACT + Assert
-        mockMvc.perform(
-                        get(URL + "/" + id)
-                ).andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message")
-                        .value(String.format(ID_NOT_FOUND, CARROCERIA, ID_INVALIDO)));
-
-        verify(carroceriaService).findCarroceriaById(id);
-    }
-
-    @Test
-    @DisplayName("Deve atualizar a carroceria")
-    void deveAtualizaraCarroceria() throws Exception {
-        //Arrange
-        var id = ID_CARROCERIA;
-        var request = CarroceriaRequestFactory
-                .criarRequest()
-                .comTodosOsCampos()
-                .build();
-
-        var response = CarroceriaResponseFactory
-                .criarResponse()
-                .comTodosOsCampos()
-                .build();
-
-        when(carroceriaService.updateCarroceria(request, id))
-                .thenReturn(response);
-
-        //Act + Assert
-
-        mockMvc.perform(
-                        put(URL + "/" + id)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                ).andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").value(ID_CARROCERIA))
-                .andExpect(jsonPath("$.nome").value("Hatch"));
-
-        verify(carroceriaService).updateCarroceria(request, id);
-    }
-
-    @Test
-    @DisplayName("Deve lançar 400 ao atualizar uma carroceria sem nome")
-    void deveLancar400aoAtualizarCarroceriaSemNome() throws Exception {
-        //Arrange
-        var id = ID_CARROCERIA;
-        var request = CarroceriaRequestFactory
-                .criarRequest()
-                .build();
-
-        when(carroceriaService.updateCarroceria(request, id))
-                .thenThrow(new CarroceriaException(id));
-
-        // Act + Assert
-        mockMvc.perform(
-                        put(URL + "/" + id)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                ).andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.status").value(400))
-                .andExpect(jsonPath("$.message").exists());
-
-        verifyNoInteractions(carroceriaService);
-    }
-
-    @Test
-    @DisplayName("Deve lançar 404 ao atulizar uma carroceria")
-    void deveLancar404aoAtualizarCarroceria() throws Exception {
-        //Arrange
-        var id = ID_CARROCERIA_EXCEPTION;
-        var request = CarroceriaRequestFactory
-                .criarRequest()
-                .comTodosOsCampos()
-                .build();
-
-        when(carroceriaService.updateCarroceria(request, id))
-                .thenThrow(new CarroceriaException(id));
-
-        // Act + Assert
-        mockMvc.perform(
-                        put(URL + "/" + id)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(objectMapper.writeValueAsString(request))
-                ).andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message")
-                        .value(String.format(ID_NOT_FOUND, CARROCERIA, ID_INVALIDO)));
-
-        verify(carroceriaService).updateCarroceria(request, id);
-    }
-
-    @Test
-    @DisplayName("Deve deletar a carroceria")
-    void deveDeletarCarroceria() throws Exception {
-        //Arrange
-        var id = ID_CARROCERIA;
-        // Act + Assert
-        mockMvc.perform(
-                delete(URL + "/" + id)
-        ).andExpect(status().isNoContent());
-
-        verify(carroceriaService).deleteCarroceria(id);
-    }
-
-    @Test
-    @DisplayName("Deve lançar 404 ao deletar a carroceria")
-    void deveLancar404aoDeletarCarroceria() throws Exception {
-        //Arrange
-        var id = ID_CARROCERIA_EXCEPTION;
-        doThrow(new CarroceriaException(id))
-                .when(carroceriaService).deleteCarroceria(id);
-        // Act + Assert
-        mockMvc.perform(
-                        delete(URL + "/" + id)
-                ).andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.status").value(404))
-                .andExpect(jsonPath("$.message")
-                        .value(String.format(ID_NOT_FOUND, CARROCERIA, ID_INVALIDO)));
-        verify(carroceriaService).deleteCarroceria(id);
-    }
 }

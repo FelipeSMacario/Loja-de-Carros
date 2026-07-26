@@ -8,5 +8,7 @@ public record MarcaResponse(@Schema(example = "1", description = "ID da cor")
                             @Schema(example = "Ford", description = "Nome da marca")
                             String nome,
                             @Schema(example = "https://upload.wikimedia.org/wikipedia/commons/3/3e/Ford_logo_flat.svg", description = "URL da marca")
-                            String url) {
+                            String url,
+                            @Schema(example = "true", description = "Status da marca")
+                            boolean ativo) {
 }

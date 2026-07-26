@@ -1,17 +1,21 @@
 package com.javacar.lojadecarro.service;
 
-import com.javacar.lojadecarro.dto.request.CoresRequest;
-import com.javacar.lojadecarro.dto.response.CoresResponse;
-import com.javacar.lojadecarro.entity.Cores;
-import com.javacar.lojadecarro.exception.CoresException;
-import com.javacar.lojadecarro.mapper.CoresMapper;
+import com.javacar.lojadecarro.dto.request.CorRequest;
+import com.javacar.lojadecarro.dto.request.StatusRequest;
+import com.javacar.lojadecarro.dto.response.CorResponse;
+import com.javacar.lojadecarro.entity.Cor;
+import com.javacar.lojadecarro.enums.StatusFiltro;
+import com.javacar.lojadecarro.mapper.CorMapper;
 import com.javacar.lojadecarro.repository.CoresRepository;
+import com.javacar.lojadecarro.validation.EntityValidation;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.util.List;
+
+import static com.javacar.lojadecarro.enums.Entidade.COR;
 
 @Slf4j
 @Service
@@ -19,53 +23,51 @@ import java.util.List;
 public class CoresService {
 
     private final CoresRepository coresRepository;
+    private final CorMapper corMapper;
+    private final EntityValidation entityValidation;
 
-    private final CoresMapper coresMapper;
+    @Transactional
+    public CorResponse criar(CorRequest request) {
+        var coresEntity = corMapper.toEntity(request);
+        var cor = coresRepository.save(coresEntity);
 
-    public CoresResponse createCores(@RequestBody CoresRequest request) {
-        log.debug("Inicio da createCoresService com a response: {}", request);
-        var coresEntity = coresMapper.toEntity(request);
-        var coresResponse = coresRepository.save(coresEntity);
-        log.info("Cores salva com sucesso!");
-
-        return coresMapper.toResponse(coresResponse);
+        return corMapper.toResponse(cor);
     }
 
-    public List<CoresResponse> listarCores() {
-        log.info("Inicio da listarCoresService");
-        return coresRepository.findAll()
+    public List<CorResponse> listar(StatusFiltro status) {
+        var listaCores =
+                switch (status) {
+                    case TODAS -> coresRepository.findAll();
+                    case INATIVAS -> coresRepository.findByAtivo(false);
+                    case ATIVAS -> coresRepository.findByAtivo(true);
+                };
+        return listaCores
                 .stream()
-                .map(coresMapper::toResponse)
+                .map(corMapper::toResponse)
                 .toList();
     }
 
-    public CoresResponse findCoresById(Long id) {
-        log.info("Inicio da findCoresByIdService com id: {}", id);
-        return coresRepository.findById(id)
-                .map(coresMapper::toResponse)
-                .orElseThrow(() -> new CoresException(id));
+    public CorResponse buscarPorId(Long id) {
+        return corMapper.toResponse(buscaCor(id));
     }
 
-    public CoresResponse updateCores(CoresRequest request, Long id) {
-        log.info("Inicio da updateCoresService com o id: {}", id);
-        return coresRepository.findById(id)
-                .map(coresEntity -> {
-                    coresEntity.setNome(request.nome());
-                    var update = coresRepository.save(coresEntity);
-                    return coresMapper.toResponse(update);
-                }).orElseThrow(() -> new CoresException(id));
+    @Transactional
+    public CorResponse atualizar(CorRequest request, Long id) {
+        var cor = buscaCor(id);
+        corMapper.toUpdate(request, cor);
+        return corMapper.toResponse(cor);
     }
 
-    public void deleteCores(Long id) {
-        log.info("Inicio da deleteCoresService com o id: {}", id);
-        var corEntity = coresRepository.findById(id).orElseThrow(() -> new CoresException(id));
-        coresRepository.deleteById(corEntity.getId());
+    @Transactional
+    public CorResponse alterarStatus(Long id, StatusRequest request) {
+        var cor = buscaCor(id);
+        cor.alteraStatus(request.ativo());
+
+        return corMapper.toResponse(cor);
     }
 
-    public Cores buscaCores(Long id) {
-        log.info("Inicio da buscaCoresService com o id: {}", id);
-        return  coresRepository.findById(id)
-                .orElseThrow(() -> new CoresException(id));
+    public Cor buscaCor(Long id) {
+        return entityValidation.obterOuLancarErro(coresRepository.findById(id), COR, id);
     }
 
 }

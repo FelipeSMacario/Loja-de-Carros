@@ -20,12 +20,14 @@ public class MarcaRequestFactory {
         this.url = "https://www.google.com";
         return this;
     }
-
-    public MarcaRequestFactory comTodosOsCamposExcetoNome(){
-        this.url = "https://www.google.com";
+    public MarcaRequestFactory comNome(String nome){
+        this.nome = nome;
         return this;
     }
-
+    public MarcaRequestFactory comUrl(String url){
+        this.url = url;
+        return this;
+    }
     public MarcaRequest build(){
         return new MarcaRequest(nome, url);
     }
