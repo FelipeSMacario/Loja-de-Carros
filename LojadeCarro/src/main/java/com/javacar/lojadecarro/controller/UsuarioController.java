@@ -3,6 +3,7 @@ package com.javacar.lojadecarro.controller;
 import com.javacar.lojadecarro.dto.request.RoleRequest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
+import com.javacar.lojadecarro.dto.request.UsuarioRolesRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
 import com.javacar.lojadecarro.enums.StatusFiltro;
@@ -45,9 +46,9 @@ public class UsuarioController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os usuário")
+    @Operation(summary = "Listar os usuário")
     public ResponseEntity<List<UsuarioResponse>> listar(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
-        log.debug("Buscando todos os usuários com o status: {}.", status);
+        log.debug("Buscando os usuários com o status: {}.", status);
         var response = usuarioService.listar(status);
 
         log.debug("Consulta de todos os usuários com o status: {} realizada com sucesso", status);
@@ -92,9 +93,9 @@ public class UsuarioController {
     @PatchMapping("/{id}/roles")
     @Operation(summary = "Vincular uma role para um usuário")
     public ResponseEntity<UsuarioRolesResponse> vincularRole(@PathVariable Long id,
-                                                             @RequestBody List<Long> requests) {
+                                                             @RequestBody @Valid UsuarioRolesRequest requests) {
         log.debug("Cadastrando roles para o usuário com id: {}", id);
-        var response = usuarioService.vincularRole(id, requests);
+        var response = usuarioService.vincularRole(id, requests.roles());
 
         log.info("Roles vinculadas com sucesso ao usuário id={}", id);
         log.debug("Resposta da vinculação das roles: {}", response);

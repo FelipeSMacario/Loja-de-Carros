@@ -15,6 +15,7 @@ import static com.javacar.lojadecarro.factory.helper.VendaHelper.*;
 
 public class VendaTestContext {
     public final VendaRequest vendaRequest = criarVendaRequest();
+    public final VendaRequest vendaRequestIncompleta = VendaRequestFactory.criarRequest().build();
     public final Venda vendaEntity = criarVendaEntity();
     public final Venda vendaEntity2 = VendaEntityFactory
             .criarEntity()

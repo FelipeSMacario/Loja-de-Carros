@@ -1,333 +1,506 @@
-//package com.javacar.lojadecarro.controller;
-//
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.javacar.lojadecarro.dto.request.CarroRequest;
-//import com.javacar.lojadecarro.dto.response.CarroResponse;
-//import com.javacar.lojadecarro.factory.veiculo.CarroRequestFactory;
-//import com.javacar.lojadecarro.factory.veiculo.CarroResponseFactory;
-//import com.javacar.lojadecarro.service.CarroService;
-//import org.junit.jupiter.api.DisplayName;
-//import org.junit.jupiter.api.Test;
-//import org.springframework.beans.factory.annotation.Autowired;
-//import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-//import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-//import org.springframework.data.domain.Page;
-//import org.springframework.data.domain.PageImpl;
-//import org.springframework.data.domain.Pageable;
-//import org.springframework.http.MediaType;
-//import org.springframework.test.context.bean.override.mockito.MockitoBean;
-//import org.springframework.test.web.servlet.MockMvc;
-//
-//import java.util.List;
-//
-//import static com.javacar.lojadecarro.support.ErrorMessages.CARRO;
-//import static com.javacar.lojadecarro.support.ErrorMessages.ID_NOT_FOUND;
-//import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
-//import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
-//import static org.mockito.Mockito.*;
-//import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-//import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-//
-//@WebMvcTest(CarroController.class)
-//@AutoConfigureMockMvc(addFilters = false)
-//public class VeiculoControllerTest {
-//    private static final String URL = "/veiculo";
-//    public static final String VENDIDO = "/vendido/";
-//    @Autowired
-//    private MockMvc mockMvc;
-//
-//    @Autowired
-//    private ObjectMapper objectMapper;
-//
-//    @MockitoBean
-//    private CarroService carroService;
-//
-//    @Test
-//    @DisplayName("Deve cadastrar uma compra")
-//    void deveCadastrarCompra() throws Exception {
-//        //Arrange
-//        var request = criarCarroRequest();
-//        var response = criarCarroResponse();
-//
-//        when(carroService.createCarro(request))
-//                .thenReturn(response);
-//
-//        //Act + Assert
-//
-//        mockMvc.perform(
-//                        post(URL)
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(objectMapper.writeValueAsString(request))
-//                ).andExpect(status().isCreated())
-//                .andExpect(header().exists("Location"));
-//
-//        verify(carroService).createCarro(request);
-//        verifyNoMoreInteractions(carroService);
-//    }
-//
-//
-//    @Test
-//    @DisplayName("Deve lançar 400 ao cadastrar um veiculo")
-//    void deveLancar400aoCadastrarCompra() throws Exception {
-//        //Arrange
-//        var request = CarroRequestFactory
-//                .criarRequest()
-//                .comCores(3L)
-//                .build();
-//
-//        //Act + Assert
-//        mockMvc.perform(
-//                        post(URL)
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(objectMapper.writeValueAsString(request))
-//                ).andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.status").value(400));
-//
-//        verifyNoInteractions(carroService);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve listar os carros")
-//    void deveListarOsCarros() throws Exception {
-//        //Arrange
-//        var response = CarroResponseFactory.criarResponse()
-//                .comTodosOsCampos()
-//                .build();
-//
-//        Page<CarroResponse> page =
-//                new PageImpl<>(List.of(response));
-//
-//        when(carroService.listarCarros(any(Pageable.class)))
-//                .thenReturn(page);
-//        //Act + Assert
-//
-//        mockMvc.perform(get(URL))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.content[0].id").value(ID_VALIDO))
-//                .andExpect(jsonPath("$.totalElements").value(1));
-//
-//        verify(carroService).listarCarros(any(Pageable.class));
-//
-//        verifyNoMoreInteractions(carroService);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve filtrar um veiculo por ID")
-//    void deveFiltrarCarroPorID() throws Exception {
-//        //Arrange
-//        var response = criarCarroResponse();
-//
-//        when(carroService.findCarroById(ID_VALIDO))
-//                .thenReturn(response);
-//        //Act + Assert
-//        mockMvc.perform(
-//                        get(URL + "/" + ID_VALIDO)
-//                ).andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value(ID_VALIDO));
-//
-//        verify(carroService).findCarroById(ID_VALIDO);
-//        verifyNoMoreInteractions(carroService);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve lançar 404 ao buscar um veiculo por ID")
-//    void deveLancar404aoBuscarCarroPorID() throws Exception {
-//        //Arrange
-//        when(carroService.findCarroById(ID_INVALIDO))
-//                .thenThrow(new VeiculoNotFoundException(ID_INVALIDO));
-//        //Act + Assert
-//        mockMvc.perform(
-//                        get(URL + "/" + ID_INVALIDO)
-//                ).andExpect(status().isNotFound())
-//                .andExpect(jsonPath("$.status").value(404))
-//                .andExpect(jsonPath("$.message").value(String.format(ID_NOT_FOUND, CARRO, ID_INVALIDO)));
-//
-//        verify(carroService).findCarroById(ID_INVALIDO);
-//        verifyNoMoreInteractions(carroService);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve atualizar o veiculo pod ID")
-//    void deveAtualizarCarroPorID() throws Exception {
-//        //Arrange
-//        var request = criarCarroRequest();
-//        var response = criarCarroResponse();
-//
-//        when(carroService.updateCarro(request, ID_VALIDO))
-//                .thenReturn(response);
-//        //Act + Assert
-//        mockMvc.perform(
-//                        put(URL + "/" + ID_VALIDO)
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(objectMapper.writeValueAsString(request))
-//                ).andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value(ID_VALIDO));
-//
-//        verify(carroService).updateCarro(request, ID_VALIDO);
-//        verifyNoMoreInteractions(carroService);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve lançar 400 ao atualizar um veiculo")
-//    void deveLancar400aoAtualizarCarroPorID() throws Exception {
-//        //Arrange
-//        var request = CarroRequestFactory
-//                .criarRequest()
-//                .comCores(4L)
-//                .build();
-//        //Act + Assert
-//        mockMvc.perform(
-//                        put(URL + "/" + ID_VALIDO)
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(objectMapper.writeValueAsString(request))
-//                ).andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.status").value(400));
-//
-//        verifyNoInteractions(carroService);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve lançar 404 ao atualizar um veiculo")
-//    void deveLancar404aoAtualizarCarroPorID() throws Exception {
-//        //Arrange
-//        var request = criarCarroRequest();
-//
-//        when(carroService.updateCarro(request, ID_INVALIDO))
-//                .thenThrow(new VeiculoNotFoundException(ID_INVALIDO));
-//        //Act + Assert
-//        mockMvc.perform(
-//                        put(URL + "/" + ID_INVALIDO)
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(objectMapper.writeValueAsString(request))
-//                ).andExpect(status().isNotFound())
-//                .andExpect(jsonPath("$.status").value(404))
-//                .andExpect(jsonPath("$.message").value(String.format(ID_NOT_FOUND, CARRO, ID_INVALIDO)));
-//
-//        verify(carroService).updateCarro(request, ID_INVALIDO);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve marcar o veiculo como vendido")
-//    void deveMarcarCarroComoVendido() throws Exception {
-//        //Arrange
-//        var request = criarCarroRequest();
-//        var response = criarCarroResponse();
-//
-//        when(carroService.marcarVendido(request, ID_VALIDO))
-//                .thenReturn(response);
-//        //Act + Assert
-//        mockMvc.perform(
-//                        put(URL + VENDIDO + ID_VALIDO)
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(objectMapper.writeValueAsString(request))
-//                ).andExpect(status().isOk())
-//                .andExpect(jsonPath("$.id").value(ID_VALIDO));
-//
-//        verify(carroService).marcarVendido(request, ID_VALIDO);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve lançar 400 o veiculo como vendido")
-//    void deveLancar400aoMarcarCarroComoVendido() throws Exception {
-//        //Arrange
-//        var request = CarroRequestFactory
-//                .criarRequest()
-//                .comCores(6L)
-//                .build();
-//
-//        //Act + Assert
-//        mockMvc.perform(
-//                        put(URL + VENDIDO + ID_INVALIDO)
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(objectMapper.writeValueAsString(request))
-//                ).andExpect(status().isBadRequest())
-//                .andExpect(jsonPath("$.status").value(400));
-//
-//        verifyNoInteractions(carroService);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve lançar 404 o veiculo como vendido")
-//    void deveLancar404aoMarcarCarroComoVendido() throws Exception {
-//        //Arrange
-//        var request = CarroRequestFactory
-//                .criarRequest()
-//                .comTodosOsCampos()
-//                .build();
-//
-//        when(carroService.marcarVendido(request, ID_INVALIDO))
-//                .thenThrow(new VeiculoNotFoundException(ID_INVALIDO));
-//        //Act + Assert
-//        mockMvc.perform(
-//                        put(URL + VENDIDO + ID_INVALIDO)
-//                                .contentType(MediaType.APPLICATION_JSON)
-//                                .content(objectMapper.writeValueAsString(request))
-//                ).andExpect(status().isNotFound())
-//                .andExpect(jsonPath("$.status").value(404))
-//                .andExpect(jsonPath("$.message").value(String.format(ID_NOT_FOUND, CARRO, ID_INVALIDO)));
-//        verify(carroService).marcarVendido(request, ID_INVALIDO);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve deletar o veiculo por ID")
-//    void deveDeletarCarroPorID() throws Exception {
-//        //Arrange
-//        doNothing().when(carroService).deleteCarro(ID_VALIDO);
-//        //Act + Assert
-//        mockMvc.perform(delete(URL + "/" + ID_VALIDO)
-//        ).andExpect(status().isNoContent());
-//
-//        verify(carroService).deleteCarro(ID_VALIDO);
-//    }
-//
-//    @Test
-//    @DisplayName("Deve lançar 404 ao deletar o veiculo por ID")
-//    void deveLancar404aoDeletarCarroPorId() throws Exception {
-//        //Arrange
-//        doThrow(new VeiculoNotFoundException(ID_INVALIDO))
-//                .when(carroService).deleteCarro(ID_INVALIDO);
-//        //Act + Assert
-//        mockMvc.perform(
-//                        delete(URL + "/" + ID_INVALIDO)
-//                )
-//                .andExpect(status().isNotFound())
-//                .andExpect(jsonPath("$.status").value(404))
-//                .andExpect(jsonPath("$.message").value(String.format(ID_NOT_FOUND, CARRO, ID_INVALIDO)));
-//    }
-//
-//    @Test
-//    @DisplayName("Deve buscar os carros via search")
-//    void deveBuscarOsCarrosViaSearch() throws Exception {
-//        //Arrange
-//        var response = CarroResponseFactory.criarResponse()
-//                .comTodosOsCampos()
-//                .build();
-//
-//        Page<CarroResponse> page =
-//                new PageImpl<>(List.of(response));
-//
-//        when(carroService.filtrarCampos(any(), any()))
-//                .thenReturn(page);
-//        //Act + Assert
-//        mockMvc.perform(get(URL + "/search"))
-//                .andExpect(status().isOk())
-//                .andExpect(jsonPath("$.content[0].id").value(ID_VALIDO))
-//                .andExpect(jsonPath("$.totalElements").value(1));
-//
-//        verify(carroService).filtrarCampos(any(), any());
-//    }
-//
-//    private CarroRequest criarCarroRequest() {
-//        return CarroRequestFactory
-//                .criarRequest()
-//                .comTodosOsCampos()
-//                .build();
-//    }
-//
-//    private CarroResponse criarCarroResponse() {
-//        return CarroResponseFactory
-//                .criarResponse()
-//                .comTodosOsCampos()
-//                .build();
-//    }
-//}
+package com.javacar.lojadecarro.controller;
+
+import com.javacar.lojadecarro.dto.request.AlterarStatusRequest;
+import com.javacar.lojadecarro.dto.request.VeiculoRequest;
+import com.javacar.lojadecarro.dto.response.VeiculoResponse;
+import com.javacar.lojadecarro.exception.notfound.NotFoundException;
+import com.javacar.lojadecarro.factory.helper.VeiculoTestContext;
+import com.javacar.lojadecarro.service.VeiculoService;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+import static com.javacar.lojadecarro.enums.Entidade.VEICULO;
+import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
+import static com.javacar.lojadecarro.enums.StatusVeiculo.PAUSADO;
+import static com.javacar.lojadecarro.factory.helper.BaseHelper.*;
+import static com.javacar.lojadecarro.factory.helper.ImagemHelper.imagem;
+import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.assertVeiculo;
+import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.assertVeiculoList;
+import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+@WebMvcTest(VeiculoController.class)
+@AutoConfigureMockMvc(addFilters = false)
+@DisplayName("Testes da controller do veiculo")
+public class VeiculoControllerTest extends BaseControllerTest {
+    private static final String URL = "/veiculo";
+    private static final String URL_ID = URL + "/" + ID_VALIDO;
+    private static final String URL_IMAGEM = URL_ID + "/imagens";
+
+    @MockitoBean
+    private VeiculoService veiculoService;
+
+    @Nested
+    @DisplayName("Testes do cadastro do veiculo")
+    class Criar {
+
+        @Test
+        @DisplayName("Deve cadastrar uma veiculo")
+        void deveCadastrarVeiculo() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+
+            when(veiculoService.criar(
+                    any(VeiculoRequest.class),
+                    any(MultipartFile[].class)
+            )).thenReturn(cx.response);
+
+            //Act + Assert
+            var resultado = performPost(
+                    URL,
+                    cx.request,
+                    imagem("foto1.jpg"),
+                    imagem("foto2.jpg")
+            );
+            assertVeiculo(resultado,
+                    status().isCreated(),
+                    ID_VALIDO,
+                    "QUV1F83",
+                    "Chevrolet",
+                    "Onix",
+                    new BigDecimal(58000),
+                    67000D,
+                    (short) 2020,
+                    DISPONIVEL
+            );
+
+            ArgumentCaptor<MultipartFile[]> captor =
+                    ArgumentCaptor.forClass(MultipartFile[].class);
+
+            verify(veiculoService).criar(
+                    eq(cx.request),
+                    captor.capture()
+            );
+
+            MultipartFile[] arquivos = captor.getValue();
+
+            assertThat(arquivos)
+                    .hasSize(2);
+
+            assertThat(arquivos[0].getOriginalFilename())
+                    .isEqualTo("foto1.jpg");
+
+            assertThat(arquivos[1].getOriginalFilename())
+                    .isEqualTo("foto2.jpg");
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao cadastrar veiculo")
+        void deveLancar400aoCadastroVeiculo() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            //Act + Assert
+            var resultado = performPost(
+                    URL,
+                    cx.requestIncompleto,
+                    imagem("foto1.jpg"),
+                    imagem("foto2.jpg")
+            );
+
+            assertStatus400(resultado);
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve cadastrar um veículo sem imagens")
+        void deveCadastrarVeiculoSemImagens() throws Exception {
+            // Arrange
+            var cx = new VeiculoTestContext();
+
+            when(veiculoService.criar(
+                    any(VeiculoRequest.class),
+                    nullable(MultipartFile[].class)
+            )).thenReturn(cx.response);
+
+            // Act
+            var resultado = performPost(URL, cx.request, new MockMultipartFile[0]);
+
+            // Assert
+            assertVeiculo(
+                    resultado,
+                    status().isCreated(),
+                    ID_VALIDO,
+                    "QUV1F83",
+                    "Chevrolet",
+                    "Onix",
+                    new BigDecimal("58000"),
+                    67000D,
+                    (short) 2020,
+                    DISPONIVEL
+            );
+
+            ArgumentCaptor<MultipartFile[]> captor =
+                    ArgumentCaptor.forClass(MultipartFile[].class);
+
+            verify(veiculoService).criar(eq(cx.request), captor.capture());
+
+            assertThat(captor.getValue()).isEmpty();
+
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 500 ao cadastrar veiculo")
+        void deveLancar500aoCadastroVeiculo() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            when(veiculoService.criar(any(VeiculoRequest.class),
+                    any(MultipartFile[].class))
+            )
+                    .thenThrow(new RuntimeException("Erro inesperado"));
+            //Act + Assert
+            var resultado = performPost(
+                    URL,
+                    cx.request,
+                    imagem("foto1.jpg"),
+                    imagem("foto2.jpg")
+            );
+
+            assertStatus500(resultado);
+            verify(veiculoService).criar(any(VeiculoRequest.class),
+                    any(MultipartFile[].class));
+            verifyNoMoreInteractions(veiculoService);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes da listagem dos veiculos")
+    class Listar {
+        @Test
+        @DisplayName("Deve listar os veiculos sem filtro")
+        void deveListarOsVeiculosSemFiltro() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            Page<VeiculoResponse> page =
+                    new PageImpl<>(List.of(cx.veiculoResponse1, cx.veiculoResponse2));
+
+            when(veiculoService.listar(any(Pageable.class), isNull()))
+                    .thenReturn(page);
+            //Act + Assert
+            var resultado = performGet(URL);
+            assertVeiculoList(
+                    resultado,
+                    status().isOk(),
+                    ID_VALIDO,
+                    2L,
+                    "QUV1F83",
+                    "QUV1F83",
+                    "Chevrolet",
+                    "Chevrolet",
+                    "Onix",
+                    "Onix",
+                    new BigDecimal(58000),
+                    new BigDecimal(58000),
+                    67000D,
+                    67000D,
+                    (short) 2020,
+                    (short) 2020,
+                    PAUSADO,
+                    PAUSADO
+            );
+
+            verify(veiculoService).listar(any(Pageable.class), isNull());
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve listar os veiculos com filtro")
+        void deveListarOsVeiculosComFiltro() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            Page<VeiculoResponse> page =
+                    new PageImpl<>(List.of(cx.veiculoResponse1, cx.veiculoResponse2));
+
+            when(veiculoService.listar(any(Pageable.class), eq(PAUSADO)))
+                    .thenReturn(page);
+            //Act + Assert
+
+            var resultado = performGet(URL, "status", PAUSADO.toString());
+            assertVeiculoList(
+                    resultado,
+                    status().isOk(),
+                    ID_VALIDO,
+                    2L,
+                    "QUV1F83",
+                    "QUV1F83",
+                    "Chevrolet",
+                    "Chevrolet",
+                    "Onix",
+                    "Onix",
+                    new BigDecimal(58000),
+                    new BigDecimal(58000),
+                    67000D,
+                    67000D,
+                    (short) 2020,
+                    (short) 2020,
+                    PAUSADO,
+                    PAUSADO
+            );
+
+            verify(veiculoService).listar(any(Pageable.class), eq(PAUSADO));
+            verifyNoMoreInteractions(veiculoService);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes da busca do veiculo por ID")
+    class Buscar {
+        @Test
+        @DisplayName("Deve buscar o veiculo por ID")
+        void deveBuscarVeiculoPorID() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+
+            when(veiculoService.buscarPorId(ID_VALIDO))
+                    .thenReturn(cx.response);
+
+            //Act + Assert
+            var resultado = performGet(URL_ID);
+            assertVeiculo(
+                    resultado,
+                    status().isOk(),
+                    ID_VALIDO,
+                    "QUV1F83",
+                    "Chevrolet",
+                    "Onix",
+                    new BigDecimal(58000),
+                    67000D,
+                    (short) 2020,
+                    DISPONIVEL
+            );
+
+            verify(veiculoService).buscarPorId(ID_VALIDO);
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 404 ao buscar veiculo")
+        void deveLancar404AoBuscarVeiculoPorID() throws Exception {
+            //Arrange
+            when(veiculoService.buscarPorId(ID_VALIDO))
+                    .thenThrow(new NotFoundException(VEICULO, ID_VALIDO));
+
+            //Act + Assert
+            var resultado = performGet(URL_ID);
+            assertStatus404(resultado, VEICULO, ID_VALIDO);
+
+            verify(veiculoService).buscarPorId(ID_VALIDO);
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao buscar veiculo com ID invalido")
+        void deveLancar4040AoBuscarVeiculoPorIDInvalido() throws Exception {
+            //Act + Assert
+            var resultado = performGet(URL + "/A");
+            assertStatus400(resultado);
+
+            verifyNoInteractions(veiculoService);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes de atualização do veiculo")
+    class Atualizar {
+        @Test
+        @DisplayName("Deve atualizar o veiculo")
+        void deveAtualizarVeiculo() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            when(veiculoService.atualizar(cx.request, ID_VALIDO))
+                    .thenReturn(cx.response);
+            //Act + Assert
+            var resultado = performPut(URL_ID, cx.request);
+            assertVeiculo(
+                    resultado,
+                    status().isOk(),
+                    ID_VALIDO,
+                    "QUV1F83",
+                    "Chevrolet",
+                    "Onix",
+                    new BigDecimal("58000"),
+                    67000D,
+                    (short) 2020,
+                    DISPONIVEL
+            );
+            verify(veiculoService).atualizar(cx.request, ID_VALIDO);
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 404 ao atualizar veiculo com ID incorreto")
+        void deveLancar404AoAtualizarVeiculoIncorreto() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            when(veiculoService.atualizar(cx.request, ID_VALIDO))
+                    .thenThrow(new NotFoundException(VEICULO, ID_VALIDO));
+            //Act + Assert
+            var resultado = performPut(URL_ID, cx.request);
+            assertStatus404(resultado, VEICULO, ID_VALIDO);
+
+            verify(veiculoService).atualizar(cx.request, ID_VALIDO);
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao atualizar veiculo com valores incorretos")
+        void deveLancar400AoAtualizarVeiculoValoresIncorretos() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            //Act + Assert
+            var resultado = performPut(URL_ID, cx.requestIncompleto);
+            assertStatus400(resultado);
+
+            verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao atualizar veiculo com ID invalido")
+        void deveLancar400AoAtualizarVeiculoValoresInvalido() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            //Act + Assert
+            var resultado = performPut(URL + "/A", cx.request);
+            assertStatus400(resultado);
+
+            verifyNoInteractions(veiculoService);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes da alteração do status")
+    class AlterarStatus {
+        @Test
+        @DisplayName("Deve alterar o status")
+        void deveAlterarStatus() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            var status = new AlterarStatusRequest(PAUSADO);
+
+            when(veiculoService.alterarStatus(ID_VALIDO, status))
+                    .thenReturn(cx.response);
+            //ACT + assert
+            var resultado = performPatch(URL_ID + "/status", status);
+            assertVeiculo(
+                    resultado,
+                    status().isOk(),
+                    ID_VALIDO,
+                    "QUV1F83",
+                    "Chevrolet",
+                    "Onix",
+                    new BigDecimal("58000"),
+                    67000D,
+                    (short) 2020,
+                    DISPONIVEL
+            );
+
+            verify(veiculoService).alterarStatus(ID_VALIDO, status);
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao alterar status")
+        void deveLancar400aoAlterarStatus() throws Exception {
+            //Arrange
+            var status = new AlterarStatusRequest(null);
+            //ACT + assert
+            var resultado = performPatch(URL_ID + "/status", status);
+
+            assertStatus400(resultado);
+            verifyNoInteractions(veiculoService);
+
+        }
+
+        @Test
+        @DisplayName("Deve lançar 404 ao alterar status")
+        void deveLancar404aoAlterarStatus() throws Exception {
+            //Arrange
+            var status = new AlterarStatusRequest(PAUSADO);
+
+            when(veiculoService.alterarStatus(ID_VALIDO, status))
+                    .thenThrow(new NotFoundException(VEICULO, ID_VALIDO));
+            //ACT + assert
+            var resultado = performPatch(URL_ID + "/status", status);
+            assertStatus404(resultado,
+                    VEICULO,
+                    ID_VALIDO);
+
+            verify(veiculoService).alterarStatus(ID_VALIDO, status);
+            verifyNoMoreInteractions(veiculoService);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes para listar imagens do veiculo")
+    class ListarImagens {
+        @Test
+        @DisplayName("Deve listar as imagens do veiculo")
+        void deveListarImagensVeiculo() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            when(veiculoService.listarImagens(ID_VALIDO))
+                    .thenReturn(cx.imagemResponseList);
+            //Act + Assert
+            var resultado = performGet(URL_IMAGEM);
+
+            verify(veiculoService).listarImagens(ID_VALIDO);
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 404 ao listar as imagens do veiculo")
+        void deveLancar404AoListarImagensVeiculo() throws Exception {
+            //Arrange
+            when(veiculoService.listarImagens(ID_VALIDO))
+                    .thenThrow(new NotFoundException(VEICULO, ID_VALIDO));
+            //Act + Assert
+            var resultado = performGet(URL_IMAGEM);
+            assertStatus404(resultado, VEICULO, ID_VALIDO);
+
+            verify(veiculoService).listarImagens(ID_VALIDO);
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve lançar 400 ao inserir ID invalido")
+        void deveLancar400AoInserirIdInvalido() throws Exception {
+            //Arrange
+            var cx = new VeiculoTestContext();
+            when(veiculoService.listarImagens(ID_VALIDO))
+                    .thenThrow(new NotFoundException(VEICULO, ID_VALIDO));
+            //Act + Assert
+            var resultado = performGet(URL + "/A/imagens");
+            assertStatus400(resultado);
+
+            verifyNoInteractions(veiculoService);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes para desvincular as opcionais")
+    class DesvincularOpcionais{
+
+    }
+
+    @Nested
+    @DisplayName("Testes para vincular as opcionais")
+    class VincularOpcionais{
+
+    }
+}

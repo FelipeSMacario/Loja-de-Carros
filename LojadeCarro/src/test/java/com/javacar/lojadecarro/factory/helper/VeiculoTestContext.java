@@ -1,8 +1,13 @@
 package com.javacar.lojadecarro.factory.helper;
 
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
+import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.entity.*;
+import com.javacar.lojadecarro.enums.StatusVeiculo;
+import com.javacar.lojadecarro.factory.imagem.ImagemResponseFactory;
+import com.javacar.lojadecarro.factory.veiculo.VeiculoRequestFactory;
+import com.javacar.lojadecarro.factory.veiculo.VeiculoResponseFactory;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -19,6 +24,7 @@ import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.*;
 
 public class VeiculoTestContext {
     public final VeiculoRequest request = criarVeiculoRequest();
+    public final VeiculoRequest requestIncompleto = VeiculoRequestFactory.veiculoRequestFactory().build();
     public final Veiculo entity = criarVeiculoEntity();
     public final VeiculoResponse response = criarVeiculoResponse();
     public final Carroceria carroceria = criarCarroceriaEntity();
@@ -29,4 +35,27 @@ public class VeiculoTestContext {
     public final List<Opcional> opcionais = criarListaOpcionals();
     public final List<Imagem> imagens = criarListaImagem();
     public final MultipartFile[] imagemFile = criarImagemFile();
+    public final List<ImagemResponse> imagemResponseList = List.of(ImagemResponseFactory
+                    .criarResponse()
+                    .comTodosOsCampos()
+                    .build(),
+            ImagemResponseFactory
+                    .criarResponse()
+                    .comTodosOsCampos()
+                    .comId(2L)
+                    .build());
+
+    public final VeiculoResponse veiculoResponse1 = VeiculoResponseFactory
+            .criarResponse()
+            .comTodosOsCampos()
+            .comStatus(StatusVeiculo.PAUSADO)
+            .comId(1L)
+            .build();
+
+    public final VeiculoResponse veiculoResponse2 = VeiculoResponseFactory
+            .criarResponse()
+            .comTodosOsCampos()
+            .comStatus(StatusVeiculo.PAUSADO)
+            .comId(2L)
+            .build();
 }

@@ -34,7 +34,7 @@ public class VeiculoRequestFactory {
     public VeiculoRequestFactory comTodosOsCampos() {
         this.quilometragem = 67000;
         this.valor = new BigDecimal(58000);
-        this.placa = "QUV1F836";
+        this.placa = "QUV1F83";
         this.motor = "1.0";
         this.descricao = "Documentos em dia";
         this.idsOpcionais = Arrays.asList(1L, 2L);

@@ -6,7 +6,6 @@ import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,6 +46,17 @@ public abstract class BaseHelper {
                 .andExpect(jsonPath("$.status").value(400))
                 .andExpect(jsonPath("$.message").exists());
     }
+
+    public static void assertStatus204(ResultActions result) throws Exception {
+        result.andExpect(status().isNoContent());
+    }
+
+    public static void assertStatus401(ResultActions result) throws Exception {
+        result.andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.status").value(401))
+                .andExpect(jsonPath("$.message").value("Usuário ou senha inválidos."));
+    }
+
     public static void assertStatus500(ResultActions result) throws Exception {
         result.andExpect(status().isInternalServerError())
                 .andExpect(jsonPath("$.status").value(500));
@@ -71,7 +81,7 @@ public abstract class BaseHelper {
 
     public static void assertResult(ResultActions result,
                                     ResultMatcher status,
-                                    long id,
+                                    Long id,
                                     String nome,
                                     boolean ativo) throws Exception {
         result

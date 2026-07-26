@@ -35,11 +35,16 @@ public class VeiculoController {
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Cadastrar um novo veiculo")
-    public ResponseEntity<VeiculoResponse> criar(@RequestBody
-                                                 @Valid VeiculoRequest request,
-                                                 @RequestPart("files") MultipartFile[] files) throws IOException {
+    public ResponseEntity<VeiculoResponse> criar(
+            @RequestPart("request")
+            @Valid VeiculoRequest request,
+
+            @RequestPart(value = "files", required = false)
+            MultipartFile[] files
+    ) throws IOException {
         log.debug("Cadastrar um novo veiculo com o corpo: {}", request);
-        var response = veiculoService.criar(request, files);
+        var imagens = files == null ? new MultipartFile[0] : files;
+        var response = veiculoService.criar(request, imagens);
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -49,8 +54,8 @@ public class VeiculoController {
 
         log.info("Veiculo criado com sucesso com o id: {}", response.id());
         log.debug("Resposta um novo veiculo: {}", response);
-        return ResponseEntity.created(location).body(response);
 
+        return ResponseEntity.created(location).body(response);
     }
 
     @GetMapping

@@ -20,9 +20,9 @@ public class ImagensController {
 
     private final ImagensService imagensService;
 
-    @PatchMapping("/{idImagem}/perfil")
+    @PatchMapping("/{idImagem}/principal")
     @Operation(summary = "Atualizar qual imagem será de perfil")
-    public ResponseEntity<Void> update(
+    public ResponseEntity<Void> definirPrincipal(
             @PathVariable Long idImagem) {
         log.debug("Definindo a imagem com id: {} como perfil", idImagem);
 

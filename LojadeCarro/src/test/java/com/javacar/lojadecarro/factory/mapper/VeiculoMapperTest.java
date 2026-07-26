@@ -40,7 +40,7 @@ class VeiculoMapperTest extends MapperTest {
                 .containsExactly(
                         67000,
                         new BigDecimal(58000),
-                        "QUV1F836",
+                        "QUV1F83",
                         "1.0",
                         "Documentos em dia",
                         (short) 2020

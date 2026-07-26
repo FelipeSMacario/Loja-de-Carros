@@ -20,7 +20,7 @@ public class RoleTestContext {
                 .comAtivo(ativo)
                 .build();
     }
-    public final RoleResponse mockResponse1(boolean ativo){
+    public static RoleResponse mockResponse1(boolean ativo){
         return RoleResponseFactory
                 .criarResponse()
                 .comId(1L)
@@ -28,7 +28,7 @@ public class RoleTestContext {
                 .comAtivo(ativo)
                 .build();
     }
-    public final RoleResponse mockResponse2(boolean ativo){
+    public static RoleResponse mockResponse2(boolean ativo){
         return RoleResponseFactory
                 .criarResponse()
                 .comId(2L)

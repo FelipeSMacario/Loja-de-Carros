@@ -27,7 +27,7 @@ public class VeiculoResponseFactory {
 
     public VeiculoResponseFactory comTodosOsCampos() {
         this.id = 1L;
-        this.placa = "QUV1F836";
+        this.placa = "QUV1F83";
         this.marca = "Chevrolet";
         this.modelo = "Onix";
         this.valor = new BigDecimal(58000);

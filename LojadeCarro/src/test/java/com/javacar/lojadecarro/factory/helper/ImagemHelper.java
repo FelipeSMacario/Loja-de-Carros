@@ -1,16 +1,15 @@
 package com.javacar.lojadecarro.factory.helper;
 
-import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.UploadResult;
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.factory.imagem.ImagemEntityFactory;
-import com.javacar.lojadecarro.factory.imagem.ImagemResponseFactory;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-public final class ImagemHelper {
+public final class ImagemHelper extends BaseHelper {
     public static Imagem criarImagemEntity() {
         return ImagemEntityFactory
                 .criarEntity()
@@ -18,14 +17,8 @@ public final class ImagemHelper {
                 .build();
     }
 
-    public static ImagemResponse criarImagemResponse() {
-        return ImagemResponseFactory
-                .criarResponse()
-                .comTodosOsCampos()
-                .build();
-    }
 
-    public static MultipartFile[] criarImagemFile(){
+    public static MultipartFile[] criarImagemFile() {
         MultipartFile file = new MockMultipartFile(
                 "files",
                 "onix.jpg",
@@ -36,7 +29,7 @@ public final class ImagemHelper {
         return new MultipartFile[]{file};
     }
 
-    public static MultipartFile[] criarListImagemFile(){
+    public static MultipartFile[] criarListImagemFile() {
         MultipartFile file = new MockMultipartFile(
                 "files",
                 "onix.jpg",
@@ -68,4 +61,14 @@ public final class ImagemHelper {
                 200L
         );
     }
+
+    public static MockMultipartFile imagem(String nome) {
+        return new MockMultipartFile(
+                "files",
+                nome,
+                MediaType.IMAGE_JPEG_VALUE,
+                "imagem".getBytes()
+        );
+    }
+
 }

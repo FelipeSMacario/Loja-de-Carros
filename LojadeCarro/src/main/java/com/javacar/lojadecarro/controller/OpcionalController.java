@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @Tag(name = "opcional")
 @RestController
-@RequestMapping("/opcional")
+@RequestMapping("/opcionais")
 public class OpcionalController {
     private final OpcionalService opcionalService;
 
