@@ -2,10 +2,10 @@ package com.javacar.lojadecarro.factory.opcional;
 
 import com.javacar.lojadecarro.dto.request.OpcionalRequest;
 import com.javacar.lojadecarro.dto.response.OpcionalResponse;
-import com.javacar.lojadecarro.factory.helper.OpcionalHelper;
 
-import static com.javacar.lojadecarro.factory.helper.OpcionalHelper.*;
-import static com.javacar.lojadecarro.factory.opcional.OpcionalRequestFactory.*;
+import static com.javacar.lojadecarro.factory.helper.OpcionalHelper.criarOpcionalRequest;
+import static com.javacar.lojadecarro.factory.helper.OpcionalHelper.criarOpcionalResponse;
+import static com.javacar.lojadecarro.factory.opcional.OpcionalRequestFactory.criarRequest;
 
 public class OpcionalTestContext {
     public final OpcionalRequest request = criarOpcionalRequest();

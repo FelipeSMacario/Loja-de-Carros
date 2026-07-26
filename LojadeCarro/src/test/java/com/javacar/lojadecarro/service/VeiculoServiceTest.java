@@ -694,11 +694,12 @@ class VeiculoServiceTest {
             void deveLancarExcecaoAlterarStatus() {
                 //Arrange
                 var cx = new VeiculoTestContext();
+                var status = new AlterarStatusRequest(DISPONIVEL);
                 when(veiculoRepository.findById(ID_VALIDO))
                         .thenReturn(Optional.of(cx.entity));
                 //ACT
                 var excecao = assertThrows(BusinessException.class,
-                        () -> veiculoService.alterarStatus(ID_VALIDO, new AlterarStatusRequest(DISPONIVEL)));
+                        () -> veiculoService.alterarStatus(ID_VALIDO, status));
                 //Assert
                 assertBusinessResponseError(excecao, "Status informado correspondente ao status atual");
 
@@ -713,11 +714,12 @@ class VeiculoServiceTest {
             @DisplayName("Deve lançar veiculo nao encontrado ao alterar status")
             void deveLancarVeiculoNaoEncontrado() {
                 //Arrange
+                var status = new AlterarStatusRequest(DISPONIVEL);
                 when(veiculoRepository.findById(ID_VALIDO))
                         .thenReturn(Optional.empty());
                 //ACT
                 var excecao = assertThrows(NotFoundException.class,
-                        () -> veiculoService.alterarStatus(ID_VALIDO, new AlterarStatusRequest(DISPONIVEL)));
+                        () -> veiculoService.alterarStatus(ID_VALIDO, status));
                 //Assert
                 assertNotFoundResponseError(excecao, VEICULO, ID_VALIDO);
 
@@ -1011,9 +1013,10 @@ class VeiculoServiceTest {
             @DisplayName("Deve lancar exceção de opcionais duplicados")
             void deveLancarExcecaoDuplicados() {
                 //Arrange
+                var lista = List.of(1L, 1L);
                 //ACT
                 var excecao = assertThrows(BusinessException.class,
-                        () -> veiculoService.vincularOpcionais(ID_VALIDO, List.of(1L, 1L)));
+                        () -> veiculoService.vincularOpcionais(ID_VALIDO, lista));
                 //Assert
                 assertBusinessResponseError(excecao, "A requisição possui opcionais duplicadas.");
 

@@ -1,7 +1,6 @@
 package com.javacar.lojadecarro.factory.helper;
 
 import com.javacar.lojadecarro.dto.request.ModeloRequest;
-import com.javacar.lojadecarro.dto.response.CarroceriaResponse;
 import com.javacar.lojadecarro.dto.response.ModeloResponse;
 import com.javacar.lojadecarro.entity.Modelo;
 import com.javacar.lojadecarro.factory.modelo.ModeloEntityFactory;
@@ -32,6 +31,7 @@ public final class ModeloHelper extends BaseHelper {
                 .comTodosOsCampos()
                 .build();
     }
+
     public static void assertModeloResponse(ModeloResponse resultado) {
         assertThat(resultado)
                 .isNotNull()

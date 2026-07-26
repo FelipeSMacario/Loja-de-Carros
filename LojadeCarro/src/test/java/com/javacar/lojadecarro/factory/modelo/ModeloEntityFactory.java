@@ -1,7 +1,6 @@
 package com.javacar.lojadecarro.factory.modelo;
 
 import com.javacar.lojadecarro.entity.Modelo;
-import com.javacar.lojadecarro.factory.helper.MarcaHelper;
 import lombok.RequiredArgsConstructor;
 
 import static com.javacar.lojadecarro.factory.helper.MarcaHelper.criarMarcaEntity;

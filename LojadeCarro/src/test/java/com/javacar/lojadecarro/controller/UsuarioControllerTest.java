@@ -484,7 +484,6 @@ class UsuarioControllerTest extends BaseControllerTest {
         @DisplayName("Deve lançar 404 ao buscar roles por usuário")
         void deveLancarBuscarRolesPorUsuario() throws Exception {
             //Arrange
-            var cx = new UsuarioTestContext();
             when(usuarioService.buscarRolesUsuario(ID_VALIDO))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             //Act + Assert

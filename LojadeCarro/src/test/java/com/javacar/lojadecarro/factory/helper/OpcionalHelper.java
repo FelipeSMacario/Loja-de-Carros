@@ -7,7 +7,6 @@ import com.javacar.lojadecarro.factory.opcional.OpcionalEntityFactory;
 import com.javacar.lojadecarro.factory.opcional.OpcionalRequestFactory;
 import com.javacar.lojadecarro.factory.opcional.OpcionalResponseFactory;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,7 +33,7 @@ public final class OpcionalHelper extends BaseHelper {
                 .build();
     }
 
-    public static List<Opcional> criarListaOpcionals(){
+    public static List<Opcional> criarListaOpcionals() {
         Opcional opcional1 = OpcionalEntityFactory
                 .criarEntity()
                 .comId(1L)
