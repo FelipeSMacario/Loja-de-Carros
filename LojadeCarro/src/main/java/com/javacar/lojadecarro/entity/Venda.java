@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.entity;
 
+import com.javacar.lojadecarro.enums.StatusVenda;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -31,4 +32,8 @@ public class Venda {
 
     @OneToOne(fetch = FetchType.LAZY)
     private Veiculo veiculo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private StatusVenda statusVenda;
 }

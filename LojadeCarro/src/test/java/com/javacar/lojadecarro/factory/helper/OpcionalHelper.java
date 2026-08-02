@@ -63,4 +63,11 @@ public final class OpcionalHelper extends BaseHelper {
                         true
                 );
     }
+    public static OpcionalRequest criarOpcionalPorNome(String nome) {
+        return OpcionalRequestFactory
+                .criarRequest()
+                .comTodosOsCampos()
+                .comNome(nome)
+                .build();
+    }
 }

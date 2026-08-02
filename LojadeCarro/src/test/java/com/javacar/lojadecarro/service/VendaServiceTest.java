@@ -50,6 +50,8 @@ public class VendaServiceTest {
             var cx = new VendaTestContext();
             cx.veiculo.setVendedor(cx.vendedor);
 
+            when(vendasRepository.existsByVeiculoId(cx.veiculo.getId()))
+                    .thenReturn(false);
             when(veiculoService.buscaVeiculo(cx.vendaRequest.veiculoId()))
                     .thenReturn(cx.veiculo);
 
@@ -92,6 +94,7 @@ public class VendaServiceTest {
             assertThat(cx.veiculo.getStatusVeiculo())
                     .isEqualTo(VENDIDO);
 
+            verify(vendasRepository).existsByVeiculoId(cx.veiculo.getId());
             verify(veiculoService).buscaVeiculo(cx.vendaRequest.veiculoId());
             verify(usuarioService).buscaUsuario(cx.vendaRequest.vendedorId());
             verify(usuarioService).buscaUsuario(cx.vendaRequest.compradorId());
@@ -113,6 +116,8 @@ public class VendaServiceTest {
             var cx = new VendaTestContext();
             cx.veiculo.setVendedor(cx.comprador);
 
+            when(vendasRepository.existsByVeiculoId(cx.vendaRequest.veiculoId()))
+                    .thenReturn(false);
             when(veiculoService.buscaVeiculo(cx.vendaRequest.veiculoId()))
                     .thenReturn(cx.veiculo);
 
@@ -126,13 +131,14 @@ public class VendaServiceTest {
             assertThat(cx.veiculo.getStatusVeiculo())
                     .isNotEqualTo(VENDIDO);
 
+            verify(vendasRepository).existsByVeiculoId(cx.vendaRequest.veiculoId());
             verify(veiculoService).buscaVeiculo(cx.vendaRequest.veiculoId());
             verify(usuarioService).buscaUsuario(cx.vendaRequest.vendedorId());
             verify(usuarioService, never()).buscaUsuario(cx.vendaRequest.compradorId());
 
-            verifyNoMoreInteractions(veiculoService, usuarioService);
+            verifyNoMoreInteractions(veiculoService, usuarioService, vendasRepository);
 
-            verifyNoInteractions(vendasMapper, vendasRepository);
+            verifyNoInteractions(vendasMapper);
         }
 
         @Test
@@ -143,6 +149,8 @@ public class VendaServiceTest {
             var cx = new VendaTestContext();
             cx.veiculo.setVendedor(cx.vendedor);
 
+            when(vendasRepository.existsByVeiculoId(cx.vendaRequest.veiculoId()))
+                    .thenReturn(false);
 
             when(veiculoService.buscaVeiculo(cx.vendaRequest.veiculoId()))
                     .thenReturn(cx.veiculo);
@@ -160,13 +168,14 @@ public class VendaServiceTest {
             assertThat(cx.veiculo.getStatusVeiculo())
                     .isNotEqualTo(VENDIDO);
 
+            verify(vendasRepository).existsByVeiculoId(cx.vendaRequest.veiculoId());
             verify(veiculoService).buscaVeiculo(cx.vendaRequest.veiculoId());
             verify(usuarioService).buscaUsuario(cx.vendaRequest.vendedorId());
             verify(usuarioService).buscaUsuario(cx.vendaRequest.compradorId());
 
-            verifyNoMoreInteractions(veiculoService, usuarioService);
+            verifyNoMoreInteractions(veiculoService, usuarioService, vendasRepository);
 
-            verifyNoInteractions(vendasMapper, vendasRepository);
+            verifyNoInteractions(vendasMapper);
         }
 
         @Test
@@ -175,6 +184,9 @@ public class VendaServiceTest {
             //Arrange
             var cx = new VendaTestContext();
             cx.veiculo.setVendedor(cx.vendedor);
+
+            when(vendasRepository.existsByVeiculoId(cx.vendaRequest.veiculoId()))
+                    .thenReturn(false);
 
             when(veiculoService.buscaVeiculo(cx.vendaRequest.veiculoId()))
                     .thenReturn(cx.veiculo);
@@ -201,6 +213,7 @@ public class VendaServiceTest {
             assertThat(cx.veiculo.getStatusVeiculo())
                     .isEqualTo(VENDIDO);
 
+            verify(vendasRepository).existsByVeiculoId(cx.vendaRequest.veiculoId());
             verify(veiculoService).buscaVeiculo(cx.vendaRequest.veiculoId());
             verify(usuarioService).buscaUsuario(cx.vendaRequest.vendedorId());
             verify(usuarioService).buscaUsuario(cx.vendaRequest.compradorId());
@@ -239,7 +252,7 @@ public class VendaServiceTest {
             when(vendasMapper.toResponse(cx.vendaEntity2))
                     .thenReturn(cx.vendaResponse2);
             //ACT
-            var resultado = vendasService.listar(pageable);
+            var resultado = vendasService.listar(pageable, null);
             //Assert
             assertThat(resultado)
                     .isNotNull()

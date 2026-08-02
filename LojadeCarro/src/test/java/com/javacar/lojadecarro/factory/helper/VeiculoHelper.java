@@ -63,6 +63,14 @@ public final class VeiculoHelper extends BaseHelper {
                 );
     }
 
+    public static VeiculoRequest criarVeiculoRequestComPlaca(String placa) {
+        return VeiculoRequestFactory
+                .criarRequest()
+                .comTodosOsCampos()
+                .comPlaca(placa)
+                .build();
+    }
+
     public static void assertDependenciasVeiculoCompleto(VeiculoTestContext cx, StatusVeiculo statusVeiculo) {
         assertThat(cx.entity.getStatusVeiculo())
                 .isEqualTo(statusVeiculo);

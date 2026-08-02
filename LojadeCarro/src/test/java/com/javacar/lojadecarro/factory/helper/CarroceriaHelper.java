@@ -56,6 +56,12 @@ public final class CarroceriaHelper extends BaseHelper {
                 .andExpect(jsonPath("$.nome").value("Hatch"))
                 .andExpect(jsonPath("$.ativo").value(true));
     }
-
+    public static CarroceriaRequest criarCarroceriaPorNome(String nome) {
+        return CarroceriaRequestFactory
+                .criarRequest()
+                .comTodosOsCampos()
+                .comNome(nome)
+                .build();
+    }
 
 }

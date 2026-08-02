@@ -50,6 +50,7 @@ public class VeiculoService {
 
     @Transactional
     public VeiculoResponse criar(VeiculoRequest request, MultipartFile[] files) throws IOException {
+        validarPlacaUnica(request.placa());
         var veiculoEntity = veiculoMapper.toEntity(request);
         preencherRelacionamentos(request, veiculoEntity);
         veiculoEntity.setStatusVeiculo(DISPONIVEL);
@@ -82,6 +83,9 @@ public class VeiculoService {
     @Transactional
     public VeiculoResponse atualizar(VeiculoRequest request, Long id) {
         var veiculo = buscaVeiculo(id);
+        if (!request.placa().equals(veiculo.getPlaca())) {
+            validarPlacaUnica(request.placa());
+        }
         veiculoMapper.toUpdate(request, veiculo);
 
         preencherRelacionamentos(request, veiculo);
@@ -137,6 +141,7 @@ public class VeiculoService {
 
     @Transactional
     public void desvincularOpcionais(Long idVeiculo, List<Long> ids) {
+        validaOpcionaisDuplicados(ids);
         var veiculo = buscaVeiculo(idVeiculo);
         var opcionais = opcionalService.buscarOpcionais(ids);
         validaOpcionaisExistentes(opcionais, ids);
@@ -165,6 +170,11 @@ public class VeiculoService {
         veiculoEntity.setModelo(modeloService.buscaModelo(request.idModelo()));
         veiculoEntity.setVendedor(usuarioService.buscaUsuario(request.idUsuario()));
         veiculoEntity.setCombustivel(combustivelService.buscaCombustivel(request.idCombustivel()));
+    }
+    private void validarPlacaUnica(String placa) {
+        if (veiculoRepository.existsByPlaca(placa)) {
+            throw new BusinessException("A placa informada já possui um cadastro.");
+        }
     }
 
 }

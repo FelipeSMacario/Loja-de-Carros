@@ -30,6 +30,13 @@ public final class CorHelper extends BaseHelper {
                 .comTodosOsCampos()
                 .build();
     }
+    public static CorRequest criarCorRequestComNome(String nome) {
+        return CorRequestFactory
+                .criarRequest()
+                .comTodosOsCampos()
+                .comNome(nome)
+                .build();
+    }
 
     public static void assertCorResponse(CorResponse resultado) {
         assertThat(resultado)

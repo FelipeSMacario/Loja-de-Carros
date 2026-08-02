@@ -33,4 +33,8 @@ public enum Entidade {
     public String jaInativa() {
         return descricao + " já está inativo(a).";
     }
+
+    public String nomeJaExistente() {
+        return descricao + "O nome informado já possui um cadastro.";
+    }
 }

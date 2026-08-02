@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.CorResponse;
 import com.javacar.lojadecarro.entity.Cor;
 import com.javacar.lojadecarro.enums.StatusFiltro;
+import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.CorMapper;
 import com.javacar.lojadecarro.repository.CoresRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
@@ -28,6 +29,7 @@ public class CoresService {
 
     @Transactional
     public CorResponse criar(CorRequest request) {
+        validarNomeUnico(request.nome());
         var coresEntity = corMapper.toEntity(request);
         var cor = coresRepository.save(coresEntity);
 
@@ -54,6 +56,9 @@ public class CoresService {
     @Transactional
     public CorResponse atualizar(CorRequest request, Long id) {
         var cor = buscaCor(id);
+        if (!request.nome().equals(cor.getNome())) {
+        validarNomeUnico(request.nome());
+        }
         corMapper.toUpdate(request, cor);
         return corMapper.toResponse(cor);
     }
@@ -64,6 +69,11 @@ public class CoresService {
         cor.alteraStatus(request.ativo());
 
         return corMapper.toResponse(cor);
+    }
+    private void validarNomeUnico(String nome) {
+        if (coresRepository.existsByNome(nome)){
+            throw new BusinessException(COR.nomeJaExistente());
+        }
     }
 
     public Cor buscaCor(Long id) {

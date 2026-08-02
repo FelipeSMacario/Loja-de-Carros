@@ -2,6 +2,8 @@ package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.request.VendaRequest;
 import com.javacar.lojadecarro.dto.response.VendaResponse;
+import com.javacar.lojadecarro.enums.StatusVeiculo;
+import com.javacar.lojadecarro.enums.StatusVenda;
 import com.javacar.lojadecarro.service.VendasService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,9 +27,10 @@ public class VendaController {
 
     @GetMapping
     @Operation(summary = "Listar todos as vendas")
-    public ResponseEntity<Page<VendaResponse>> listar(@PageableDefault(size = 9) Pageable pageable) {
+    public ResponseEntity<Page<VendaResponse>> listar(@PageableDefault(size = 9) Pageable pageable,
+                                                      @RequestParam(required = false) StatusVenda status) {
         log.debug("Buscando todos as vendas");
-        var response = vendasService.listar(pageable);
+        var response = vendasService.listar(pageable, status);
 
         log.debug("Consulta retornou {} elementos", response.getNumberOfElements());
 

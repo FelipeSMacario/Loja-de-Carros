@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.OpcionalResponse;
 import com.javacar.lojadecarro.entity.Opcional;
 import com.javacar.lojadecarro.enums.StatusFiltro;
+import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.OpcionalMapper;
 import com.javacar.lojadecarro.repository.OpcionalRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+import static com.javacar.lojadecarro.enums.Entidade.COMBUSTIVEL;
 import static com.javacar.lojadecarro.enums.Entidade.OPCIONAL;
 
 @Slf4j
@@ -28,6 +30,7 @@ public class OpcionalService {
 
     @Transactional
     public OpcionalResponse criar(OpcionalRequest request) {
+        validarNomeUnico(request.nome());
         var opcionalEntity = opcionalMapper.toEntity(request);
         var opcional = opcionalRepository.save(opcionalEntity);
 
@@ -56,6 +59,9 @@ public class OpcionalService {
     @Transactional
     public OpcionalResponse atualizar(OpcionalRequest request, Long id) {
         var opcional = buscaOpcional(id);
+        if (!request.nome().equals(opcional.getNome())) {
+            validarNomeUnico(request.nome());
+        }
         opcionalMapper.toUpdate(request, opcional);
 
         return opcionalMapper.toResponse(opcional);
@@ -78,5 +84,10 @@ public class OpcionalService {
                 opcionalRepository.findById(id),
                 OPCIONAL,
                 id);
+    }
+    private void validarNomeUnico(String nome) {
+        if (opcionalRepository.existsByNome(nome)){
+            throw new BusinessException(OPCIONAL.nomeJaExistente());
+        }
     }
 }

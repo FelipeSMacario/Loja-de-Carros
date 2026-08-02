@@ -4,6 +4,7 @@ import com.javacar.lojadecarro.dto.request.VendaRequest;
 import com.javacar.lojadecarro.dto.response.VendaResponse;
 import com.javacar.lojadecarro.entity.Usuario;
 import com.javacar.lojadecarro.entity.Veiculo;
+import com.javacar.lojadecarro.enums.StatusVenda;
 import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.VendasMapper;
 import com.javacar.lojadecarro.repository.VendasRepository;
@@ -30,10 +31,11 @@ public class VendasService {
 
     @Transactional
     public VendaResponse criar(VendaRequest request) {
+        validarVeiculoJaPossuiVenda(request.veiculoId());
         var veiculo = veiculoService.buscaVeiculo(request.veiculoId());
 
-        var vendedor = validaVendedor(request.vendedorId(), veiculo);
-        var comprador = validaComprador(request.compradorId(), vendedor);
+        var vendedor = buscarEValidarVendedor(request.vendedorId(), veiculo);
+        var comprador = buscarEValidarComprador(request.compradorId(), vendedor);
 
         var vendaEntity = vendasMapper.toEntity(request);
         vendaEntity.setDataVenda(LocalDateTime.now(ZONE));
@@ -41,18 +43,24 @@ public class VendasService {
         vendaEntity.setComprador(comprador);
         vendaEntity.setVendedor(vendedor);
         veiculo.alterarStatus(VENDIDO);
+        vendaEntity.setStatusVenda(StatusVenda.EM_ANDAMENTO);
         var venda = vendasRepository.save(vendaEntity);
 
         return vendasMapper.toResponse(venda);
 
     }
 
-    public Page<VendaResponse> listar(Pageable pageable) {
+    public Page<VendaResponse> listar(Pageable pageable, StatusVenda statusVenda) {
+        if (statusVenda == null){
         return vendasRepository.findAll(pageable)
+                .map(vendasMapper::toResponse);
+        }
+
+        return vendasRepository.findByStatusVenda(statusVenda, pageable)
                 .map(vendasMapper::toResponse);
     }
 
-    private Usuario validaVendedor(Long idVendedor, Veiculo veiculo) {
+    private Usuario buscarEValidarVendedor(Long idVendedor, Veiculo veiculo) {
         var vendedor = usuarioService.buscaUsuario(idVendedor);
 
         if (!vendedor.getId().equals(veiculo.getVendedor().getId()))
@@ -60,7 +68,7 @@ public class VendasService {
         return vendedor;
     }
 
-    private Usuario validaComprador(Long idComprador, Usuario vendedor) {
+    private Usuario buscarEValidarComprador(Long idComprador, Usuario vendedor) {
         var comprador = usuarioService.buscaUsuario(idComprador);
 
         if (comprador.getId().equals(vendedor.getId())) {
@@ -69,5 +77,9 @@ public class VendasService {
 
         return comprador;
     }
-
+    private void validarVeiculoJaPossuiVenda(Long idVeiculo){
+        if (vendasRepository.existsByVeiculoId(idVeiculo)){
+            throw new BusinessException("O veículo já possui uma venda cadastrada.");
+        }
+    }
 }

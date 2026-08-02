@@ -57,6 +57,8 @@ class CombustivelServiceTest {
         var entity = criarCombustivelEntity();
 
         var response = criarCombustivelResponse();
+        when(combustivelRepository.existsByNome(request.nome()))
+                .thenReturn(false);
 
         when(combustivelMapper.toEntity(request))
                 .thenReturn(entity);
@@ -83,6 +85,7 @@ class CombustivelServiceTest {
                         true);
 
 
+        verify(combustivelRepository).existsByNome(request.nome());
         verify(combustivelMapper).toResponse(entity);
         verify(combustivelRepository).save(entity);
         verify(combustivelMapper).toEntity(request);
@@ -279,7 +282,7 @@ class CombustivelServiceTest {
                 .thenReturn(response);
 
         //Act
-        var resultado = combustivelService.buscaPorId(ID_VALIDO);
+        var resultado = combustivelService.buscarPorId(ID_VALIDO);
 
         //Assert
         assertThat(resultado)
@@ -312,7 +315,7 @@ class CombustivelServiceTest {
         //Assert
         var exception = assertThrows(
                 NotFoundException.class,
-                () -> combustivelService.buscaPorId(ID_INVALIDO)
+                () -> combustivelService.buscarPorId(ID_INVALIDO)
         );
 
         assertNotFoundResponseError(exception, COMBUSTIVEL, ID_INVALIDO);

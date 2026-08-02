@@ -29,6 +29,12 @@ public final class CombustivelHelper extends BaseHelper {
                 .comTodosOsCampos()
                 .build();
     }
-
+    public static CombustivelRequest criarCombustivelPorNome(String nome) {
+        return CombustivelRequestFactory
+                .criarRequest()
+                .comTodosOsCampos()
+                .comNome(nome)
+                .build();
+    }
 
 }

@@ -1,7 +1,6 @@
 package com.javacar.lojadecarro.security;
 
 
-import com.javacar.lojadecarro.entity.Usuario;
 import com.javacar.lojadecarro.repository.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -17,12 +16,7 @@ public class ImplementsUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepository.findByEmail(email);
-
-        if (usuario == null) {
-            throw new UsernameNotFoundException("Usuário não encontrado");
-        }
-
-        return usuario;
+        return usuarioRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado"));
     }
 }

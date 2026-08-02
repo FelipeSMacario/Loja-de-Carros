@@ -113,7 +113,7 @@ public class VendaControllerTest extends BaseControllerTest {
             Page<VendaResponse> page =
                     new PageImpl<>(List.of(cx.vendaResponse, cx.vendaResponse2));
 
-            when(vendasService.listar(any(Pageable.class)))
+            when(vendasService.listar(any(Pageable.class), isNull()))
                     .thenReturn(page);
             //Act + Assert
             var resultado = performGet(URL);
@@ -126,7 +126,7 @@ public class VendaControllerTest extends BaseControllerTest {
                     .andExpect(jsonPath("$.content[1].valorVenda").value(200000));
 
 
-            verify(vendasService).listar(any(Pageable.class));
+            verify(vendasService).listar(any(Pageable.class), isNull());
             verifyNoMoreInteractions(vendasService);
         }
 

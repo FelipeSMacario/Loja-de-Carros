@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.CombustivelResponse;
 import com.javacar.lojadecarro.entity.Combustivel;
 import com.javacar.lojadecarro.enums.StatusFiltro;
+import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.CombustivelMapper;
 import com.javacar.lojadecarro.repository.CombustivelRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
@@ -28,6 +29,7 @@ public class CombustivelService {
 
     @Transactional
     public CombustivelResponse criar(CombustivelRequest request) {
+        validarNomeUnico(request.nome());
         var combustivelEntity = combustivelMapper.toEntity(request);
         var combustivel = combustivelRepository.save(combustivelEntity);
 
@@ -47,13 +49,17 @@ public class CombustivelService {
                 .toList();
     }
 
-    public CombustivelResponse buscaPorId(Long id) {
+    public CombustivelResponse buscarPorId(Long id) {
         return combustivelMapper.toResponse(buscaCombustivel(id));
     }
 
     @Transactional
     public CombustivelResponse atualizar(CombustivelRequest request, Long id) {
+
         var combustivel = buscaCombustivel(id);
+        if (!request.nome().equals(combustivel.getNome())) {
+            validarNomeUnico(request.nome());
+        }
         combustivelMapper.toUpdate(request, combustivel);
 
         return combustivelMapper.toResponse(combustivel);
@@ -69,5 +75,10 @@ public class CombustivelService {
 
     public Combustivel buscaCombustivel(Long id) {
         return entityValidation.obterOuLancarErro(combustivelRepository.findById(id), COMBUSTIVEL, id);
+    }
+    private void validarNomeUnico(String nome) {
+        if (combustivelRepository.existsByNome(nome)){
+            throw new BusinessException(COMBUSTIVEL.nomeJaExistente());
+        }
     }
 }

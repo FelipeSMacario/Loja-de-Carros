@@ -164,7 +164,7 @@ public class RoleServiceTest {
             when(roleRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(role));
             //ACT
-            var resultado = rolesService.buscaRole(ID_VALIDO);
+            var resultado = rolesService.buscarPorId(ID_VALIDO);
             //Assert
             assertThat(resultado)
                     .isNotNull()
@@ -190,7 +190,7 @@ public class RoleServiceTest {
                     .thenReturn(Optional.empty());
             //ACT
             var excecao = assertThrows(NotFoundException.class,
-                    () -> rolesService.buscaRole(ID_VALIDO));
+                    () -> rolesService.buscarPorId(ID_VALIDO));
             //Assert
             assertNotFoundResponseError(excecao, ROLE, ID_VALIDO);
 

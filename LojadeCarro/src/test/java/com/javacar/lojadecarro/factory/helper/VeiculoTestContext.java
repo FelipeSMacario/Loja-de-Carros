@@ -11,6 +11,7 @@ import com.javacar.lojadecarro.factory.veiculo.VeiculoRequestFactory;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoResponseFactory;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 import static com.javacar.lojadecarro.factory.helper.CarroceriaHelper.criarCarroceriaEntity;
@@ -62,4 +63,41 @@ public class VeiculoTestContext {
             .comStatus(StatusVeiculo.PAUSADO)
             .comId(2L)
             .build();
+
+    public static VeiculoRequest criarVeiculoValido(){
+        return VeiculoRequestFactory
+                .criarRequest()
+                .comQuilometragem(25000)
+                .comValor(new BigDecimal(40000))
+                .comPlaca("ABC4141")
+                .comMotor("1.4 turbo")
+                .comDescricao("Prestes a explodir")
+                .comAnoFabricacao((short) 1998)
+                .comIdCarroceria(1L)
+                .comIdCores(2L)
+                .comIdModelo(10L)
+                .comIdUsuario(1L)
+                .comIdCombustivel(1L)
+                .comOpcionais(List.of(1L, 5L, 8L))
+                .build();
+    }
+
+    public static VeiculoRequest criarVeiculoAtualizacaoValido(){
+        return VeiculoRequestFactory
+                .criarRequest()
+                .comQuilometragem(25000)
+                .comValor(new BigDecimal(40000))
+                .comPlaca("HIJ7K89")
+                .comMotor("1.4 turbo")
+                .comDescricao("Não vai mais explodir")
+                .comAnoFabricacao((short) 1998)
+                .comIdCarroceria(1L)
+                .comIdCores(2L)
+                .comIdModelo(10L)
+                .comIdUsuario(1L)
+                .comIdCombustivel(1L)
+                .comOpcionais(List.of(1L, 5L, 8L))
+                .build();
+    }
+
 }

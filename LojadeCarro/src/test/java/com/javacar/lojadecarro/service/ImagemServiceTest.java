@@ -180,7 +180,7 @@ class ImagemServiceTest {
             var inOrder = inOrder(imagensRepository);
 
             inOrder.verify(imagensRepository).findById(ID_VALIDO);
-            inOrder.verify(imagensRepository).desmarcarPrincipal(ID_VALIDO);
+            inOrder.verify(imagensRepository).findByVeiculoId(imagem.getVeiculo().getId());
 
 
             verifyNoMoreInteractions(imagensRepository);
@@ -202,7 +202,7 @@ class ImagemServiceTest {
             assertNotFoundResponseError(excecao, IMAGEM, ID_VALIDO);
 
             verify(imagensRepository).findById(ID_VALIDO);
-            verify(imagensRepository, never()).desmarcarPrincipal(imagem.getVeiculo().getId());
+            verify(imagensRepository, never()).findByVeiculoId(imagem.getVeiculo().getId());
         }
     }
 

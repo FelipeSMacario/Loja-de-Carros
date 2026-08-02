@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.CarroceriaResponse;
 import com.javacar.lojadecarro.entity.Carroceria;
 import com.javacar.lojadecarro.enums.StatusFiltro;
+import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.CarroceriaMapper;
 import com.javacar.lojadecarro.repository.CarroceriaRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 import static com.javacar.lojadecarro.enums.Entidade.CARROCERIA;
+import static com.javacar.lojadecarro.enums.Entidade.COR;
 
 @Slf4j
 @Service
@@ -27,6 +29,7 @@ public class CarroceriaService {
 
     @Transactional
     public CarroceriaResponse criar(CarroceriaRequest request) {
+        validarNomeUnico(request.nome());
         var carroceriaEntity = carroceriaMapper.toEntity(request);
         var carroceriaResponse = carroceriaRepository.save(carroceriaEntity);
 
@@ -43,15 +46,18 @@ public class CarroceriaService {
         return listaCarroceria.stream().map(carroceriaMapper::toResponse).toList();
     }
 
-    public CarroceriaResponse buscaPorId(Long id) {
+    public CarroceriaResponse buscarPorId(Long id) {
         var carroceria = buscaCarroceria(id);
         return carroceriaMapper.toResponse(carroceria);
     }
 
     @Transactional
-    public CarroceriaResponse atualizar(CarroceriaRequest carroceriaRequest, Long id) {
+    public CarroceriaResponse atualizar(CarroceriaRequest request, Long id) {
         var carroceria = buscaCarroceria(id);
-        carroceriaMapper.toUpdate(carroceriaRequest, carroceria);
+        if (!request.nome().equals(carroceria.getNome())) {
+            validarNomeUnico(request.nome());
+        }
+        carroceriaMapper.toUpdate(request, carroceria);
         return carroceriaMapper.toResponse(carroceria);
     }
 
@@ -64,5 +70,10 @@ public class CarroceriaService {
 
     public Carroceria buscaCarroceria(Long id) {
         return entityValidation.obterOuLancarErro(carroceriaRepository.findById(id), CARROCERIA, id);
+    }
+    private void validarNomeUnico(String nome) {
+        if (carroceriaRepository.existsByNome(nome)){
+            throw new BusinessException(CARROCERIA.nomeJaExistente());
+        }
     }
 }

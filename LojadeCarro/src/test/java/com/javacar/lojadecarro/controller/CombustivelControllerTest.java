@@ -179,7 +179,7 @@ class CombustivelControllerTest {
             //Arrange
             var combustivelcx = new CombustivelTestContext();
 
-            when(combustivelService.buscaPorId(ID_VALIDO))
+            when(combustivelService.buscarPorId(ID_VALIDO))
                     .thenReturn(combustivelcx.combustivelResponse);
             //Act + Assert
             var resultado = mockMvc.perform(
@@ -194,7 +194,7 @@ class CombustivelControllerTest {
                     true
             );
 
-            verify(combustivelService).buscaPorId(ID_VALIDO);
+            verify(combustivelService).buscarPorId(ID_VALIDO);
             verifyNoMoreInteractions(combustivelService);
         }
 
@@ -202,7 +202,7 @@ class CombustivelControllerTest {
         @DisplayName("Deve lançar 404 ao buscar o combustível")
         void deveRetornar404AoBuscarCombustivelPorId() throws Exception {
             //Arrange
-            when(combustivelService.buscaPorId(ID_VALIDO))
+            when(combustivelService.buscarPorId(ID_VALIDO))
                     .thenThrow(new NotFoundException(COMBUSTIVEL, ID_VALIDO));
 
             //Act + Assert
@@ -214,7 +214,7 @@ class CombustivelControllerTest {
                     COMBUSTIVEL,
                     ID_VALIDO
             );
-            verify(combustivelService).buscaPorId(ID_VALIDO);
+            verify(combustivelService).buscarPorId(ID_VALIDO);
             verifyNoMoreInteractions(combustivelService);
         }
     }

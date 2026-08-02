@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.ModeloResponse;
 import com.javacar.lojadecarro.entity.Modelo;
 import com.javacar.lojadecarro.enums.StatusFiltro;
+import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.ModeloMapper;
 import com.javacar.lojadecarro.repository.ModeloRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
@@ -29,6 +30,7 @@ public class ModeloService {
 
     @Transactional
     public ModeloResponse criar(ModeloRequest request) {
+        validarNomeUnico(request.nome());
         var modeloEntity = modeloMapper.toEntity(request);
         modeloEntity.setMarca(marcaService.buscaMarca(request.idMarca()));
         var modelo = modeloRepository.save(modeloEntity);
@@ -57,6 +59,9 @@ public class ModeloService {
     @Transactional
     public ModeloResponse atualizar(ModeloRequest request, Long id) {
         var modelo = buscaModelo(id);
+        if (!request.nome().equals(modelo.getNome())) {
+            validarNomeUnico(request.nome());
+        }
         modeloMapper.toUpdate(request, modelo);
         modelo.setMarca(marcaService.buscaMarca(request.idMarca()));
         return modeloMapper.toResponse(modelo);
@@ -71,5 +76,10 @@ public class ModeloService {
 
     public Modelo buscaModelo(Long id) {
         return entityValidation.obterOuLancarErro(modeloRepository.findById(id), MODELO, id);
+    }
+    private void validarNomeUnico(String nome) {
+        if (modeloRepository.existsByNome(nome)){
+            throw new BusinessException(MODELO.nomeJaExistente());
+        }
     }
 }

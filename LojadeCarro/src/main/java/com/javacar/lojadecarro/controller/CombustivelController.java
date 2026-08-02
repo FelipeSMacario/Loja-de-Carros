@@ -58,7 +58,7 @@ public class CombustivelController {
     @Operation(summary = "Buscar combustível por id")
     public ResponseEntity<CombustivelResponse> buscaPorId(@PathVariable Long id) {
         log.debug("Buscando o combustível por id: {}", id);
-        var response = combustivelService.buscaPorId(id);
+        var response = combustivelService.buscarPorId(id);
 
         log.info("Busca do combustivel com id: {} realizada com sucesso", id);
         log.debug("Resposta do combustível por id: {}", response);

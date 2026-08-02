@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.factory.imagem;
 
 import com.javacar.lojadecarro.entity.Imagem;
+import com.javacar.lojadecarro.entity.Veiculo;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -39,6 +40,10 @@ public final class ImagemEntityFactory {
 
     public ImagemEntityFactory comPrincipal(boolean principal) {
         imagem.setPrincipal(principal);
+        return this;
+    }
+    public ImagemEntityFactory comIdVeiculo(Veiculo veiculo) {
+        imagem.setVeiculo(veiculo);
         return this;
     }
 

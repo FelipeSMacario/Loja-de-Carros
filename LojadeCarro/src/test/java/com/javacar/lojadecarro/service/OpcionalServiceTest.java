@@ -51,6 +51,8 @@ class OpcionalServiceTest {
         var entity = criarOpcionalEntity();
         var response = criarOpcionalResponse();
 
+        when(opcionalRepository.existsByNome(request.nome()))
+                .thenReturn(false);
         when(opcionalMapper.toEntity(request))
                 .thenReturn(entity);
 
@@ -64,6 +66,7 @@ class OpcionalServiceTest {
         //Assert
         assertOpcionalResponse(resultado);
 
+        verify(opcionalRepository).existsByNome(request.nome());
         verify(opcionalMapper).toEntity(request);
         verify(opcionalRepository).save(entity);
         verify(opcionalMapper).toResponse(entity);

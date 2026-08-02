@@ -99,7 +99,6 @@ public class Veiculo {
             imagem.setPrincipal(true);
         }
 
-        imagem.setVeiculo(this);
         imagens.add(imagem);
     }
 

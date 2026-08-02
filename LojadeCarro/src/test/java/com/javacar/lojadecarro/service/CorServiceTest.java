@@ -53,6 +53,8 @@ class CorServiceTest {
 
         var response = criarCorResponse();
 
+        when(corRepository.existsByNome(request.nome()))
+                .thenReturn(false);
         when(corMapper.toEntity(request))
                 .thenReturn(entity);
 
@@ -67,6 +69,7 @@ class CorServiceTest {
         //Assert
         assertCorResponse(resultado);
 
+        verify(corRepository).existsByNome(request.nome());
         verify(corMapper).toEntity(request);
         verify(corMapper).toResponse(entity);
         verify(corRepository).save(entity);
