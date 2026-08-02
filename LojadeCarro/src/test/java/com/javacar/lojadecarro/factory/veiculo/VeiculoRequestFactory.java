@@ -46,6 +46,18 @@ public class VeiculoRequestFactory {
         this.idCombustivel = 1L;
         return this;
     }
+    public VeiculoRequestFactory comQuilometragem(Integer quilometragem) {
+        this.quilometragem = quilometragem;
+        return this;
+    }
+    public VeiculoRequestFactory comValor(BigDecimal valor) {
+        this.valor = valor;
+        return this;
+    }
+    public VeiculoRequestFactory comPlaca(String placa) {
+        this.placa = placa;
+        return this;
+    }
     public VeiculoRequestFactory comMotor(String motor) {
         this.motor = motor;
         return this;
@@ -56,6 +68,30 @@ public class VeiculoRequestFactory {
     }
     public VeiculoRequestFactory comOpcionais(List<Long> idsOpcionais) {
         this.idsOpcionais = idsOpcionais;
+        return this;
+    }
+    public VeiculoRequestFactory comAnoFabricacao(Short anoFabricacao) {
+        this.anoFabricacao = anoFabricacao;
+        return this;
+    }
+    public VeiculoRequestFactory comIdCarroceria(Long idCarroceria) {
+        this.idCarroceria = idCarroceria;
+        return this;
+    }
+    public VeiculoRequestFactory comIdCores(Long idCores) {
+        this.idCores = idCores;
+        return this;
+    }
+    public VeiculoRequestFactory comIdModelo(Long idModelo) {
+        this.idModelo = idModelo;
+        return this;
+    }
+    public VeiculoRequestFactory comIdUsuario(Long idUsuario) {
+        this.idUsuario = idUsuario;
+        return this;
+    }
+    public VeiculoRequestFactory  comIdCombustivel(Long idCombustivel) {
+        this.idCombustivel = idCombustivel;
         return this;
     }
 

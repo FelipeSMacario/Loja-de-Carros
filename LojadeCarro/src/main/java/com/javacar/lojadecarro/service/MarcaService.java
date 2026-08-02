@@ -5,10 +5,12 @@ import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.MarcaResponse;
 import com.javacar.lojadecarro.entity.Marca;
 import com.javacar.lojadecarro.enums.StatusFiltro;
+import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.MarcaMapper;
 import com.javacar.lojadecarro.repository.MarcaRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -27,11 +29,15 @@ public class MarcaService {
 
     @Transactional
     public MarcaResponse criar(MarcaRequest request) {
+        validarNomeUnico(request.nome());
+        validarUrlUnica(request.url());
         var marcaEntity = marcaMapper.toEntity(request);
         var marca = marcaRepository.save(marcaEntity);
 
         return marcaMapper.toResponse(marca);
     }
+
+
 
     public List<MarcaResponse> listar(StatusFiltro status) {
         var listaMarcas =
@@ -54,6 +60,12 @@ public class MarcaService {
     @Transactional
     public MarcaResponse atualizar(MarcaRequest request, Long id) {
         var marca = buscaMarca(id);
+        if (!request.nome().equals(marca.getNome())) {
+            validarNomeUnico(request.nome());
+        }
+        if (!request.url().equals(marca.getUrl())) {
+            validarUrlUnica(request.url());
+        }
         marcaMapper.toUpdate(request, marca);
         return marcaMapper.toResponse(marca);
     }
@@ -68,5 +80,16 @@ public class MarcaService {
 
     public Marca buscaMarca(Long id) {
         return entityValidation.obterOuLancarErro(marcaRepository.findById(id), MARCA, id);
+    }
+    private void validarUrlUnica(String url) {
+        if (marcaRepository.existsByUrl(url)){
+            throw new BusinessException("A URL informada já possui um cadastro.");
+        }
+    }
+
+    private void validarNomeUnico(String nome) {
+        if (marcaRepository.existsByNome(nome)){
+            throw new BusinessException("O nome informado já possui um cadastro.");
+        }
     }
 }

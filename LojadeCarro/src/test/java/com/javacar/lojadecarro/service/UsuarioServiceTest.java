@@ -71,6 +71,12 @@ class UsuarioServiceTest {
 
             var response = criarUsuarioResponse();
 
+            when(usuarioRepository.existsByCpf(request.cpf()))
+                    .thenReturn(false);
+
+            when(usuarioRepository.existsByEmail(request.email()))
+            .thenReturn(false);
+
             when(usuarioMapper.toEntity(request))
                     .thenReturn(entity);
             when(encoder.encode(request.password()))
@@ -90,6 +96,8 @@ class UsuarioServiceTest {
 
             verify(usuarioMapper).toEntity(request);
             verify(usuarioMapper).toResponse(entity);
+            verify(usuarioRepository).existsByEmail(request.email());
+            verify(usuarioRepository).existsByCpf(request.cpf());
             verify(usuarioRepository).save(entity);
             verify(encoder).encode(request.password());
 
@@ -349,6 +357,9 @@ class UsuarioServiceTest {
             var entity = criarUsuarioEntity();
             var response = criarUsuarioResponse();
 
+            when(usuarioRepository.existsByCpf(request.cpf()))
+                    .thenReturn(false);
+
             when(usuarioRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(entity));
 
@@ -369,6 +380,7 @@ class UsuarioServiceTest {
                     .isNotNull()
                     .isEqualTo("senhaCriptografada");
             verify(usuarioRepository).findById(ID_VALIDO);
+            verify(usuarioRepository).existsByCpf(request.cpf());
             verify(encoder).encode(request.password());
             verify(usuarioMapper).toResponse(entity);
             verifyNoMoreInteractions(
@@ -670,7 +682,7 @@ class UsuarioServiceTest {
             when(usuarioRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(entity));
 
-            when(rolesService.buscaRole(idRole))
+            when(rolesService.buscarPorId(idRole))
                     .thenReturn(role);
 
             when(usuarioMapper.toUsuarioRoleResponse(entity))
@@ -684,7 +696,7 @@ class UsuarioServiceTest {
 
 
             verify(usuarioRepository).findById(ID_VALIDO);
-            verify(rolesService).buscaRole(idRole);
+            verify(rolesService).buscarPorId(idRole);
             verify(usuarioMapper).toUsuarioRoleResponse(entity);
 
             verifyNoMoreInteractions(
@@ -723,7 +735,7 @@ class UsuarioServiceTest {
             when(usuarioRepository.findById(ID_VALIDO))
             .thenReturn(Optional.of(entity));
 
-            when(rolesService.buscaRole(ID_VALIDO))
+            when(rolesService.buscarPorId(ID_VALIDO))
                     .thenThrow(new NotFoundException(ROLE, ID_VALIDO));
             //ACT
             var excecao = assertThrows(NotFoundException.class,
@@ -732,7 +744,7 @@ class UsuarioServiceTest {
             assertNotFoundResponseError(excecao, ROLE, ID_VALIDO);
 
             verify(usuarioRepository).findById(ID_VALIDO);
-            verify(rolesService).buscaRole(ID_VALIDO);
+            verify(rolesService).buscarPorId(ID_VALIDO);
 
             verifyNoMoreInteractions(
                     usuarioRepository,
@@ -753,7 +765,7 @@ class UsuarioServiceTest {
             when(usuarioRepository.findById(ID_VALIDO))
             .thenReturn(Optional.of(entity));
 
-            when(rolesService.buscaRole(idRole))
+            when(rolesService.buscarPorId(idRole))
             .thenReturn(role);
             //ACT
             var excecao = assertThrows(BusinessException.class,
@@ -762,7 +774,7 @@ class UsuarioServiceTest {
             assertBusinessResponseError(excecao, "O usuário não possui uma role com o id informado.");
 
             verify(usuarioRepository).findById(ID_VALIDO);
-            verify(rolesService).buscaRole(idRole);
+            verify(rolesService).buscarPorId(idRole);
 
             verifyNoMoreInteractions(usuarioRepository, rolesService);
 

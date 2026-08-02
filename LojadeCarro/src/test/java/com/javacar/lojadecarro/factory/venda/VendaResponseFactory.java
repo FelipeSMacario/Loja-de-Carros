@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.factory.venda;
 
 import com.javacar.lojadecarro.dto.response.VendaResponse;
+import com.javacar.lojadecarro.enums.StatusVenda;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -11,6 +12,7 @@ public class VendaResponseFactory {
     private Long id;
     private BigDecimal valor;
     private LocalDateTime dataVenda;
+    private StatusVenda status;
 
     private VendaResponseFactory() {
     }
@@ -24,6 +26,7 @@ public class VendaResponseFactory {
         this.id = 1L;
         this.valor = BigDecimal.valueOf(200000);
         this.dataVenda = (LocalDateTime.now(ZONE));
+        this.status = StatusVenda.EM_ANDAMENTO;
         return this;
     }
     public VendaResponseFactory comId(Long id) {
@@ -33,6 +36,6 @@ public class VendaResponseFactory {
 
 
     public VendaResponse build() {
-        return new VendaResponse(id, valor, dataVenda);
+        return new VendaResponse(id, valor, status,dataVenda);
     }
 }

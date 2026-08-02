@@ -27,6 +27,10 @@ public class ModeloRequestFactory {
         this.nome = nome;
         return this;
     }
+    public ModeloRequestFactory comIdMarca(Long idMarca) {
+        this.idMarca = idMarca;
+        return this;
+    }
 
     public ModeloRequest build() {
         return new ModeloRequest(nome, idMarca);

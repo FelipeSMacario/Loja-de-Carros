@@ -56,6 +56,8 @@ class ModeloServiceTest {
         var marcaEntity = criarMarcaEntity();
         var response = criarModeloResponse();
 
+        when(modeloRepository.existsByNome(request.nome()))
+                .thenReturn(false);
         when(modeloMapper.toEntity(request))
                 .thenReturn(entity);
 
@@ -75,6 +77,7 @@ class ModeloServiceTest {
 
         assertModeloResponse(resultado);
 
+        verify(modeloRepository).existsByNome(request.nome());
         verify(modeloMapper).toEntity(request);
         verify(marcaService).buscaMarca(request.idMarca());
         verify(modeloRepository).save(entity);
@@ -92,6 +95,8 @@ class ModeloServiceTest {
         var request = criarModeloRequest();
         var entity = criarModeloEntity();
 
+        when(modeloRepository.existsByNome(request.nome()))
+                .thenReturn(false);
         when(modeloMapper.toEntity(request))
                 .thenReturn(entity);
 
@@ -108,8 +113,8 @@ class ModeloServiceTest {
 
         verifyNoMoreInteractions(modeloMapper);
         verifyNoMoreInteractions(marcaService);
+        verifyNoMoreInteractions(modeloRepository);
 
-        verifyNoInteractions(modeloRepository);
     }
 
     @Test

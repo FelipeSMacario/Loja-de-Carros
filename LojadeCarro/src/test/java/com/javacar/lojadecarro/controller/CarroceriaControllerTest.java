@@ -185,7 +185,7 @@ class CarroceriaControllerTest {
 
             var carroceriacx = new CarroceriaTestContext();
 
-            when(carroceriaService.buscaPorId(ID_VALIDO))
+            when(carroceriaService.buscarPorId(ID_VALIDO))
                     .thenReturn(carroceriacx.carroceriaResponse);
 
             // Act + Assert
@@ -195,7 +195,7 @@ class CarroceriaControllerTest {
 
             assertResultadoCarroceria(resultado);
 
-            verify(carroceriaService).buscaPorId(ID_VALIDO);
+            verify(carroceriaService).buscarPorId(ID_VALIDO);
             verifyNoMoreInteractions(carroceriaService);
         }
 
@@ -204,7 +204,7 @@ class CarroceriaControllerTest {
         @DisplayName("Deve lançar 404 ao buscar uma carroceria por ID")
         void deveLancar404aoBuscarCarroceriaPorId() throws Exception {
             //Arrange
-            when(carroceriaService.buscaPorId(ID_VALIDO))
+            when(carroceriaService.buscarPorId(ID_VALIDO))
                     .thenThrow(new NotFoundException(CARROCERIA, ID_VALIDO));
 
             //ACT + Assert
@@ -214,7 +214,7 @@ class CarroceriaControllerTest {
 
             assertStatus404(resultado, CARROCERIA, ID_VALIDO);
 
-            verify(carroceriaService).buscaPorId(ID_VALIDO);
+            verify(carroceriaService).buscarPorId(ID_VALIDO);
             verifyNoMoreInteractions(carroceriaService);
         }
 

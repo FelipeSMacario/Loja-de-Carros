@@ -1,6 +1,5 @@
 package com.javacar.lojadecarro.service;
 
-import com.javacar.lojadecarro.dto.response.UploadResult;
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
@@ -13,6 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.javacar.lojadecarro.enums.Entidade.IMAGEM;
@@ -28,6 +28,9 @@ public class ImagensService {
     @Transactional
     public List<Imagem> criar(MultipartFile[] files, Veiculo veiculo)
             throws IOException {
+        if (files == null || files.length == 0) {
+            return Collections.emptyList();
+        }
 
         var imagens = new ArrayList<Imagem>();
 
@@ -35,6 +38,7 @@ public class ImagensService {
             var upload = storageService.upload(file, veiculo.getId());
             var imagem = new Imagem(upload);
             imagens.add(imagem);
+            imagem.setVeiculo(veiculo);
         }
 
         try {
@@ -53,8 +57,8 @@ public class ImagensService {
     @Transactional
     public void definirPrincipal(Long idImagem) {
         var imagem = buscaImagem(idImagem);
-
-        imagensRepository.desmarcarPrincipal(imagem.getVeiculo().getId());
+        var imagens = imagensRepository.findByVeiculoId(imagem.getVeiculo().getId());
+        imagens.forEach(i -> i.setPrincipal(false));
 
         imagem.setPrincipal(true);
     }

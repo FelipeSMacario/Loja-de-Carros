@@ -45,7 +45,7 @@ public final class ImagemHelper extends BaseHelper {
         MultipartFile file2 = new MockMultipartFile(
                 "files2",
                 "onix2.jpg",
-                "image/jpeg",
+                "image2/jpeg",
                 "conteudo".getBytes()
         );
 
@@ -98,5 +98,26 @@ public final class ImagemHelper extends BaseHelper {
                 .andExpect(jsonPath("$[0].principal").value(primeiroPrincipal))
                 .andExpect(jsonPath("$[1].principal").value(segundoPrincipal));
     }
+
+    public static UploadResult criarUploadValido() {
+        return new UploadResult(
+                "veiculos/1/imagem.jpg",
+                "bucket-test",
+                "imagem.jpg",
+                "image/jpeg",
+                1024L
+        );
+    }
+
+    public static UploadResult criarUploadValido2() {
+        return new UploadResult(
+                "veiculos/2/imagem.jpg",
+                "bucket2-test",
+                "imagem2.jpg",
+                "image2/jpeg",
+                1024L
+        );
+    }
+
 
 }

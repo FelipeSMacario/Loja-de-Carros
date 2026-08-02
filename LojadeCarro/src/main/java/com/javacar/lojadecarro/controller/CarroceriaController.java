@@ -59,7 +59,7 @@ public class CarroceriaController {
     @Operation(summary = "Buscar uma carroceria por id")
     public ResponseEntity<CarroceriaResponse> buscaPorId(@PathVariable Long id) {
         log.debug("Buscando uma carroceria por id: {}", id);
-        var response = carroceriaService.buscaPorId(id);
+        var response = carroceriaService.buscarPorId(id);
 
         log.info("Consulta da carroceria com o id: {} realizada com sucesso", id);
         log.debug("Resposta carroceria por id: {}", response);

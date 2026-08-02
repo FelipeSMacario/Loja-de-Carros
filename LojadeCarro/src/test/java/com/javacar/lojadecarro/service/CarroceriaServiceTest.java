@@ -277,7 +277,7 @@ class CarroceriaServiceTest {
                 .thenReturn(response);
 
         // Act
-        var resultado = carroceriaService.buscaPorId(ID_VALIDO);
+        var resultado = carroceriaService.buscarPorId(ID_VALIDO);
 
         // Assert
         assertCarroceriaResponse(resultado);
@@ -300,7 +300,7 @@ class CarroceriaServiceTest {
         // Assert
         var exception = assertThrows(
                 NotFoundException.class,
-                () -> carroceriaService.buscaPorId(ID_INVALIDO)
+                () -> carroceriaService.buscarPorId(ID_INVALIDO)
         );
 
         assertNotFoundResponseError(exception, CARROCERIA, ID_INVALIDO);
@@ -328,6 +328,8 @@ class CarroceriaServiceTest {
                 .comNome("Sedan")
                 .build();
 
+        when(carroceriaRepository.existsByNome(request.nome()))
+                .thenReturn(false);
         when(carroceriaRepository.findById(ID_VALIDO))
                 .thenReturn(Optional.of(entity));
         doNothing()
@@ -352,6 +354,7 @@ class CarroceriaServiceTest {
                         "Sedan"
                 );
 
+        verify(carroceriaRepository).existsByNome(request.nome());
         verify(carroceriaRepository).findById(ID_VALIDO);
         verify(carroceriaMapper).toResponse(entity);
 

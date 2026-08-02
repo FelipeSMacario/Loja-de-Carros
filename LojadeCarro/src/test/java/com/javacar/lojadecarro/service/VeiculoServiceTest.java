@@ -80,6 +80,8 @@ class VeiculoServiceTest {
             //Arrange
             var cx = new VeiculoTestContext();
             mockDependenciasCriacaoCompleta(cx);
+            when(veiculoRepository.existsByPlaca(cx.request.placa()))
+                    .thenReturn(false);
             when(veiculoRepository.save(cx.entity))
                     .thenReturn(cx.entity);
 
@@ -88,6 +90,7 @@ class VeiculoServiceTest {
             //Assert
             assertVeiculoResponse(resultado);
             assertDependenciasVeiculoCompleto(cx, DISPONIVEL);
+            verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verifyVeiculos(cx);
         }
 
@@ -97,6 +100,8 @@ class VeiculoServiceTest {
         void deveLancarExcecaoCarroceriaNaoEncontradaAoCriarVeiculo() {
             //Arrange
             var cx = new VeiculoTestContext();
+            when(veiculoRepository.existsByPlaca(cx.request.placa()))
+                    .thenReturn(false);
 
             when(veiculoMapper.toEntity(cx.request))
                     .thenReturn(cx.entity);
@@ -107,8 +112,10 @@ class VeiculoServiceTest {
                     () -> veiculoService.criar(cx.request, cx.imagemFile));
             //Assert
             assertNotFoundResponseError(excecao, CARROCERIA, cx.request.idCarroceria());
+            verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verifyVeiculosAteCarroceria(cx);
             verify(veiculoMapper).toEntity(cx.request);
+            verifyNoMoreInteractions(veiculoRepository);
         }
 
         @Test
@@ -116,6 +123,8 @@ class VeiculoServiceTest {
         void deveLancarExcecaoCorNaoEncontradaAoCriarVeiculo() {
             //Arrange
             var cx = new VeiculoTestContext();
+            when(veiculoRepository.existsByPlaca(anyString()))
+                    .thenReturn(false);
             when(veiculoMapper.toEntity(cx.request))
                     .thenReturn(cx.entity);
             mockDependenciasCriacaoAteCor(cx);
@@ -124,10 +133,11 @@ class VeiculoServiceTest {
             var excecao = assertThrows(NotFoundException.class,
                     () -> veiculoService.criar(cx.request, cx.imagemFile));
             //Assert
+            verify(veiculoRepository).existsByPlaca(anyString());
             assertNotFoundResponseError(excecao, COR, cx.request.idCarroceria());
             verify(veiculoMapper).toEntity(cx.request);
             verifyVeiculosAteCor(cx);
-            verifyNoInteractions(veiculoRepository);
+            verifyNoMoreInteractions(veiculoRepository);
         }
 
         @Test
@@ -135,6 +145,8 @@ class VeiculoServiceTest {
         void deveLancarExcecaoModeloNaoEncontradoAoCriarVeiculo() {
             //Arrange
             var cx = new VeiculoTestContext();
+            when(veiculoRepository.existsByPlaca(cx.request.placa()))
+                    .thenReturn(false);
             when(veiculoMapper.toEntity(cx.request))
                     .thenReturn(cx.entity);
             mockDependenciasCriacaoAteModelo(cx);
@@ -144,10 +156,11 @@ class VeiculoServiceTest {
                     () -> veiculoService.criar(cx.request, cx.imagemFile));
             //Assert
             assertNotFoundResponseError(excecao, MODELO, cx.request.idCarroceria());
+            verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoMapper).toEntity(cx.request);
             verifyVeiculosAteModelo(cx);
 
-            verifyNoInteractions(veiculoRepository);
+            verifyNoMoreInteractions(veiculoRepository);
 
         }
 
@@ -157,6 +170,9 @@ class VeiculoServiceTest {
             //Arrange
             var cx = new VeiculoTestContext();
             mockDependenciasCriacaoAteUsuario(cx);
+            when(veiculoRepository.existsByPlaca(cx.request.placa()))
+                    .thenReturn(false);
+
             when(veiculoMapper.toEntity(cx.request))
                     .thenReturn(cx.entity);
             //ACT
@@ -164,9 +180,10 @@ class VeiculoServiceTest {
                     () -> veiculoService.criar(cx.request, cx.imagemFile));
             //Assert
             assertNotFoundResponseError(excecao, USUARIO, cx.request.idCarroceria());
+            verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoMapper).toEntity(cx.request);
             verifyVeiculosAteUsuario(cx);
-            verifyNoInteractions(veiculoRepository);
+            verifyNoMoreInteractions(veiculoRepository);
 
         }
 
@@ -176,6 +193,8 @@ class VeiculoServiceTest {
             //Arrange
             var cx = new VeiculoTestContext();
             mockDependenciasCriacaoAteCombustivel(cx);
+            when(veiculoRepository.existsByPlaca(cx.request.placa()))
+                    .thenReturn(false);
             when(veiculoMapper.toEntity(cx.request))
                     .thenReturn(cx.entity);
 
@@ -185,8 +204,9 @@ class VeiculoServiceTest {
             //Assert
             assertNotFoundResponseError(excecao, COMBUSTIVEL, cx.request.idCarroceria());
             verifyVeiculosAteCombustivel(cx);
+            verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoMapper).toEntity(cx.request);
-            verifyNoInteractions(veiculoRepository);
+            verifyNoMoreInteractions(veiculoRepository);
 
         }
 
@@ -202,6 +222,9 @@ class VeiculoServiceTest {
                     .build();
 
             var cx = new VeiculoTestContext();
+
+            when(veiculoRepository.existsByPlaca(cx.request.placa()))
+                    .thenReturn(false);
 
             when(veiculoMapper.toEntity(request))
                     .thenReturn(cx.entity);
@@ -231,6 +254,7 @@ class VeiculoServiceTest {
             //Assert
             assertBusinessResponseError(excecao, "A requisição possui opcionais duplicadas.");
 
+            verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoMapper).toEntity(request);
             verify(carroceriaService).buscaCarroceria(cx.request.idCarroceria());
             verify(coresService).buscaCor(cx.request.idCores());
@@ -263,7 +287,8 @@ class VeiculoServiceTest {
             var cx = new VeiculoTestContext();
 
             mockDependenciasCriacaoSemImagemEOpcionaisExcecao(cx);
-
+            when(veiculoRepository.existsByPlaca(cx.request.placa()))
+                    .thenReturn(false);
             when(veiculoRepository.save(cx.entity))
                     .thenReturn(cx.entity);
 
@@ -280,7 +305,7 @@ class VeiculoServiceTest {
                     .hasMessage("Erro ao fazer upload");
 
             verifyVeiculosSemImagemEOpcionaisExcecao(cx);
-
+            verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoRepository).save(cx.entity);
             verify(opcionalService).buscarOpcionais(cx.request.idsOpcionais());
             verify(veiculoMapper, never()).toResponse(cx.entity);
@@ -496,6 +521,9 @@ class VeiculoServiceTest {
             //Arrange
             var cx = new VeiculoTestContext();
 
+            when(veiculoRepository.existsByPlaca(cx.request.placa()))
+                    .thenReturn(false);
+
             when(veiculoRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(cx.entity));
             doNothing()
@@ -512,6 +540,7 @@ class VeiculoServiceTest {
             assertVeiculoResponse(resultado);
             assertDependenciasVeiculoCompletoSemImagemEOpcional(cx);
 
+            verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoRepository).findById(ID_VALIDO);
 
             verifyVeiculosSemImagemEOpcionais(cx);
@@ -552,6 +581,8 @@ class VeiculoServiceTest {
 
             when(veiculoRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(cx.entity));
+            when(veiculoRepository.existsByPlaca(anyString()))
+                    .thenReturn(false);
             doNothing()
                     .when(veiculoMapper).toUpdate(cx.request, cx.entity);
 
@@ -564,6 +595,7 @@ class VeiculoServiceTest {
             verifyVeiculosAteCarroceria(cx);
 
             verify(veiculoRepository).findById(ID_VALIDO);
+            verify(veiculoRepository).existsByPlaca(anyString());
             verifyNoMoreInteractions(veiculoRepository);
         }
 

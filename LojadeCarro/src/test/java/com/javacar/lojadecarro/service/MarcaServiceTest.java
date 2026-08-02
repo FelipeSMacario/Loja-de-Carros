@@ -55,7 +55,8 @@ class MarcaServiceTest {
 
         var response = criarMarcaResponse();
 
-
+        when(marcaRepository.existsByNome(request.nome())).thenReturn(false);
+        when(marcaRepository.existsByUrl(request.url())).thenReturn(false);
         when(marcaMapper.toEntity(request)).thenReturn(entity);
         when(marcaRepository.save(entity)).thenReturn(entity);
         when(marcaMapper.toResponse(entity)).thenReturn(response);
@@ -65,7 +66,8 @@ class MarcaServiceTest {
 
         //Assert
         assertMarcaResponse(resultado);
-
+        verify(marcaRepository).existsByNome(request.nome());
+        verify(marcaRepository).existsByUrl(request.url());
         verify(marcaMapper).toEntity(request);
         verify(marcaRepository).save(entity);
 

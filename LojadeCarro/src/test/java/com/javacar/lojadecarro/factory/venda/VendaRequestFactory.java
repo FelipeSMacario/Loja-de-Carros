@@ -28,8 +28,20 @@ public class VendaRequestFactory {
         this.valor = BigDecimal.valueOf(200000);
         return this;
     }
+    public VendaRequestFactory comVeiculoPorId(Long veiculoId) {
+        this.veiculoId = veiculoId;
+        return this;
+    }
     public VendaRequestFactory comCompradorId(Long compradorId) {
         this.compradorId = compradorId;
+        return this;
+    }
+    public VendaRequestFactory comVendedorId(Long vendedorId) {
+        this.vendedorId = vendedorId;
+        return this;
+    }
+    public VendaRequestFactory comValor(BigDecimal valor) {
+        this.valor = valor;
         return this;
     }
 

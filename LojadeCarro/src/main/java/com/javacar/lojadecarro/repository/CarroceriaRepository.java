@@ -11,5 +11,7 @@ import java.util.Optional;
 public interface CarroceriaRepository extends JpaRepository<Carroceria, Long> {
     List<Carroceria> findByAtivo(boolean status);
 
-    Optional<Carroceria> findByIdAndAtivo(Long id, Boolean ativo);
+    Optional<Carroceria> findByNome(String nome);
+
+    boolean existsByNome(String nome);
 }

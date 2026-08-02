@@ -36,7 +36,7 @@ public class RolesService {
                 .toList();
     }
 
-    public Role buscaRole(Long roleId) {
+    public Role buscarPorId(Long roleId) {
         return entityValidation.obterOuLancarErro(roleRepository.findById(roleId), ROLE, roleId);
     }
 
