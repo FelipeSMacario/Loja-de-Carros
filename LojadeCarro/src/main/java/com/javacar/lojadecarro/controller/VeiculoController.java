@@ -1,6 +1,5 @@
 package com.javacar.lojadecarro.controller;
 
-import com.javacar.lojadecarro.dto.request.AlterarStatusRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoOpcionaisRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
@@ -14,9 +13,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -27,9 +30,9 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Veiculo")
+@Tag(name = "Veiculos")
 @RestController
-@RequestMapping("veiculo")
+@RequestMapping("/veiculos")
 public class VeiculoController {
 
     private final VeiculoService veiculoService;
@@ -37,15 +40,16 @@ public class VeiculoController {
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Cadastrar um novo veiculo")
     public ResponseEntity<VeiculoResponse> criar(
+            @AuthenticationPrincipal Jwt jwt,
             @RequestPart("request")
             @Valid VeiculoRequest request,
-
             @RequestPart(value = "files", required = false)
             MultipartFile[] files
     ) throws IOException {
         log.debug("Cadastrar um novo veiculo com o corpo: {}", request);
+        var idUsuario = Long.valueOf(jwt.getSubject());
         var imagens = files == null ? new MultipartFile[0] : files;
-        var response = veiculoService.criar(request, imagens);
+        var response = veiculoService.criar(request, imagens, idUsuario);
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -60,11 +64,14 @@ public class VeiculoController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os veiculos")
-    public ResponseEntity<Page<VeiculoResponse>> listar(@PageableDefault(size = 9) Pageable pageable,
-                                                        @RequestParam(required = false) StatusVeiculo status) {
-        log.debug("Buscando todos os veiculos com o status: {}.", status);
-        var response = veiculoService.listar(pageable, status);
+    @Operation(summary = "Listar todos os veiculos ativos")
+    public ResponseEntity<Page<VeiculoResponse>> listarAtivos(@PageableDefault(
+            size = 9,
+            sort = "dataCadastro",
+            direction = Sort.Direction.DESC
+    ) Pageable pageable) {
+        log.debug("Buscando todos os veiculos ativos.");
+        var response = veiculoService.listarAtivos(pageable);
 
         log.debug("Consulta retornou {} elementos", response.getNumberOfElements());
 
@@ -93,16 +100,43 @@ public class VeiculoController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/{id}/status")
-    @Operation(summary = "Alterar o status do veiculo")
-    public ResponseEntity<VeiculoResponse> alterarStatus(@PathVariable Long id,
-                                                         @RequestBody @Valid AlterarStatusRequest request) {
-        log.debug("Alterando status do veiculo com id: {} para o status: {}", id, request.status());
-        var response = veiculoService.alterarStatus(id, request);
+    @PatchMapping("/{id}/pausar")
+    @Operation(summary = "Pausar veiculo")
+    public ResponseEntity<VeiculoResponse> pausarVeiculo(@PathVariable Long id) {
+        log.debug("Alterando status para pausado do veiculo com id: {}", id);
+        var response = veiculoService.pausarVeiculo(id);
 
-        log.info("Status do veiculo com o id: {} alterado com sucesso", id);
-        log.debug("Resposta da alteração de status para o id: {}. Resposta: {}", id, response);
+        log.info("Veiculo com o id: {} pausado com sucesso", id);
+        log.debug("Resposta da pausa para o veiculo com id: {}. Resposta: {}", id, response);
         return ResponseEntity.ok(response);
+    }
+
+    @PatchMapping("/{id}/reativar")
+    @Operation(summary = "Reativar veiculo")
+    public ResponseEntity<VeiculoResponse> reativarVeiculo(@PathVariable Long id) {
+        log.debug("Reativar status do veiculo com id: {}", id);
+        var response = veiculoService.reativarVeiculo(id);
+
+        log.info("Veiculo com o id: {} reativado com sucesso", id);
+        log.debug("Resposta da reativação para o veiculo com id: {}. Resposta: {}", id, response);
+        return ResponseEntity.ok(response);
+    }
+
+    @PostMapping(
+            value = "/{idVeiculo}/imagens",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    public ResponseEntity<List<ImagemResponse>> vincularImagens(
+            @PathVariable Long idVeiculo,
+            @RequestPart("files") MultipartFile[] files
+    ) throws IOException {
+        log.debug("Vinculando imagens {} do veiculo com id: {}", files.length, idVeiculo);
+        var response = veiculoService.vincularImagens(idVeiculo, files);
+
+        log.info("Imagens vinculadas com sucesso. Id: {}", idVeiculo);
+        return ResponseEntity
+                .status(HttpStatus.CREATED)
+                .body(response);
     }
 
     @GetMapping("/{id}/imagens")
@@ -121,7 +155,7 @@ public class VeiculoController {
     @Operation(summary = "Desvincular opcional do veiculo")
     public ResponseEntity<Void> desvincularOpcionais(@PathVariable Long idVeiculo,
                                                      @RequestParam List<Long> idsOpcionais) {
-        log.debug("Desvinculando opcionais {} do usuário com id: {}", idsOpcionais, idVeiculo);
+        log.debug("Desvinculando opcionais {} do veiculo com id: {}", idsOpcionais, idVeiculo);
         veiculoService.desvincularOpcionais(idVeiculo, idsOpcionais);
 
         log.info("Opcionais desvinculados com sucesso. Id: {}", idVeiculo);
@@ -129,15 +163,35 @@ public class VeiculoController {
         return ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{idVeiculo}/opcionais")
+    @PostMapping("/{idVeiculo}/opcionais")
     @Operation(summary = "Vincular opcional do veiculo")
     public ResponseEntity<Void> vincularOpcionais(@PathVariable Long idVeiculo,
                                                   @RequestBody @Valid VeiculoOpcionaisRequest request) {
-        log.debug("Vinculando opcionais {} do usuário com id: {}", request.opcionais(), idVeiculo);
+        log.debug("Vinculando opcionais {} do veiculo com id: {}", request.opcionais(), idVeiculo);
         veiculoService.vincularOpcionais(idVeiculo, request.opcionais());
 
         log.info("Opcionais vinculados com sucesso. Id: {}", idVeiculo);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/meus-anuncios")
+    public ResponseEntity<Page<VeiculoResponse>> listarMeusAnuncios(
+            @AuthenticationPrincipal Jwt jwt,
+            @PageableDefault(
+                    size = 9,
+                    sort = "dataCadastro",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable,
+            @RequestParam(required = false)
+            StatusVeiculo status) {
+        var idUsuario = Long.valueOf(jwt.getSubject());
+        log.debug("Buscando todos os anuncios do usuario com id: {}.", idUsuario);
+        var response = veiculoService.listarMeusAnuncios(pageable, idUsuario, status);
+
+        log.debug("Consulta dos meus anuncios retornou {} elementos", response.getNumberOfElements());
+
+        return ResponseEntity.ok(response);
     }
 
 }

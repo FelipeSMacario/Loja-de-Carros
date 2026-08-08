@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
@@ -51,12 +52,14 @@ public class Usuario extends EntidadeBase implements UserDetails, Serializable {
             fetch = FetchType.LAZY
     )
     private Set<UsuarioRole> roles = new HashSet<>();
-
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.emptyList();
+        return roles.stream()
+                .map(usuarioRole ->
+                        new SimpleGrantedAuthority(usuarioRole.getRole().getNome()))
+                .toList();
     }
+
 
     @Override
     public String getUsername() {
@@ -117,4 +120,21 @@ public class Usuario extends EntidadeBase implements UserDetails, Serializable {
         }
     }
 
+    public void alterarSenha(String novoPasswordHash) {
+        this.password = novoPasswordHash;
+    }
+
+    public void ativar() {
+        if (this.ativo) {
+            throw new BusinessException(USUARIO.jaAtiva());
+        }
+        this.ativo = true;
+    }
+
+    public void desativar() {
+        if (!this.ativo) {
+            throw new BusinessException(USUARIO.jaInativa());
+        }
+        this.ativo = false;
+    }
 }

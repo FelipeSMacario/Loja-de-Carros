@@ -1,4 +1,4 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
 import com.javacar.lojadecarro.dto.response.RoleResponse;
 import com.javacar.lojadecarro.enums.StatusFiltro;
@@ -17,17 +17,17 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Roles")
+@Tag(name = "Admin - Roles")
 @RestController
-@RequestMapping("roles")
-public class RoleController {
+@RequestMapping("/admin/roles")
+public class AdminRoleController {
     private final RolesService rolesService;
 
     @GetMapping
     @Operation(summary = "Listar todas as roles")
-    public ResponseEntity<List<RoleResponse>> listar(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
+    public ResponseEntity<List<RoleResponse>> listar(@RequestParam(defaultValue = "TODAS") StatusFiltro status) {
         log.debug("Buscando todas as roles com o status: {}.", status);
-        var response = rolesService.listar(status);
+        var response = rolesService.listarAdministracao(status);
 
         log.debug("Consulta de todas as roles com o status: {} realizada com sucesso", status);
         log.debug("A consulta de todos as roles retornou com o tamanho de: {} valores", response.size());

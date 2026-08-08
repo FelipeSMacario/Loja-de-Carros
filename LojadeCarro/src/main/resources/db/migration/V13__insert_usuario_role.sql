@@ -4,17 +4,21 @@ INSERT INTO usuario_role (
 )
 VALUES
 -- Usuario 1
-(1, 3),
+(1, 2),
 
 -- Usuario 2
 (2, 1),
 (2, 2),
-(2, 3),
 
 -- Usuario 3
 (3, 1),
-(3, 3),
+(3, 2),
 
 -- Usuario vendido 4
-(4, 1),
-(4, 2);
+(4, 2),
+
+-- Usuario vendido 5
+(5, 1),
+
+-- Usuario vendido 7
+(7, 2);

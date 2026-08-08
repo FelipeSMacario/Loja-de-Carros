@@ -1,4 +1,4 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
 import com.javacar.lojadecarro.dto.request.MarcaRequest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
@@ -18,11 +18,10 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Marca")
+@Tag(name = "Admin - Marcas")
 @RestController
-@RequestMapping("/marcas")
-public class MarcaController {
-
+@RequestMapping("/admin/marcas")
+public class AdminMarcaController {
     private final MarcaService marcaService;
 
     @PostMapping
@@ -42,29 +41,27 @@ public class MarcaController {
         return ResponseEntity.created(location).body(response);
     }
 
-    @GetMapping
-    @Operation(summary = "Listar todas as marcas")
-    public ResponseEntity<List<MarcaResponse>> listar(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
+    @GetMapping()
+    @Operation(summary = "Listar marcas para administração")
+    public ResponseEntity<List<MarcaResponse>> listar(@RequestParam(defaultValue = "TODAS") StatusFiltro status) {
         log.debug("Buscando todas as marcas com o status: {}.", status);
-        var response = marcaService.listar(status);
+        var response = marcaService.listarAdministracao(status);
 
         log.debug("Consulta de todas as marcas com o status: {} realizada com sucesso", status);
         log.debug("A consulta de todos as marcas retornou com o tamanho de: {} valores", response.size());
 
         return ResponseEntity.ok(response);
     }
-
     @GetMapping("/{id}")
     @Operation(summary = "Buscar marca por id")
     public ResponseEntity<MarcaResponse> buscarPorId(@PathVariable Long id) {
         log.debug("Buscando a marca por id: {}", id);
-        var response = marcaService.buscarPorId(id);
+        var response = marcaService.buscarPorIdAdministracao(id);
 
         log.info("Consulta da marca realizada com sucesso. id={}", id);
         log.debug("Resposta da marca por id: {}", response);
         return ResponseEntity.ok(response);
     }
-
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar marca buscando por id")
     public ResponseEntity<MarcaResponse> atualizar(@RequestBody @Valid MarcaRequest request,
@@ -76,7 +73,6 @@ public class MarcaController {
         log.debug("Resposta para atualizar  a marca por id: {}", response);
         return ResponseEntity.ok(response);
     }
-
     @PatchMapping("/{id}/status")
     @Operation(summary = "Alterar o status de uma marca")
     public ResponseEntity<MarcaResponse> alterarStatus(@PathVariable Long id,
@@ -88,5 +84,4 @@ public class MarcaController {
         log.debug("Resposta da alteração de status para o id: {}. Resposta: {}", id, response);
         return ResponseEntity.ok(response);
     }
-
 }

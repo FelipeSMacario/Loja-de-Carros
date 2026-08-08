@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.controller;
 
+import com.javacar.lojadecarro.controller.publico.CorController;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.cor.CorTestContext;
@@ -24,7 +25,7 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(CoresController.class)
+@WebMvcTest(CorController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller da cor")
 class CorControllerTest extends BaseControllerTest {
@@ -156,7 +157,7 @@ class CorControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new CorTestContext();
 
-            when(coresService.buscarPorId(ID_VALIDO))
+            when(coresService.buscarCorAtivaPorId(ID_VALIDO))
                     .thenReturn(cx.corResponse);
             //Act + Assert
             var resultado = performGet(URL + "/" + ID_VALIDO);
@@ -168,7 +169,7 @@ class CorControllerTest extends BaseControllerTest {
                     true
             );
 
-            verify(coresService).buscarPorId(ID_VALIDO);
+            verify(coresService).buscarCorAtivaPorId(ID_VALIDO);
             verifyNoMoreInteractions(coresService);
         }
 
@@ -176,13 +177,13 @@ class CorControllerTest extends BaseControllerTest {
         @DisplayName("Deve lançar 404 ao buscar uma cor por ID")
         void deveLancar404aoBuscarUmaCorPorID() throws Exception {
             //Arrange
-            when(coresService.buscarPorId(ID_VALIDO))
+            when(coresService.buscarCorAtivaPorId(ID_VALIDO))
                     .thenThrow(new NotFoundException(COR, ID_VALIDO));
             //Act + Assert
             var resultado = performGet(URL + "/" + ID_VALIDO);
             assertStatus404(resultado, COR, ID_VALIDO);
 
-            verify(coresService).buscarPorId(ID_VALIDO);
+            verify(coresService).buscarCorAtivaPorId(ID_VALIDO);
             verifyNoMoreInteractions(coresService);
         }
     }

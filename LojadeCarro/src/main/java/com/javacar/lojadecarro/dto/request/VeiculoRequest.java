@@ -29,8 +29,6 @@ public record VeiculoRequest(@Schema(example = "123000", description = "quilomet
                              @NotNull Long idCores,
                              @Schema(example = "1", description = "Id do modelo")
                              @NotNull Long idModelo,
-                             @Schema(example = "1", description = "Id do usuario")
-                             @NotNull Long idUsuario,
                              @Schema(example = "1", description = "Id do combustível")
                              @NotNull Long idCombustivel) {
 }

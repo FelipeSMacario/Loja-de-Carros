@@ -77,7 +77,7 @@ class MarcaServiceTest {
 
     @Test
     @DisplayName("Deve listar todas as marcas ativas")
-    void deveListarTodasAsMarcasAtivas() {
+    void deveListarAdministracaoTodasAsMarcasAtivas() {
         //Arrange
         var marca1 = criarMarcaEntity();
         var marca2 = MarcaEntityFactory
@@ -107,7 +107,7 @@ class MarcaServiceTest {
                 .thenReturn(marcaResponse2);
 
         //ACT
-        var resultado = marcaService.listar(StatusFiltro.ATIVAS);
+        var resultado = marcaService.listarAdministracao(StatusFiltro.ATIVAS);
         //Assert
 
         assertThat(resultado)
@@ -134,7 +134,7 @@ class MarcaServiceTest {
 
     @Test
     @DisplayName("Deve listar todas as marcas inativas")
-    void deveListarTodasAsMarcasInativas() {
+    void deveListarAdministracaoTodasAsMarcasInativas() {
         //Arrange
         var marca1 = criarMarcaEntity();
         marca1.setAtivo(false);
@@ -171,7 +171,7 @@ class MarcaServiceTest {
                 .thenReturn(marcaResponse2);
 
         //ACT
-        var resultado = marcaService.listar(StatusFiltro.INATIVAS);
+        var resultado = marcaService.listarAdministracao(StatusFiltro.INATIVAS);
         //Assert
 
         assertThat(resultado)
@@ -198,7 +198,7 @@ class MarcaServiceTest {
 
     @Test
     @DisplayName("Deve listar todas as marcas")
-    void deveListarTodasAsMarcas() {
+    void deveListarAdministracaoTodasAsMarcas() {
         //Arrange
         var marca1 = criarMarcaEntity();
         var marca2 = MarcaEntityFactory
@@ -228,7 +228,7 @@ class MarcaServiceTest {
                 .thenReturn(marcaResponse2);
 
         //ACT
-        var resultado = marcaService.listar(StatusFiltro.TODAS);
+        var resultado = marcaService.listarAdministracao(StatusFiltro.TODAS);
         //Assert
 
         assertThat(resultado)
@@ -268,7 +268,7 @@ class MarcaServiceTest {
                 .thenReturn(response);
 
         // Act
-        var resultado = marcaService.buscarPorId(ID_VALIDO);
+        var resultado = marcaService.buscarPorIdAdministracao(ID_VALIDO);
 
         // Assert
 
@@ -290,7 +290,7 @@ class MarcaServiceTest {
 
         var exception = assertThrows(
                 NotFoundException.class,
-                () -> marcaService.buscarPorId(ID_INVALIDO)
+                () -> marcaService.buscarPorIdAdministracao(ID_INVALIDO)
         );
 
         assertNotFoundResponseError(exception, MARCA, ID_INVALIDO);

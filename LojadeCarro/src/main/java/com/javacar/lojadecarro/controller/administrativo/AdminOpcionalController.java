@@ -1,4 +1,4 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
 import com.javacar.lojadecarro.dto.request.OpcionalRequest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
@@ -18,10 +18,10 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "opcional")
+@Tag(name = "Admin - Opcionais")
 @RestController
-@RequestMapping("/opcionais")
-public class OpcionalController {
+@RequestMapping("/admin/opcionais")
+public class AdminOpcionalController {
     private final OpcionalService opcionalService;
 
     @PostMapping
@@ -43,9 +43,9 @@ public class OpcionalController {
 
     @GetMapping
     @Operation(summary = "Listar todos os opcionals")
-    public ResponseEntity<List<OpcionalResponse>> listar(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
+    public ResponseEntity<List<OpcionalResponse>> listar(@RequestParam(defaultValue = "TODAS") StatusFiltro status) {
         log.debug("Buscando todos as opcionais com o status: {}.", status);
-        var response = opcionalService.listar(status);
+        var response = opcionalService.listarAdministracao(status);
 
         log.debug("Consulta de todos as opcionais com o status: {} realizada com sucesso", status);
         log.debug("A consulta de todos as opcionais retornou com o tamanho de: {} valores", response.size());
@@ -56,7 +56,7 @@ public class OpcionalController {
     @Operation(summary = "Buscar opcional por id")
     public ResponseEntity<OpcionalResponse> buscarPorId(@PathVariable Long id) {
         log.debug("Buscando o opcional por id: {}", id);
-        var response = opcionalService.buscarPorId(id);
+        var response = opcionalService.buscarPorIdAdministracao(id);
 
         log.info("Consulta do opcional realizada com sucesso. id={}", id);
         log.debug("Resposta do opcional por id: {}", response);

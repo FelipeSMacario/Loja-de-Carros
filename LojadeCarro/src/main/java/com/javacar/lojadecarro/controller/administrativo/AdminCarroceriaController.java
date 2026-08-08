@@ -1,4 +1,4 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
 import com.javacar.lojadecarro.dto.request.CarroceriaRequest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
@@ -18,11 +18,10 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Carroceria")
+@Tag(name = "Admin - Carrocerias")
 @RestController
-@RequestMapping("/carrocerias")
-public class CarroceriaController {
-
+@RequestMapping("/admin/carrocerias")
+public class AdminCarroceriaController {
     private final CarroceriaService carroceriaService;
 
     @PostMapping
@@ -41,35 +40,32 @@ public class CarroceriaController {
         log.debug("Resposta da criação da carroceria: {}", response);
         return ResponseEntity.created(location).body(response);
     }
-
     @GetMapping()
     @Operation(summary = "Listar todas as carrocerias")
-    public ResponseEntity<List<CarroceriaResponse>> listar(@RequestParam(defaultValue = "ATIVAS")
-                                                            StatusFiltro status) {
+    public ResponseEntity<List<CarroceriaResponse>> listar(@RequestParam(defaultValue = "TODAS")
+                                                           StatusFiltro status) {
         log.debug("Iniciando a busca de todas as carrocerias com o status: {}", status);
-        var response = carroceriaService.listar(status);
+        var response = carroceriaService.listarAdministracao(status);
 
         log.debug("Consulta de todas as carrocerias com o status: {} realizada com sucesso", status);
         log.debug("A consulta de todas as carrocerias retornou com o tamanho de: {} valores", response.size());
 
         return ResponseEntity.ok(response);
     }
-
     @GetMapping("/{id}")
     @Operation(summary = "Buscar uma carroceria por id")
-    public ResponseEntity<CarroceriaResponse> buscaPorId(@PathVariable Long id) {
+    public ResponseEntity<CarroceriaResponse> buscarPorIdAdministracao(@PathVariable Long id) {
         log.debug("Buscando uma carroceria por id: {}", id);
-        var response = carroceriaService.buscarPorId(id);
+        var response = carroceriaService.buscarPorIdAdministracao(id);
 
         log.info("Consulta da carroceria com o id: {} realizada com sucesso", id);
         log.debug("Resposta carroceria por id: {}", response);
         return ResponseEntity.ok(response);
     }
-
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar carroceria por id")
     public ResponseEntity<CarroceriaResponse> atualizar(@RequestBody @Valid CarroceriaRequest request,
-                                                     @PathVariable Long id) {
+                                                        @PathVariable Long id) {
         log.debug("Iniciando a atualização da carroceria com id: {} e com o corpo: {}", id, request);
         var response = carroceriaService.atualizar(request, id);
 
@@ -89,6 +85,4 @@ public class CarroceriaController {
         log.info("Carroceria alterada com sucesso. status= {}", response.ativo());
         return ResponseEntity.ok(response);
     }
-
-
 }

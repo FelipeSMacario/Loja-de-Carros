@@ -9,10 +9,11 @@ import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.ModeloMapper;
 import com.javacar.lojadecarro.repository.ModeloRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,6 +29,7 @@ public class ModeloService {
     private final MarcaService marcaService;
     private final EntityValidation entityValidation;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ModeloResponse criar(ModeloRequest request) {
         validarNomeUnico(request.nome());
@@ -38,7 +40,9 @@ public class ModeloService {
         return modeloMapper.toResponse(modelo);
     }
 
-    public List<ModeloResponse> listar(StatusFiltro status) {
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public List<ModeloResponse> listarAdministracao(StatusFiltro status) {
         var listaModelos =
                 switch (status) {
                     case TODAS -> modeloRepository.findAll();
@@ -52,10 +56,22 @@ public class ModeloService {
                 .toList();
     }
 
-    public ModeloResponse buscarPorId(Long id) {
+    @Transactional(readOnly = true)
+    public List<ModeloResponse> listarModelosAtivos() {
+        return modeloRepository
+                .findByAtivo(true)
+                .stream()
+                .map(modeloMapper::toResponse)
+                .toList();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public ModeloResponse buscarPorIdAdministracao(Long id) {
         return modeloMapper.toResponse(buscaModelo(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ModeloResponse atualizar(ModeloRequest request, Long id) {
         var modelo = buscaModelo(id);
@@ -67,6 +83,7 @@ public class ModeloService {
         return modeloMapper.toResponse(modelo);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public ModeloResponse alterarStatus(Long id, StatusRequest request) {
         var modelo = buscaModelo(id);
@@ -77,9 +94,20 @@ public class ModeloService {
     public Modelo buscaModelo(Long id) {
         return entityValidation.obterOuLancarErro(modeloRepository.findById(id), MODELO, id);
     }
+
+    public Modelo buscaModeloAtivo(Long id) {
+        return entityValidation.obterOuLancarErro(modeloRepository.findByIdAndAtivoTrueAndMarca_AtivoTrue(id), MODELO, id);
+
+    }
+
     private void validarNomeUnico(String nome) {
-        if (modeloRepository.existsByNome(nome)){
+        if (modeloRepository.existsByNome(nome)) {
             throw new BusinessException(MODELO.nomeJaExistente());
         }
+    }
+
+    @Transactional(readOnly = true)
+    public ModeloResponse buscarModeloAtivoPorId(Long id) {
+        return modeloMapper.toResponse(buscaModeloAtivo(id));
     }
 }

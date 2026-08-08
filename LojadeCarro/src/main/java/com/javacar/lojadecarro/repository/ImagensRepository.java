@@ -16,4 +16,6 @@ public interface ImagensRepository extends JpaRepository<Imagem, Long> {
     List<Imagem> findByVeiculoId(Long idCarro);
 
     Optional<Imagem> findByBucketAndObjectKey(String bucket, String objectKey);
+
+    boolean existsByIdAndVeiculo_Vendedor_Id(Long idImagem, Long idUsuario);
 }

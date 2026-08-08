@@ -1,4 +1,4 @@
-package com.javacar.lojadecarro.security;
+package com.javacar.lojadecarro.security.service;
 
 
 import com.javacar.lojadecarro.repository.UsuarioRepository;
@@ -6,11 +6,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
 
-@Repository
+@Service
 @RequiredArgsConstructor
-public class ImplementsUserDetailsService implements UserDetailsService {
+public class CustomUserDetailsService implements UserDetailsService {
     private final UsuarioRepository usuarioRepository;
 
 

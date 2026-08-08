@@ -1,6 +1,5 @@
 package com.javacar.lojadecarro.service;
 
-import com.javacar.lojadecarro.dto.request.AlterarStatusRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.entity.Opcional;
@@ -704,7 +703,7 @@ class VeiculoServiceTest {
                 when(veiculoMapper.toResponse(cx.entity))
                         .thenReturn(response);
                 //ACT
-                var resultado = veiculoService.alterarStatus(ID_VALIDO, new AlterarStatusRequest(VENDIDO));
+                var resultado = veiculoService.pausarVeiculo(ID_VALIDO, new AlterarStatusRequest(VENDIDO));
                 //Assert
                 assertThat(resultado).isNotNull();
 
@@ -731,7 +730,7 @@ class VeiculoServiceTest {
                         .thenReturn(Optional.of(cx.entity));
                 //ACT
                 var excecao = assertThrows(BusinessException.class,
-                        () -> veiculoService.alterarStatus(ID_VALIDO, status));
+                        () -> veiculoService.pausarVeiculo(ID_VALIDO, status));
                 //Assert
                 assertBusinessResponseError(excecao, "Status informado correspondente ao status atual");
 
@@ -751,7 +750,7 @@ class VeiculoServiceTest {
                         .thenReturn(Optional.empty());
                 //ACT
                 var excecao = assertThrows(NotFoundException.class,
-                        () -> veiculoService.alterarStatus(ID_VALIDO, status));
+                        () -> veiculoService.pausarVeiculo(ID_VALIDO, status));
                 //Assert
                 assertNotFoundResponseError(excecao, VEICULO, ID_VALIDO);
 

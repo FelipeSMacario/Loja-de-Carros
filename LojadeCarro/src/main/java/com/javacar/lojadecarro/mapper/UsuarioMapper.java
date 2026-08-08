@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.mapper;
 
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
+import com.javacar.lojadecarro.dto.request.UsuarioUpdateRequest;
 import com.javacar.lojadecarro.dto.response.RoleResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
@@ -20,6 +21,10 @@ public interface UsuarioMapper {
 
     void toUpdate(UsuarioRequest usuarioRequest,
                      @MappingTarget Usuario usuario);
+
+    void toUpdate(UsuarioUpdateRequest usuarioRequest,
+                               @MappingTarget Usuario usuario);
+
 
     UsuarioResponse toResponse(Usuario usuario);
 

@@ -260,6 +260,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
 
             assertThat(usuarioAtualizado.isAtivo()).isTrue();
         }
+
         @Test
         @DisplayName("Deve lançar exceção ao tentar ativar um usuário já ativo")
         @Transactional
@@ -336,10 +337,11 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             assertThat(exception)
                     .hasMessage(ROLE.naoEncontrada() + -1L);
         }
+
         @Test
         @DisplayName("Deve lançar exceção ao tentar remover exceção que o usuário não possui")
         @Transactional
-        void deveLancarExcecaoRemoverRoleQueUsuarioNaoPossui(){
+        void deveLancarExcecaoRemoverRoleQueUsuarioNaoPossui() {
             var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
             var usuarioId = usuario.getId();
             var exception = assertThrows(BusinessException.class,
@@ -366,6 +368,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
                     .extracting(ur -> ur.getRole().getId())
                     .containsExactlyInAnyOrder(1L, 2L, 3L);
         }
+
         @Test
         @DisplayName("Deve lançar exceção de role inexistente")
         void deveLancarExcecaoQuandoRoleInexistente() {
@@ -379,9 +382,10 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             assertThat(exception)
                     .hasMessage("Uma ou mais roles informadas não foram encontradas.");
         }
+
         @Test
         @DisplayName("Deve lançar exceção ao adicionar uma role que o usuário já possui")
-        void deveLancarExcecaoQuandoUsuarioJaPossuiRole(){
+        void deveLancarExcecaoQuandoUsuarioJaPossuiRole() {
             var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
             var idsRole = List.of(1L, 2L, 3L);
             var id = usuario.getId();

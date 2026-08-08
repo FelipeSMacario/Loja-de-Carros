@@ -119,7 +119,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.ATIVAS;
             //ACT
-            var response = marcaService.listar(request);
+            var response = marcaService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -132,7 +132,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.INATIVAS;
             //ACT
-            var response = marcaService.listar(request);
+            var response = marcaService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -145,7 +145,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.TODAS;
             //ACT
-            var response = marcaService.listar(request);
+            var response = marcaService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -163,7 +163,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = buscaMarcaPorNome("Fiat");
             //ACT
-            var marca = marcaService.buscarPorId(request.getId());
+            var marca = marcaService.buscarPorIdAdministracao(request.getId());
             //Assert
             assertThat(marca)
                     .isNotNull();
@@ -182,7 +182,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             //ACT
             var exception = assertThrows(NotFoundException.class,
-                    () -> marcaService.buscarPorId(-1L));
+                    () -> marcaService.buscarPorIdAdministracao(-1L));
             //Assert
             assertThat(exception)
                     .hasMessage(MARCA.naoEncontrada() + -1L);

@@ -1,6 +1,5 @@
 package com.javacar.lojadecarro.integration.service;
 
-import com.javacar.lojadecarro.dto.request.AlterarStatusRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.entity.Imagem;
@@ -472,7 +471,7 @@ public class VeiculoServiceIntegrationTest extends AbstractIntegrationTest {
 
             var veiculo = veiculoRepository.findByPlaca(request.placa()).orElseThrow();
             //Act
-            var response = veiculoService.alterarStatus(veiculo.getId(), status);
+            var response = veiculoService.pausarVeiculo(veiculo.getId(), status);
             //Assert
             assertThat(response.statusVeiculo()).isEqualTo(VENDIDO);
         }
@@ -486,7 +485,7 @@ public class VeiculoServiceIntegrationTest extends AbstractIntegrationTest {
 
             var veiculo = veiculoRepository.findByPlaca(request.placa()).orElseThrow();
             //Act
-            var response = veiculoService.alterarStatus(veiculo.getId(), status);
+            var response = veiculoService.pausarVeiculo(veiculo.getId(), status);
             //Assert
             assertThat(response.statusVeiculo()).isEqualTo(DISPONIVEL);
         }
@@ -502,7 +501,7 @@ public class VeiculoServiceIntegrationTest extends AbstractIntegrationTest {
             var idVeiculo = veiculo.getId();
             //Act
             var exception = assertThrows(BusinessException.class,
-                    () -> veiculoService.alterarStatus(idVeiculo, status));
+                    () -> veiculoService.pausarVeiculo(idVeiculo, status));
             //Assert
             assertThat(exception)
                     .hasMessage("Status informado correspondente ao status atual");
@@ -519,7 +518,7 @@ public class VeiculoServiceIntegrationTest extends AbstractIntegrationTest {
             var veiculoId = veiculo.getId();
             //Act
             var exception = assertThrows(BusinessException.class,
-                    () -> veiculoService.alterarStatus(veiculoId, status));
+                    () -> veiculoService.pausarVeiculo(veiculoId, status));
             //Assert
             assertThat(exception)
                     .hasMessage("Um veículo vendido não pode ter seu status alterado.");

@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.javacar.lojadecarro.controller.publico.CombustivelController;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.combustivel.CombustivelTestContext;

@@ -1,4 +1,4 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
 import com.javacar.lojadecarro.dto.request.ModeloRequest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
@@ -18,10 +18,10 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "modelo")
+@Tag(name = "Admin - Modelos")
 @RestController
-@RequestMapping("/modelos")
-public class ModeloController {
+@RequestMapping("/admin/modelos")
+public class AdminModeloController {
     private final ModeloService modeloService;
 
     @PostMapping
@@ -43,9 +43,9 @@ public class ModeloController {
 
     @GetMapping
     @Operation(summary = "Listar todos os modelos")
-    public ResponseEntity<List<ModeloResponse>> listar(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
+    public ResponseEntity<List<ModeloResponse>> listarAdministracao(@RequestParam(defaultValue = "TODAS") StatusFiltro status) {
         log.debug("Buscando todos os modelos com o status: {}.", status);
-        var response = modeloService.listar(status);
+        var response = modeloService.listarAdministracao(status);
 
         log.debug("Consulta de todos as modelos com o status: {} realizada com sucesso", status);
         log.debug("A consulta de todos as modelos retornou com o tamanho de: {} valores", response.size());
@@ -56,7 +56,7 @@ public class ModeloController {
     @Operation(summary = "Buscar modelo por id")
     public ResponseEntity<ModeloResponse> buscarPorId(@PathVariable Long id) {
         log.debug("Buscando o modelo por id: {}", id);
-        var response = modeloService.buscarPorId(id);
+        var response = modeloService.buscarPorIdAdministracao(id);
 
         log.info("Consulta do modelo realizada com sucesso. id={}", id);
         log.debug("Resposta do modelo por id: {}", response);
@@ -84,5 +84,4 @@ public class ModeloController {
         log.debug("Resposta da alteração de status para o id: {}. Resposta: {}", id, response);
         return ResponseEntity.ok(response);
     }
-
 }

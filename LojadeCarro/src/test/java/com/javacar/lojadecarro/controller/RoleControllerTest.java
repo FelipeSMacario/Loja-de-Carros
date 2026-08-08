@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.controller;
 
+import com.javacar.lojadecarro.controller.administrativo.AdminRoleController;
 import com.javacar.lojadecarro.service.RolesService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,7 +19,7 @@ import static com.javacar.lojadecarro.factory.role.RoleTestContext.mockResponse2
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.mockito.Mockito.*;
 
-@WebMvcTest(RoleController.class)
+@WebMvcTest(AdminRoleController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller da role")
 public class RoleControllerTest extends BaseControllerTest {

@@ -1,4 +1,4 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
 import com.javacar.lojadecarro.dto.request.CorRequest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
@@ -18,10 +18,10 @@ import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Cores")
+@Tag(name = "Admin - Cores")
 @RestController
-@RequestMapping("cores")
-public class CoresController {
+@RequestMapping("/admin/cores")
+public class AdminCorController {
     private final CoresService coresService;
 
     @PostMapping
@@ -42,10 +42,10 @@ public class CoresController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todas as cor")
-    public ResponseEntity<List<CorResponse>> listar(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
+    @Operation(summary = "Listar cores para administração")
+    public ResponseEntity<List<CorResponse>> listar(@RequestParam(defaultValue = "TODAS") StatusFiltro status) {
         log.debug("Buscando todas as cor com o status: {}.", status);
-        var response = coresService.listar(status);
+        var response = coresService.listarAdministracao(status);
 
         log.debug("Consulta de todas as cor com o status: {} realizada com sucesso", status);
         log.debug("A consulta de todos as cor retornou com o tamanho de: {} valores", response.size());
@@ -56,7 +56,7 @@ public class CoresController {
     @Operation(summary = "Buscar cor por id")
     public ResponseEntity<CorResponse> buscarPorId(@PathVariable Long id) {
         log.debug("Buscando a cor por id: {}", id);
-        var response = coresService.buscarPorId(id);
+        var response = coresService.buscarPorIdAdministracao(id);
 
         log.info("Consulta da cor realizada com sucesso. id={}", id);
         log.debug("Resposta da cor por id: {}", response);

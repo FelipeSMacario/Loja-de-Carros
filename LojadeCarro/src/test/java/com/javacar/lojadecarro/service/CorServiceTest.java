@@ -273,7 +273,7 @@ class CorServiceTest {
                 .thenReturn(response);
         //Act
 
-        var resultado = corService.buscarPorId(ID_VALIDO);
+        var resultado = corService.buscarCorAtivaPorId(ID_VALIDO);
         //Assert
         assertCorResponse(resultado);
 
@@ -292,7 +292,7 @@ class CorServiceTest {
                 .thenReturn(Optional.empty());
         //Act
         var exception = assertThrows(NotFoundException.class,
-                () -> corService.buscarPorId(ID_INVALIDO));
+                () -> corService.buscarCorAtivaPorId(ID_INVALIDO));
         //Assert
         assertNotFoundResponseError(exception, Entidade.COR, ID_INVALIDO);
 

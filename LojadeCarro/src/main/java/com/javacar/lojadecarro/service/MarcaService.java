@@ -9,11 +9,11 @@ import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.MarcaMapper;
 import com.javacar.lojadecarro.repository.MarcaRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
-import jakarta.transaction.Transactional;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,6 +27,7 @@ public class MarcaService {
     private final MarcaMapper marcaMapper;
     private final EntityValidation entityValidation;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public MarcaResponse criar(MarcaRequest request) {
         validarNomeUnico(request.nome());
@@ -37,9 +38,9 @@ public class MarcaService {
         return marcaMapper.toResponse(marca);
     }
 
-
-
-    public List<MarcaResponse> listar(StatusFiltro status) {
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public List<MarcaResponse> listarAdministracao(StatusFiltro status) {
         var listaMarcas =
                 switch (status) {
                     case TODAS -> marcaRepository.findAll();
@@ -53,10 +54,18 @@ public class MarcaService {
                 .toList();
     }
 
-    public MarcaResponse buscarPorId(Long id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public MarcaResponse buscarPorIdAdministracao(Long id) {
         return marcaMapper.toResponse(buscaMarca(id));
     }
 
+    @Transactional(readOnly = true)
+    public MarcaResponse buscarMarcaAtivaPorId(Long id) {
+        return marcaMapper.toResponse(buscaMarcaAtiva(id));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public MarcaResponse atualizar(MarcaRequest request, Long id) {
         var marca = buscaMarca(id);
@@ -70,6 +79,7 @@ public class MarcaService {
         return marcaMapper.toResponse(marca);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public MarcaResponse alterarStatus(Long id, StatusRequest request) {
         var marca = buscaMarca(id);
@@ -81,15 +91,28 @@ public class MarcaService {
     public Marca buscaMarca(Long id) {
         return entityValidation.obterOuLancarErro(marcaRepository.findById(id), MARCA, id);
     }
+
+    public Marca buscaMarcaAtiva(Long id) {
+        return entityValidation.obterOuLancarErro(marcaRepository.findByIdAndAtivoTrue(id), MARCA, id);
+    }
+
     private void validarUrlUnica(String url) {
-        if (marcaRepository.existsByUrl(url)){
+        if (marcaRepository.existsByUrl(url)) {
             throw new BusinessException("A URL informada já possui um cadastro.");
         }
     }
 
     private void validarNomeUnico(String nome) {
-        if (marcaRepository.existsByNome(nome)){
+        if (marcaRepository.existsByNome(nome)) {
             throw new BusinessException("O nome informado já possui um cadastro.");
         }
+    }
+
+    @Transactional(readOnly = true)
+    public List<MarcaResponse> listarMarcasAtivas() {
+        return marcaRepository.findByAtivo(true)
+                .stream()
+                .map(marcaMapper::toResponse)
+                .toList();
     }
 }

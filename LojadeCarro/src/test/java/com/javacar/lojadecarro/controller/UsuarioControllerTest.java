@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.controller;
 
+import com.javacar.lojadecarro.controller.publico.UsuarioController;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.usuario.UsuarioTestContext;

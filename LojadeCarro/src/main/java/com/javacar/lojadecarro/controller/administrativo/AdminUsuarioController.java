@@ -1,8 +1,6 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
-import com.javacar.lojadecarro.dto.request.RoleRequest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
-import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioRolesRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
@@ -15,35 +13,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @Slf4j
-@Tag(name = "Usuario")
+@Tag(name = "Admin - Usuarios")
 @RestController
-@RequestMapping("usuarios")
-public class UsuarioController {
-
+@RequestMapping("/admin/usuarios")
+public class AdminUsuarioController {
     private final UsuarioService usuarioService;
-
-    @PostMapping
-    @Operation(summary = "Cadastrar um novo usuário")
-    public ResponseEntity<UsuarioResponse> criar(@RequestBody @Valid UsuarioRequest request) {
-        log.debug("Cadastrar um novo usuário com o corpo: {}", request);
-        var response = usuarioService.criar(request);
-
-        var location = ServletUriComponentsBuilder
-                .fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(response.id())
-                .toUri();
-
-        log.info("Usuário criado com sucesso com o id: {}", response.id());
-        log.debug("Resposta um novo usuário: {}", response);
-        return ResponseEntity.created(location).body(response);
-    }
 
     @GetMapping
     @Operation(summary = "Listar os usuário")
@@ -56,7 +35,6 @@ public class UsuarioController {
 
         return ResponseEntity.ok(response);
     }
-
     @GetMapping("/{id}")
     @Operation(summary = "Buscar usuário por id")
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable Long id) {
@@ -64,17 +42,6 @@ public class UsuarioController {
         var response = usuarioService.buscarPorId(id);
         log.info("Consulta do usuário realizada com sucesso. id={}", id);
         log.debug("Resposta do usuário por id: {}", response);
-        return ResponseEntity.ok(response);
-    }
-
-    @PutMapping("/{id}")
-    @Operation(summary = "Atualizar usuário buscando por id")
-    public ResponseEntity<UsuarioResponse> atualizar(@RequestBody @Valid UsuarioRequest request, @PathVariable Long id) {
-        log.debug("Atualizando o usuário com id: {} para o corpo: {}", id, request);
-        var response = usuarioService.atualizar(request, id);
-
-        log.info("Usuário com o id: {} atualizado com sucesso", id);
-        log.debug("Resposta para atualizar o usuário por id: {}", response);
         return ResponseEntity.ok(response);
     }
 
@@ -89,8 +56,16 @@ public class UsuarioController {
         log.debug("Resposta da alteração de status para o id: {}. Resposta: {}", id, response);
         return ResponseEntity.ok(response);
     }
-
-    @PatchMapping("/{id}/roles")
+    @GetMapping("/{id}/roles")
+    @Operation(summary = "Buscar as roles para um usuário")
+    public ResponseEntity<UsuarioRolesResponse> buscarRolesUsuario(@PathVariable Long id) {
+        log.debug("Buscando todas as roles para o usuário com id: {}.", id);
+        var response = usuarioService.buscarRolesUsuario(id);
+        log.info("Consulta das roles do usuário realizada com sucesso. id={}", id);
+        log.debug("A consulta de todos as roles retornou com o tamanho de: {} valores", response.roles().size());
+        return ResponseEntity.ok(response);
+    }
+    @PostMapping("/{id}/roles")
     @Operation(summary = "Vincular uma role para um usuário")
     public ResponseEntity<UsuarioRolesResponse> vincularRole(@PathVariable Long id,
                                                              @RequestBody @Valid UsuarioRolesRequest requests) {
@@ -111,16 +86,6 @@ public class UsuarioController {
 
         log.info("Roles removidas com sucesso. Id: {}", id);
         log.debug("Resposta da remoção da role: {}", response);
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/{id}/roles")
-    @Operation(summary = "Buscar as roles para um usuário")
-    public ResponseEntity<UsuarioRolesResponse> buscarRolesUsuario(@PathVariable Long id) {
-        log.debug("Buscando todas as roles para o usuário com id: {}.", id);
-        var response = usuarioService.buscarRolesUsuario(id);
-        log.info("Consulta das roles do usuário realizada com sucesso. id={}", id);
-        log.debug("A consulta de todos as roles retornou com o tamanho de: {} valores", response.roles().size());
         return ResponseEntity.ok(response);
     }
 }

@@ -22,7 +22,7 @@ VALUES
         STR_TO_DATE('22/08/1988', '%d/%m/%Y'),
         'joao.silva@gmail.com',
         'João Silva',
-        '123',
+        '$2b$10$58Xkzl5zDmRVQ8LToevWfO4GDODH0d7oPdhvXBW.KXJl8YVFZYUoC',
         b'1',
         NOW(6)
     ),
@@ -31,7 +31,7 @@ VALUES
         STR_TO_DATE('10/01/1995', '%d/%m/%Y'),
         'maria.santos@gmail.com',
         'Maria Santos',
-        '123',
+        '$2b$10$VKgOBxn1zDi2hyGWCmszY.jJejeno8pWAa3.b4E/Zjc2Tj9eL68li',
         b'1',
         NOW(6)
     ),
@@ -40,7 +40,7 @@ VALUES
         STR_TO_DATE('05/06/1990', '%d/%m/%Y'),
         'carlos.oliveira@gmail.com',
         'Carlos Oliveira',
-        '123',
+        '$2b$10$UxHDvE/7gKzScyacj8EuI.xQGCSvCs0ypPN8w/Sa7Q9GxctjG94gS',
         b'1',
         NOW(6)
     ),
@@ -49,7 +49,7 @@ VALUES
         STR_TO_DATE('02/01/1982', '%d/%m/%Y'),
         'batmaimMorcegao@gmail.com',
         'Batman',
-        'IAmBatman',
+        '$2b$10$CPKS0mFinE4FOyhRtQymYeoOT/FEI509zAai3Z4/0NL0wng.lWxrK',
         b'0',
         NOW(6)
     ),
@@ -58,7 +58,7 @@ VALUES
         STR_TO_DATE('02/01/1982', '%d/%m/%Y'),
         'robin@gmail.com',
         'Robin',
-        'IAmRobin',
+        '$2b$10$rXCZl2RabdcEHs7tkCPKPu4Vf5mVONJQrntV0AosQZObZSXlWKPgq',
         b'0',
         NOW(6)
     ),
@@ -67,7 +67,7 @@ VALUES
         STR_TO_DATE('02/01/1982', '%d/%m/%Y'),
         'german@gmail.com',
         'German cano',
-        'fazoLL',
+        '$2b$10$owkEv8nXCfiDUUMcd9JODOOuOSoTzM0HuhmFJp0PMp9Yp1SFA/Utm',
         b'1',
         NOW(6)
     );

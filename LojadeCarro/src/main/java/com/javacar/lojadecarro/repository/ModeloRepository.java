@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.repository;
 
 import com.javacar.lojadecarro.entity.Modelo;
+import com.javacar.lojadecarro.mapper.UsuarioMapper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -14,4 +15,8 @@ public interface ModeloRepository extends JpaRepository<Modelo, Long> {
     boolean existsByNome(String nome);
 
     Optional<Modelo> findByNome(String nome);
+
+    Optional<Modelo> findByIdAndAtivoTrue(Long id);
+
+    Optional<Modelo> findByIdAndAtivoTrueAndMarca_AtivoTrue(Long id);
 }

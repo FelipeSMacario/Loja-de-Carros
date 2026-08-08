@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.controller;
 
+import com.javacar.lojadecarro.controller.publico.MarcaController;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.marca.MarcaTestContext;
@@ -96,7 +97,7 @@ class MarcaControllerTest extends BaseControllerTest {
 
             var response = List.of(response1, response2);
 
-            when(marcaService.listar(ATIVAS))
+            when(marcaService.listarAdministracao(ATIVAS))
                     .thenReturn(response);
             //Act + Assert
             var resultado = performGet(URL);
@@ -109,7 +110,7 @@ class MarcaControllerTest extends BaseControllerTest {
                     true,
                     true
             );
-            verify(marcaService).listar(ATIVAS);
+            verify(marcaService).listarAdministracao(ATIVAS);
             verifyNoMoreInteractions(marcaService);
         }
 
@@ -122,7 +123,7 @@ class MarcaControllerTest extends BaseControllerTest {
 
             var response = List.of(response1, response2);
 
-            when(marcaService.listar(TODAS))
+            when(marcaService.listarAdministracao(TODAS))
                     .thenReturn(response);
             //Act + Assert
             var resultado = performGet(URL, "status", TODAS.toString());
@@ -135,7 +136,7 @@ class MarcaControllerTest extends BaseControllerTest {
                     true,
                     false
             );
-            verify(marcaService).listar(TODAS);
+            verify(marcaService).listarAdministracao(TODAS);
             verifyNoMoreInteractions(marcaService);
         }
 
@@ -151,7 +152,7 @@ class MarcaControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new MarcaTestContext();
 
-            when(marcaService.buscarPorId(ID_VALIDO))
+            when(marcaService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenReturn(cx.response);
 
             // Act + Assert
@@ -159,7 +160,7 @@ class MarcaControllerTest extends BaseControllerTest {
             resultado.andExpect(jsonPath("$.url").value("https://www.google.com"));
             assertResult(resultado, status().isOk(), ID_VALIDO, "Ford", true);
 
-            verify(marcaService).buscarPorId(ID_VALIDO);
+            verify(marcaService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(marcaService);
         }
 
@@ -167,14 +168,14 @@ class MarcaControllerTest extends BaseControllerTest {
         @DisplayName("Deve lançar 404 ao buscar uma marca por ID")
         void deveLancar404AoBuscarMarcaPorId() throws Exception {
             //Arrange
-            when(marcaService.buscarPorId(ID_VALIDO))
+            when(marcaService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenThrow(new NotFoundException(MARCA, ID_VALIDO));
 
             // Act + Assert
             var resultado = performGet(URL + "/" + ID_VALIDO);
             assertStatus404(resultado, MARCA, ID_VALIDO);
 
-            verify(marcaService).buscarPorId(ID_VALIDO);
+            verify(marcaService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(marcaService);
         }
     }

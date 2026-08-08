@@ -124,7 +124,7 @@ public class CorServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = buscarCorPorNome("Vermelho");
             //ACT
-            var cor = coresService.buscarPorId(request.getId());
+            var cor = coresService.buscarCorAtivaPorId(request.getId());
             //Assert
             AssertionsForClassTypes.assertThat(cor)
                     .isNotNull();
@@ -142,7 +142,7 @@ public class CorServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             //ACT
             var exception = assertThrows(NotFoundException.class,
-                    () -> coresService.buscarPorId(-1L));
+                    () -> coresService.buscarCorAtivaPorId(-1L));
             //Assert
             assertThat(exception)
                     .hasMessage(COR.naoEncontrada() + -1L);

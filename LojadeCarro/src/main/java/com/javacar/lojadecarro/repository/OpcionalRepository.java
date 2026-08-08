@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.repository;
 
 import com.javacar.lojadecarro.entity.Opcional;
+import com.javacar.lojadecarro.mapper.UsuarioMapper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -17,4 +18,8 @@ public interface OpcionalRepository extends JpaRepository<Opcional, Long> {
     Optional<Opcional> findByNome(String nome);
 
     boolean existsByNome(String nome);
+
+    Optional<Opcional> findByIdAndAtivoTrue(Long id);
+
+    List<Opcional> findAllByIdInAndAtivoTrue(List<Long> ids);
 }

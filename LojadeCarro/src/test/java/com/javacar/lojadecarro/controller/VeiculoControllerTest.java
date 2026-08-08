@@ -1,6 +1,5 @@
 package com.javacar.lojadecarro.controller;
 
-import com.javacar.lojadecarro.dto.request.AlterarStatusRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
@@ -395,7 +394,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
             var cx = new VeiculoTestContext();
             var status = new AlterarStatusRequest(PAUSADO);
 
-            when(veiculoService.alterarStatus(ID_VALIDO, status))
+            when(veiculoService.pausarVeiculo(ID_VALIDO, status))
                     .thenReturn(cx.response);
             //ACT + assert
             var resultado = performPatch(URL_ID + "/status", status);
@@ -412,7 +411,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
                     DISPONIVEL
             );
 
-            verify(veiculoService).alterarStatus(ID_VALIDO, status);
+            verify(veiculoService).pausarVeiculo(ID_VALIDO, status);
             verifyNoMoreInteractions(veiculoService);
         }
 
@@ -435,7 +434,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
             //Arrange
             var status = new AlterarStatusRequest(PAUSADO);
 
-            when(veiculoService.alterarStatus(ID_VALIDO, status))
+            when(veiculoService.pausarVeiculo(ID_VALIDO, status))
                     .thenThrow(new NotFoundException(VEICULO, ID_VALIDO));
             //ACT + assert
             var resultado = performPatch(URL_ID + "/status", status);
@@ -443,7 +442,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
                     VEICULO,
                     ID_VALIDO);
 
-            verify(veiculoService).alterarStatus(ID_VALIDO, status);
+            verify(veiculoService).pausarVeiculo(ID_VALIDO, status);
             verifyNoMoreInteractions(veiculoService);
         }
     }

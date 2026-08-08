@@ -213,10 +213,7 @@ CREATE TABLE venda
             REFERENCES usuario (id),
     CONSTRAINT fk_venda_vendedor
         FOREIGN KEY (vendedor_id)
-            REFERENCES usuario (id),
-
-    CONSTRAINT uk_venda_veiculo
-        UNIQUE (veiculo_id)
+            REFERENCES usuario (id)
 );
 CREATE TABLE veiculo_opcional
 (

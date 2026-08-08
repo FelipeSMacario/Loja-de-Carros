@@ -35,8 +35,8 @@ class LoginControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new LoginTestContext();
 
-            when(loginService.autenticar(cx.request))
-                    .thenReturn(cx.response);
+//            when(loginService.autenticar(cx.request))
+//                    .thenReturn(cx.response);
             //Act + Assert
             var resultado = performPost(URL, cx.request);
             resultado.andExpect(status().isOk())

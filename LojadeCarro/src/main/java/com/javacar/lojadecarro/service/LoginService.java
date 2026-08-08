@@ -1,36 +1,42 @@
 package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.request.LoginRequest;
-import com.javacar.lojadecarro.dto.response.UsuarioResponse;
-import com.javacar.lojadecarro.exception.security.LoginSenhaException;
+import com.javacar.lojadecarro.entity.Usuario;
 import com.javacar.lojadecarro.mapper.UsuarioMapper;
-import com.javacar.lojadecarro.repository.LoginRepository;
+import com.javacar.lojadecarro.security.dto.LoginResponse;
+import com.javacar.lojadecarro.security.service.JwtService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.stereotype.Service;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class LoginService {
-    private final LoginRepository loginRepository;
-
-    private final BCryptPasswordEncoder encoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
     private final UsuarioMapper usuarioMapper;
 
-    public UsuarioResponse autenticar(LoginRequest loginRequest) {
-        return loginRepository.findByEmail(loginRequest.login())
-                .map(usuario -> {
-                            if (!encoder.matches(loginRequest.senha(), usuario.getPassword())) {
-                                throw new LoginSenhaException();
-                            }
-                            return usuarioMapper.toResponse(usuario);
-
-                        }
+    public LoginResponse autenticar(LoginRequest loginRequest) {
+        var authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.login(),
+                        loginRequest.senha()
                 )
-                .orElseThrow(LoginSenhaException::new);
+        );
 
+        var token = jwtService.gerarToken(authentication);
+
+        var usuario = (Usuario) authentication.getPrincipal();
+        var usuarioResponse = usuarioMapper.toResponse(usuario);
+
+        return new LoginResponse(
+                token,
+                "Bearer",
+                usuarioResponse
+        );
     }
 
 }
