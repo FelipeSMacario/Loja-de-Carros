@@ -108,7 +108,7 @@ class OpcionalServiceTest {
         when(opcionalMapper.toResponse(entity2))
                 .thenReturn(response2);
         //Act
-        var resultado = opcionalService.listar(StatusFiltro.ATIVAS);
+        var resultado = opcionalService.listarAdministracao(StatusFiltro.ATIVAS);
         //Assert
 
         assertThat(resultado)
@@ -169,7 +169,7 @@ class OpcionalServiceTest {
         when(opcionalMapper.toResponse(entity2))
                 .thenReturn(response2);
         //Act
-        var resultado = opcionalService.listar(StatusFiltro.INATIVAS);
+        var resultado = opcionalService.listarAdministracao(StatusFiltro.INATIVAS);
         //Assert
 
         assertThat(resultado)
@@ -223,7 +223,7 @@ class OpcionalServiceTest {
         when(opcionalMapper.toResponse(entity2))
                 .thenReturn(response2);
         //Act
-        var resultado = opcionalService.listar(StatusFiltro.TODAS);
+        var resultado = opcionalService.listarAdministracao(StatusFiltro.TODAS);
         //Assert
 
         assertThat(resultado)
@@ -259,7 +259,7 @@ class OpcionalServiceTest {
         when(opcionalMapper.toResponse(entity))
                 .thenReturn(response);
         //Act
-        var resultado = opcionalService.buscarPorId(ID_VALIDO);
+        var resultado = opcionalService.buscarPorIdAdministracao(ID_VALIDO);
         //Assert
         assertOpcionalResponse(resultado);
 
@@ -276,15 +276,15 @@ class OpcionalServiceTest {
     @DisplayName("Deve lançar uma exceção ao filtrar um opcional por ID")
     void deveLancarEcecaoFiltrarOpcionalPorId() {
         //Arrange
-        when(opcionalRepository.findById(ID_INVALIDO))
+        when(opcionalRepository.findByIdAndAtivoTrue(ID_INVALIDO))
                 .thenReturn(Optional.empty());
         //Act
         var exception = assertThrows(NotFoundException.class,
-                () -> opcionalService.buscarPorId(ID_INVALIDO));
+                () -> opcionalService.buscarOpcionalAtivoPorId(ID_INVALIDO));
         //Assert
         assertNotFoundResponseError(exception, OPCIONAL, ID_INVALIDO);
 
-        verify(opcionalRepository).findById(ID_INVALIDO);
+        verify(opcionalRepository).findByIdAndAtivoTrue(ID_INVALIDO);
 
         verifyNoMoreInteractions(opcionalRepository);
 

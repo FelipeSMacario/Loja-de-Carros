@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static com.javacar.lojadecarro.enums.Entidade.MARCA;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -27,6 +28,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
     private MarcaRepository marcaRepository;
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da criação da marca")
     class Criar {
         @Test
@@ -111,6 +113,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da listagem de marcas")
     class Listar {
         @Test
@@ -155,6 +158,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da busca de marca")
     class Buscar {
         @Test
@@ -190,6 +194,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da atualização da marca")
     class Atualizacao {
         @Test
@@ -274,6 +279,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da alteração do status")
     class AlterarStatus {
         @Test

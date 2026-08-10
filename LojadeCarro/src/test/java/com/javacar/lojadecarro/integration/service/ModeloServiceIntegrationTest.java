@@ -16,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static com.javacar.lojadecarro.enums.Entidade.MARCA;
 import static com.javacar.lojadecarro.enums.Entidade.MODELO;
@@ -30,6 +31,7 @@ public class ModeloServiceIntegrationTest extends AbstractIntegrationTest {
     private ModeloRepository modeloRepository;
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da criação da modelo")
     class Criar {
         @Test
@@ -87,6 +89,7 @@ public class ModeloServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da listagem de modelos")
     class Listar {
         @Test
@@ -96,7 +99,7 @@ public class ModeloServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.ATIVAS;
             //ACT
-            var response = modeloService.listar(request);
+            var response = modeloService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -110,7 +113,7 @@ public class ModeloServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.INATIVAS;
             //ACT
-            var response = modeloService.listar(request);
+            var response = modeloService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -124,7 +127,7 @@ public class ModeloServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.TODAS;
             //ACT
-            var response = modeloService.listar(request);
+            var response = modeloService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -141,9 +144,9 @@ public class ModeloServiceIntegrationTest extends AbstractIntegrationTest {
         @Transactional
         void deveBuscarModelo() {
             //Arrange
-            var request = buscarModeloPorNome("City");
+            var request = buscarModeloPorNome("Onix");
             //ACT
-            var modelo = modeloService.buscarPorId(request.getId());
+            var modelo = modeloService.buscarModeloAtivoPorId(request.getId());
             //Assert
             assertThat(modelo)
                     .isNotNull();
@@ -161,7 +164,7 @@ public class ModeloServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             //ACT
             var exception = assertThrows(NotFoundException.class,
-                    () -> modeloService.buscarPorId(-1L));
+                    () -> modeloService.buscarModeloAtivoPorId(-1L));
             //Assert
             assertThat(exception)
                     .hasMessage(MODELO.naoEncontrada() + -1L);
@@ -169,6 +172,7 @@ public class ModeloServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da atualização do modelo")
     class Atualizar {
         @Test
@@ -246,6 +250,7 @@ public class ModeloServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da alteração do status")
     class AlterarStatus {
         @Test

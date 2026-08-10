@@ -1,7 +1,6 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.javacar.lojadecarro.controller.publico.CarroceriaController;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.carroceria.CarroceriaResponseFactory;
@@ -20,8 +19,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static com.javacar.lojadecarro.enums.Entidade.CARROCERIA;
-import static com.javacar.lojadecarro.enums.StatusFiltro.ATIVAS;
-import static com.javacar.lojadecarro.enums.StatusFiltro.INATIVAS;
+import static com.javacar.lojadecarro.enums.StatusFiltro.*;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus400;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus404;
 import static com.javacar.lojadecarro.factory.helper.CarroceriaHelper.assertResultadoCarroceria;
@@ -30,11 +28,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(CarroceriaController.class)
+@WebMvcTest(AdminCarroceriaController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@DisplayName("Testes da controller da carroceria")
-class CarroceriaControllerTest {
-    private static final String URL = "/carrocerias";
+@DisplayName("Testes da controller adm de carroceria")
+class AdminCarroceriaControllerTest {
+    private static final String URL = "/admin/carrocerias";
 
     @Autowired
     private MockMvc mockMvc;
@@ -105,12 +103,13 @@ class CarroceriaControllerTest {
             var response = List.of(carroceriacx.carroceriaResponse,
                     carroceriacx.carroceriaResponse2);
 
-            when(carroceriaService.listar(ATIVAS))
+            when(carroceriaService.listarAdministracao(ATIVAS))
                     .thenReturn(response);
 
             // Act + Assert
             mockMvc.perform(
                             get(URL)
+                                    .param("status", ATIVAS.toString())
                     ).andExpect(status().isOk())
                     .andExpect(jsonPath("$.length()").value(2))
                     .andExpect(jsonPath("$.[0].id").value(ID_VALIDO))
@@ -120,7 +119,7 @@ class CarroceriaControllerTest {
                     .andExpect(jsonPath("$.[1].nome").value("Sedan"))
                     .andExpect(jsonPath("$.[1].ativo").value(true));
 
-            verify(carroceriaService).listar(ATIVAS);
+            verify(carroceriaService).listarAdministracao(ATIVAS);
             verifyNoMoreInteractions(carroceriaService);
         }
 
@@ -143,7 +142,7 @@ class CarroceriaControllerTest {
 
             var response = List.of(response1, response2);
 
-            when(carroceriaService.listar(INATIVAS))
+            when(carroceriaService.listarAdministracao(INATIVAS))
                     .thenReturn(response);
 
             // Act + Assert
@@ -159,7 +158,7 @@ class CarroceriaControllerTest {
                     .andExpect(jsonPath("$.[1].nome").value("Sedan"))
                     .andExpect(jsonPath("$.[1].ativo").value(false));
 
-            verify(carroceriaService).listar(INATIVAS);
+            verify(carroceriaService).listarAdministracao(INATIVAS);
             verifyNoMoreInteractions(carroceriaService);
         }
 
@@ -186,7 +185,7 @@ class CarroceriaControllerTest {
 
             var carroceriacx = new CarroceriaTestContext();
 
-            when(carroceriaService.buscarPorId(ID_VALIDO))
+            when(carroceriaService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenReturn(carroceriacx.carroceriaResponse);
 
             // Act + Assert
@@ -196,7 +195,7 @@ class CarroceriaControllerTest {
 
             assertResultadoCarroceria(resultado);
 
-            verify(carroceriaService).buscarPorId(ID_VALIDO);
+            verify(carroceriaService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(carroceriaService);
         }
 
@@ -205,7 +204,7 @@ class CarroceriaControllerTest {
         @DisplayName("Deve lançar 404 ao buscar uma carroceria por ID")
         void deveLancar404aoBuscarCarroceriaPorId() throws Exception {
             //Arrange
-            when(carroceriaService.buscarPorId(ID_VALIDO))
+            when(carroceriaService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenThrow(new NotFoundException(CARROCERIA, ID_VALIDO));
 
             //ACT + Assert
@@ -215,7 +214,7 @@ class CarroceriaControllerTest {
 
             assertStatus404(resultado, CARROCERIA, ID_VALIDO);
 
-            verify(carroceriaService).buscarPorId(ID_VALIDO);
+            verify(carroceriaService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(carroceriaService);
         }
 

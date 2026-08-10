@@ -2,6 +2,7 @@ package com.javacar.lojadecarro.factory.imagem;
 
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Veiculo;
+import com.javacar.lojadecarro.factory.veiculo.VeiculoEntityFactory;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -31,6 +32,7 @@ public final class ImagemEntityFactory {
         imagem.setTamanho(200L);
         imagem.setPrincipal(true);
         imagem.setDataCadastro(LocalDateTime.now(ZONE));
+        imagem.setVeiculo(VeiculoEntityFactory.criarEntity().comTodosOsCampos().build());
         return this;
     }
     public ImagemEntityFactory comId(Long id) {

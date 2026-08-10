@@ -69,7 +69,7 @@ public class RoleServiceTest {
                     .thenReturn(response2);
 
             //ACT
-            var resultado = rolesService.listar(StatusFiltro.ATIVAS);
+            var resultado = rolesService.listarAdministracao(StatusFiltro.ATIVAS);
             //Assert
             assertRoleResponse(resultado, true, true);
 
@@ -104,7 +104,7 @@ public class RoleServiceTest {
                     .thenReturn(response2);
 
             //ACT
-            var resultado = rolesService.listar(StatusFiltro.INATIVAS);
+            var resultado = rolesService.listarAdministracao(StatusFiltro.INATIVAS);
             //Assert
             assertRoleResponse(resultado, false, false);
 
@@ -139,7 +139,7 @@ public class RoleServiceTest {
                     .thenReturn(response2);
 
             //ACT
-            var resultado = rolesService.listar(StatusFiltro.TODAS);
+            var resultado = rolesService.listarAdministracao(StatusFiltro.TODAS);
             //Assert
             assertRoleResponse(resultado, true, false);
             verify(roleRepository, never()).findByAtivo(anyBoolean());

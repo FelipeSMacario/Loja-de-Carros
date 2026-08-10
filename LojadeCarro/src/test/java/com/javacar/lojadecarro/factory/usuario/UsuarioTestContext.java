@@ -2,7 +2,9 @@ package com.javacar.lojadecarro.factory.usuario;
 
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioRolesRequest;
+import com.javacar.lojadecarro.dto.request.UsuarioUpdateRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
+import com.javacar.lojadecarro.dto.response.UsuarioResumoResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
 
 import java.time.LocalDate;
@@ -69,34 +71,25 @@ public class UsuarioTestContext {
                 .build();
     }
 
-    public static UsuarioRequest atualizarUsuarioValido() {
-        return UsuarioRequestFactory
-                .criarRequest()
-                .comNome("Superman")
-                .comEmail("felipe.vendedor@gmail.com")
-                .comPassword("123")
-                .comCPF("15052036000")
-                .comDataNascimento(LocalDate.of(1982, Month.JANUARY, 2))
-                .build();
+    public static UsuarioUpdateRequest atualizarUsuarioValido() {
+        return new UsuarioUpdateRequest(
+                "Superman",
+                LocalDate.of(1982, Month.JANUARY, 2),
+                "felipe.vendedor@gmail.com"
+        );
     }
-    public static UsuarioRequest atualizarUsuarioCPFInvalido() {
-        return UsuarioRequestFactory
-                .criarRequest()
-                .comNome("Superman")
-                .comEmail("felipe.vendedor@gmail.com")
-                .comPassword("123")
-                .comCPF("28473956100")
-                .comDataNascimento(LocalDate.of(1982, Month.JANUARY, 2))
-                .build();
+    public static UsuarioUpdateRequest atualizarUsuarioEmailInvalido() {
+        return new UsuarioUpdateRequest(
+                "Superman",
+                LocalDate.of(1982, Month.JANUARY, 2),
+                "joao.silva@gmail.com"
+        );
+
     }
-    public static UsuarioRequest atualizarUsuarioEmailInvalido() {
-        return UsuarioRequestFactory
-                .criarRequest()
-                .comNome("Superman")
-                .comEmail("joao.silva@gmail.com")
-                .comPassword("123")
-                .comCPF("15052036000")
-                .comDataNascimento(LocalDate.of(1982, Month.JANUARY, 2))
-                .build();
+
+    public static UsuarioResumoResponse criarUsuarioResumo(Long id, String nome){
+        return new UsuarioResumoResponse(id, nome);
     }
+
+
 }

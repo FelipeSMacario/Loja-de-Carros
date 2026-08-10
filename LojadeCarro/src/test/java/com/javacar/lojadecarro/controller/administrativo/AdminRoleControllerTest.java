@@ -1,6 +1,6 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
-import com.javacar.lojadecarro.controller.administrativo.AdminRoleController;
+import com.javacar.lojadecarro.controller.BaseControllerTest;
 import com.javacar.lojadecarro.service.RolesService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -22,8 +22,8 @@ import static org.mockito.Mockito.*;
 @WebMvcTest(AdminRoleController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller da role")
-public class RoleControllerTest extends BaseControllerTest {
-    private static final String URL = "/roles";
+public class AdminRoleControllerTest extends BaseControllerTest {
+    private static final String URL = "/admin/roles";
 
     @MockitoBean
     private RolesService rolesService;
@@ -40,10 +40,10 @@ public class RoleControllerTest extends BaseControllerTest {
 
             var response = List.of(response1, response2);
 
-            when(rolesService.listar(ATIVAS))
+            when(rolesService.listarAdministracao(ATIVAS))
                     .thenReturn(response);
             //Act + Assert
-            var resultado = performGet(URL);
+            var resultado = performGet(URL, "status", ATIVAS.toString());
             assertList(
                     resultado,
                     ID_VALIDO,
@@ -53,7 +53,7 @@ public class RoleControllerTest extends BaseControllerTest {
                     true,
                     true
             );
-            verify(rolesService).listar(ATIVAS);
+            verify(rolesService).listarAdministracao(ATIVAS);
             verifyNoMoreInteractions(rolesService);
         }
 
@@ -66,7 +66,7 @@ public class RoleControllerTest extends BaseControllerTest {
 
             var response = List.of(response1, response2);
 
-            when(rolesService.listar(TODAS))
+            when(rolesService.listarAdministracao(TODAS))
                     .thenReturn(response);
             //Act + Assert
             var resultado = performGet(URL, "status", TODAS.toString());
@@ -79,7 +79,7 @@ public class RoleControllerTest extends BaseControllerTest {
                     true,
                     false
             );
-            verify(rolesService).listar(TODAS);
+            verify(rolesService).listarAdministracao(TODAS);
             verifyNoMoreInteractions(rolesService);
         }
 

@@ -14,6 +14,8 @@ import com.javacar.lojadecarro.factory.usuario.UsuarioEntityFactory;
 import com.javacar.lojadecarro.factory.usuario.UsuarioResponseFactory;
 import com.javacar.lojadecarro.mapper.UsuarioMapper;
 import com.javacar.lojadecarro.repository.UsuarioRepository;
+import com.javacar.lojadecarro.repository.VeiculoRepository;
+import com.javacar.lojadecarro.repository.VendasRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -27,14 +29,19 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.Month;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static com.javacar.lojadecarro.enums.Entidade.ROLE;
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
+import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
+import static com.javacar.lojadecarro.enums.StatusVeiculo.RESERVADO;
+import static com.javacar.lojadecarro.enums.StatusVenda.EM_ANDAMENTO;
 import static com.javacar.lojadecarro.factory.helper.RoleHelper.criaListRole;
 import static com.javacar.lojadecarro.factory.helper.RoleHelper.criarRoleEntity;
 import static com.javacar.lojadecarro.factory.helper.UsuarioHelper.*;
+import static com.javacar.lojadecarro.factory.usuario.UsuarioTestContext.atualizarUsuarioValido;
 import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -47,6 +54,10 @@ import static org.mockito.Mockito.*;
 class UsuarioServiceTest {
     @Mock
     private UsuarioRepository usuarioRepository;
+    @Mock
+    private VendasRepository vendasRepository;
+    @Mock
+    private VeiculoRepository veiculoRepository;
     @Mock
     private UsuarioMapper usuarioMapper;
     @Mock
@@ -75,12 +86,16 @@ class UsuarioServiceTest {
                     .thenReturn(false);
 
             when(usuarioRepository.existsByEmail(request.email()))
-            .thenReturn(false);
+                    .thenReturn(false);
 
             when(usuarioMapper.toEntity(request))
                     .thenReturn(entity);
             when(encoder.encode(request.password()))
                     .thenReturn("senhaCriptografada");
+
+            when(rolesService.buscarPorNome("ROLE_USUARIO"))
+                    .thenReturn(criarRoleEntity());
+
             when(usuarioRepository.save(entity))
                     .thenReturn(entity);
             when(usuarioMapper.toResponse(entity))
@@ -100,11 +115,13 @@ class UsuarioServiceTest {
             verify(usuarioRepository).existsByCpf(request.cpf());
             verify(usuarioRepository).save(entity);
             verify(encoder).encode(request.password());
+            verify(rolesService).buscarPorNome("ROLE_USUARIO");
 
             verifyNoMoreInteractions(
                     usuarioRepository,
                     usuarioMapper,
-                    encoder
+                    encoder,
+                    rolesService
             );
         }
     }
@@ -353,21 +370,20 @@ class UsuarioServiceTest {
         @DisplayName("Deve atualizar o usuário")
         void deveAtualizarUsuario() {
             //Arrange
-            var request = criarUsuarioRequest();
+            var request = atualizarUsuarioValido();
             var entity = criarUsuarioEntity();
             var response = criarUsuarioResponse();
 
-            when(usuarioRepository.existsByCpf(request.cpf()))
-                    .thenReturn(false);
 
-            when(usuarioRepository.findById(ID_VALIDO))
+            when(usuarioRepository.findByIdAndAtivoTrue(ID_VALIDO))
                     .thenReturn(Optional.of(entity));
+
+            when(usuarioRepository.existsByEmail(request.email()))
+                    .thenReturn(false);
 
             doNothing().when(usuarioMapper)
                     .toUpdate(request, entity);
 
-            when(encoder.encode(request.password()))
-                    .thenReturn("senhaCriptografada");
 
             when(usuarioMapper.toResponse(entity))
                     .thenReturn(response);
@@ -376,13 +392,10 @@ class UsuarioServiceTest {
             var resultado = usuarioService.atualizar(request, ID_VALIDO);
             //Assert
             assertUsuarioResponse(resultado);
-            assertThat(entity.getPassword())
-                    .isNotNull()
-                    .isEqualTo("senhaCriptografada");
-            verify(usuarioRepository).findById(ID_VALIDO);
-            verify(usuarioRepository).existsByCpf(request.cpf());
-            verify(encoder).encode(request.password());
+            verify(usuarioRepository).findByIdAndAtivoTrue(ID_VALIDO);
+            verify(usuarioRepository).existsByEmail(request.email());
             verify(usuarioMapper).toResponse(entity);
+
             verifyNoMoreInteractions(
                     usuarioRepository,
                     encoder,
@@ -394,8 +407,8 @@ class UsuarioServiceTest {
         @DisplayName("Deve lançar uma exceção ao atualizar o usuário por ID")
         void deveLancarUmaExcecaoAoAtualizarUmUsuarioPorId() {
             //Arrange
-            var request = criarUsuarioRequest();
-            when(usuarioRepository.findById(ID_INVALIDO))
+            var request = atualizarUsuarioValido();
+            when(usuarioRepository.findByIdAndAtivoTrue(ID_INVALIDO))
                     .thenReturn(Optional.empty());
             //Act
             var excecao = assertThrows(NotFoundException.class,
@@ -403,7 +416,7 @@ class UsuarioServiceTest {
             //Assert
             assertNotFoundResponseError(excecao, USUARIO, ID_INVALIDO);
 
-            verify(usuarioRepository).findById(ID_INVALIDO);
+            verify(usuarioRepository).findByIdAndAtivoTrue(ID_INVALIDO);
             verifyNoMoreInteractions(usuarioRepository);
 
             verifyNoInteractions(
@@ -432,6 +445,18 @@ class UsuarioServiceTest {
             when(usuarioRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(entity));
 
+            when(vendasRepository.existsByVendedor_IdAndStatusVenda(ID_VALIDO, EM_ANDAMENTO))
+                    .thenReturn(false);
+
+            when(vendasRepository.existsByComprador_IdAndStatusVenda(ID_VALIDO, EM_ANDAMENTO))
+                    .thenReturn(false);
+
+            when(veiculoRepository.existsByVendedor_IdAndStatusVeiculo(ID_VALIDO, RESERVADO))
+                    .thenReturn(false);
+
+            when(veiculoRepository.findByVendedor_IdAndStatusVeiculo(ID_VALIDO, DISPONIVEL))
+                    .thenReturn(Collections.emptyList());
+
             when(usuarioMapper.toResponse(entity))
                     .thenReturn(response);
             //ACT
@@ -444,10 +469,13 @@ class UsuarioServiceTest {
             assertThat(entity.isAtivo()).isFalse();
 
             verify(usuarioRepository).findById(ID_VALIDO);
+            verify(vendasRepository).existsByVendedor_IdAndStatusVenda(ID_VALIDO, EM_ANDAMENTO);
+            verify(vendasRepository).existsByComprador_IdAndStatusVenda(ID_VALIDO, EM_ANDAMENTO);
+            verify(veiculoRepository).existsByVendedor_IdAndStatusVeiculo(ID_VALIDO, RESERVADO);
+            verify(veiculoRepository).findByVendedor_IdAndStatusVeiculo(ID_VALIDO, DISPONIVEL);
             verify(usuarioMapper).toResponse(entity);
 
-            verifyNoMoreInteractions(usuarioRepository);
-            verifyNoMoreInteractions(usuarioMapper);
+            verifyNoMoreInteractions(usuarioRepository, usuarioMapper, vendasRepository, veiculoRepository);
         }
 
         @Test
@@ -712,7 +740,7 @@ class UsuarioServiceTest {
         void deveLancarExcecaoQuandoUsuarioNaoExistente() {
             //Arrange
             when(usuarioRepository.findById(ID_VALIDO))
-            .thenReturn(Optional.empty());
+                    .thenReturn(Optional.empty());
             //ACT
             var excecao = assertThrows(NotFoundException.class,
                     () -> usuarioService.desvincularRole(ID_VALIDO, ID_VALIDO));
@@ -727,13 +755,14 @@ class UsuarioServiceTest {
                     usuarioMapper
             );
         }
+
         @Test
         @DisplayName("Deve lançar exceção de role não encontrada ao desvincular role")
         void deveLancarExcecaoQuandoRoleNaoExistente() {
             //Arrange
             var entity = criarUsuarioEntity();
             when(usuarioRepository.findById(ID_VALIDO))
-            .thenReturn(Optional.of(entity));
+                    .thenReturn(Optional.of(entity));
 
             when(rolesService.buscarPorId(ID_VALIDO))
                     .thenThrow(new NotFoundException(ROLE, ID_VALIDO));
@@ -763,10 +792,10 @@ class UsuarioServiceTest {
             var role = criarRoleEntity();
 
             when(usuarioRepository.findById(ID_VALIDO))
-            .thenReturn(Optional.of(entity));
+                    .thenReturn(Optional.of(entity));
 
             when(rolesService.buscarPorId(idRole))
-            .thenReturn(role);
+                    .thenReturn(role);
             //ACT
             var excecao = assertThrows(BusinessException.class,
                     () -> usuarioService.desvincularRole(ID_VALIDO, idRole));

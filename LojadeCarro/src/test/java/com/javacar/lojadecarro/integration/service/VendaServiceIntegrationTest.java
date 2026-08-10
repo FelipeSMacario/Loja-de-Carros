@@ -1,7 +1,6 @@
 package com.javacar.lojadecarro.integration.service;
 
 import com.javacar.lojadecarro.dto.response.VendaResponse;
-import com.javacar.lojadecarro.entity.Usuario;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.entity.Venda;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
@@ -20,11 +19,11 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
-
-import java.math.BigDecimal;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 import static com.javacar.lojadecarro.enums.Entidade.VEICULO;
+import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -40,6 +39,7 @@ public class VendaServiceIntegrationTest extends AbstractIntegrationTest {
     private UsuarioRepository usuarioRepository;
 
     @Nested
+    @WithMockUser(roles = "USUARIO")
     @DisplayName("Testes para criar vendas")
     class Criar {
         @Test
@@ -48,15 +48,10 @@ public class VendaServiceIntegrationTest extends AbstractIntegrationTest {
         void deveCriarUmaVenda() {
             //Arrange
             var veiculo = buscarVeiculoPorPlaca("KPB8712");
-            var comprador = buscarUsuarioPorEmail("german@gmail.com");
             var request = VendaHelper.criarVendasComCampos(
-                    veiculo.getId(),
-                    comprador.getId(),
-                    veiculo.getVendedor().getId(),
-                    new BigDecimal("150000")
-            );
+                    veiculo.getId());
             //ACT
-            var response = vendasService.criar(request);
+            var response = vendasService.criar(request, ID_VALIDO);
             var veiculoAtualizado = buscarVeiculoPorPlaca("KPB8712");
 
             //Assert
@@ -81,13 +76,11 @@ public class VendaServiceIntegrationTest extends AbstractIntegrationTest {
                             response.dataVenda()
                     );
             assertThat(veiculoAtualizado.getStatusVeiculo())
-                    .isEqualTo(StatusVeiculo.VENDIDO);
-            assertThat(venda)
-                    .extracting(v -> v.getVendedor().getId())
-                    .isEqualTo(request.vendedorId());
+                    .isEqualTo(StatusVeiculo.RESERVADO);
+
             assertThat(venda)
                     .extracting(v -> v.getComprador().getId())
-                    .isEqualTo(request.compradorId());
+                    .isEqualTo(ID_VALIDO);
             assertThat(venda)
                     .extracting(v -> v.getVeiculo().getId())
                     .isEqualTo(request.veiculoId());
@@ -98,34 +91,13 @@ public class VendaServiceIntegrationTest extends AbstractIntegrationTest {
         void deveLancarExcecaoBuscarVeiculo() {
             //Arrange
             var request = VendaHelper.criarVendasComCampos(
-                    -1L,
-                    1L,
-                    1L,
-                    new BigDecimal("150000"));
+                    -1L);
             //ACT
             var exception = assertThrows(NotFoundException.class,
-                    () -> vendasService.criar(request));
+                    () -> vendasService.criar(request, ID_VALIDO));
             //Assert
             assertThat(exception)
                     .hasMessage(VEICULO.naoEncontrada() + -1L);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção ao informar vendedor inválido")
-        void deveLancarExcecaoBuscarVendedorInvalido() {
-            //Arrange
-            var veiculo = buscarVeiculoPorPlaca("KPB8712");
-            var request = VendaHelper.criarVendasComCampos(
-                    veiculo.getId(),
-                    1L,
-                    -1L,
-                    new BigDecimal("150000"));
-            //ACT
-            var exception = assertThrows(NotFoundException.class,
-                    () -> vendasService.criar(request));
-            //Assert
-            assertThat(exception)
-                    .hasMessage(USUARIO.naoEncontrada() + -1L);
         }
 
         @Test
@@ -134,52 +106,27 @@ public class VendaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var veiculo = buscarVeiculoPorPlaca("KPB8712");
             var request = VendaHelper.criarVendasComCampos(
-                    veiculo.getId(),
-                    -1L,
-                    veiculo.getVendedor().getId(),
-                    new BigDecimal("150000"));
+                    veiculo.getId());
             //ACT
             var exception = assertThrows(NotFoundException.class,
-                    () -> vendasService.criar(request));
+                    () -> vendasService.criar(request, -1L));
             //Assert
             assertThat(exception)
                     .hasMessage(USUARIO.naoEncontrada() + -1L);
         }
 
-        @Test
-        @DisplayName("Deve lançar exceção quando vendedor não for proprietario")
-        @Transactional
-        void deveLancarExcecaoQuandoVendedorNaoForProprietario() {
-            //Arrange
-            var veiculo = buscarVeiculoPorPlaca("KPB8712");
-            var comprador = buscarUsuarioPorEmail("german@gmail.com");
-            var request = VendaHelper.criarVendasComCampos(
-                    veiculo.getId(),
-                    comprador.getId(),
-                    comprador.getId(),
-                    new BigDecimal("150000"));
-            //ACT
-            var exception = assertThrows(BusinessException.class,
-                    () -> vendasService.criar(request));
-            //Assert
-            assertThat(exception)
-                    .hasMessage("O vendedor informado não é o proprietário do veículo.");
-        }
 
         @Test
         @DisplayName("Deve lançar exceção quando o comprador for o vendedor")
         @Transactional
         void deveLancarExcecaoQuandoOCompradorForVendedor() {
             //Arrange
-            var veiculo = buscarVeiculoPorPlaca("KPB8712");
+            var veiculo = buscarVeiculoPorPlaca("ABC1D23");
             var request = VendaHelper.criarVendasComCampos(
-                    veiculo.getId(),
-                    veiculo.getVendedor().getId(),
-                    veiculo.getVendedor().getId(),
-                    new BigDecimal("150000"));
+                    veiculo.getId());
             //ACT
             var exception = assertThrows(BusinessException.class,
-                    () -> vendasService.criar(request));
+                    () -> vendasService.criar(request, ID_VALIDO));
             //Assert
             assertThat(exception)
                     .hasMessage("O comprador não pode ser o próprio vendedor.");
@@ -190,11 +137,11 @@ public class VendaServiceIntegrationTest extends AbstractIntegrationTest {
         @Transactional
         void deveLancarExcecaoQuandoVeiculoJaPossuiVenda() {
             //Arrange
-            var veiculo = buscarVeiculoPorPlaca("ABC1D23");
-            var request = VendaHelper.criarVendasComCampos(veiculo.getId(), 1L, 1L, BigDecimal.ZERO);
+            var veiculo = buscarVeiculoPorPlaca("PQR4S56");
+            var request = VendaHelper.criarVendasComCampos(veiculo.getId());
             //ACT
             var exception = assertThrows(BusinessException.class,
-                    () -> vendasService.criar(request));
+                    () -> vendasService.criar(request, 2L));
             //Assert
             assertThat(exception)
                     .hasMessage("O veículo já possui uma venda cadastrada.");
@@ -203,6 +150,7 @@ public class VendaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da listagem de vendas")
     class Listar {
         @Test
@@ -230,6 +178,7 @@ public class VendaServiceIntegrationTest extends AbstractIntegrationTest {
                     .isNotEmpty()
                     .allMatch(v -> v.statusVenda() == StatusVenda.CONCLUIDA);
         }
+
         @Test
         @DisplayName("Deve listar vendas em andamento")
         void deveListarVendasEmAndamento() {
@@ -246,10 +195,6 @@ public class VendaServiceIntegrationTest extends AbstractIntegrationTest {
 
     private Veiculo buscarVeiculoPorPlaca(String nome) {
         return veiculoRepository.findByPlaca(nome).orElseThrow();
-    }
-
-    private Usuario buscarUsuarioPorEmail(String email) {
-        return usuarioRepository.findByEmail(email).orElseThrow();
     }
 
     private Venda buscaVendaPorId(Long id) {

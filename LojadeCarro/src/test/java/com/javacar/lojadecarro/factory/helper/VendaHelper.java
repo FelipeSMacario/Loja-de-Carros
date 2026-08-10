@@ -7,7 +7,6 @@ import com.javacar.lojadecarro.factory.venda.VendaEntityFactory;
 import com.javacar.lojadecarro.factory.venda.VendaRequestFactory;
 import com.javacar.lojadecarro.factory.venda.VendaResponseFactory;
 
-import java.math.BigDecimal;
 
 public final class VendaHelper extends BaseHelper {
     public static VendaRequest criarVendaRequest() {
@@ -30,16 +29,10 @@ public final class VendaHelper extends BaseHelper {
                 .comTodosOsCampos()
                 .build();
     }
-    public static VendaRequest criarVendasComCampos(Long idVeiculo,
-                                                    Long idComprador,
-                                                    Long idVendedor,
-                                                    BigDecimal valor) {
+    public static VendaRequest criarVendasComCampos(Long idVeiculo) {
         return VendaRequestFactory
                 .criarRequest()
                 .comVeiculoPorId(idVeiculo)
-                .comCompradorId(idComprador)
-                .comVendedorId(idVendedor)
-                .comValor(valor)
                 .build();
     }
 }

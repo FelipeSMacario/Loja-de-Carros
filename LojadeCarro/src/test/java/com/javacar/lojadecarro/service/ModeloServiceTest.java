@@ -154,7 +154,7 @@ class ModeloServiceTest {
         when(modeloMapper.toResponse(celtaEntity))
                 .thenReturn(celtaResponse);
         //Act
-        var resultado = modeloService.listar(StatusFiltro.ATIVAS);
+        var resultado = modeloService.listarAdministracao(StatusFiltro.ATIVAS);
         //Assert
         assertThat(resultado)
                 .isNotNull()
@@ -216,7 +216,7 @@ class ModeloServiceTest {
         when(modeloMapper.toResponse(celtaEntity))
                 .thenReturn(celtaResponse);
         //Act
-        var resultado = modeloService.listar(StatusFiltro.INATIVAS);
+        var resultado = modeloService.listarAdministracao(StatusFiltro.INATIVAS);
         //Assert
         assertThat(resultado)
                 .isNotNull()
@@ -276,7 +276,7 @@ class ModeloServiceTest {
         when(modeloMapper.toResponse(celtaEntity))
                 .thenReturn(celtaResponse);
         //Act
-        var resultado = modeloService.listar(StatusFiltro.TODAS);
+        var resultado = modeloService.listarAdministracao(StatusFiltro.TODAS);
         //Assert
         assertThat(resultado)
                 .isNotNull()
@@ -306,16 +306,16 @@ class ModeloServiceTest {
         var entity = criarModeloEntity();
         var response = criarModeloResponse();
 
-        when(modeloRepository.findById(ID_VALIDO))
+        when(modeloRepository.findByIdAndAtivoTrueAndMarca_AtivoTrue(ID_VALIDO))
                 .thenReturn(Optional.of(entity));
         when(modeloMapper.toResponse(entity))
                 .thenReturn(response);
         //Act
-        var resultado = modeloService.buscarPorId(ID_VALIDO);
+        var resultado = modeloService.buscarModeloAtivoPorId(ID_VALIDO);
         //Assert
         assertModeloResponse(resultado);
 
-        verify(modeloRepository).findById(ID_VALIDO);
+        verify(modeloRepository).findByIdAndAtivoTrueAndMarca_AtivoTrue(ID_VALIDO);
         verify(modeloMapper).toResponse(entity);
 
         verifyNoMoreInteractions(modeloMapper);
@@ -326,15 +326,15 @@ class ModeloServiceTest {
     @DisplayName("Deve lançar exceção ao buscar um modelo por ID")
     void deveBuscarModeloPorIdException() {
         //Arrange
-        when(modeloRepository.findById(ID_INVALIDO))
+        when(modeloRepository.findByIdAndAtivoTrueAndMarca_AtivoTrue(ID_INVALIDO))
                 .thenReturn(Optional.empty());
         //Act
         var exception = assertThrows(NotFoundException.class,
-                () -> modeloService.buscarPorId(ID_INVALIDO));
+                () -> modeloService.buscarModeloAtivoPorId(ID_INVALIDO));
         //Assert
         assertNotFoundResponseError(exception, MODELO, ID_INVALIDO);
 
-        verify(modeloRepository).findById(ID_INVALIDO);
+        verify(modeloRepository).findByIdAndAtivoTrueAndMarca_AtivoTrue(ID_INVALIDO);
 
         verifyNoMoreInteractions(modeloRepository);
 

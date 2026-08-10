@@ -1,6 +1,6 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
-import com.javacar.lojadecarro.controller.publico.OpcionalController;
+import com.javacar.lojadecarro.controller.BaseControllerTest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.opcional.OpcionalTestContext;
@@ -25,11 +25,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(OpcionalController.class)
+@WebMvcTest(AdminOpcionalController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller do opcional")
-class OpcionalControllerTest extends BaseControllerTest {
-    private static final String URL = "/opcionais";
+class AdminOpcionalControllerTest extends BaseControllerTest {
+    private static final String URL = "/admin/opcionais";
     private static final String URL_ID = URL + "/" + ID_VALIDO;
 
     @MockitoBean
@@ -98,10 +98,10 @@ class OpcionalControllerTest extends BaseControllerTest {
 
             var response = List.of(response1, response2);
 
-            when(opcionalService.listar(ATIVAS))
+            when(opcionalService.listarAdministracao(ATIVAS))
                     .thenReturn(response);
             //Act + Assert
-            var resultado = performGet(URL);
+            var resultado = performGet(URL, "status", ATIVAS.toString());
             assertList(
                     resultado,
                     ID_VALIDO,
@@ -111,7 +111,7 @@ class OpcionalControllerTest extends BaseControllerTest {
                     true,
                     true
             );
-            verify(opcionalService).listar(ATIVAS);
+            verify(opcionalService).listarAdministracao(ATIVAS);
             verifyNoMoreInteractions(opcionalService);
         }
 
@@ -124,7 +124,7 @@ class OpcionalControllerTest extends BaseControllerTest {
 
             var response = List.of(response1, response2);
 
-            when(opcionalService.listar(TODAS))
+            when(opcionalService.listarAdministracao(TODAS))
                     .thenReturn(response);
             //Act + Assert
             var resultado = performGet(URL, "status", TODAS.toString());
@@ -137,7 +137,7 @@ class OpcionalControllerTest extends BaseControllerTest {
                     true,
                     false
             );
-            verify(opcionalService).listar(TODAS);
+            verify(opcionalService).listarAdministracao(TODAS);
             verifyNoMoreInteractions(opcionalService);
         }
     }
@@ -152,13 +152,13 @@ class OpcionalControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new OpcionalTestContext();
 
-            when(opcionalService.buscarPorId(ID_VALIDO))
+            when(opcionalService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenReturn(cx.response);
             //Act + Assert
             var resultado = performGet(URL_ID);
             assertResult(resultado, status().isOk(), ID_VALIDO, "Freio ABS", true);
 
-            verify(opcionalService).buscarPorId(ID_VALIDO);
+            verify(opcionalService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(opcionalService);
         }
 
@@ -167,13 +167,13 @@ class OpcionalControllerTest extends BaseControllerTest {
         void deveRetornar404aoBuscarUmOpcionalPorID() throws Exception {
             //Arrange
 
-            when(opcionalService.buscarPorId(ID_VALIDO))
+            when(opcionalService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenThrow(new NotFoundException(OPCIONAL, ID_VALIDO));
             //Act + Assert
             var resultado = performGet(URL_ID);
             assertStatus404(resultado, OPCIONAL, ID_VALIDO);
 
-            verify(opcionalService).buscarPorId(ID_VALIDO);
+            verify(opcionalService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(opcionalService);
         }
     }

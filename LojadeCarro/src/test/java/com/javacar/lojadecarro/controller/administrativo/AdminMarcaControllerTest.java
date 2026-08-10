@@ -1,6 +1,6 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
-import com.javacar.lojadecarro.controller.publico.MarcaController;
+import com.javacar.lojadecarro.controller.BaseControllerTest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.marca.MarcaTestContext;
@@ -24,11 +24,11 @@ import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@WebMvcTest(MarcaController.class)
+@WebMvcTest(AdminMarcaController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller da marca")
-class MarcaControllerTest extends BaseControllerTest {
-    private static final String URL = "/marcas";
+class AdminMarcaControllerTest extends BaseControllerTest {
+    private static final String URL = "/admin/marcas";
 
     @MockitoBean
     private MarcaService marcaService;
@@ -100,7 +100,7 @@ class MarcaControllerTest extends BaseControllerTest {
             when(marcaService.listarAdministracao(ATIVAS))
                     .thenReturn(response);
             //Act + Assert
-            var resultado = performGet(URL);
+            var resultado = performGet(URL, "status", ATIVAS.toString());
             assertList(
                     resultado,
                     ID_VALIDO,

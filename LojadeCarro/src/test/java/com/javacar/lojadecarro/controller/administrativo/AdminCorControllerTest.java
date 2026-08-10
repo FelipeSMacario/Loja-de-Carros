@@ -1,6 +1,6 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
-import com.javacar.lojadecarro.controller.publico.CorController;
+import com.javacar.lojadecarro.controller.BaseControllerTest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.cor.CorTestContext;
@@ -25,11 +25,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(CorController.class)
+@WebMvcTest(AdminCorController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller da cor")
-class CorControllerTest extends BaseControllerTest {
-    private static final String URL = "/cores";
+class AdminCorControllerTest extends BaseControllerTest {
+    private static final String URL = "/admin/cores";
 
     @MockitoBean
     private CoresService coresService;
@@ -101,10 +101,10 @@ class CorControllerTest extends BaseControllerTest {
 
             var response = List.of(corResponse1, corResponse2);
 
-            when(coresService.listar(ATIVAS))
+            when(coresService.listarAdministracao(ATIVAS))
                     .thenReturn(response);
             //Act + Assert
-            var resultado = performGet(URL);
+            var resultado = performGet(URL, "status", ATIVAS.toString());
             assertList(
                     resultado,
                     ID_VALIDO,
@@ -115,7 +115,7 @@ class CorControllerTest extends BaseControllerTest {
                     true
             );
 
-            verify(coresService).listar(ATIVAS);
+            verify(coresService).listarAdministracao(ATIVAS);
             verifyNoMoreInteractions(coresService);
         }
 
@@ -127,7 +127,7 @@ class CorControllerTest extends BaseControllerTest {
 
             var response = List.of(corResponse1, corResponse2);
 
-            when(coresService.listar(TODAS))
+            when(coresService.listarAdministracao(TODAS))
                     .thenReturn(response);
 
             //Act + Assert
@@ -142,7 +142,7 @@ class CorControllerTest extends BaseControllerTest {
                     false
             );
 
-            verify(coresService).listar(TODAS);
+            verify(coresService).listarAdministracao(TODAS);
             verifyNoMoreInteractions(coresService);
         }
     }
@@ -157,7 +157,7 @@ class CorControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new CorTestContext();
 
-            when(coresService.buscarCorAtivaPorId(ID_VALIDO))
+            when(coresService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenReturn(cx.corResponse);
             //Act + Assert
             var resultado = performGet(URL + "/" + ID_VALIDO);
@@ -169,7 +169,7 @@ class CorControllerTest extends BaseControllerTest {
                     true
             );
 
-            verify(coresService).buscarCorAtivaPorId(ID_VALIDO);
+            verify(coresService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(coresService);
         }
 
@@ -177,13 +177,13 @@ class CorControllerTest extends BaseControllerTest {
         @DisplayName("Deve lançar 404 ao buscar uma cor por ID")
         void deveLancar404aoBuscarUmaCorPorID() throws Exception {
             //Arrange
-            when(coresService.buscarCorAtivaPorId(ID_VALIDO))
+            when(coresService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenThrow(new NotFoundException(COR, ID_VALIDO));
             //Act + Assert
             var resultado = performGet(URL + "/" + ID_VALIDO);
             assertStatus404(resultado, COR, ID_VALIDO);
 
-            verify(coresService).buscarCorAtivaPorId(ID_VALIDO);
+            verify(coresService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(coresService);
         }
     }

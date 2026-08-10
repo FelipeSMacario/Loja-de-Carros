@@ -4,6 +4,7 @@ import com.javacar.lojadecarro.dto.request.VeiculoOpcionaisRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
+import com.javacar.lojadecarro.dto.response.VeiculoVendaResponse;
 import com.javacar.lojadecarro.entity.*;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.factory.imagem.ImagemResponseFactory;
@@ -53,18 +54,18 @@ public class VeiculoTestContext {
     public final VeiculoResponse veiculoResponse1 = VeiculoResponseFactory
             .criarResponse()
             .comTodosOsCampos()
-            .comStatus(StatusVeiculo.PAUSADO)
+            .comStatus(StatusVeiculo.DISPONIVEL)
             .comId(1L)
             .build();
 
     public final VeiculoResponse veiculoResponse2 = VeiculoResponseFactory
             .criarResponse()
             .comTodosOsCampos()
-            .comStatus(StatusVeiculo.PAUSADO)
+            .comStatus(StatusVeiculo.DISPONIVEL)
             .comId(2L)
             .build();
 
-    public static VeiculoRequest criarVeiculoValido(){
+    public static VeiculoRequest criarVeiculoValido() {
         return VeiculoRequestFactory
                 .criarRequest()
                 .comQuilometragem(25000)
@@ -76,13 +77,12 @@ public class VeiculoTestContext {
                 .comIdCarroceria(1L)
                 .comIdCores(2L)
                 .comIdModelo(10L)
-                .comIdUsuario(1L)
                 .comIdCombustivel(1L)
                 .comOpcionais(List.of(1L, 5L, 8L))
                 .build();
     }
 
-    public static VeiculoRequest criarVeiculoAtualizacaoValido(){
+    public static VeiculoRequest criarVeiculoAtualizacaoValido() {
         return VeiculoRequestFactory
                 .criarRequest()
                 .comQuilometragem(25000)
@@ -94,10 +94,13 @@ public class VeiculoTestContext {
                 .comIdCarroceria(1L)
                 .comIdCores(2L)
                 .comIdModelo(10L)
-                .comIdUsuario(1L)
                 .comIdCombustivel(1L)
                 .comOpcionais(List.of(1L, 5L, 8L))
                 .build();
+    }
+
+    public static VeiculoVendaResponse criarVeiculoVendaResponse(Long id, String marca, String modelo) {
+        return new VeiculoVendaResponse(id, marca, modelo);
     }
 
 }

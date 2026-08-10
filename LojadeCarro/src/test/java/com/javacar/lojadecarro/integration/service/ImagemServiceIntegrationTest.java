@@ -12,6 +12,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.io.IOException;
 
@@ -27,6 +28,7 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
     private ImagensRepository imagensRepository;
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da criação de imagens")
     class Criar {
         @Test
@@ -72,6 +74,7 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes para definir uma imagem como principal")
     class DefinirPrincipal {
         @Test
@@ -112,6 +115,7 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da exclusão da imagem")
     class Exclusao {
         @Test
@@ -131,7 +135,7 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
 
             assertThat(veiculo.getImagens())
                     .isNotEmpty()
-                    .hasSize(1);
+                    .hasSize(2);
 
             assertThat(veiculo.getImagens())
                     .extracting(Imagem::getId)

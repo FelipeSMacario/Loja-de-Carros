@@ -36,8 +36,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.javacar.lojadecarro.enums.Entidade.*;
-import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
-import static com.javacar.lojadecarro.enums.StatusVeiculo.VENDIDO;
+import static com.javacar.lojadecarro.enums.StatusVeiculo.*;
 import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.*;
 import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
@@ -78,19 +77,79 @@ class VeiculoServiceTest {
         void deveCadastrarUmVeiculo() throws IOException {
             //Arrange
             var cx = new VeiculoTestContext();
-            mockDependenciasCriacaoCompleta(cx);
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
             when(veiculoRepository.existsByPlaca(cx.request.placa()))
                     .thenReturn(false);
+            when(veiculoMapper.toEntity(cx.request))
+                    .thenReturn(cx.entity);
+
+            when(carroceriaService.buscaCarroceriaAtiva(cx.request.idCarroceria()))
+                    .thenReturn(cx.carroceria);
+
+            when(coresService.buscaCorAtiva(cx.request.idCores()))
+                    .thenReturn(cx.cor);
+
+            when(modeloService.buscaModeloAtivo(cx.request.idModelo()))
+                    .thenReturn(cx.modelo);
+
+            when(combustivelService.buscaCombustivelAtivo(cx.request.idCombustivel()))
+                    .thenReturn(cx.combustivel);
+
+            when(opcionalService.buscarOpcionaisAtivos(cx.request.idsOpcionais()))
+                    .thenReturn(cx.opcionais);
+
+            when(veiculoMapper.toResponse(cx.entity))
+                    .thenReturn(cx.response);
+
+            when(imagensService.criar(cx.imagemFile, cx.entity))
+                    .thenReturn(cx.imagens, cx.imagens);
+
             when(veiculoRepository.save(cx.entity))
                     .thenReturn(cx.entity);
 
             //ACT
-            var resultado = veiculoService.criar(cx.request, cx.imagemFile);
+            var resultado = veiculoService.criar(cx.request, cx.imagemFile, ID_VALIDO);
             //Assert
             assertVeiculoResponse(resultado);
-            assertDependenciasVeiculoCompleto(cx, DISPONIVEL);
+            assertThat(cx.entity.getStatusVeiculo())
+                    .isEqualTo(DISPONIVEL);
+
+            assertThat(cx.entity.getOpcionais())
+                    .extracting(vo -> vo.getOpcional().getId())
+                    .containsExactlyElementsOf(
+                            cx.opcionais.stream()
+                                    .map(Opcional::getId)
+                                    .toList()
+                    );
+
+            assertThat(cx.entity.getImagens())
+                    .containsExactlyElementsOf(cx.imagens);
+
+            verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
-            verifyVeiculos(cx);
+            verify(veiculoMapper).toEntity(cx.request);
+            verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
+            verify(coresService).buscaCorAtiva(cx.request.idCores());
+            verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
+            verify(combustivelService).buscaCombustivelAtivo(cx.request.idCombustivel());
+            verify(opcionalService).buscarOpcionaisAtivos(cx.request.idsOpcionais());
+            verify(imagensService).criar(cx.imagemFile, cx.entity);
+            verify(veiculoRepository).save(cx.entity);
+            verify(veiculoMapper).toResponse(cx.entity);
+
+            verifyNoMoreInteractions(
+                    veiculoMapper,
+                    carroceriaService,
+                    coresService,
+                    modeloService,
+                    usuarioService,
+                    combustivelService,
+                    opcionalService,
+                    imagensService,
+                    veiculoRepository
+            );
         }
 
 
@@ -102,16 +161,20 @@ class VeiculoServiceTest {
             when(veiculoRepository.existsByPlaca(cx.request.placa()))
                     .thenReturn(false);
 
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
             when(veiculoMapper.toEntity(cx.request))
                     .thenReturn(cx.entity);
             mockDependenciasCriacaoAteCarroceria(cx);
 
             //ACT
             var excecao = assertThrows(NotFoundException.class,
-                    () -> veiculoService.criar(cx.request, cx.imagemFile));
+                    () -> veiculoService.criar(cx.request, cx.imagemFile, ID_VALIDO));
             //Assert
             assertNotFoundResponseError(excecao, CARROCERIA, cx.request.idCarroceria());
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
+            verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verifyVeiculosAteCarroceria(cx);
             verify(veiculoMapper).toEntity(cx.request);
             verifyNoMoreInteractions(veiculoRepository);
@@ -126,12 +189,15 @@ class VeiculoServiceTest {
                     .thenReturn(false);
             when(veiculoMapper.toEntity(cx.request))
                     .thenReturn(cx.entity);
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
             mockDependenciasCriacaoAteCor(cx);
 
             //ACT
             var excecao = assertThrows(NotFoundException.class,
-                    () -> veiculoService.criar(cx.request, cx.imagemFile));
+                    () -> veiculoService.criar(cx.request, cx.imagemFile, ID_VALIDO));
             //Assert
+            verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verify(veiculoRepository).existsByPlaca(anyString());
             assertNotFoundResponseError(excecao, COR, cx.request.idCarroceria());
             verify(veiculoMapper).toEntity(cx.request);
@@ -146,66 +212,76 @@ class VeiculoServiceTest {
             var cx = new VeiculoTestContext();
             when(veiculoRepository.existsByPlaca(cx.request.placa()))
                     .thenReturn(false);
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
             when(veiculoMapper.toEntity(cx.request))
                     .thenReturn(cx.entity);
             mockDependenciasCriacaoAteModelo(cx);
 
             //ACT
             var excecao = assertThrows(NotFoundException.class,
-                    () -> veiculoService.criar(cx.request, cx.imagemFile));
+                    () -> veiculoService.criar(cx.request, cx.imagemFile, ID_VALIDO));
             //Assert
             assertNotFoundResponseError(excecao, MODELO, cx.request.idCarroceria());
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoMapper).toEntity(cx.request);
+            verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verifyVeiculosAteModelo(cx);
 
             verifyNoMoreInteractions(veiculoRepository);
 
         }
 
-        @Test
-        @DisplayName("Deve lançar exceção ao buscar usuario nao encontrado ao criar veiculo")
-        void deveLancarExcecaoUsuarioNaoEncontradoAoCriarVeiculo() {
-            //Arrange
-            var cx = new VeiculoTestContext();
-            mockDependenciasCriacaoAteUsuario(cx);
-            when(veiculoRepository.existsByPlaca(cx.request.placa()))
-                    .thenReturn(false);
-
-            when(veiculoMapper.toEntity(cx.request))
-                    .thenReturn(cx.entity);
-            //ACT
-            var excecao = assertThrows(NotFoundException.class,
-                    () -> veiculoService.criar(cx.request, cx.imagemFile));
-            //Assert
-            assertNotFoundResponseError(excecao, USUARIO, cx.request.idCarroceria());
-            verify(veiculoRepository).existsByPlaca(cx.request.placa());
-            verify(veiculoMapper).toEntity(cx.request);
-            verifyVeiculosAteUsuario(cx);
-            verifyNoMoreInteractions(veiculoRepository);
-
-        }
 
         @Test
         @DisplayName("Deve lançar exceção ao buscar combustivel nao encontrado ao criar veiculo")
         void deveLancarExcecaoCombustivelNaoEncontradoAoCriarVeiculo() {
             //Arrange
             var cx = new VeiculoTestContext();
-            mockDependenciasCriacaoAteCombustivel(cx);
+            when(carroceriaService.buscaCarroceriaAtiva(cx.request.idCarroceria()))
+                    .thenReturn(cx.carroceria);
+
+            when(coresService.buscaCorAtiva(cx.request.idCores()))
+                    .thenReturn(cx.cor);
+
+            when(modeloService.buscaModeloAtivo(cx.request.idModelo()))
+                    .thenReturn(cx.modelo);
+
+            when(combustivelService.buscaCombustivelAtivo(cx.request.idCombustivel()))
+                    .thenThrow(new NotFoundException(COMBUSTIVEL, cx.request.idCombustivel()));
             when(veiculoRepository.existsByPlaca(cx.request.placa()))
                     .thenReturn(false);
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
             when(veiculoMapper.toEntity(cx.request))
                     .thenReturn(cx.entity);
 
             //ACT
             var excecao = assertThrows(NotFoundException.class,
-                    () -> veiculoService.criar(cx.request, cx.imagemFile));
+                    () -> veiculoService.criar(cx.request, cx.imagemFile, ID_VALIDO));
             //Assert
             assertNotFoundResponseError(excecao, COMBUSTIVEL, cx.request.idCarroceria());
-            verifyVeiculosAteCombustivel(cx);
+            verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
+            verify(coresService).buscaCorAtiva(cx.request.idCores());
+            verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
+            verify(combustivelService).buscaCombustivelAtivo(cx.request.idModelo());
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoMapper).toEntity(cx.request);
+            verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verifyNoMoreInteractions(veiculoRepository);
+
+            verifyNoMoreInteractions(
+                    veiculoMapper,
+                    carroceriaService,
+                    coresService,
+                    modeloService,
+                    combustivelService
+            );
+
+            verifyNoInteractions(
+                    opcionalService,
+                    imagensService
+            );
 
         }
 
@@ -222,25 +298,25 @@ class VeiculoServiceTest {
 
             var cx = new VeiculoTestContext();
 
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
             when(veiculoRepository.existsByPlaca(cx.request.placa()))
                     .thenReturn(false);
 
             when(veiculoMapper.toEntity(request))
                     .thenReturn(cx.entity);
 
-            when(carroceriaService.buscaCarroceria(cx.request.idCarroceria()))
+            when(carroceriaService.buscaCarroceriaAtiva(cx.request.idCarroceria()))
                     .thenReturn(cx.carroceria);
 
-            when(coresService.buscaCor(cx.request.idCores()))
+            when(coresService.buscaCorAtiva(cx.request.idCores()))
                     .thenReturn(cx.cor);
 
-            when(modeloService.buscaModelo(cx.request.idModelo()))
+            when(modeloService.buscaModeloAtivo(cx.request.idModelo()))
                     .thenReturn(cx.modelo);
 
-            when(usuarioService.buscaUsuario(cx.request.idUsuario()))
-                    .thenReturn(cx.usuario);
-
-            when(combustivelService.buscaCombustivel(cx.request.idCombustivel()))
+            when(combustivelService.buscaCombustivelAtivo(cx.request.idCombustivel()))
                     .thenReturn(cx.combustivel);
 
             when(veiculoRepository.save(cx.entity))
@@ -249,17 +325,17 @@ class VeiculoServiceTest {
 
             //ACT
             var excecao = assertThrows(BusinessException.class,
-                    () -> veiculoService.criar(request, cx.imagemFile));
+                    () -> veiculoService.criar(request, cx.imagemFile, ID_VALIDO));
             //Assert
             assertBusinessResponseError(excecao, "A requisição possui opcionais duplicadas.");
 
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
+            verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verify(veiculoMapper).toEntity(request);
-            verify(carroceriaService).buscaCarroceria(cx.request.idCarroceria());
-            verify(coresService).buscaCor(cx.request.idCores());
-            verify(modeloService).buscaModelo(cx.request.idModelo());
-            verify(usuarioService).buscaUsuario(cx.request.idUsuario());
-            verify(combustivelService).buscaCombustivel(cx.request.idCombustivel());
+            verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
+            verify(coresService).buscaCorAtiva(cx.request.idCores());
+            verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
+            verify(combustivelService).buscaCombustivelAtivo(cx.request.idCombustivel());
             verify(veiculoRepository).save(cx.entity);
             verify(veiculoMapper, never()).toResponse(cx.entity);
 
@@ -285,29 +361,61 @@ class VeiculoServiceTest {
             //Arrange
             var cx = new VeiculoTestContext();
 
-            mockDependenciasCriacaoSemImagemEOpcionaisExcecao(cx);
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
+            when(veiculoMapper.toEntity(cx.request))
+                    .thenReturn(cx.entity);
+
+            when(carroceriaService.buscaCarroceriaAtiva(cx.request.idCarroceria()))
+                    .thenReturn(cx.carroceria);
+
+            when(coresService.buscaCorAtiva(cx.request.idCores()))
+                    .thenReturn(cx.cor);
+
+            when(modeloService.buscaModeloAtivo(cx.request.idModelo()))
+                    .thenReturn(cx.modelo);
+
+            when(combustivelService.buscaCombustivelAtivo(cx.request.idCombustivel()))
+                    .thenReturn(cx.combustivel);
+
             when(veiculoRepository.existsByPlaca(cx.request.placa()))
                     .thenReturn(false);
             when(veiculoRepository.save(cx.entity))
                     .thenReturn(cx.entity);
 
-            when(opcionalService.buscarOpcionais(cx.request.idsOpcionais()))
+            when(opcionalService.buscarOpcionaisAtivos(cx.request.idsOpcionais()))
                     .thenReturn(cx.opcionais);
 
             when(imagensService.criar(cx.imagemFile, cx.entity))
                     .thenThrow(new IOException("Erro ao fazer upload"));
             //ACT
             var excecao = assertThrows(IOException.class,
-                    () -> veiculoService.criar(cx.request, cx.imagemFile));
+                    () -> veiculoService.criar(cx.request, cx.imagemFile, ID_VALIDO));
             //Assert
             assertThat(excecao)
                     .hasMessage("Erro ao fazer upload");
 
-            verifyVeiculosSemImagemEOpcionaisExcecao(cx);
+            verify(veiculoMapper).toEntity(cx.request);
+            verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
+            verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
+            verify(coresService).buscaCorAtiva(cx.request.idCores());
+            verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
+            verify(combustivelService).buscaCombustivelAtivo(cx.request.idCombustivel());
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoRepository).save(cx.entity);
-            verify(opcionalService).buscarOpcionais(cx.request.idsOpcionais());
+            verify(opcionalService).buscarOpcionaisAtivos(cx.request.idsOpcionais());
             verify(veiculoMapper, never()).toResponse(cx.entity);
+
+            verifyNoMoreInteractions(
+                    veiculoMapper,
+                    carroceriaService,
+                    coresService,
+                    modeloService,
+                    usuarioService,
+                    combustivelService,
+                    veiculoRepository
+            );
 
             verifyNoMoreInteractions(
                     veiculoMapper,
@@ -371,7 +479,7 @@ class VeiculoServiceTest {
                     .thenReturn(response2);
 
             //ACT
-            var resultado = veiculoService.listar(pageable, VENDIDO);
+            var resultado = veiculoService.listarAdministrativo(pageable, VENDIDO);
             //Assert
             assertThat(resultado)
                     .isNotNull()
@@ -441,7 +549,7 @@ class VeiculoServiceTest {
                     .thenReturn(response2);
 
             //ACT
-            var resultado = veiculoService.listar(pageable, null);
+            var resultado = veiculoService.listarAdministrativo(pageable, null);
             //Assert
             assertThat(resultado)
                     .isNotNull()
@@ -475,7 +583,7 @@ class VeiculoServiceTest {
             var entity = criarVeiculoEntity();
             var response = criarVeiculoResponse();
 
-            when(veiculoRepository.findById(ID_VALIDO))
+            when(veiculoRepository.findByIdAndStatusVeiculo(ID_VALIDO, DISPONIVEL))
                     .thenReturn(Optional.of(entity));
 
             when(veiculoMapper.toResponse(entity))
@@ -485,7 +593,7 @@ class VeiculoServiceTest {
             //Assert
             assertVeiculoResponse(resultado);
 
-            verify(veiculoRepository).findById(ID_VALIDO);
+            verify(veiculoRepository).findByIdAndStatusVeiculo(ID_VALIDO, DISPONIVEL);
             verify(veiculoMapper).toResponse(entity);
 
             verifyNoMoreInteractions(
@@ -497,14 +605,14 @@ class VeiculoServiceTest {
         @DisplayName("Deve lançar exceção ao buscar veiculo")
         void deveLancarExcecaoAOBuscarVeiculo() {
             //Arrange
-            when(veiculoRepository.findById(ID_INVALIDO))
+            when(veiculoRepository.findByIdAndStatusVeiculo(ID_INVALIDO, DISPONIVEL))
                     .thenReturn(Optional.empty());
             //ACT
             var excecao = assertThrows(NotFoundException.class,
                     () -> veiculoService.buscarPorId(ID_INVALIDO));
             //Assert
             assertNotFoundResponseError(excecao, VEICULO, ID_INVALIDO);
-            verify(veiculoRepository).findById(ID_INVALIDO);
+            verify(veiculoRepository).findByIdAndStatusVeiculo(ID_INVALIDO, DISPONIVEL);
 
             verifyNoMoreInteractions(veiculoRepository);
 
@@ -537,7 +645,6 @@ class VeiculoServiceTest {
             var resultado = veiculoService.atualizar(cx.request, ID_VALIDO);
             //Assert
             assertVeiculoResponse(resultado);
-            assertDependenciasVeiculoCompletoSemImagemEOpcional(cx);
 
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoRepository).findById(ID_VALIDO);
@@ -640,26 +747,6 @@ class VeiculoServiceTest {
             verifyVeiculosAteModelo(cx);
         }
 
-        @Test
-        @DisplayName("Deve lançar exceção de usuario ao atualizar veiculo")
-        void deveLancarExcecaoBuscaUsuarioNaoEncontradoAoAtualizarVeiculo() {
-            //Arrange
-            var cx = new VeiculoTestContext();
-
-            when(veiculoRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.of(cx.entity));
-            doNothing()
-                    .when(veiculoMapper).toUpdate(cx.request, cx.entity);
-
-            mockDependenciasCriacaoAteUsuario(cx);
-            //ACT
-            var excecao = assertThrows(NotFoundException.class,
-                    () -> veiculoService.atualizar(cx.request, ID_VALIDO));
-            //Assert
-            assertNotFoundResponseError(excecao, USUARIO, ID_VALIDO);
-            verify(veiculoRepository).findById(ID_VALIDO);
-            verifyVeiculosAteUsuario(cx);
-        }
 
         @Test
         @DisplayName("Deve lançar exceção de combustivel ao atualizar veiculo")
@@ -669,17 +756,44 @@ class VeiculoServiceTest {
 
             when(veiculoRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(cx.entity));
+
+            when(veiculoRepository.existsByPlaca(cx.request.placa()))
+                    .thenReturn(false);
             doNothing()
                     .when(veiculoMapper).toUpdate(cx.request, cx.entity);
 
-            mockDependenciasCriacaoAteCombustivel(cx);
+            when(carroceriaService.buscaCarroceriaAtiva(cx.request.idCarroceria()))
+                    .thenReturn(cx.carroceria);
+
+            when(coresService.buscaCorAtiva(cx.request.idCores()))
+                    .thenReturn(cx.cor);
+
+            when(modeloService.buscaModeloAtivo(cx.request.idModelo()))
+                    .thenReturn(cx.modelo);
+
+            when(combustivelService.buscaCombustivelAtivo(cx.request.idCombustivel()))
+                    .thenThrow(new NotFoundException(COMBUSTIVEL, cx.request.idCarroceria()));
+
             //ACT
             var excecao = assertThrows(NotFoundException.class,
                     () -> veiculoService.atualizar(cx.request, ID_VALIDO));
             //Assert
             assertNotFoundResponseError(excecao, COMBUSTIVEL, ID_VALIDO);
             verify(veiculoRepository).findById(ID_VALIDO);
-            verifyVeiculosAteCombustivel(cx);
+            verify(veiculoRepository).existsByPlaca(cx.request.placa());
+            verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
+            verify(coresService).buscaCorAtiva(cx.request.idCores());
+            verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
+            verify(combustivelService).buscaCombustivelAtivo(cx.request.idCombustivel());
+
+            verifyNoMoreInteractions(
+                    veiculoMapper,
+                    carroceriaService,
+                    coresService,
+                    modeloService,
+                    usuarioService,
+                    combustivelService
+            );
         }
 
         @Nested
@@ -703,12 +817,12 @@ class VeiculoServiceTest {
                 when(veiculoMapper.toResponse(cx.entity))
                         .thenReturn(response);
                 //ACT
-                var resultado = veiculoService.pausarVeiculo(ID_VALIDO, new AlterarStatusRequest(VENDIDO));
+                var resultado = veiculoService.pausarVeiculo(ID_VALIDO);
                 //Assert
                 assertThat(resultado).isNotNull();
 
-                assertThat(cx.entity.getStatusVeiculo()).isEqualTo(VENDIDO);
-                assertThat(response.statusVeiculo()).isEqualTo(VENDIDO);
+                assertThat(cx.entity.getStatusVeiculo()).isEqualTo(PAUSADO);
+                assertThat(resultado.statusVeiculo()).isEqualTo(VENDIDO);
 
                 verify(veiculoRepository).findById(ID_VALIDO);
                 verify(veiculoMapper).toResponse(cx.entity);
@@ -725,14 +839,14 @@ class VeiculoServiceTest {
             void deveLancarExcecaoAlterarStatus() {
                 //Arrange
                 var cx = new VeiculoTestContext();
-                var status = new AlterarStatusRequest(DISPONIVEL);
+                cx.entity.setStatusVeiculo(PAUSADO);
                 when(veiculoRepository.findById(ID_VALIDO))
                         .thenReturn(Optional.of(cx.entity));
                 //ACT
                 var excecao = assertThrows(BusinessException.class,
-                        () -> veiculoService.pausarVeiculo(ID_VALIDO, status));
+                        () -> veiculoService.pausarVeiculo(ID_VALIDO));
                 //Assert
-                assertBusinessResponseError(excecao, "Status informado correspondente ao status atual");
+                assertBusinessResponseError(excecao, "Somente um veiculo disponível pode ser pausado");
 
                 verify(veiculoRepository).findById(ID_VALIDO);
 
@@ -745,12 +859,11 @@ class VeiculoServiceTest {
             @DisplayName("Deve lançar veiculo nao encontrado ao alterar status")
             void deveLancarVeiculoNaoEncontrado() {
                 //Arrange
-                var status = new AlterarStatusRequest(DISPONIVEL);
                 when(veiculoRepository.findById(ID_VALIDO))
                         .thenReturn(Optional.empty());
                 //ACT
                 var excecao = assertThrows(NotFoundException.class,
-                        () -> veiculoService.pausarVeiculo(ID_VALIDO, status));
+                        () -> veiculoService.pausarVeiculo(ID_VALIDO));
                 //Assert
                 assertNotFoundResponseError(excecao, VEICULO, ID_VALIDO);
 
@@ -1022,7 +1135,7 @@ class VeiculoServiceTest {
                 when(veiculoRepository.findById(ID_VALIDO))
                         .thenReturn(Optional.of(cx.entity));
 
-                when(opcionalService.buscarOpcionais(listOpcionais))
+                when(opcionalService.buscarOpcionaisAtivos(listOpcionais))
                         .thenReturn(opcionais);
 
                 //ACT
@@ -1032,7 +1145,7 @@ class VeiculoServiceTest {
                         .isNotNull()
                         .hasSize(3);
                 verify(veiculoRepository).findById(ID_VALIDO);
-                verify(opcionalService).buscarOpcionais(listOpcionais);
+                verify(opcionalService).buscarOpcionaisAtivos(listOpcionais);
 
                 verifyNoMoreInteractions(
                         veiculoRepository,
@@ -1066,7 +1179,7 @@ class VeiculoServiceTest {
                 when(veiculoRepository.findById(ID_VALIDO))
                         .thenReturn(Optional.of(cx.entity));
 
-                when(opcionalService.buscarOpcionais(listOpcionais))
+                when(opcionalService.buscarOpcionaisAtivos(listOpcionais))
                         .thenReturn(Collections.emptyList());
                 //ACT
                 var excecao = assertThrows(BusinessException.class,
@@ -1075,7 +1188,7 @@ class VeiculoServiceTest {
                 assertBusinessResponseError(excecao, "Um ou mais opcionais não foram encontrados.");
 
                 verify(veiculoRepository).findById(ID_VALIDO);
-                verify(opcionalService).buscarOpcionais(listOpcionais);
+                verify(opcionalService).buscarOpcionaisAtivos(listOpcionais);
 
                 verifyNoMoreInteractions(
                         veiculoRepository,
@@ -1098,7 +1211,7 @@ class VeiculoServiceTest {
                 when(veiculoRepository.findById(ID_VALIDO))
                         .thenReturn(Optional.of(cx.entity));
 
-                when(opcionalService.buscarOpcionais(listOpcionais))
+                when(opcionalService.buscarOpcionaisAtivos(listOpcionais))
                         .thenReturn(opcionais);
 
                 //ACT
@@ -1109,7 +1222,7 @@ class VeiculoServiceTest {
                 assertBusinessResponseError(excecao, OPCIONAL.jaAtiva());
 
                 verify(veiculoRepository).findById(ID_VALIDO);
-                verify(opcionalService).buscarOpcionais(listOpcionais);
+                verify(opcionalService).buscarOpcionaisAtivos(listOpcionais);
 
                 verifyNoMoreInteractions(
                         veiculoRepository,
@@ -1119,39 +1232,9 @@ class VeiculoServiceTest {
         }
     }
 
-    private void mockDependenciasCriacaoCompleta(VeiculoTestContext ctx) throws IOException {
-
-        when(veiculoMapper.toEntity(ctx.request))
-                .thenReturn(ctx.entity);
-
-        when(carroceriaService.buscaCarroceria(ctx.request.idCarroceria()))
-                .thenReturn(ctx.carroceria);
-
-        when(coresService.buscaCor(ctx.request.idCores()))
-                .thenReturn(ctx.cor);
-
-        when(modeloService.buscaModelo(ctx.request.idModelo()))
-                .thenReturn(ctx.modelo);
-
-        when(usuarioService.buscaUsuario(ctx.request.idUsuario()))
-                .thenReturn(ctx.usuario);
-
-        when(combustivelService.buscaCombustivel(ctx.request.idCombustivel()))
-                .thenReturn(ctx.combustivel);
-
-        when(opcionalService.buscarOpcionais(ctx.request.idsOpcionais()))
-                .thenReturn(ctx.opcionais);
-
-        when(veiculoMapper.toResponse(ctx.entity))
-                .thenReturn(ctx.response);
-
-        when(imagensService.criar(ctx.imagemFile, ctx.entity))
-                .thenReturn(ctx.imagens, ctx.imagens);
-    }
-
     private void mockDependenciasCriacaoAteCarroceria(VeiculoTestContext ctx) {
 
-        when(carroceriaService.buscaCarroceria(ctx.request.idCarroceria()))
+        when(carroceriaService.buscaCarroceriaAtiva(ctx.request.idCarroceria()))
                 .thenThrow(new NotFoundException(CARROCERIA, ctx.request.idCarroceria()));
 
     }
@@ -1159,127 +1242,63 @@ class VeiculoServiceTest {
     private void mockDependenciasCriacaoAteCor(VeiculoTestContext ctx) {
 
 
-        when(carroceriaService.buscaCarroceria(ctx.request.idCarroceria()))
+        when(carroceriaService.buscaCarroceriaAtiva(ctx.request.idCarroceria()))
                 .thenReturn(ctx.carroceria);
 
-        when(coresService.buscaCor(ctx.request.idCores()))
+        when(coresService.buscaCorAtiva(ctx.request.idCores()))
                 .thenThrow(new NotFoundException(COR, ctx.request.idCarroceria()));
     }
 
     private void mockDependenciasCriacaoAteModelo(VeiculoTestContext ctx) {
-        when(carroceriaService.buscaCarroceria(ctx.request.idCarroceria()))
+        when(carroceriaService.buscaCarroceriaAtiva(ctx.request.idCarroceria()))
                 .thenReturn(ctx.carroceria);
 
-        when(coresService.buscaCor(ctx.request.idCores()))
+        when(coresService.buscaCorAtiva(ctx.request.idCores()))
                 .thenReturn(ctx.cor);
 
-        when(modeloService.buscaModelo(ctx.request.idModelo()))
+        when(modeloService.buscaModeloAtivo(ctx.request.idModelo()))
                 .thenThrow(new NotFoundException(MODELO, ctx.request.idCarroceria()));
     }
 
     private void mockDependenciasCriacaoAteUsuario(VeiculoTestContext ctx) {
 
 
-        when(carroceriaService.buscaCarroceria(ctx.request.idCarroceria()))
+        when(carroceriaService.buscaCarroceriaAtiva(ctx.request.idCarroceria()))
                 .thenReturn(ctx.carroceria);
 
-        when(coresService.buscaCor(ctx.request.idCores()))
+        when(coresService.buscaCorAtiva(ctx.request.idCores()))
                 .thenReturn(ctx.cor);
 
-        when(modeloService.buscaModelo(ctx.request.idModelo()))
+        when(modeloService.buscaModeloAtivo(ctx.request.idModelo()))
                 .thenReturn(ctx.modelo);
 
-        when(usuarioService.buscaUsuario(ctx.request.idUsuario()))
-                .thenThrow(new NotFoundException(USUARIO, ctx.request.idCarroceria()));
     }
 
     private void mockDependenciasCriacaoAteCombustivel(VeiculoTestContext ctx) {
 
 
-        when(carroceriaService.buscaCarroceria(ctx.request.idCarroceria()))
-                .thenReturn(ctx.carroceria);
-
-        when(coresService.buscaCor(ctx.request.idCores()))
-                .thenReturn(ctx.cor);
-
-        when(modeloService.buscaModelo(ctx.request.idModelo()))
-                .thenReturn(ctx.modelo);
-
-        when(usuarioService.buscaUsuario(ctx.request.idUsuario()))
-                .thenReturn(ctx.usuario);
-        when(combustivelService.buscaCombustivel(ctx.request.idCombustivel()))
-                .thenThrow(new NotFoundException(COMBUSTIVEL, ctx.request.idCarroceria()));
     }
 
     private void mockDependenciasCriacaoSemImagemEOpcionais(VeiculoTestContext ctx) {
 
-        when(carroceriaService.buscaCarroceria(ctx.request.idCarroceria()))
+        when(carroceriaService.buscaCarroceriaAtiva(ctx.request.idCarroceria()))
                 .thenReturn(ctx.carroceria);
 
-        when(coresService.buscaCor(ctx.request.idCores()))
+        when(coresService.buscaCorAtiva(ctx.request.idCores()))
                 .thenReturn(ctx.cor);
 
-        when(modeloService.buscaModelo(ctx.request.idModelo()))
+        when(modeloService.buscaModeloAtivo(ctx.request.idModelo()))
                 .thenReturn(ctx.modelo);
 
-        when(usuarioService.buscaUsuario(ctx.request.idUsuario()))
-                .thenReturn(ctx.usuario);
-
-        when(combustivelService.buscaCombustivel(ctx.request.idCombustivel()))
+        when(combustivelService.buscaCombustivelAtivo(ctx.request.idCombustivel()))
                 .thenReturn(ctx.combustivel);
 
     }
 
-    private void mockDependenciasCriacaoSemImagemEOpcionaisExcecao(VeiculoTestContext ctx) {
-
-        when(veiculoMapper.toEntity(ctx.request))
-                .thenReturn(ctx.entity);
-
-        when(carroceriaService.buscaCarroceria(ctx.request.idCarroceria()))
-                .thenReturn(ctx.carroceria);
-
-        when(coresService.buscaCor(ctx.request.idCores()))
-                .thenReturn(ctx.cor);
-
-        when(modeloService.buscaModelo(ctx.request.idModelo()))
-                .thenReturn(ctx.modelo);
-
-        when(usuarioService.buscaUsuario(ctx.request.idUsuario()))
-                .thenReturn(ctx.usuario);
-
-        when(combustivelService.buscaCombustivel(ctx.request.idCombustivel()))
-                .thenReturn(ctx.combustivel);
-
-    }
-
-    private void verifyVeiculos(VeiculoTestContext cx) throws IOException {
-        verify(veiculoMapper).toEntity(cx.request);
-        verify(carroceriaService).buscaCarroceria(cx.request.idCarroceria());
-        verify(coresService).buscaCor(cx.request.idCores());
-        verify(modeloService).buscaModelo(cx.request.idModelo());
-        verify(usuarioService).buscaUsuario(cx.request.idUsuario());
-        verify(combustivelService).buscaCombustivel(cx.request.idCombustivel());
-        verify(opcionalService).buscarOpcionais(cx.request.idsOpcionais());
-        verify(imagensService).criar(cx.imagemFile, cx.entity);
-        verify(veiculoRepository).save(cx.entity);
-        verify(veiculoMapper).toResponse(cx.entity);
-
-        verifyNoMoreInteractions(
-                veiculoMapper,
-                carroceriaService,
-                coresService,
-                modeloService,
-                usuarioService,
-                combustivelService,
-                opcionalService,
-                imagensService,
-                veiculoRepository
-        );
-    }
 
     private void verifyVeiculosAteCarroceria(VeiculoTestContext cx) {
 
-        verify(carroceriaService).buscaCarroceria(cx.request.idCarroceria());
+        verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
 
         verifyNoMoreInteractions(
                 veiculoMapper,
@@ -1289,15 +1308,14 @@ class VeiculoServiceTest {
         verifyNoInteractions(
                 coresService,
                 modeloService,
-                usuarioService,
                 combustivelService
         );
     }
 
     private void verifyVeiculosAteCor(VeiculoTestContext cx) {
 
-        verify(carroceriaService).buscaCarroceria(cx.request.idCarroceria());
-        verify(coresService).buscaCor(cx.request.idCores());
+        verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
+        verify(coresService).buscaCorAtiva(cx.request.idCores());
 
         verifyNoMoreInteractions(
                 veiculoMapper,
@@ -1307,7 +1325,6 @@ class VeiculoServiceTest {
 
         verifyNoInteractions(
                 modeloService,
-                usuarioService,
                 combustivelService,
                 opcionalService,
                 imagensService
@@ -1317,9 +1334,9 @@ class VeiculoServiceTest {
 
     private void verifyVeiculosAteModelo(VeiculoTestContext cx) {
 
-        verify(carroceriaService).buscaCarroceria(cx.request.idCarroceria());
-        verify(coresService).buscaCor(cx.request.idCores());
-        verify(modeloService).buscaModelo(cx.request.idModelo());
+        verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
+        verify(coresService).buscaCorAtiva(cx.request.idCores());
+        verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
 
         verifyNoMoreInteractions(
                 veiculoMapper,
@@ -1329,7 +1346,6 @@ class VeiculoServiceTest {
         );
 
         verifyNoInteractions(
-                usuarioService,
                 combustivelService,
                 opcionalService,
                 imagensService
@@ -1337,57 +1353,17 @@ class VeiculoServiceTest {
         );
     }
 
-    private void verifyVeiculosAteUsuario(VeiculoTestContext cx) {
-
-        verify(carroceriaService).buscaCarroceria(cx.request.idCarroceria());
-        verify(coresService).buscaCor(cx.request.idCores());
-        verify(modeloService).buscaModelo(cx.request.idModelo());
-        verify(usuarioService).buscaUsuario(cx.request.idUsuario());
-
-        verifyNoMoreInteractions(
-                veiculoMapper,
-                carroceriaService,
-                coresService,
-                modeloService,
-                usuarioService
-        );
-
-        verifyNoInteractions(
-                combustivelService,
-                opcionalService,
-                imagensService
-
-        );
-    }
 
     private void verifyVeiculosAteCombustivel(VeiculoTestContext cx) {
 
-        verify(carroceriaService).buscaCarroceria(cx.request.idCarroceria());
-        verify(coresService).buscaCor(cx.request.idCores());
-        verify(modeloService).buscaModelo(cx.request.idModelo());
-        verify(usuarioService).buscaUsuario(cx.request.idUsuario());
 
-        verifyNoMoreInteractions(
-                veiculoMapper,
-                carroceriaService,
-                coresService,
-                modeloService,
-                usuarioService,
-                combustivelService
-        );
-
-        verifyNoInteractions(
-                opcionalService,
-                imagensService
-        );
     }
 
     private void verifyVeiculosSemImagemEOpcionais(VeiculoTestContext cx) {
-        verify(carroceriaService).buscaCarroceria(cx.request.idCarroceria());
-        verify(coresService).buscaCor(cx.request.idCores());
-        verify(modeloService).buscaModelo(cx.request.idModelo());
-        verify(usuarioService).buscaUsuario(cx.request.idUsuario());
-        verify(combustivelService).buscaCombustivel(cx.request.idCombustivel());
+        verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
+        verify(coresService).buscaCorAtiva(cx.request.idCores());
+        verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
+        verify(combustivelService).buscaCombustivelAtivo(cx.request.idCombustivel());
         verify(veiculoMapper).toResponse(cx.entity);
 
         verifyNoMoreInteractions(
@@ -1401,23 +1377,5 @@ class VeiculoServiceTest {
         );
     }
 
-    private void verifyVeiculosSemImagemEOpcionaisExcecao(VeiculoTestContext cx) {
-        verify(veiculoMapper).toEntity(cx.request);
-        verify(carroceriaService).buscaCarroceria(cx.request.idCarroceria());
-        verify(coresService).buscaCor(cx.request.idCores());
-        verify(modeloService).buscaModelo(cx.request.idModelo());
-        verify(usuarioService).buscaUsuario(cx.request.idUsuario());
-        verify(combustivelService).buscaCombustivel(cx.request.idCombustivel());
-
-        verifyNoMoreInteractions(
-                veiculoMapper,
-                carroceriaService,
-                coresService,
-                modeloService,
-                usuarioService,
-                combustivelService,
-                veiculoRepository
-        );
-    }
 
 }

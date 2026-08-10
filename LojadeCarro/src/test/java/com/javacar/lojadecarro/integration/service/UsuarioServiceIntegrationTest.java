@@ -16,6 +16,7 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.List;
 
@@ -117,6 +118,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da listagem de usuários")
     class Listar {
         @Test
@@ -152,6 +154,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da busca do usuário")
     class Buscar {
         @Test
@@ -183,6 +186,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes para atualizar o usuário")
     class Atualizar {
         @Test
@@ -194,41 +198,18 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             var usuario = usuarioRepository.findByEmail(request.email()).orElseThrow();
             var response = usuarioService.atualizar(request, usuario.getId());
 
-            var usuarioAtualizado = usuarioRepository.findById(usuario.getId()).orElseThrow();
             //Assert
             assertThat(response)
                     .isNotNull()
                     .extracting(
-                            UsuarioResponse::cpf,
                             UsuarioResponse::nome,
                             UsuarioResponse::email
                     ).containsExactly(
-                            request.cpf(),
                             request.nome(),
                             request.email()
                     );
-            assertThat(
-                    encoder.matches(
-                            request.password(),
-                            usuarioAtualizado.getPassword()
-                    )
-            ).isTrue();
         }
 
-        @Test
-        @DisplayName("Deve validar o CPF unico na atualização")
-        void deveLancarExcecaoQuandoAtualizarComCpfJaExistente() {
-            //Arrange
-            var request = UsuarioTestContext.atualizarUsuarioCPFInvalido();
-            //ACT
-            var usuario = usuarioRepository.findByEmail(request.email()).orElseThrow();
-            var usuarioId = usuario.getId();
-            var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.atualizar(request, usuarioId));
-            //Assert
-            assertThat(exception)
-                    .hasMessage("O CPF informado já possui um cadastro.");
-        }
 
         @Test
         @DisplayName("Deve validar o email unico na atualização")
@@ -236,7 +217,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = UsuarioTestContext.atualizarUsuarioEmailInvalido();
             //ACT
-            var usuario = usuarioRepository.findByCpf(request.cpf()).orElseThrow();
+            var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
             var usuarioId = usuario.getId();
             var exception = assertThrows(BusinessException.class,
                     () -> usuarioService.atualizar(request, usuarioId));
@@ -247,6 +228,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes para alterar o status")
     class AlterarStatus {
         @Test
@@ -303,6 +285,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes para desvincular uma role")
     class DesvincularRole {
         @Test
@@ -322,7 +305,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             var usuarioAtualizado = usuarioRepository.findById(usuario.getId()).orElseThrow();
 
             assertThat(usuarioAtualizado.getRoles())
-                    .hasSize(2)
+                    .hasSize(1)
                     .allMatch(role -> !role.getRole().getId().equals(idRole));
         }
 
@@ -353,6 +336,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes para vincular uma role ao usuário")
     class VincularRole {
         @Test
@@ -360,13 +344,13 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
         @Transactional
         void deveVincularRoleAoUsuario() {
             var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
-            var idsRole = List.of(1L, 2L);
+            var idsRole = List.of(1L);
             usuarioService.vincularRole(usuario.getId(), idsRole);
 
             var usuarioAtualizado = usuarioRepository.findById(usuario.getId()).orElseThrow();
             assertThat(usuarioAtualizado.getRoles())
                     .extracting(ur -> ur.getRole().getId())
-                    .containsExactlyInAnyOrder(1L, 2L, 3L);
+                    .containsExactlyInAnyOrder(1L, 2L);
         }
 
         @Test

@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.io.IOException;
@@ -99,6 +100,7 @@ public class ImagemServiceIntegrationExceptionTest extends AbstractIntegrationTe
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes de exceção para definir principal")
     class DefinirPrincipalException {
         @Test
@@ -115,6 +117,7 @@ public class ImagemServiceIntegrationExceptionTest extends AbstractIntegrationTe
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes de exceção para exclusão da imagem")
     class ExcluirException {
         @Test

@@ -1,4 +1,4 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javacar.lojadecarro.controller.publico.CombustivelController;
@@ -28,11 +28,11 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(CombustivelController.class)
+@WebMvcTest(AdminCombustivelController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller do combustível")
-class CombustivelControllerTest {
-    private static final String URL = "/combustiveis";
+class AdminCombustivelControllerTest {
+    private static final String URL = "/admin/combustiveis";
 
     @Autowired
     private MockMvc mockMvc;
@@ -120,11 +120,12 @@ class CombustivelControllerTest {
                     .criaCombustivelResponse2(true);
 
             var response = List.of(combustivelResponse1, combustivelResponse2);
-            when(combustivelService.listar(ATIVAS))
+            when(combustivelService.listarAdministracao(ATIVAS))
                     .thenReturn(response);
             //Act + Assert
             var resultado = mockMvc.perform(
                     get(URL)
+                            .param("status", ATIVAS.toString())
             );
 
             assertList(resultado,
@@ -135,7 +136,7 @@ class CombustivelControllerTest {
                     true,
                     true);
 
-            verify(combustivelService).listar(ATIVAS);
+            verify(combustivelService).listarAdministracao(ATIVAS);
             verifyNoMoreInteractions(combustivelService);
         }
 
@@ -149,7 +150,7 @@ class CombustivelControllerTest {
                     .criaCombustivelResponse2(false);
 
             var response = List.of(carroceriaResponse1, carroceriaResponse2);
-            when(combustivelService.listar(TODAS))
+            when(combustivelService.listarAdministracao(TODAS))
                     .thenReturn(response);
             //Act + Assert
 
@@ -166,7 +167,7 @@ class CombustivelControllerTest {
                     true,
                     false);
 
-            verify(combustivelService).listar(TODAS);
+            verify(combustivelService).listarAdministracao(TODAS);
             verifyNoMoreInteractions(combustivelService);
         }
     }
@@ -180,7 +181,7 @@ class CombustivelControllerTest {
             //Arrange
             var combustivelcx = new CombustivelTestContext();
 
-            when(combustivelService.buscarPorId(ID_VALIDO))
+            when(combustivelService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenReturn(combustivelcx.combustivelResponse);
             //Act + Assert
             var resultado = mockMvc.perform(
@@ -195,7 +196,7 @@ class CombustivelControllerTest {
                     true
             );
 
-            verify(combustivelService).buscarPorId(ID_VALIDO);
+            verify(combustivelService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(combustivelService);
         }
 
@@ -203,7 +204,7 @@ class CombustivelControllerTest {
         @DisplayName("Deve lançar 404 ao buscar o combustível")
         void deveRetornar404AoBuscarCombustivelPorId() throws Exception {
             //Arrange
-            when(combustivelService.buscarPorId(ID_VALIDO))
+            when(combustivelService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenThrow(new NotFoundException(COMBUSTIVEL, ID_VALIDO));
 
             //Act + Assert
@@ -215,7 +216,7 @@ class CombustivelControllerTest {
                     COMBUSTIVEL,
                     ID_VALIDO
             );
-            verify(combustivelService).buscarPorId(ID_VALIDO);
+            verify(combustivelService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(combustivelService);
         }
     }

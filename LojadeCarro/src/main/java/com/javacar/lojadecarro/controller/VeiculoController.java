@@ -91,7 +91,9 @@ public class VeiculoController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar um veiculo buscando por id")
-    public ResponseEntity<VeiculoResponse> atualizar(@RequestBody @Valid VeiculoRequest request, @PathVariable Long id) {
+    public ResponseEntity<VeiculoResponse> atualizar(@RequestBody
+                                                         @Valid VeiculoRequest request,
+                                                     @PathVariable Long id) {
         log.debug("Atualizando o veiculo com id: {} para o corpo: {}", id, request);
         var response = veiculoService.atualizar(request, id);
 

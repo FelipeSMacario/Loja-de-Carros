@@ -111,7 +111,7 @@ class CorServiceTest {
         when(corMapper.toResponse(vermelho))
                 .thenReturn(vermelhoResponse);
         //Act
-        var resultado = corService.listar(StatusFiltro.ATIVAS);
+        var resultado = corService.listarAdministracao(StatusFiltro.ATIVAS);
 
         //Assert
         assertThat(resultado)
@@ -174,7 +174,7 @@ class CorServiceTest {
         when(corMapper.toResponse(vermelho))
                 .thenReturn(vermelhoResponse);
         //Act
-        var resultado = corService.listar(StatusFiltro.INATIVAS);
+        var resultado = corService.listarAdministracao(StatusFiltro.INATIVAS);
 
         //Assert
         assertThat(resultado)
@@ -233,7 +233,7 @@ class CorServiceTest {
         when(corMapper.toResponse(vermelho))
                 .thenReturn(vermelhoResponse);
         //Act
-        var resultado = corService.listar(StatusFiltro.TODAS);
+        var resultado = corService.listarAdministracao(StatusFiltro.TODAS);
 
         //Assert
         assertThat(resultado)
@@ -266,7 +266,7 @@ class CorServiceTest {
         var entity = criarCorEntity();
         var response = criarCorResponse();
 
-        when(corRepository.findById(ID_VALIDO))
+        when(corRepository.findByIdAndAtivoTrue(ID_VALIDO))
                 .thenReturn(Optional.of(entity));
 
         when(corMapper.toResponse(entity))
@@ -278,7 +278,7 @@ class CorServiceTest {
         assertCorResponse(resultado);
 
         verify(corMapper).toResponse(entity);
-        verify(corRepository).findById(ID_VALIDO);
+        verify(corRepository).findByIdAndAtivoTrue(ID_VALIDO);
 
         verifyNoMoreInteractions(corMapper);
         verifyNoMoreInteractions(corRepository);
@@ -288,7 +288,7 @@ class CorServiceTest {
     @DisplayName("Deve lançar exceção ao buscar a cor por ID")
     void deveLancarExcecaoAoBuscarCor() {
         //Arrange
-        when(corRepository.findById(ID_INVALIDO))
+        when(corRepository.findByIdAndAtivoTrue(ID_INVALIDO))
                 .thenReturn(Optional.empty());
         //Act
         var exception = assertThrows(NotFoundException.class,
@@ -296,7 +296,7 @@ class CorServiceTest {
         //Assert
         assertNotFoundResponseError(exception, Entidade.COR, ID_INVALIDO);
 
-        verify(corRepository).findById(ID_INVALIDO);
+        verify(corRepository).findByIdAndAtivoTrue(ID_INVALIDO);
 
         verifyNoMoreInteractions(corRepository);
 

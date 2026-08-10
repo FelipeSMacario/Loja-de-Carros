@@ -1,6 +1,6 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
-import com.javacar.lojadecarro.controller.publico.ModeloController;
+import com.javacar.lojadecarro.controller.BaseControllerTest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.modelo.ModeloTestContext;
@@ -25,11 +25,11 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(ModeloController.class)
+@WebMvcTest(AdminModeloController.class)
 @AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller do modelo")
-class ModeloControllerTest extends BaseControllerTest {
-    private static final String URL = "/modelos";
+class AdminModeloControllerTest extends BaseControllerTest {
+    private static final String URL = "/admin/modelos";
 
     @MockitoBean
     private ModeloService modeloService;
@@ -102,10 +102,10 @@ class ModeloControllerTest extends BaseControllerTest {
 
             var response = List.of(response1, response2);
 
-            when(modeloService.listar(ATIVAS))
+            when(modeloService.listarAdministracao(ATIVAS))
                     .thenReturn(response);
             //Act + Assert
-            var resultado = performGet(URL);
+            var resultado = performGet(URL, "status", ATIVAS.toString());
             assertList(
                     resultado,
                     ID_VALIDO,
@@ -115,7 +115,7 @@ class ModeloControllerTest extends BaseControllerTest {
                     true,
                     true
             );
-            verify(modeloService).listar(ATIVAS);
+            verify(modeloService).listarAdministracao(ATIVAS);
             verifyNoMoreInteractions(modeloService);
         }
 
@@ -128,7 +128,7 @@ class ModeloControllerTest extends BaseControllerTest {
 
             var response = List.of(response1, response2);
 
-            when(modeloService.listar(TODAS))
+            when(modeloService.listarAdministracao(TODAS))
                     .thenReturn(response);
             //Act + Assert
             var resultado = performGet(URL, "status", TODAS.toString());
@@ -141,7 +141,7 @@ class ModeloControllerTest extends BaseControllerTest {
                     true,
                     false
             );
-            verify(modeloService).listar(TODAS);
+            verify(modeloService).listarAdministracao(TODAS);
             verifyNoMoreInteractions(modeloService);
         }
     }
@@ -156,7 +156,7 @@ class ModeloControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new ModeloTestContext();
 
-            when(modeloService.buscarPorId(ID_VALIDO))
+            when(modeloService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenReturn(cx.response);
             //Act + Assert
             var resultado = performGet(URL + "/" + ID_VALIDO);
@@ -168,7 +168,7 @@ class ModeloControllerTest extends BaseControllerTest {
                     true
             );
 
-            verify(modeloService).buscarPorId(ID_VALIDO);
+            verify(modeloService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(modeloService);
         }
 
@@ -176,13 +176,13 @@ class ModeloControllerTest extends BaseControllerTest {
         @DisplayName("Deve lançar 404 ao buscar o modelo")
         void deveLancar404BuscarModelo() throws Exception {
             //Arrange
-            when(modeloService.buscarPorId(ID_VALIDO))
+            when(modeloService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenThrow(new NotFoundException(MODELO, ID_VALIDO));
             //Act + Assert
             var resultado = performGet(URL + "/" + ID_VALIDO);
             assertStatus404(resultado, MODELO, ID_VALIDO);
 
-            verify(modeloService).buscarPorId(ID_VALIDO);
+            verify(modeloService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(modeloService);
         }
     }

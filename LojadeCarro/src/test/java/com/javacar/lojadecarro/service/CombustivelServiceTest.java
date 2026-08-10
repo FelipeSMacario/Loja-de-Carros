@@ -124,7 +124,7 @@ class CombustivelServiceTest {
         when(combustivelMapper.toResponse(eletrico))
                 .thenReturn(eletricoResponse);
         //ACT
-        var resultado = combustivelService.listar(StatusFiltro.ATIVAS);
+        var resultado = combustivelService.listarAdministracao(StatusFiltro.ATIVAS);
         //Assert
         assertThat(resultado)
                 .isNotNull()
@@ -187,7 +187,7 @@ class CombustivelServiceTest {
         when(combustivelMapper.toResponse(eletrico))
                 .thenReturn(eletricoResponse);
         //ACT
-        var resultado = combustivelService.listar(StatusFiltro.INATIVAS);
+        var resultado = combustivelService.listarAdministracao(StatusFiltro.INATIVAS);
         //Assert
         assertThat(resultado)
                 .isNotNull()
@@ -243,7 +243,7 @@ class CombustivelServiceTest {
                 .thenReturn(eletricoResponse);
 
         // Act
-        var resultado = combustivelService.listar(StatusFiltro.TODAS);
+        var resultado = combustivelService.listarAdministracao(StatusFiltro.TODAS);
 
         // Assert
         assertThat(resultado)
@@ -275,14 +275,14 @@ class CombustivelServiceTest {
         var entity = criarCombustivelEntity();
         var response = criarCombustivelResponse();
 
-        when(combustivelRepository.findById(ID_VALIDO))
+        when(combustivelRepository.findByIdAndAtivoTrue(ID_VALIDO))
                 .thenReturn(Optional.of(entity));
 
         when(combustivelMapper.toResponse(entity))
                 .thenReturn(response);
 
         //Act
-        var resultado = combustivelService.buscarPorId(ID_VALIDO);
+        var resultado = combustivelService.buscarCombustivelAtivaPorId(ID_VALIDO);
 
         //Assert
         assertThat(resultado)
@@ -297,7 +297,7 @@ class CombustivelServiceTest {
                         "Gasolina",
                         true);
 
-        verify(combustivelRepository).findById(ID_VALIDO);
+        verify(combustivelRepository).findByIdAndAtivoTrue(ID_VALIDO);
         verify(combustivelMapper).toResponse(entity);
 
         verifyNoMoreInteractions(combustivelMapper);
@@ -309,18 +309,18 @@ class CombustivelServiceTest {
     @DisplayName("Deve lançar uma exceção ao buscar um combustível")
     void deveLancarUmaExcecaoCombustivel() {
         //Arrange
-        when(combustivelRepository.findById(ID_INVALIDO))
+        when(combustivelRepository.findByIdAndAtivoTrue(ID_INVALIDO))
                 .thenReturn(Optional.empty());
 
         //Assert
         var exception = assertThrows(
                 NotFoundException.class,
-                () -> combustivelService.buscarPorId(ID_INVALIDO)
+                () -> combustivelService.buscaCombustivelAtivo(ID_INVALIDO)
         );
 
         assertNotFoundResponseError(exception, COMBUSTIVEL, ID_INVALIDO);
 
-        verify(combustivelRepository).findById(ID_INVALIDO);
+        verify(combustivelRepository).findByIdAndAtivoTrue(ID_INVALIDO);
 
         verifyNoInteractions(combustivelMapper);
     }

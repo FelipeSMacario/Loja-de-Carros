@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static com.javacar.lojadecarro.enums.Entidade.COMBUSTIVEL;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -28,6 +29,7 @@ public class CombustivelServiceIntegrationTest extends AbstractIntegrationTest {
     private CombustivelRepository combustivelRepository;
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da criação do combustivel")
     class Criar {
         @Test
@@ -71,6 +73,7 @@ public class CombustivelServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da listagem de combustiveis")
     class Listar {
         @Test
@@ -79,7 +82,7 @@ public class CombustivelServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.ATIVAS;
             //ACT
-            var response = combustivelService.listar(request);
+            var response = combustivelService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -92,7 +95,7 @@ public class CombustivelServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.INATIVAS;
             //ACT
-            var response = combustivelService.listar(request);
+            var response = combustivelService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -105,7 +108,7 @@ public class CombustivelServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.TODAS;
             //ACT
-            var response = combustivelService.listar(request);
+            var response = combustivelService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -123,7 +126,7 @@ public class CombustivelServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = buscarCombustivelPorNome("Flex");
             //ACT
-            var combustivel = combustivelService.buscarPorId(request.getId());
+            var combustivel = combustivelService.buscarCombustivelAtivaPorId(request.getId());
             //Assert
             assertThat(combustivel)
                     .isNotNull();
@@ -141,7 +144,7 @@ public class CombustivelServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             //ACT
             var exception = assertThrows(NotFoundException.class,
-                    () -> combustivelService.buscarPorId(-1L));
+                    () -> combustivelService.buscaCombustivelAtivo(-1L));
             //Assert
             assertThat(exception)
                     .hasMessage(COMBUSTIVEL.naoEncontrada() + -1L);
@@ -149,6 +152,7 @@ public class CombustivelServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da atualização do combustivel")
     class Atualizar {
         @Test
@@ -210,6 +214,7 @@ public class CombustivelServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da alteração do status")
     class AlterarStatus {
         @Test

@@ -1,6 +1,6 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.administrativo;
 
-import com.javacar.lojadecarro.controller.publico.UsuarioController;
+import com.javacar.lojadecarro.controller.BaseControllerTest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.usuario.UsuarioTestContext;
@@ -23,77 +23,18 @@ import static com.javacar.lojadecarro.factory.usuario.UsuarioTestContext.criaUsu
 import static com.javacar.lojadecarro.factory.usuario.UsuarioTestContext.criaUsuarioResponse2;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(UsuarioController.class)
+@WebMvcTest(AdminUsuarioController.class)
 @AutoConfigureMockMvc(addFilters = false)
-class UsuarioControllerTest extends BaseControllerTest {
-    private static final String URL = "/usuarios";
+class AdminUsuarioControllerTest extends BaseControllerTest {
+    private static final String URL = "/admin/usuarios";
     private static final String URL_ID = URL + "/" + ID_VALIDO;
     private static final String URL_ROLE = URL + "/" + ID_VALIDO + "/roles";
     private static final Long ID_ROLE = 2L;
 
     @MockitoBean
     private UsuarioService usuarioService;
-
-    @Nested
-    @DisplayName("Testes de criação")
-    class Criar {
-        @Test
-        @DisplayName("Deve criar um usuário")
-        void deveCriarUsuario() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-
-            when(usuarioService.criar(cx.request))
-                    .thenReturn(cx.response);
-            //Act + Assert
-            var resultado = performPost(URL, cx.request);
-            assertUsuario(
-                    resultado,
-                    status().isCreated(),
-                    ID_VALIDO,
-                    "Felipe",
-                    true,
-                    "felipesmacario@gmail.com",
-                    "15153769788"
-            );
-            resultado.andExpect(header().exists("Location"));
-
-            verify(usuarioService).criar(cx.request);
-            verifyNoMoreInteractions(usuarioService);
-        }
-
-        @Test
-        @DisplayName("Deve retornar 400 ao criar um usuário")
-        void deveRetornar400aoCriarUmUsuario() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-            //Act + Assert
-            var resultado = performPost(URL, cx.requestIncompleto);
-            assertStatus400(resultado);
-
-            verifyNoInteractions(usuarioService);
-        }
-
-        @Test
-        @DisplayName("Deve retornar 500 ao acontecer um erro inesperado")
-        void deveRetornar500aoAcontecerUmErro() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-
-            when(usuarioService.criar(cx.request))
-                    .thenThrow(new RuntimeException("Erro inesperado"));
-
-            //Act + Assert
-            var resultado = performPost(URL, cx.request);
-            assertStatus500(resultado);
-
-            verify(usuarioService).criar(cx.request);
-            verifyNoMoreInteractions(usuarioService);
-        }
-    }
 
     @Nested
     @DisplayName("Testes de listagem")
@@ -110,7 +51,7 @@ class UsuarioControllerTest extends BaseControllerTest {
             when(usuarioService.listar(ATIVAS))
                     .thenReturn(response);
             //Act + Assert
-            var resultado = performGet(URL);
+            var resultado = performGet(URL, "status",  ATIVAS.toString());
             assertListUsuario(resultado,
                     ID_VALIDO,
                     2L,
@@ -202,63 +143,6 @@ class UsuarioControllerTest extends BaseControllerTest {
     }
 
     @Nested
-    @DisplayName("Testes da atualização")
-    class Atualizar {
-
-        @Test
-        @DisplayName("Deve atualizar um usuário")
-        void deveAtualizarUmUsuario() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-
-            when(usuarioService.atualizar(cx.request, ID_VALIDO))
-                    .thenReturn(cx.response);
-            //Act + Assert
-            var resultado = performPut(URL_ID, cx.request);
-            assertUsuario(
-                    resultado,
-                    status().isOk(),
-                    ID_VALIDO,
-                    "Felipe",
-                    true,
-                    "felipesmacario@gmail.com",
-                    "15153769788"
-            );
-
-            verify(usuarioService).atualizar(cx.request, ID_VALIDO);
-            verifyNoMoreInteractions(usuarioService);
-        }
-
-        @Test
-        @DisplayName("Deve retornar 400 ao atualizar um usuário sem senha")
-        void deveRetornar400aoAtualizarUmUsuarioSemSenha() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-            //Act + Assert
-            var resultado = performPut(URL_ID, cx.requestIncompleto);
-            assertStatus400(resultado);
-
-            verifyNoInteractions(usuarioService);
-        }
-
-        @Test
-        @DisplayName("Deve retornar 404 ao atualizar um usuário com ID errado")
-        void deveRetornar404aoAtualizarUmUsuarioComIDErrado() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-
-            when(usuarioService.atualizar(cx.request, ID_VALIDO))
-                    .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
-            //Act + Assert
-            var resultado = performPut(URL_ID, cx.request);
-            assertStatus404(resultado, USUARIO, ID_VALIDO);
-
-            verify(usuarioService).atualizar(cx.request, ID_VALIDO);
-            verifyNoMoreInteractions(usuarioService);
-        }
-    }
-
-    @Nested
     @DisplayName("Testes da alteração do status")
     class AlterarStatus {
         @Test
@@ -330,7 +214,7 @@ class UsuarioControllerTest extends BaseControllerTest {
             when(usuarioService.vincularRole(ID_VALIDO, cx.listRoles.roles()))
                     .thenReturn(cx.usuarioRolesResponse);
             //Act + Assert
-            var resultado = performPatch(URL_ROLE, cx.listRoles);
+            var resultado = performPost(URL_ROLE, cx.listRoles);
             assertUsuarioRole(resultado, ID_VALIDO, "Felipe Soares Macário", "1234567890");
 
             verify(usuarioService).vincularRole(ID_VALIDO, cx.listRoles.roles());
@@ -344,7 +228,7 @@ class UsuarioControllerTest extends BaseControllerTest {
             var cx = new UsuarioTestContext();
 
             //Act + Assert
-            var resultado = performPatch(URL_ROLE, cx.listRolesIncompleta);
+            var resultado = performPost(URL_ROLE, cx.listRolesIncompleta);
             assertStatus400(resultado);
 
             verifyNoInteractions(usuarioService);
@@ -357,7 +241,7 @@ class UsuarioControllerTest extends BaseControllerTest {
             var cx = new UsuarioTestContext();
 
             //Act + Assert
-            var resultado = performPatch(URL + "/A/roles", cx.listRoles.roles());
+            var resultado = performPost(URL + "/A/roles", cx.listRoles.roles());
             assertStatus400(resultado);
 
             verifyNoInteractions(usuarioService);
@@ -372,7 +256,7 @@ class UsuarioControllerTest extends BaseControllerTest {
             when(usuarioService.vincularRole(ID_VALIDO, cx.listRoles.roles()))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             //Act + Assert
-            var resultado = performPatch(URL_ROLE, cx.listRoles);
+            var resultado = performPost(URL_ROLE, cx.listRoles);
             assertStatus404(resultado, USUARIO, ID_VALIDO);
 
             verify(usuarioService).vincularRole(ID_VALIDO, cx.listRoles.roles());
@@ -389,7 +273,7 @@ class UsuarioControllerTest extends BaseControllerTest {
                     .thenThrow(new RuntimeException("Erro inesperado"));
 
             //Act + Assert
-            var resultado = performPatch(URL_ROLE, cx.listRoles);
+            var resultado = performPost(URL_ROLE, cx.listRoles);
             assertStatus500(resultado);
 
             verify(usuarioService).vincularRole(ID_VALIDO, cx.listRoles.roles());

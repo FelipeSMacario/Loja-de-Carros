@@ -7,7 +7,6 @@ import com.javacar.lojadecarro.service.VendasService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,12 +18,11 @@ import java.util.List;
 
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.*;
-import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
+import static com.javacar.lojadecarro.support.TestConstants.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(VendaController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller de venda")
 public class VendaControllerTest extends BaseControllerTest {
     private static final String URL = "/vendas";
@@ -42,17 +40,17 @@ public class VendaControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new VendaTestContext();
 
-            when(vendasService.criar(cx.vendaRequest))
+            when(vendasService.criar(cx.vendaRequest, ID_VALIDO))
                     .thenReturn(cx.vendaResponse);
             // Act + Assert
-            var resultado = performPost(URL, cx.vendaRequest);
+            var resultado = performPostComAutenticacao(URL, cx.vendaRequest, ID_JWT, ROLE_USUARIO);
             resultado
                     .andExpect(header().exists("Location"))
                     .andExpect(status().isCreated())
                     .andExpect(jsonPath("$.id").value(ID_VALIDO))
                     .andExpect(jsonPath("$.valorVenda").value(BigDecimal.valueOf(200000)));
 
-            verify(vendasService).criar(cx.vendaRequest);
+            verify(vendasService).criar(cx.vendaRequest, ID_VALIDO);
             verifyNoMoreInteractions(vendasService);
 
         }
@@ -63,7 +61,7 @@ public class VendaControllerTest extends BaseControllerTest {
             // Arrange
             var cx = new VendaTestContext();
             // Act + Assert
-            var resultado = performPost(URL, cx.vendaRequestIncompleta);
+            var resultado = performPostComAutenticacao(URL, cx.vendaRequestIncompleta, ID_JWT, ROLE_USUARIO);
             assertStatus400(resultado);
 
             verifyNoInteractions(vendasService);
@@ -74,13 +72,13 @@ public class VendaControllerTest extends BaseControllerTest {
         void deveLancar404aoInformarUmVendedorInvalido() throws Exception {
             // Arrange
             var cx = new VendaTestContext();
-            when(vendasService.criar(cx.vendaRequest))
-                    .thenThrow(new NotFoundException(USUARIO, cx.vendaRequest.vendedorId()));
+            when(vendasService.criar(cx.vendaRequest, ID_VALIDO))
+                    .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             // Act + Assert
-            var resultado = performPost(URL, cx.vendaRequest);
-            assertStatus404(resultado, USUARIO, cx.vendaRequest.vendedorId());
+            var resultado = performPostComAutenticacao(URL, cx.vendaRequest, ID_JWT, ROLE_USUARIO);
+            assertStatus404(resultado, USUARIO, ID_VALIDO);
 
-            verify(vendasService).criar(cx.vendaRequest);
+            verify(vendasService).criar(cx.vendaRequest, ID_VALIDO);
             verifyNoMoreInteractions(vendasService);
         }
 
@@ -90,13 +88,13 @@ public class VendaControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new VendaTestContext();
 
-            when(vendasService.criar(cx.vendaRequest))
+            when(vendasService.criar(cx.vendaRequest, ID_VALIDO))
                     .thenThrow(new RuntimeException("Erro inesperado"));
             //Act + Assert
-            var resultado = performPost(URL, cx.vendaRequest);
+            var resultado = performPostComAutenticacao(URL, cx.vendaRequest, ID_JWT, ROLE_USUARIO);
             assertStatus500(resultado);
 
-            verify(vendasService).criar(cx.vendaRequest);
+            verify(vendasService).criar(cx.vendaRequest, ID_VALIDO);
             verifyNoMoreInteractions(vendasService);
         }
     }
@@ -116,7 +114,7 @@ public class VendaControllerTest extends BaseControllerTest {
             when(vendasService.listar(any(Pageable.class), isNull()))
                     .thenReturn(page);
             //Act + Assert
-            var resultado = performGet(URL);
+            var resultado = performGetComAutenticacao(URL, ID_JWT, ROLE_ADM);
 
             resultado.andExpect(status().isOk())
                     .andExpect(jsonPath("$.content.length()").value(2))

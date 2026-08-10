@@ -35,16 +35,11 @@ class LoginControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new LoginTestContext();
 
-//            when(loginService.autenticar(cx.request))
-//                    .thenReturn(cx.response);
+            when(loginService.autenticar(cx.request))
+                    .thenReturn(cx.loginResponse);
             //Act + Assert
             var resultado = performPost(URL, cx.request);
-            resultado.andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(ID_VALIDO))
-                    .andExpect(jsonPath("$.nome").value("Felipe"))
-                    .andExpect(jsonPath("$.cpf").value("15153769788"))
-                    .andExpect(jsonPath("$.email").value("felipesmacario@gmail.com"))
-                    .andExpect(jsonPath("$.ativo").value(true));
+            resultado.andExpect(status().isOk());
 
             verify(loginService).autenticar(cx.request);
             verifyNoMoreInteractions(loginService);

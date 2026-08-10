@@ -108,7 +108,7 @@ class CarroceriaServiceTest {
 
 
         //ACT
-        var resultado = carroceriaService.listar(StatusFiltro.ATIVAS);
+        var resultado = carroceriaService.listarCarroceriasAtivas();
 
         //Assert
         assertThat(resultado)
@@ -169,7 +169,7 @@ class CarroceriaServiceTest {
 
 
         //ACT
-        var resultado = carroceriaService.listar(StatusFiltro.INATIVAS);
+        var resultado = carroceriaService.listarAdministracao(StatusFiltro.INATIVAS);
 
         //Assert
         assertThat(resultado)
@@ -245,7 +245,7 @@ class CarroceriaServiceTest {
 
 
         //ACT
-        var resultado = carroceriaService.listar(StatusFiltro.TODAS);
+        var resultado = carroceriaService.listarAdministracao(StatusFiltro.TODAS);
 
         //Assert
         assertThat(resultado)
@@ -270,19 +270,19 @@ class CarroceriaServiceTest {
         var entity = criarCarroceriaEntity();
         var response = criarCarroceriaResponse();
 
-        when(carroceriaRepository.findById(ID_VALIDO))
+        when(carroceriaRepository.findByIdAndAtivoTrue(ID_VALIDO))
                 .thenReturn(Optional.of(entity));
 
         when(carroceriaMapper.toResponse(entity))
                 .thenReturn(response);
 
         // Act
-        var resultado = carroceriaService.buscarPorId(ID_VALIDO);
+        var resultado = carroceriaService.buscarCarroceriaAtivaPorId(ID_VALIDO);
 
         // Assert
         assertCarroceriaResponse(resultado);
 
-        verify(carroceriaRepository).findById(ID_VALIDO);
+        verify(carroceriaRepository).findByIdAndAtivoTrue(ID_VALIDO);
         verify(carroceriaMapper).toResponse(entity);
 
         verifyNoMoreInteractions(carroceriaMapper);
@@ -294,18 +294,18 @@ class CarroceriaServiceTest {
     void deveLancarExcecaoAoBuscarCarroceriaPorId() {
         // Arrange
 
-        when(carroceriaRepository.findById(ID_INVALIDO))
+        when(carroceriaRepository.findByIdAndAtivoTrue(ID_INVALIDO))
                 .thenReturn(Optional.empty());
 
         // Assert
         var exception = assertThrows(
                 NotFoundException.class,
-                () -> carroceriaService.buscarPorId(ID_INVALIDO)
+                () -> carroceriaService.buscaCarroceriaAtiva(ID_INVALIDO)
         );
 
         assertNotFoundResponseError(exception, CARROCERIA, ID_INVALIDO);
 
-        verify(carroceriaRepository).findById(ID_INVALIDO);
+        verify(carroceriaRepository).findByIdAndAtivoTrue(ID_INVALIDO);
         verifyNoMoreInteractions(carroceriaRepository);
 
         verifyNoInteractions(carroceriaMapper);

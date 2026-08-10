@@ -17,7 +17,6 @@ public class VeiculoRequestFactory {
     private Long idCarroceria;
     private Long idCores;
     private Long idModelo;
-    private Long idUsuario;
     private Long idCombustivel;
 
     private VeiculoRequestFactory() {
@@ -42,7 +41,6 @@ public class VeiculoRequestFactory {
         this.idCarroceria = 1L;
         this.idCores = 1L;
         this.idModelo = 1L;
-        this.idUsuario = 1L;
         this.idCombustivel = 1L;
         return this;
     }
@@ -86,10 +84,6 @@ public class VeiculoRequestFactory {
         this.idModelo = idModelo;
         return this;
     }
-    public VeiculoRequestFactory comIdUsuario(Long idUsuario) {
-        this.idUsuario = idUsuario;
-        return this;
-    }
     public VeiculoRequestFactory  comIdCombustivel(Long idCombustivel) {
         this.idCombustivel = idCombustivel;
         return this;
@@ -107,7 +101,6 @@ public class VeiculoRequestFactory {
                 idCarroceria,
                 idCores,
                 idModelo,
-                idUsuario,
                 idCombustivel);
     }
 }

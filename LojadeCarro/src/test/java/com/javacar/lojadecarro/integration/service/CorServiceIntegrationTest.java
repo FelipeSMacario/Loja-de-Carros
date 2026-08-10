@@ -16,6 +16,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static com.javacar.lojadecarro.enums.Entidade.COR;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -30,6 +31,7 @@ public class CorServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Nested
     @DisplayName("Testes da criação da cor")
+    @WithMockUser(roles = "ADMIN")
     class Criar {
         @Test
         @DisplayName("Deve criar uma cor")
@@ -72,6 +74,7 @@ public class CorServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da listagem de cores")
     class Listar {
         @Test
@@ -80,7 +83,7 @@ public class CorServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.ATIVAS;
             //ACT
-            var response = coresService.listar(request);
+            var response = coresService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -93,7 +96,7 @@ public class CorServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.INATIVAS;
             //ACT
-            var response = coresService.listar(request);
+            var response = coresService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -106,7 +109,7 @@ public class CorServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.TODAS;
             //ACT
-            var response = coresService.listar(request);
+            var response = coresService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -150,6 +153,7 @@ public class CorServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da atualização da cor")
     class Atualizar {
         @Test
@@ -209,6 +213,7 @@ public class CorServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da alteração do status")
     class AlterarStatus {
         @Test

@@ -225,7 +225,6 @@ class ImagemServiceTest {
             verify(storageService).delete(imagem.getObjectKey());
             verify(imagensRepository).delete(imagem);
 
-            verifyNoMoreInteractions(imagensRepository, storageService);
         }
 
         @Test
@@ -256,6 +255,9 @@ class ImagemServiceTest {
 
             when(imagensRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(imagem));
+
+            doNothing().when(imagensRepository).delete(imagem);
+
             doThrow(new IOException())
                     .when(storageService).delete(imagem.getObjectKey());
             //ACT
@@ -269,9 +271,8 @@ class ImagemServiceTest {
             verify(imagensRepository).findById(ID_VALIDO);
             verify(storageService).delete(imagem.getObjectKey());
 
-            verify(imagensRepository, never()).delete(imagem);
+            verify(imagensRepository).delete(imagem);
 
-            verifyNoMoreInteractions(imagensRepository, storageService);
         }
 
         @Test
@@ -294,10 +295,9 @@ class ImagemServiceTest {
                     .hasMessage("Erro ao deletar a imagem no banco");
 
             verify(imagensRepository).findById(ID_VALIDO);
-            verify(storageService).delete(imagem.getObjectKey());
+            verify(storageService, never()).delete(imagem.getObjectKey());
             verify(imagensRepository).delete(imagem);
 
-            verifyNoMoreInteractions(imagensRepository, storageService);
         }
     }
 

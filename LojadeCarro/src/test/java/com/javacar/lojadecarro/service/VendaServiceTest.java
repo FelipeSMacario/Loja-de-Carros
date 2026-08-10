@@ -17,7 +17,8 @@ import org.springframework.data.domain.PageRequest;
 
 import java.math.BigDecimal;
 
-import static com.javacar.lojadecarro.enums.StatusVeiculo.VENDIDO;
+import static com.javacar.lojadecarro.enums.StatusVeiculo.*;
+import static com.javacar.lojadecarro.enums.StatusVenda.EM_ANDAMENTO;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertBusinessResponseError;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,15 +51,14 @@ public class VendaServiceTest {
             var cx = new VendaTestContext();
             cx.veiculo.setVendedor(cx.vendedor);
 
-            when(vendasRepository.existsByVeiculoId(cx.veiculo.getId()))
+            when(vendasRepository.existsByVeiculoIdAndStatusVenda(cx.vendaRequest.veiculoId(), EM_ANDAMENTO))
                     .thenReturn(false);
+
             when(veiculoService.buscaVeiculo(cx.vendaRequest.veiculoId()))
                     .thenReturn(cx.veiculo);
 
-            when(usuarioService.buscaUsuario(cx.vendaRequest.vendedorId()))
-                    .thenReturn(cx.vendedor);
 
-            when(usuarioService.buscaUsuario(cx.vendaRequest.compradorId()))
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
                     .thenReturn(cx.comprador);
 
             when(vendasMapper.toEntity(cx.vendaRequest))
@@ -71,7 +71,7 @@ public class VendaServiceTest {
                     .thenReturn(cx.vendaResponse);
 
             //ACT
-            var resultado = vendasService.criar(cx.vendaRequest);
+            var resultado = vendasService.criar(cx.vendaRequest, ID_VALIDO);
             //Assert
             assertThat(resultado)
                     .isNotNull()
@@ -92,12 +92,14 @@ public class VendaServiceTest {
                     .isSameAs(cx.veiculo);
 
             assertThat(cx.veiculo.getStatusVeiculo())
-                    .isEqualTo(VENDIDO);
+                    .isEqualTo(RESERVADO);
 
-            verify(vendasRepository).existsByVeiculoId(cx.veiculo.getId());
+            assertThat(resultado.statusVenda())
+                    .isEqualTo(EM_ANDAMENTO);
+
+            verify(vendasRepository).existsByVeiculoIdAndStatusVenda(ID_VALIDO, EM_ANDAMENTO);
             verify(veiculoService).buscaVeiculo(cx.vendaRequest.veiculoId());
-            verify(usuarioService).buscaUsuario(cx.vendaRequest.vendedorId());
-            verify(usuarioService).buscaUsuario(cx.vendaRequest.compradorId());
+            verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verify(vendasMapper).toEntity(cx.vendaRequest);
             verify(vendasRepository).save(cx.vendaEntity);
             verify(vendasMapper).toResponse(cx.vendaEntity);
@@ -109,69 +111,33 @@ public class VendaServiceTest {
                     vendasMapper);
         }
 
-        @Test
-        @DisplayName("Deve lançar exceção quando vendedor não for o dono do veiculo")
-        void deveLancarExcecaoQuandoVendedorNaoForODonoDoVeiculo() {
-            //Arrange
-            var cx = new VendaTestContext();
-            cx.veiculo.setVendedor(cx.comprador);
-
-            when(vendasRepository.existsByVeiculoId(cx.vendaRequest.veiculoId()))
-                    .thenReturn(false);
-            when(veiculoService.buscaVeiculo(cx.vendaRequest.veiculoId()))
-                    .thenReturn(cx.veiculo);
-
-            when(usuarioService.buscaUsuario(cx.vendaRequest.vendedorId()))
-                    .thenReturn(cx.vendedor);
-            //ACT
-            var excecao = assertThrows(BusinessException.class,
-                    () -> vendasService.criar(cx.vendaRequest));
-            //Assert
-            assertBusinessResponseError(excecao, "O vendedor informado não é o proprietário do veículo.");
-            assertThat(cx.veiculo.getStatusVeiculo())
-                    .isNotEqualTo(VENDIDO);
-
-            verify(vendasRepository).existsByVeiculoId(cx.vendaRequest.veiculoId());
-            verify(veiculoService).buscaVeiculo(cx.vendaRequest.veiculoId());
-            verify(usuarioService).buscaUsuario(cx.vendaRequest.vendedorId());
-            verify(usuarioService, never()).buscaUsuario(cx.vendaRequest.compradorId());
-
-            verifyNoMoreInteractions(veiculoService, usuarioService, vendasRepository);
-
-            verifyNoInteractions(vendasMapper);
-        }
 
         @Test
         @DisplayName("Deve lançar exceção de vendedor ser o mesmo que comprador")
         void deveLancarExcecaoQuandoVendedorForComprador() {
             //Arrange
-
             var cx = new VendaTestContext();
             cx.veiculo.setVendedor(cx.vendedor);
 
-            when(vendasRepository.existsByVeiculoId(cx.vendaRequest.veiculoId()))
+            when(vendasRepository.existsByVeiculoIdAndStatusVenda(cx.vendaRequest.veiculoId(), EM_ANDAMENTO))
                     .thenReturn(false);
 
             when(veiculoService.buscaVeiculo(cx.vendaRequest.veiculoId()))
                     .thenReturn(cx.veiculo);
 
-            when(usuarioService.buscaUsuario(cx.vendaRequest.vendedorId()))
-                    .thenReturn(cx.vendedor);
-
-            when(usuarioService.buscaUsuario(cx.vendaRequest.compradorId()))
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
                     .thenReturn(cx.vendedor);
             //ACT
             var excecao = assertThrows(BusinessException.class,
-                    () -> vendasService.criar(cx.vendaRequest));
+                    () -> vendasService.criar(cx.vendaRequest, ID_VALIDO));
             //Assert
             assertBusinessResponseError(excecao, "O comprador não pode ser o próprio vendedor.");
             assertThat(cx.veiculo.getStatusVeiculo())
                     .isNotEqualTo(VENDIDO);
 
-            verify(vendasRepository).existsByVeiculoId(cx.vendaRequest.veiculoId());
+            verify(vendasRepository).existsByVeiculoIdAndStatusVenda(ID_VALIDO, EM_ANDAMENTO);
             verify(veiculoService).buscaVeiculo(cx.vendaRequest.veiculoId());
-            verify(usuarioService).buscaUsuario(cx.vendaRequest.vendedorId());
-            verify(usuarioService).buscaUsuario(cx.vendaRequest.compradorId());
+            verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
 
             verifyNoMoreInteractions(veiculoService, usuarioService, vendasRepository);
 
@@ -185,16 +151,13 @@ public class VendaServiceTest {
             var cx = new VendaTestContext();
             cx.veiculo.setVendedor(cx.vendedor);
 
-            when(vendasRepository.existsByVeiculoId(cx.vendaRequest.veiculoId()))
+            when(vendasRepository.existsByVeiculoIdAndStatusVenda(cx.vendaRequest.veiculoId(), EM_ANDAMENTO))
                     .thenReturn(false);
 
             when(veiculoService.buscaVeiculo(cx.vendaRequest.veiculoId()))
                     .thenReturn(cx.veiculo);
 
-            when(usuarioService.buscaUsuario(cx.vendaRequest.vendedorId()))
-                    .thenReturn(cx.vendedor);
-
-            when(usuarioService.buscaUsuario(cx.vendaRequest.compradorId()))
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
                     .thenReturn(cx.comprador);
 
             when(vendasMapper.toEntity(cx.vendaRequest))
@@ -205,18 +168,17 @@ public class VendaServiceTest {
 
             //ACT
             var excecao = assertThrows(RuntimeException.class,
-                    () -> vendasService.criar(cx.vendaRequest));
+                    () -> vendasService.criar(cx.vendaRequest, ID_VALIDO));
             //Assert
             assertThat(excecao)
                     .hasMessage("Erro ao persistir a venda no banco");
 
             assertThat(cx.veiculo.getStatusVeiculo())
-                    .isEqualTo(VENDIDO);
+                    .isEqualTo(RESERVADO);
 
-            verify(vendasRepository).existsByVeiculoId(cx.vendaRequest.veiculoId());
+            verify(vendasRepository).existsByVeiculoIdAndStatusVenda(ID_VALIDO, EM_ANDAMENTO);
             verify(veiculoService).buscaVeiculo(cx.vendaRequest.veiculoId());
-            verify(usuarioService).buscaUsuario(cx.vendaRequest.vendedorId());
-            verify(usuarioService).buscaUsuario(cx.vendaRequest.compradorId());
+            verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verify(vendasMapper).toEntity(cx.vendaRequest);
             verify(vendasRepository).save(cx.vendaEntity);
             verify(vendasMapper, never()).toResponse(cx.vendaEntity);
