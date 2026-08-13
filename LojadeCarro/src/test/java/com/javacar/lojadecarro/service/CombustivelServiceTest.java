@@ -2,16 +2,16 @@ package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.CombustivelResponse;
-import com.javacar.lojadecarro.entity.Combustivel;
 import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
-import com.javacar.lojadecarro.factory.combustivel.CombustivelEntityFactory;
-import com.javacar.lojadecarro.factory.combustivel.CombustivelResponseFactory;
+import com.javacar.lojadecarro.factory.combustivel.CombustivelTestContext;
+import com.javacar.lojadecarro.factory.helper.CombustivelHelper;
 import com.javacar.lojadecarro.mapper.CombustivelMapper;
 import com.javacar.lojadecarro.repository.CombustivelRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -23,15 +23,13 @@ import java.util.List;
 import java.util.Optional;
 
 import static com.javacar.lojadecarro.enums.Entidade.COMBUSTIVEL;
-import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertNotFoundResponseError;
 import static com.javacar.lojadecarro.factory.helper.CombustivelHelper.*;
-import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
+@DisplayName("Testes da service do combustível")
 @ExtendWith(MockitoExtension.class)
 class CombustivelServiceTest {
 
@@ -44,457 +42,574 @@ class CombustivelServiceTest {
     @Spy
     private EntityValidation entityValidation;
 
-
     @InjectMocks
     private CombustivelService combustivelService;
 
-    @Test
-    @DisplayName("Valida criação do combustível")
-    void validaCriaCombustivel() {
-        //Arrange
-        var request = criarCombustivelRequest();
+    @DisplayName("Testes da criação do combustível")
+    @Nested
+    class Criar {
+        @Test
+        @DisplayName("Deve validar a criação do combustível")
+        void deveCriarCombustivel() {
+            // Arrange
+            var cx = new CombustivelTestContext();
 
-        var entity = criarCombustivelEntity();
+            when(combustivelRepository.existsByNome(cx.combustivelRequest.nome()))
+                    .thenReturn(false);
+            when(combustivelMapper.toEntity(cx.combustivelRequest))
+                    .thenReturn(cx.combustivel);
+            when(combustivelRepository.save(cx.combustivel))
+                    .thenReturn(cx.combustivel);
+            when(combustivelMapper.toResponse(cx.combustivel))
+                    .thenReturn(cx.combustivelResponse);
 
-        var response = criarCombustivelResponse();
-        when(combustivelRepository.existsByNome(request.nome()))
-                .thenReturn(false);
+            // Act
+            var resultado = combustivelService.criar(cx.combustivelRequest);
 
-        when(combustivelMapper.toEntity(request))
-                .thenReturn(entity);
+            // Assert
+            assertCombustivelResponse(resultado);
 
-        when(combustivelRepository.save(entity))
-                .thenReturn(entity);
+            verify(combustivelRepository).existsByNome(cx.combustivelRequest.nome());
+            verify(combustivelMapper).toEntity(cx.combustivelRequest);
+            verify(combustivelRepository).save(cx.combustivel);
+            verify(combustivelMapper).toResponse(cx.combustivel);
 
-        when(combustivelMapper
-                .toResponse(entity)).thenReturn(response);
+            verifyNoMoreInteractions(combustivelMapper, combustivelRepository);
+        }
 
-        //Act
-        var resultado = combustivelService.criar(request);
+        @Test
+        @DisplayName("Deve lançar exceção de nome único")
+        void deveLancarExcecaoNomeUnico() {
+            //Arrange
+            var cx = new CombustivelTestContext();
+            when(combustivelRepository.existsByNome(cx.combustivelRequest.nome()))
+                    .thenReturn(true);
+            //ACT
+            var exception = assertThrows(BusinessException.class,
+                    () -> combustivelService.criar(cx.combustivelRequest));
+            //Assert
+            assertThat(exception)
+                    .hasMessage(COMBUSTIVEL.nomeJaExistente());
 
-        //Assert
-        assertThat(resultado)
-                .isNotNull()
-                .extracting(
-                        CombustivelResponse::id,
-                        CombustivelResponse::nome,
-                        CombustivelResponse::ativo)
-                .containsExactly(
-                        ID_VALIDO,
-                        "Gasolina",
-                        true);
+            verify(combustivelRepository).existsByNome(cx.combustivelRequest.nome());
+            verify(combustivelRepository, never()).save(any());
 
-
-        verify(combustivelRepository).existsByNome(request.nome());
-        verify(combustivelMapper).toResponse(entity);
-        verify(combustivelRepository).save(entity);
-        verify(combustivelMapper).toEntity(request);
-
-        verifyNoMoreInteractions(combustivelMapper);
-        verifyNoMoreInteractions(combustivelRepository);
-    }
-
-    @Test
-    @DisplayName("Deve listar todos os combustiveis ativos")
-    void deveListarTodosOsCombustivelAtivos() {
-        //Arrange
-        var gasolina = criarCombustivelEntity();
-        var eletrico = CombustivelEntityFactory
-                .criarEntity()
-                .comId(2L)
-                .comNome("Eletrico")
-                .comAtivo(true)
-                .build();
-
-        var request = List.of(gasolina, eletrico);
-
-        var gasolinaResponse = criarCombustivelResponse();
-        var eletricoResponse = CombustivelResponseFactory.criarResponse()
-                .comId(2L)
-                .comNome("Eletrico")
-                .comAtivo(true)
-                .build();
-
-        when(combustivelRepository.findByAtivo(true))
-                .thenReturn(request);
-
-        when(combustivelMapper.toResponse(gasolina))
-                .thenReturn(gasolinaResponse);
-
-        when(combustivelMapper.toResponse(eletrico))
-                .thenReturn(eletricoResponse);
-        //ACT
-        var resultado = combustivelService.listarAdministracao(StatusFiltro.ATIVAS);
-        //Assert
-        assertThat(resultado)
-                .isNotNull()
-                .hasSize(2)
-                .extracting(
-                        CombustivelResponse::id,
-                        CombustivelResponse::nome,
-                        CombustivelResponse::ativo
-                )
-                .containsExactly(
-                        tuple(ID_VALIDO, "Gasolina", true),
-                        tuple(2L, "Eletrico", true));
-
-
-        verify(combustivelRepository).findByAtivo(true);
-        verify(combustivelMapper).toResponse(eletrico);
-        verify(combustivelMapper).toResponse(gasolina);
-        verify(combustivelRepository, never()).findAll();
-
-        verifyNoMoreInteractions(combustivelMapper);
-        verifyNoMoreInteractions(combustivelRepository);
-    }
-
-    @Test
-    @DisplayName("Deve listar todos os combustiveis inativos")
-    void deveListarTodosOsCombustivelInativos() {
-        //Arrange
-        var gasolina = CombustivelEntityFactory
-                .criarEntity()
-                .comId(1L)
-                .comNome("Gasolina")
-                .comAtivo(false)
-                .build();
-        var eletrico = CombustivelEntityFactory
-                .criarEntity()
-                .comId(2L)
-                .comNome("Eletrico")
-                .comAtivo(false)
-                .build();
-
-        var request = List.of(gasolina, eletrico);
-
-        var gasolinaResponse = CombustivelResponseFactory.criarResponse()
-                .comId(1L)
-                .comNome("Gasolina")
-                .comAtivo(false)
-                .build();
-        var eletricoResponse = CombustivelResponseFactory.criarResponse()
-                .comId(2L)
-                .comNome("Eletrico")
-                .comAtivo(false)
-                .build();
-
-        when(combustivelRepository.findByAtivo(false))
-                .thenReturn(request);
-
-        when(combustivelMapper.toResponse(gasolina))
-                .thenReturn(gasolinaResponse);
-
-        when(combustivelMapper.toResponse(eletrico))
-                .thenReturn(eletricoResponse);
-        //ACT
-        var resultado = combustivelService.listarAdministracao(StatusFiltro.INATIVAS);
-        //Assert
-        assertThat(resultado)
-                .isNotNull()
-                .hasSize(2)
-                .extracting(
-                        CombustivelResponse::id,
-                        CombustivelResponse::nome,
-                        CombustivelResponse::ativo
-                )
-                .containsExactly(
-                        tuple(ID_VALIDO, "Gasolina", false),
-                        tuple(2L, "Eletrico", false));
-
-
-        verify(combustivelRepository).findByAtivo(false);
-        verify(combustivelMapper).toResponse(eletrico);
-        verify(combustivelMapper).toResponse(gasolina);
-        verify(combustivelRepository, never()).findAll();
-
-        verifyNoMoreInteractions(combustivelMapper);
-        verifyNoMoreInteractions(combustivelRepository);
-    }
-
-    @Test
-    @DisplayName("Deve listar todos os combustíveis")
-    void listarTodosCombustivel() {
-        //Arrange
-        var gasolina = criarCombustivelEntity();
-        var eletrico = CombustivelEntityFactory
-                .criarEntity()
-                .comId(2L)
-                .comNome("Eletrico")
-                .comAtivo(false)
-                .build();
-
-        var request = List.of(gasolina, eletrico);
-
-        var gasolinaResponse = criarCombustivelResponse();
-        var eletricoResponse = CombustivelResponseFactory.criarResponse()
-                .comId(2L)
-                .comNome("Eletrico")
-                .comAtivo(false)
-                .build();
-
-
-        when(combustivelRepository.findAll())
-                .thenReturn(request);
-
-        when(combustivelMapper.toResponse(gasolina))
-                .thenReturn(gasolinaResponse);
-
-        when(combustivelMapper.toResponse(eletrico))
-                .thenReturn(eletricoResponse);
-
-        // Act
-        var resultado = combustivelService.listarAdministracao(StatusFiltro.TODAS);
-
-        // Assert
-        assertThat(resultado)
-                .isNotNull()
-                .hasSize(2)
-                .extracting(
-                        CombustivelResponse::id,
-                        CombustivelResponse::nome,
-                        CombustivelResponse::ativo
-                )
-                .containsExactly(
-                        tuple(ID_VALIDO, "Gasolina", true),
-                        tuple(2L, "Eletrico", false));
-
-        verify(combustivelRepository).findAll();
-        verify(combustivelMapper).toResponse(eletrico);
-        verify(combustivelMapper).toResponse(gasolina);
-        verify(combustivelRepository, never()).findByAtivo(anyBoolean());
-
-        verifyNoMoreInteractions(combustivelMapper);
-        verifyNoMoreInteractions(combustivelRepository);
+            verifyNoMoreInteractions(combustivelRepository);
+            verifyNoInteractions(combustivelMapper);
+        }
     }
 
 
-    @Test
-    @DisplayName("Deve buscar um combustível por ID")
-    void deveBuscarCombustivelPorId() {
-        //Arrange
-        var entity = criarCombustivelEntity();
-        var response = criarCombustivelResponse();
+    @DisplayName("Testes da listagem de combustíveis ADM")
+    @Nested
+    class ListarAdministrativo {
+        @Test
+        @DisplayName("Deve listar os combustíveis ativos")
+        void deveListarCombustiveisAtivas() {
+            //Arrange
+            var combustivelEntity1 = CombustivelTestContext.combustivelEntity(ID_VALIDO, "Gasolina", true);
+            var combustivelEntity2 = CombustivelTestContext.combustivelEntity(2L, "Etanol", true);
+            var listaEntity = List.of(combustivelEntity1, combustivelEntity2);
 
-        when(combustivelRepository.findByIdAndAtivoTrue(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
+            var combustivelResponse1 = CombustivelTestContext.combustivelResponse(ID_VALIDO, "Gasolina", true);
+            var combustivelResponse2 = CombustivelTestContext.combustivelResponse(2L, "Etanol", true);
 
-        when(combustivelMapper.toResponse(entity))
-                .thenReturn(response);
+            when(combustivelRepository.findByAtivo(true))
+                    .thenReturn(listaEntity);
 
-        //Act
-        var resultado = combustivelService.buscarCombustivelAtivaPorId(ID_VALIDO);
+            when(combustivelMapper.toResponse(combustivelEntity1))
+                    .thenReturn(combustivelResponse1);
 
-        //Assert
-        assertThat(resultado)
-                .isNotNull()
-                .extracting(
-                        CombustivelResponse::id,
-                        CombustivelResponse::nome,
-                        CombustivelResponse::ativo
-                )
-                .containsExactly(
-                        ID_VALIDO,
-                        "Gasolina",
-                        true);
+            when(combustivelMapper.toResponse(combustivelEntity2))
+                    .thenReturn(combustivelResponse2);
 
-        verify(combustivelRepository).findByIdAndAtivoTrue(ID_VALIDO);
-        verify(combustivelMapper).toResponse(entity);
 
-        verifyNoMoreInteractions(combustivelMapper);
-        verifyNoMoreInteractions(combustivelRepository);
+            //ACT
+            var resultado = combustivelService.listarAdministracao(StatusFiltro.ATIVAS);
 
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .hasSize(2)
+                    .extracting(CombustivelResponse::nome)
+                    .containsExactly("Gasolina", "Etanol");
+
+            verify(combustivelRepository).findByAtivo(true);
+            verify(combustivelMapper).toResponse(combustivelEntity1);
+            verify(combustivelMapper).toResponse(combustivelEntity2);
+            verify(combustivelRepository, never()).findAll();
+
+            verifyNoMoreInteractions(combustivelMapper, combustivelRepository);
+        }
+
+        @Test
+        @DisplayName("Deve listar os combustíveis inativos")
+        void deveListarCombustiveisInativas() {
+            //Arrange
+
+            var combustivelEntity1 = CombustivelTestContext.combustivelEntity(ID_VALIDO, "Gasolina", false);
+            var combustivelEntity2 = CombustivelTestContext.combustivelEntity(2L, "Etanol", false);
+            var listaEntity = List.of(combustivelEntity1, combustivelEntity2);
+
+            var combustivelResponse1 = CombustivelTestContext.combustivelResponse(ID_VALIDO, "Gasolina", false);
+            var combustivelResponse2 = CombustivelTestContext.combustivelResponse(2L, "Etanol", false);
+
+            when(combustivelRepository.findByAtivo(false))
+                    .thenReturn(listaEntity);
+
+            when(combustivelMapper.toResponse(combustivelEntity1))
+                    .thenReturn(combustivelResponse1);
+
+            when(combustivelMapper.toResponse(combustivelEntity2))
+                    .thenReturn(combustivelResponse2);
+
+
+            //ACT
+            var resultado = combustivelService.listarAdministracao(StatusFiltro.INATIVAS);
+
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .hasSize(2)
+                    .extracting(CombustivelResponse::nome)
+                    .containsExactly("Gasolina", "Etanol");
+
+            verify(combustivelRepository).findByAtivo(false);
+            verify(combustivelMapper).toResponse(combustivelEntity1);
+            verify(combustivelMapper).toResponse(combustivelEntity2);
+            verify(combustivelRepository, never()).findAll();
+
+            verifyNoMoreInteractions(combustivelMapper, combustivelRepository);
+        }
+
+        @Test
+        @DisplayName("Deve listar todos os combustíveis")
+        void deveListarTodasCombustiveis() {
+            //Arrange
+            var combustivelEntity1 = CombustivelTestContext.combustivelEntity(ID_VALIDO, "Gasolina", true);
+            var combustivelEntity2 = CombustivelTestContext.combustivelEntity(2L, "Etanol", true);
+            var combustivelEntity3 = CombustivelTestContext.combustivelEntity(3L, "Diesel", false);
+            var listaEntity = List.of(combustivelEntity1, combustivelEntity2, combustivelEntity3);
+
+            var combustivelResponse1 = CombustivelTestContext.combustivelResponse(ID_VALIDO, "Gasolina", true);
+            var combustivelResponse2 = CombustivelTestContext.combustivelResponse(2L, "Etanol", true);
+            var combustivelResponse3 = CombustivelTestContext.combustivelResponse(3L, "Diesel", false);
+
+            when(combustivelRepository.findAll())
+                    .thenReturn(listaEntity);
+
+            when(combustivelMapper.toResponse(combustivelEntity1))
+                    .thenReturn(combustivelResponse1);
+
+            when(combustivelMapper.toResponse(combustivelEntity2))
+                    .thenReturn(combustivelResponse2);
+
+            when(combustivelMapper.toResponse(combustivelEntity3))
+                    .thenReturn(combustivelResponse3);
+
+
+            //ACT
+            var resultado = combustivelService.listarAdministracao(StatusFiltro.TODAS);
+
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .hasSize(3)
+                    .extracting(CombustivelResponse::nome)
+                    .containsExactly("Gasolina", "Etanol", "Diesel");
+
+            verify(combustivelRepository).findAll();
+            verify(combustivelMapper).toResponse(combustivelEntity1);
+            verify(combustivelMapper).toResponse(combustivelEntity2);
+            verify(combustivelMapper).toResponse(combustivelEntity3);
+            verify(combustivelRepository, never()).findByAtivo(anyBoolean());
+
+            verifyNoMoreInteractions(combustivelMapper, combustivelRepository);
+        }
     }
 
-    @Test
-    @DisplayName("Deve lançar uma exceção ao buscar um combustível")
-    void deveLancarUmaExcecaoCombustivel() {
-        //Arrange
-        when(combustivelRepository.findByIdAndAtivoTrue(ID_INVALIDO))
-                .thenReturn(Optional.empty());
 
-        //Assert
-        var exception = assertThrows(
-                NotFoundException.class,
-                () -> combustivelService.buscaCombustivelAtivo(ID_INVALIDO)
-        );
+    @DisplayName("Deve buscar os combustíveis ADM")
+    @Nested
+    class BuscarCombustiveisADM {
+        @Test
+        @DisplayName("Deve validar a busca de um combustível por ID")
+        void deveBuscarCombustivelPorId() {
+            // Arrange
+            var cx = new CombustivelTestContext();
 
-        assertNotFoundResponseError(exception, COMBUSTIVEL, ID_INVALIDO);
+            when(combustivelRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(cx.combustivel));
 
-        verify(combustivelRepository).findByIdAndAtivoTrue(ID_INVALIDO);
+            when(combustivelMapper.toResponse(cx.combustivel))
+                    .thenReturn(cx.combustivelResponse);
 
-        verifyNoInteractions(combustivelMapper);
+            // Act
+            var resultado = combustivelService.buscarPorIdAdministracao(ID_VALIDO);
+
+            // Assert
+            assertCombustivelResponse(resultado);
+
+            verify(combustivelRepository).findById(ID_VALIDO);
+            verify(combustivelMapper).toResponse(cx.combustivel);
+
+            verifyNoMoreInteractions(combustivelMapper, combustivelRepository);
+        }
+
+        @Test
+        @DisplayName("Deve lançar uma exceção na busca por um combustível")
+        void deveLancarExcecaoAoBuscarCombustivelPorId() {
+            // Arrange
+
+            when(combustivelRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.empty());
+
+            // Assert
+            var exception = assertThrows(
+                    NotFoundException.class,
+                    () -> combustivelService.buscarPorIdAdministracao(ID_VALIDO)
+            );
+
+            assertNotFoundResponseError(exception, COMBUSTIVEL, ID_VALIDO);
+
+            verify(combustivelRepository).findById(ID_VALIDO);
+            verifyNoMoreInteractions(combustivelRepository);
+
+            verifyNoInteractions(combustivelMapper);
+
+        }
     }
 
-    @Test
-    @DisplayName("Deve atualizar um combustível")
-    void deveAtualizarCombustivel() {
-        //Arrange
-        var request = criarCombustivelRequest();
-        var entity = criarCombustivelEntity();
-        var response = criarCombustivelResponse();
 
-        when(combustivelRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
+    @DisplayName("Testes de atualização do combustível")
+    @Nested
+    class Atualizar {
+        @Test
+        @DisplayName("Deve atualizar um combustível pelo ID")
+        void deveAtualizarCombustivelPorId() {
+            //Arrange
+            var cx = new CombustivelTestContext();
 
-        doNothing().when(combustivelMapper)
-                .toUpdate(request, entity);
+            when(combustivelRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(cx.combustivel));
 
-        when(combustivelMapper.toResponse(entity))
-                .thenReturn(response);
+            when(combustivelMapper.toResponse(cx.combustivel))
+                    .thenReturn(cx.combustivelResponse);
 
-        //Act
-        var resultado = combustivelService.atualizar(request, ID_VALIDO);
+            // ACT
+            var resultado = combustivelService.atualizar(cx.combustivelRequest, ID_VALIDO);
 
-        //Assert
-        assertThat(resultado)
-                .isNotNull()
-                .extracting(
-                        CombustivelResponse::id,
-                        CombustivelResponse::nome,
-                        CombustivelResponse::ativo
-                )
-                .containsExactly(
-                        ID_VALIDO,
-                        "Gasolina",
-                        true);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .extracting(
+                            CombustivelResponse::id,
+                            CombustivelResponse::nome
+                    )
+                    .containsExactly(
+                            ID_VALIDO,
+                            "Gasolina"
+                    );
 
-        verify(combustivelRepository).findById(ID_VALIDO);
-        verify(combustivelMapper).toResponse(entity);
+            verify(combustivelRepository).findById(ID_VALIDO);
+            verify(combustivelMapper).toUpdate(cx.combustivelRequest, cx.combustivel);
+            verify(combustivelMapper).toResponse(cx.combustivel);
 
-        verifyNoMoreInteractions(combustivelMapper);
-        verifyNoMoreInteractions(combustivelRepository);
+            verifyNoMoreInteractions(combustivelRepository, combustivelMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar uma exceção durante a atualização de um combustível")
+        void deveLancarExcecaoAoAtualizarCombustivelPorId() {
+            //Arrange
+            var cx = new CombustivelTestContext();
+
+            when(combustivelRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.empty());
+
+            //Assert
+            var exception = assertThrows(NotFoundException.class,
+                    () -> combustivelService.atualizar(cx.combustivelRequest, ID_VALIDO));
+
+            assertNotFoundResponseError(exception, COMBUSTIVEL, ID_VALIDO);
+
+            verify(combustivelRepository).findById(ID_VALIDO);
+
+            verifyNoMoreInteractions(combustivelRepository);
+
+            verifyNoInteractions(combustivelMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao informar um nome já cadastrado")
+        void deveLancarExcecaoAoInformarNomeCadastro() {
+            //Arrange
+            var cx = new CombustivelTestContext();
+            cx.combustivel.setNome("Eletrico");
+
+            when(combustivelRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(cx.combustivel));
+
+            when(combustivelRepository.existsByNome(cx.combustivelRequest.nome()))
+                    .thenReturn(true);
+            //ACT
+            var exception = assertThrows(BusinessException.class,
+                    () -> combustivelService.atualizar(cx.combustivelRequest, ID_VALIDO));
+            //Assert
+            assertThat(exception)
+                    .hasMessage(COMBUSTIVEL.nomeJaExistente());
+
+            verify(combustivelRepository).findById(ID_VALIDO);
+            verify(combustivelRepository).existsByNome(cx.combustivelRequest.nome());
+            verifyNoMoreInteractions(combustivelRepository);
+
+            verifyNoInteractions(combustivelMapper);
+        }
+
+        @Test
+        @DisplayName("Deve atualizar um combustível inativo")
+        void deveAtualizarUmaCombustivelInativa() {
+            //Arrange
+            var cx =  new CombustivelTestContext();
+            cx.combustivelInativa.setNome("Eletrico");
+
+            when(combustivelRepository.findById(ID_VALIDO))
+            .thenReturn(Optional.of(cx.combustivelInativa));
+
+            when(combustivelRepository.existsByNome(cx.combustivelRequest.nome()))
+            .thenReturn(false);
+
+            when(combustivelMapper.toResponse(cx.combustivelInativa))
+            .thenReturn(cx.combustivelResponseInativa);
+            //ACT
+            var resultado = combustivelService.atualizar(cx.combustivelRequest, ID_VALIDO);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .extracting(
+                            CombustivelResponse::nome,
+                            CombustivelResponse::ativo
+                    )
+                    .containsExactly(
+                            cx.combustivelResponseInativa.nome(),
+                            false
+                    );
+            assertThat(cx.combustivelInativa.isAtivo()).isFalse();
+
+
+            verify(combustivelRepository).findById(ID_VALIDO);
+            verify(combustivelRepository).existsByNome(cx.combustivelRequest.nome());
+            verify(combustivelMapper).toResponse(cx.combustivelInativa);
+            verify(combustivelMapper).toUpdate(cx.combustivelRequest, cx.combustivelInativa);
+
+            verifyNoMoreInteractions(combustivelRepository, combustivelMapper);
+
+        }
     }
 
-    @Test
-    @DisplayName("Deve lançar uma exceção ao atualizar o combustível")
-    void deveLancarExcecaoCombustivel() {
-        //Arrange
-        var request = criarCombustivelRequest();
-        //Assert
-        var exception = assertThrows(NotFoundException.class,
-                () -> combustivelService.atualizar(request, ID_INVALIDO));
-        assertNotFoundResponseError(exception, COMBUSTIVEL, ID_INVALIDO);
+    @DisplayName("Testes da alteração do status")
+    @Nested
+    class AlterarStatus {
+        @Test
+        @DisplayName("Deve alterar o status do combustível para inativo")
+        void deveAlterarStatusDaCombustivelInativo() {
+            //Arrange
+            var cx = new CombustivelTestContext();
+            var status = new StatusRequest(false);
 
-        verify(combustivelRepository).findById(ID_INVALIDO);
+            when(combustivelRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(cx.combustivel));
 
-        verifyNoInteractions(combustivelMapper);
+            when(combustivelMapper.toResponse(cx.combustivel))
+                    .thenReturn(cx.combustivelResponseInativa);
+            //ACT
+            var resultado = combustivelService.alterarStatus(ID_VALIDO, status);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull();
+
+            assertThat(resultado.ativo()).isFalse();
+            assertThat(cx.combustivel.isAtivo()).isFalse();
+
+            verify(combustivelRepository).findById(ID_VALIDO);
+            verify(combustivelMapper).toResponse(cx.combustivel);
+
+            verifyNoMoreInteractions(combustivelRepository, combustivelMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao alterar o status para inativo")
+        void deveLancarExcecaoAoInativarCombustivelJaInativa() {
+            //Arrange
+            var cx = new CombustivelTestContext();
+            var status = new StatusRequest(false);
+
+            when(combustivelRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(cx.combustivelInativa));
+            //ACT
+            var exception = assertThrows(BusinessException.class,
+                    () -> combustivelService.alterarStatus(ID_VALIDO, status));
+
+            //Assert
+            assertBusinessResponseErrorInativa(exception, COMBUSTIVEL);
+
+            verify(combustivelRepository).findById(ID_VALIDO);
+
+            verifyNoMoreInteractions(combustivelRepository);
+
+            verifyNoInteractions(combustivelMapper);
+        }
+
+        @Test
+        @DisplayName("Deve alterar o status do combustível para ativo")
+        void deveAlterarStatusDaCombustivelAtivo() {
+            //Arrange
+            var cx = new CombustivelTestContext();
+            var status = new StatusRequest(true);
+
+            when(combustivelRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(cx.combustivelInativa));
+
+            when(combustivelMapper.toResponse(cx.combustivelInativa))
+                    .thenReturn(cx.combustivelResponse);
+            //ACT
+            var resultado = combustivelService.alterarStatus(ID_VALIDO, status);
+            //Assert
+            assertThat(resultado.ativo()).isTrue();
+            assertThat(cx.combustivelInativa.isAtivo()).isTrue();
+
+            verify(combustivelRepository).findById(ID_VALIDO);
+            verify(combustivelMapper).toResponse(cx.combustivelInativa);
+
+            verifyNoMoreInteractions(combustivelRepository, combustivelMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao alterar o status para ativo")
+        void deveLancarExcecaoAoAtivarCombustivelJaAtiva() {
+            //Arrange
+            var cx = new CombustivelTestContext();
+            var status = new StatusRequest(true);
+
+            when(combustivelRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(cx.combustivel));
+            //ACT
+            var exception = assertThrows(BusinessException.class,
+                    () -> combustivelService.alterarStatus(ID_VALIDO, status));
+
+            //Assert
+            assertBusinessResponseError(exception, COMBUSTIVEL);
+
+            verify(combustivelRepository).findById(ID_VALIDO);
+
+            verifyNoMoreInteractions(combustivelRepository);
+
+            verifyNoInteractions(combustivelMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao buscar combustível")
+        void deveLancarExcecaoNaoEncontrarCombustivel() {
+            //Arrange
+            var request = new StatusRequest(true);
+
+            when(combustivelRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.empty());
+            //Assert
+            var exception = assertThrows(NotFoundException.class,
+                    () -> combustivelService.alterarStatus(ID_VALIDO, request));
+
+            assertNotFoundResponseError(exception, COMBUSTIVEL, ID_VALIDO);
+
+            verify(combustivelRepository).findById(ID_VALIDO);
+            verifyNoMoreInteractions(combustivelRepository);
+            verifyNoInteractions(combustivelMapper);
+        }
     }
 
-    @Test
-    @DisplayName("Deve alterar o status do combustivel")
-    void deveAlterarStatusDoCombustivel() {
-        //Arrange
-        var entity = criarCombustivelEntity();
-        var request = new StatusRequest(false);
-        var response = CombustivelResponseFactory
-                .criarResponse()
-                .comTodosOsCampos()
-                .comAtivo(false)
-                .build();
+    @DisplayName("Testes da busca do combustível ativo")
+    @Nested
+    class BuscaCombustivelAtiva {
+        @Test
+        @DisplayName("Deve buscar combustível ativo")
+        void deveBuscarCombustivelAtiva() {
+            //Arrange
+            var cx = new CombustivelTestContext();
+            when(combustivelRepository.findByIdAndAtivoTrue(ID_VALIDO))
+                    .thenReturn(Optional.of(cx.combustivel));
 
-        when(combustivelRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
+            when(combustivelMapper.toResponse(cx.combustivel))
+                    .thenReturn(cx.combustivelResponse);
+            //ACT
+            var resultado = combustivelService.buscarCombustivelAtivaPorId(ID_VALIDO);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull();
 
-        when(combustivelMapper.toResponse(entity))
-                .thenReturn(response);
-        //ACT
-        var resultado = combustivelService.alterarStatus(ID_VALIDO, request);
-        //Assert
-        assertThat(resultado)
-                .isNotNull();
+            assertThat(resultado.ativo())
+                    .isTrue();
 
-        assertThat(resultado.ativo()).isFalse();
-        assertThat(entity.isAtivo()).isFalse();
+            verify(combustivelRepository).findByIdAndAtivoTrue(ID_VALIDO);
+            verify(combustivelMapper).toResponse(cx.combustivel);
 
-        verify(combustivelRepository).findById(ID_VALIDO);
-        verify(combustivelMapper).toResponse(entity);
+            verifyNoMoreInteractions(combustivelRepository, combustivelMapper);
+        }
 
-        verifyNoMoreInteractions(combustivelRepository);
-        verifyNoMoreInteractions(combustivelMapper);
+        @Test
+        @DisplayName("Deve lançar exceção ao buscar combustível ativo")
+        void deveLancarExcecaoAoBuscarCombustivelAtiva() {
+            //Arrange
+            when(combustivelRepository.findByIdAndAtivoTrue(ID_VALIDO))
+                    .thenReturn(Optional.empty());
+            //ACT
+            var exception = assertThrows(NotFoundException.class,
+                    () -> combustivelService.buscarCombustivelAtivaPorId(ID_VALIDO));
+            //Assert
+            assertNotFoundResponseError(exception, COMBUSTIVEL, ID_VALIDO);
+
+            verify(combustivelRepository).findByIdAndAtivoTrue(ID_VALIDO);
+            verifyNoMoreInteractions(combustivelRepository);
+            verifyNoInteractions(combustivelMapper);
+        }
     }
 
-    @Test
-    @DisplayName("Deve lançar exceção ao alterar o status")
-    void deveLancarExcecaoAoAlterarStatusCombustivel() {
-        //Arrange
-        var entity = criarCombustivelEntity();
-        var request = new StatusRequest(true);
+    @DisplayName("Deve listar combustíveis ativos")
+    @Nested
+    class ListarCombustiveisAtivas {
+        @Test
+        @DisplayName("Deve listar combustíveis ativos")
+        void deveListarCombustiveisAtivas() {
+            //Arrange
+            var combustivelEntity1 = CombustivelTestContext.combustivelEntity(ID_VALIDO, "Gasolina", true);
+            var combustivelEntity2 = CombustivelTestContext.combustivelEntity(ID_VALIDO, "Diesel", true);
+            var listaEntity = List.of(combustivelEntity1, combustivelEntity2);
 
-        when(combustivelRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
-        //ACT
-        var exception = assertThrows(BusinessException.class,
-                () -> combustivelService.alterarStatus(ID_VALIDO, request));
+            var combustivelResponse1 = CombustivelTestContext.combustivelResponse(ID_VALIDO, "Gasolina", true);
+            var combustivelResponse2 = CombustivelTestContext.combustivelResponse(ID_VALIDO, "Diesel", true);
 
-        //Assert
-        assertBusinessResponseError(exception, COMBUSTIVEL);
+            when(combustivelRepository.findByAtivo(true))
+                    .thenReturn(listaEntity);
 
-        assertThat(entity.isAtivo()).isTrue();
+            when(combustivelMapper.toResponse(combustivelEntity1))
+                    .thenReturn(combustivelResponse1);
 
-        verify(combustivelRepository).findById(ID_VALIDO);
+            when(combustivelMapper.toResponse(combustivelEntity2))
+                    .thenReturn(combustivelResponse2);
+            //ACT
+            var resultado = combustivelService.listarCombustiveisAtivas();
+            //Assert
+            assertThat(resultado)
+                    .hasSize(2)
+                    .allMatch(CombustivelResponse::ativo)
+                    .extracting(CombustivelResponse::nome)
+                    .containsExactly("Gasolina", "Diesel");
 
-        verifyNoMoreInteractions(combustivelRepository);
-
-        verifyNoInteractions(combustivelMapper);
+            verify(combustivelRepository).findByAtivo(true);
+            verify(combustivelMapper).toResponse(combustivelEntity1);
+            verify(combustivelMapper).toResponse(combustivelEntity2);
+            verifyNoMoreInteractions(combustivelRepository, combustivelMapper);
+        }
     }
 
-    @Test
-    @DisplayName("Deve lançar exceção do combustivel nao encontrada ao alterar status")
-    void deveLancarExcecaoQuandoCombustivelNaoEncontradaAoAlterarStatus() {
-        //Arrange
-        var request = new StatusRequest(true);
-        //Assert
-        var exception = assertThrows(NotFoundException.class,
-                () -> combustivelService.alterarStatus(ID_INVALIDO, request));
 
-        assertNotFoundResponseError(exception, COMBUSTIVEL, ID_INVALIDO);
-        verify(combustivelRepository).findById(ID_INVALIDO);
-
-        verifyNoMoreInteractions(combustivelRepository);
-
-        verifyNoInteractions(combustivelMapper);
-    }
-
-    @Test
-    @DisplayName("Deve buscar a entidade do combustivel por Id")
-    void deveBuscarAEntidadeCombustivel() {
-        //Arrange
-        var entity = criarCombustivelEntity();
-
-        when(combustivelRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
-        //ACT
-        var resultado = combustivelService.buscaCombustivel(ID_VALIDO);
-        //Assert
-        assertThat(resultado)
-                .isNotNull()
-                .extracting(
-                        Combustivel::getId,
-                        Combustivel::getNome,
-                        Combustivel::isAtivo)
-                .containsExactly(
-                        1L,
-                        "Gasolina",
-                        true
-                );
-        verify(combustivelRepository).findById(ID_VALIDO);
-        verifyNoMoreInteractions(combustivelRepository);
-    }
-
-    @Test
-    @DisplayName("Deve lançar exceção ao buscar entidade do combustivel por ID")
-    void deveLancarExcecaoAoBuscarEntidadeCombustivel() {
-        //Arrange
-        when(combustivelRepository.findById(ID_INVALIDO))
-                .thenReturn(Optional.empty());
-        //ACT
-        var excecao = assertThrows(NotFoundException.class,
-                () -> combustivelService.buscaCombustivel(ID_INVALIDO));
-        //Assert
-
-        assertNotFoundResponseError(excecao, COMBUSTIVEL, ID_INVALIDO);
-
-        verify(combustivelRepository).findById(ID_INVALIDO);
-        verifyNoMoreInteractions(combustivelRepository);
-    }
 }
