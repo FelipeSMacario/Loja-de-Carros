@@ -12,11 +12,37 @@ public class CarroceriaTestContext {
             .criarRequest()
             .build();
     public final Carroceria carroceria = criarCarroceriaEntity();
+    public final Carroceria carroceriaInativa = CarroceriaEntityFactory
+            .criarEntity()
+            .comTodosOsCampos()
+            .comAtivo(false)
+            .build();
     public final CarroceriaResponse carroceriaResponse = criarCarroceriaResponse();
+    public final CarroceriaResponse carroceriaResponseInativa = CarroceriaResponseFactory.criarResponse()
+            .comTodosOsCampos()
+            .comAtivo(false)
+            .build();
     public final CarroceriaResponse carroceriaResponse2 = CarroceriaResponseFactory
             .criarResponse()
             .comId(2L)
             .comNome("Sedan")
             .comAtivo(true)
             .build();
+
+    public static Carroceria carroceriaEntity(Long idCarroceria, String nome, boolean ativo) {
+        return CarroceriaEntityFactory
+                .criarEntity()
+                .comId(idCarroceria)
+                .comNome(nome)
+                .comAtivo(ativo)
+                .build();
+    }
+    public static CarroceriaResponse carroceriaResponse(Long idCarroceria, String nome, boolean ativo) {
+        return CarroceriaResponseFactory
+                .criarResponse()
+                .comId(idCarroceria)
+                .comNome(nome)
+                .comAtivo(ativo)
+                .build();
+    }
 }

@@ -23,6 +23,11 @@ public abstract class BaseHelper {
                 .hasMessage(entidade.jaAtiva());
     }
 
+    public static void assertBusinessResponseErrorInativa(BusinessException exception, Entidade entidade) {
+        assertThat(exception)
+                .hasMessage(entidade.jaInativa());
+    }
+
     public static void assertBusinessResponseError(BusinessException exception, String mensagem) {
         assertThat(exception)
                 .hasMessage(mensagem);
