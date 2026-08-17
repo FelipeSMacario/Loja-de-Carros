@@ -53,7 +53,7 @@ class OpcionalControllerTest extends BaseControllerTest {
                     resultado,
                     ID_VALIDO,
                     2L,
-                    "Freio ABS",
+                    "Freio Abs",
                     "Automatico",
                     true,
                     true
@@ -78,7 +78,7 @@ class OpcionalControllerTest extends BaseControllerTest {
                     .thenReturn(cx.response);
             //Act + Assert
             var resultado = performGet(URL_ID);
-            assertResult(resultado, status().isOk(), ID_VALIDO, "Freio ABS", true);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Freio Abs", true);
 
             verify(opcionalService).buscarOpcionalAtivoPorId(ID_VALIDO);
             verifyNoMoreInteractions(opcionalService);

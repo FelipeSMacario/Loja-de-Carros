@@ -48,7 +48,7 @@ class AdminMarcaControllerTest extends BaseControllerTest {
             // Act + Assert
             var resultado = performPost(URL, cx.request);
             resultado.andExpect(header().exists("Location"));
-            resultado.andExpect(jsonPath("$.url").value("https://www.google.com"));
+            resultado.andExpect(jsonPath("$.url").value("https://www.ford.com"));
             assertResult(resultado, status().isCreated(), ID_VALIDO, "Ford", true);
 
             verify(marcaService).criar(cx.request);
@@ -157,7 +157,7 @@ class AdminMarcaControllerTest extends BaseControllerTest {
 
             // Act + Assert
             var resultado = performGet(URL + "/" + ID_VALIDO);
-            resultado.andExpect(jsonPath("$.url").value("https://www.google.com"));
+            resultado.andExpect(jsonPath("$.url").value("https://www.ford.com"));
             assertResult(resultado, status().isOk(), ID_VALIDO, "Ford", true);
 
             verify(marcaService).buscarPorIdAdministracao(ID_VALIDO);
@@ -194,7 +194,7 @@ class AdminMarcaControllerTest extends BaseControllerTest {
 
             // Act + Assert
             var resultado = performPut(URL + "/" + ID_VALIDO, cx.request);
-            resultado.andExpect(jsonPath("$.url").value("https://www.google.com"));
+            resultado.andExpect(jsonPath("$.url").value("https://www.ford.com"));
             assertResult(resultado, status().isOk(), ID_VALIDO, "Ford", true);
 
             verify(marcaService).atualizar(cx.request, ID_VALIDO);
@@ -245,7 +245,7 @@ class AdminMarcaControllerTest extends BaseControllerTest {
                     .thenReturn(cx.response);
             //ACT + assert
             var resultado = performPatch(URL + "/" + ID_VALIDO + "/status", status);
-            resultado.andExpect(jsonPath("$.url").value("https://www.google.com"));
+            resultado.andExpect(jsonPath("$.url").value("https://www.ford.com"));
             assertResult(
                     resultado,
                     status().isOk(),

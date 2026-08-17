@@ -77,7 +77,7 @@ class MarcaControllerTest extends BaseControllerTest {
 
             // Act + Assert
             var resultado = performGet(URL + "/" + ID_VALIDO);
-            resultado.andExpect(jsonPath("$.url").value("https://www.google.com"));
+            resultado.andExpect(jsonPath("$.url").value("https://www.ford.com"));
             assertResult(resultado, status().isOk(), ID_VALIDO, "Ford", true);
 
             verify(marcaService).buscarMarcaAtivaPorId(ID_VALIDO);

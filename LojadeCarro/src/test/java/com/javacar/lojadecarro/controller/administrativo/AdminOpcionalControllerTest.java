@@ -49,7 +49,7 @@ class AdminOpcionalControllerTest extends BaseControllerTest {
             //Act + Assert
             var resultado = performPost(URL, cx.request);
             resultado.andExpect(header().exists("Location"));
-            assertResult(resultado, status().isCreated(), ID_VALIDO, "Freio ABS", true);
+            assertResult(resultado, status().isCreated(), ID_VALIDO, "Freio Abs", true);
 
             verify(opcionalService).criar(cx.request);
             verifyNoMoreInteractions(opcionalService);
@@ -106,7 +106,7 @@ class AdminOpcionalControllerTest extends BaseControllerTest {
                     resultado,
                     ID_VALIDO,
                     2L,
-                    "Freio ABS",
+                    "Freio Abs",
                     "Automatico",
                     true,
                     true
@@ -132,7 +132,7 @@ class AdminOpcionalControllerTest extends BaseControllerTest {
                     resultado,
                     ID_VALIDO,
                     2L,
-                    "Freio ABS",
+                    "Freio Abs",
                     "Automatico",
                     true,
                     false
@@ -156,7 +156,7 @@ class AdminOpcionalControllerTest extends BaseControllerTest {
                     .thenReturn(cx.response);
             //Act + Assert
             var resultado = performGet(URL_ID);
-            assertResult(resultado, status().isOk(), ID_VALIDO, "Freio ABS", true);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Freio Abs", true);
 
             verify(opcionalService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(opcionalService);
@@ -193,7 +193,7 @@ class AdminOpcionalControllerTest extends BaseControllerTest {
 
             //Act + Assert
             var resultado = performPut(URL_ID, cx.request);
-            assertResult(resultado, status().isOk(), ID_VALIDO, "Freio ABS", true);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Freio Abs", true);
 
             verify(opcionalService).atualizar(cx.request, ID_VALIDO);
             verifyNoMoreInteractions(opcionalService);
@@ -249,7 +249,7 @@ class AdminOpcionalControllerTest extends BaseControllerTest {
                     resultado,
                     status().isOk(),
                     ID_VALIDO,
-                    "Freio ABS",
+                    "Freio Abs",
                     true);
 
             verify(opcionalService).alterarStatus(ID_VALIDO, status);

@@ -6,18 +6,13 @@ import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.combustivel.CombustivelTestContext;
-import com.javacar.lojadecarro.factory.helper.CombustivelHelper;
 import com.javacar.lojadecarro.mapper.CombustivelMapper;
 import com.javacar.lojadecarro.repository.CombustivelRepository;
-import com.javacar.lojadecarro.validation.EntityValidation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -30,17 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Testes da service do combustível")
-@ExtendWith(MockitoExtension.class)
-class CombustivelServiceTest {
+class CombustivelServiceTest extends BaseServiceTest {
 
     @Mock
     private CombustivelMapper combustivelMapper;
 
     @Mock
     private CombustivelRepository combustivelRepository;
-
-    @Spy
-    private EntityValidation entityValidation;
 
     @InjectMocks
     private CombustivelService combustivelService;
@@ -370,17 +361,17 @@ class CombustivelServiceTest {
         @DisplayName("Deve atualizar um combustível inativo")
         void deveAtualizarUmaCombustivelInativa() {
             //Arrange
-            var cx =  new CombustivelTestContext();
+            var cx = new CombustivelTestContext();
             cx.combustivelInativa.setNome("Eletrico");
 
             when(combustivelRepository.findById(ID_VALIDO))
-            .thenReturn(Optional.of(cx.combustivelInativa));
+                    .thenReturn(Optional.of(cx.combustivelInativa));
 
             when(combustivelRepository.existsByNome(cx.combustivelRequest.nome()))
-            .thenReturn(false);
+                    .thenReturn(false);
 
             when(combustivelMapper.toResponse(cx.combustivelInativa))
-            .thenReturn(cx.combustivelResponseInativa);
+                    .thenReturn(cx.combustivelResponseInativa);
             //ACT
             var resultado = combustivelService.atualizar(cx.combustivelRequest, ID_VALIDO);
             //Assert

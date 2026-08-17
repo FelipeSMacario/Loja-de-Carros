@@ -44,6 +44,15 @@ public class ModeloResponseFactory {
         return this;
     }
 
+    public ModeloResponseFactory comMarca() {
+        return this;
+    }
+
+    public ModeloResponseFactory comMarca(MarcaResponse marcaResponse) {
+        this.marcaResponse = marcaResponse;
+        return this;
+    }
+
     public ModeloResponse build() {
         return new ModeloResponse(id, nome, ativo, marcaResponse);
     }

@@ -8,31 +8,28 @@ import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.opcional.OpcionalEntityFactory;
 import com.javacar.lojadecarro.factory.opcional.OpcionalResponseFactory;
+import com.javacar.lojadecarro.factory.opcional.OpcionalTestContext;
 import com.javacar.lojadecarro.mapper.OpcionalMapper;
 import com.javacar.lojadecarro.repository.OpcionalRepository;
-import com.javacar.lojadecarro.validation.EntityValidation;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
 
 import static com.javacar.lojadecarro.enums.Entidade.OPCIONAL;
 import static com.javacar.lojadecarro.factory.helper.OpcionalHelper.*;
-import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.tuple;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
-class OpcionalServiceTest {
+@DisplayName("Testes da service de opcionais")
+class OpcionalServiceTest extends BaseServiceTest {
 
     @Mock
     private OpcionalRepository opcionalRepository;
@@ -40,470 +37,713 @@ class OpcionalServiceTest {
     private OpcionalMapper opcionalMapper;
     @InjectMocks
     private OpcionalService opcionalService;
-    @Spy
-    private EntityValidation entityValidation;
 
-    @Test
-    @DisplayName("Deve cadastrar um opcional")
-    void deveCadastrarUmOpcional() {
-        //Arrange
-        var request = criarOpcionalRequest();
-        var entity = criarOpcionalEntity();
-        var response = criarOpcionalResponse();
+    @DisplayName("Testes da criação do opcional")
+    @Nested
+    class Criar {
+        @Test
+        @DisplayName("Deve cadastrar um opcional")
+        void deveCadastrarUmOpcional() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+            var entity = criarOpcionalPadrao();
 
-        when(opcionalRepository.existsByNome(request.nome()))
-                .thenReturn(false);
-        when(opcionalMapper.toEntity(request))
-                .thenReturn(entity);
+            when(opcionalRepository.existsByNome(cx.request.nome()))
+                    .thenReturn(false);
+            when(opcionalMapper.toEntity(cx.request))
+                    .thenReturn(entity);
 
-        when(opcionalRepository.save(entity))
-                .thenReturn(entity);
+            when(opcionalRepository.save(entity))
+                    .thenReturn(entity);
 
-        when(opcionalMapper.toResponse(entity))
-                .thenReturn(response);
-        //Act
-        var resultado = opcionalService.criar(request);
-        //Assert
-        assertOpcionalResponse(resultado);
+            when(opcionalMapper.toResponse(entity))
+                    .thenReturn(cx.response);
+            //Act
+            var resultado = opcionalService.criar(cx.request);
+            //Assert
+            assertOpcionalResponse(resultado);
 
-        verify(opcionalRepository).existsByNome(request.nome());
-        verify(opcionalMapper).toEntity(request);
-        verify(opcionalRepository).save(entity);
-        verify(opcionalMapper).toResponse(entity);
+            verify(opcionalRepository).existsByNome(cx.request.nome());
+            verify(opcionalMapper).toEntity(cx.request);
+            verify(opcionalRepository).save(entity);
+            verify(opcionalMapper).toResponse(entity);
 
-        verifyNoMoreInteractions(
-                opcionalMapper,
-                opcionalRepository
-        );
+            verifyNoMoreInteractions(
+                    opcionalMapper,
+                    opcionalRepository
+            );
+        }
+
+        @Test
+        @DisplayName("Deve lancar excecao de nome unico")
+        void deveLancarExcecaoDeNomeUnico() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+
+            when(opcionalRepository.existsByNome(cx.request.nome()))
+                    .thenReturn(true);
+            //ACT
+            var exception = assertThrows(BusinessException.class, () ->
+                    opcionalService.criar(cx.request));
+            //Assert
+            assertThat(exception)
+                    .hasMessage(OPCIONAL.nomeJaExistente());
+
+            verify(opcionalRepository).existsByNome(cx.request.nome());
+            verifyNoMoreInteractions(opcionalRepository);
+
+            verifyNoInteractions(opcionalMapper);
+        }
     }
 
 
-    @Test
-    @DisplayName("Deve listar os opcionais ativos")
-    void deveListarOpcionaisAtivos() {
-        //Arrange
-        var entity1 = criarOpcionalEntity();
-        var entity2 = OpcionalEntityFactory
-                .criarEntity()
-                .comNome("Banco de couro")
-                .comId(2L)
-                .comAtivo(true)
-                .build();
-        var entity = List.of(entity1, entity2);
+    @DisplayName("Testes da listagem de opcionais ADM")
+    @Nested
+    class ListarAdm {
+        @Test
+        @DisplayName("Deve listar os opcionais ativos")
+        void deveListarOpcionaisAtivos() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+            var entity1 = criarOpcionalPadrao();
+            var entity2 = OpcionalTestContext.criarOpcional(2L, "Banco de couro", true);
 
-        var response1 = criarOpcionalResponse();
+            var entity = List.of(entity1, entity2);
 
-        var response2 = OpcionalResponseFactory
-                .criarResponse()
-                .comNome("Banco de couro")
-                .comId(2L)
-                .comAtivo(true)
-                .build();
+            var response2 = OpcionalResponseFactory
+                    .criarResponse()
+                    .comNome("Banco de couro")
+                    .comId(2L)
+                    .comAtivo(true)
+                    .build();
 
-        when(opcionalRepository.findByAtivo(true))
-                .thenReturn(entity);
+            when(opcionalRepository.findByAtivo(true))
+                    .thenReturn(entity);
 
-        when(opcionalMapper.toResponse(entity1))
-                .thenReturn(response1);
-        when(opcionalMapper.toResponse(entity2))
-                .thenReturn(response2);
-        //Act
-        var resultado = opcionalService.listarAdministracao(StatusFiltro.ATIVAS);
-        //Assert
+            when(opcionalMapper.toResponse(entity1))
+                    .thenReturn(cx.response);
+            when(opcionalMapper.toResponse(entity2))
+                    .thenReturn(response2);
+            //Act
+            var resultado = opcionalService.listarAdministracao(StatusFiltro.ATIVAS);
+            //Assert
 
-        assertThat(resultado)
-                .isNotNull()
-                .hasSize(2)
-                .extracting(
-                        OpcionalResponse::id,
-                        OpcionalResponse::nome,
-                        OpcionalResponse::ativo
-                )
-                .containsExactly(
-                        tuple(1L, "Freio ABS", true),
-                        tuple(2L, "Banco de couro", true)
-                );
+            assertThat(resultado)
+                    .isNotNull()
+                    .hasSize(2)
+                    .extracting(
+                            OpcionalResponse::id,
+                            OpcionalResponse::nome,
+                            OpcionalResponse::ativo
+                    )
+                    .containsExactly(
+                            tuple(1L, "Freio Abs", true),
+                            tuple(2L, "Banco de couro", true)
+                    );
 
-        verify(opcionalRepository, never()).findAll();
-        verify(opcionalRepository).findByAtivo(true);
-        verify(opcionalMapper).toResponse(entity1);
-        verify(opcionalMapper).toResponse(entity2);
+            verify(opcionalRepository, never()).findAll();
+            verify(opcionalRepository).findByAtivo(true);
+            verify(opcionalMapper).toResponse(entity1);
+            verify(opcionalMapper).toResponse(entity2);
 
-        verifyNoMoreInteractions(opcionalRepository, opcionalMapper);
+            verifyNoMoreInteractions(opcionalRepository, opcionalMapper);
 
+        }
+
+        @Test
+        @DisplayName("Deve listar os opcionais inativos")
+        void deveListarOpcionaisInativos() {
+            //Arrange
+            var entity1 = criarOpcionalPadrao();
+            entity1.setAtivo(false);
+            var entity2 = OpcionalEntityFactory
+                    .criarEntity()
+                    .comNome("Banco de couro")
+                    .comId(2L)
+                    .comAtivo(false)
+                    .build();
+            var entity = List.of(entity1, entity2);
+
+            var response1 = OpcionalTestContext.criaOpcionalResponse(ID_VALIDO, "Freio ABS", false);
+            var response2 = OpcionalTestContext.criaOpcionalResponse(2L, "Banco de couro", false);
+
+            when(opcionalRepository.findByAtivo(false))
+                    .thenReturn(entity);
+
+            when(opcionalMapper.toResponse(entity1))
+                    .thenReturn(response1);
+            when(opcionalMapper.toResponse(entity2))
+                    .thenReturn(response2);
+            //Act
+            var resultado = opcionalService.listarAdministracao(StatusFiltro.INATIVAS);
+            //Assert
+
+            assertThat(resultado)
+                    .isNotNull()
+                    .hasSize(2)
+                    .extracting(
+                            OpcionalResponse::id,
+                            OpcionalResponse::nome,
+                            OpcionalResponse::ativo
+                    )
+                    .containsExactly(
+                            tuple(1L, "Freio ABS", false),
+                            tuple(2L, "Banco de couro", false)
+                    );
+
+            verify(opcionalRepository, never()).findAll();
+            verify(opcionalRepository).findByAtivo(false);
+            verify(opcionalMapper).toResponse(entity1);
+            verify(opcionalMapper).toResponse(entity2);
+
+            verifyNoMoreInteractions(opcionalRepository, opcionalMapper);
+        }
+
+        @Test
+        @DisplayName("Deve listar todos os opcionais")
+        void deveListarTodosOpcionais() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+            var entity1 = criarOpcionalPadrao();
+            var entity2 = OpcionalTestContext.criarOpcional(2L, "Banco de couro", false);
+            var entity = List.of(entity1, entity2);
+
+            var response2 = OpcionalResponseFactory
+                    .criarResponse()
+                    .comNome("Banco de couro")
+                    .comId(2L)
+                    .comAtivo(false)
+                    .build();
+
+            when(opcionalRepository.findAll())
+                    .thenReturn(entity);
+
+            when(opcionalMapper.toResponse(entity1))
+                    .thenReturn(cx.response);
+            when(opcionalMapper.toResponse(entity2))
+                    .thenReturn(response2);
+            //Act
+            var resultado = opcionalService.listarAdministracao(StatusFiltro.TODAS);
+            //Assert
+
+            assertThat(resultado)
+                    .isNotNull()
+                    .hasSize(2)
+                    .extracting(
+                            OpcionalResponse::id,
+                            OpcionalResponse::nome,
+                            OpcionalResponse::ativo
+                    )
+                    .containsExactly(
+                            tuple(1L, "Freio Abs", true),
+                            tuple(2L, "Banco de couro", false)
+                    );
+
+            verify(opcionalRepository).findAll();
+            verify(opcionalRepository, never()).findByAtivo(anyBoolean());
+            verify(opcionalMapper).toResponse(entity1);
+            verify(opcionalMapper).toResponse(entity2);
+
+            verifyNoMoreInteractions(opcionalRepository, opcionalMapper);
+        }
     }
 
-    @Test
-    @DisplayName("Deve listar os opcionais inativos")
-    void deveListarOpcionaisInativos() {
-        //Arrange
-        var entity1 = criarOpcionalEntity();
-        entity1.setAtivo(false);
-        var entity2 = OpcionalEntityFactory
-                .criarEntity()
-                .comNome("Banco de couro")
-                .comId(2L)
-                .comAtivo(false)
-                .build();
-        var entity = List.of(entity1, entity2);
+    @DisplayName("Testes da listagem de opcionais")
+    @Nested
+    class ListarOpcionais {
+        @Test
+        @DisplayName("Deve listar opcionais ativas")
+        void deveListarOpcionaisAtivas() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+            var entity1 = criarOpcionalPadrao();
+            var entity2 = OpcionalTestContext.criarOpcional(2L, "Banco de couro", true);
+            var listEntity = List.of(entity1, entity2);
+            var response2 = OpcionalTestContext.criaOpcionalResponse(2L, "Banco de couro", true);
 
-        var response1 = OpcionalResponseFactory
-                .criarResponse()
-                .comNome("Freio ABS")
-                .comId(1L)
-                .comAtivo(false)
-                .build();
 
-        var response2 = OpcionalResponseFactory
-                .criarResponse()
-                .comNome("Banco de couro")
-                .comId(2L)
-                .comAtivo(false)
-                .build();
+            when(opcionalRepository.findByAtivo(true))
+                    .thenReturn(listEntity);
 
-        when(opcionalRepository.findByAtivo(false))
-                .thenReturn(entity);
+            when(opcionalMapper.toResponse(entity1))
+                    .thenReturn(cx.response);
+            when(opcionalMapper.toResponse(entity2))
+                    .thenReturn(response2);
+            //ACT
+            var resultado = opcionalService.listarOpcionaisAtivas();
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .hasSize(2)
+                    .extracting(
+                            OpcionalResponse::id,
+                            OpcionalResponse::nome,
+                            OpcionalResponse::ativo
+                    ).containsExactly(
+                            tuple(ID_VALIDO, "Freio Abs", true),
+                            tuple(2L, "Banco de couro", true)
+                    );
+            verify(opcionalRepository).findByAtivo(true);
+            verify(opcionalMapper).toResponse(entity1);
+            verify(opcionalMapper).toResponse(entity2);
 
-        when(opcionalMapper.toResponse(entity1))
-                .thenReturn(response1);
-        when(opcionalMapper.toResponse(entity2))
-                .thenReturn(response2);
-        //Act
-        var resultado = opcionalService.listarAdministracao(StatusFiltro.INATIVAS);
-        //Assert
-
-        assertThat(resultado)
-                .isNotNull()
-                .hasSize(2)
-                .extracting(
-                        OpcionalResponse::id,
-                        OpcionalResponse::nome,
-                        OpcionalResponse::ativo
-                )
-                .containsExactly(
-                        tuple(1L, "Freio ABS", false),
-                        tuple(2L, "Banco de couro", false)
-                );
-
-        verify(opcionalRepository, never()).findAll();
-        verify(opcionalRepository).findByAtivo(false);
-        verify(opcionalMapper).toResponse(entity1);
-        verify(opcionalMapper).toResponse(entity2);
-
-        verifyNoMoreInteractions(opcionalRepository, opcionalMapper);
+            verifyNoMoreInteractions(opcionalRepository, opcionalMapper);
+        }
     }
 
-    @Test
-    @DisplayName("Deve listar todos os opcionais")
-    void deveListarTodosOpcionais() {
-        //Arrange
-        var entity1 = criarOpcionalEntity();
-        var entity2 = OpcionalEntityFactory
-                .criarEntity()
-                .comNome("Banco de couro")
-                .comId(2L)
-                .comAtivo(false)
-                .build();
-        var entity = List.of(entity1, entity2);
+    @DisplayName("Testes da busca de opcionais ADM")
+    @Nested
+    class BuscarOpcionalADM {
+        @Test
+        @DisplayName("Deve buscar um opcional")
+        void deveBuscarOpcional() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+            var entity = criarOpcionalPadrao();
 
-        var response1 = criarOpcionalResponse();
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(entity));
+            when(opcionalMapper.toResponse(entity))
+                    .thenReturn(cx.response);
+            //Act
+            var resultado = opcionalService.buscarPorIdAdministracao(ID_VALIDO);
+            //Assert
+            assertOpcionalResponse(resultado);
 
-        var response2 = OpcionalResponseFactory
-                .criarResponse()
-                .comNome("Banco de couro")
-                .comId(2L)
-                .comAtivo(false)
-                .build();
+            verify(opcionalRepository).findById(ID_VALIDO);
+            verify(opcionalMapper).toResponse(entity);
 
-        when(opcionalRepository.findAll())
-                .thenReturn(entity);
+            verifyNoMoreInteractions(
+                    opcionalRepository,
+                    opcionalMapper
+            );
+        }
 
-        when(opcionalMapper.toResponse(entity1))
-                .thenReturn(response1);
-        when(opcionalMapper.toResponse(entity2))
-                .thenReturn(response2);
-        //Act
-        var resultado = opcionalService.listarAdministracao(StatusFiltro.TODAS);
-        //Assert
+        @Test
+        @DisplayName("Deve buscar um opcional inativo")
+        void deveBuscarOpcionalInativo() {
+            //Arrange
+            var entity = OpcionalTestContext.criarOpcional(ID_VALIDO, "Freio Abs", false);
+            var response = OpcionalTestContext.criaOpcionalResponse(ID_VALIDO, "Freio Abs", false);
 
-        assertThat(resultado)
-                .isNotNull()
-                .hasSize(2)
-                .extracting(
-                        OpcionalResponse::id,
-                        OpcionalResponse::nome,
-                        OpcionalResponse::ativo
-                )
-                .containsExactly(
-                        tuple(1L, "Freio ABS", true),
-                        tuple(2L, "Banco de couro", false)
-                );
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(entity));
+            when(opcionalMapper.toResponse(entity))
+                    .thenReturn(response);
+            //Act
+            var resultado = opcionalService.buscarPorIdAdministracao(ID_VALIDO);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .extracting(
+                            OpcionalResponse::id,
+                            OpcionalResponse::nome,
+                            OpcionalResponse::ativo
+                    ).containsExactly(
+                            ID_VALIDO, "Freio Abs", false
+                    );
 
-        verify(opcionalRepository).findAll();
-        verify(opcionalRepository, never()).findByAtivo(anyBoolean());
-        verify(opcionalMapper).toResponse(entity1);
-        verify(opcionalMapper).toResponse(entity2);
+            verify(opcionalRepository).findById(ID_VALIDO);
+            verify(opcionalMapper).toResponse(entity);
 
-        verifyNoMoreInteractions(opcionalRepository, opcionalMapper);
+            verifyNoMoreInteractions(
+                    opcionalRepository,
+                    opcionalMapper
+            );
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao buscar opcional")
+        void deveLancarExcecaoAoBuscarOpcional() {
+            //Arrange
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.empty());
+            //Act
+            var exception = assertThrows(NotFoundException.class,
+                    () -> opcionalService.buscarPorIdAdministracao(ID_VALIDO));
+            //Assert
+            assertNotFoundResponseError(exception, OPCIONAL, ID_VALIDO);
+
+            verify(opcionalRepository).findById(ID_VALIDO);
+
+            verifyNoMoreInteractions(opcionalRepository);
+
+            verifyNoInteractions(opcionalMapper);
+        }
     }
 
-    @Test
-    @DisplayName("Deve filtrar um opcional por ID")
-    void deveFiltrarOpcionalPorId() {
-        //Arrange
-        var entity = criarOpcionalEntity();
-        var response = criarOpcionalResponse();
+    @DisplayName("Testes da busca de opcional")
+    @Nested
+    class BuscarOpcional {
+        @Test
+        @DisplayName("Deve buscar opcional ativo")
+        void deveBuscarOpcionalAtivo() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+            var entity = criarOpcionalPadrao();
+            when(opcionalRepository.findByIdAndAtivoTrue(ID_VALIDO))
+                    .thenReturn(Optional.of(entity));
 
-        when(opcionalRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
-        when(opcionalMapper.toResponse(entity))
-                .thenReturn(response);
-        //Act
-        var resultado = opcionalService.buscarPorIdAdministracao(ID_VALIDO);
-        //Assert
-        assertOpcionalResponse(resultado);
+            when(opcionalMapper.toResponse(entity))
+                    .thenReturn(cx.response);
+            //ACT
+            var resultado = opcionalService.buscarOpcionalAtivoPorId(ID_VALIDO);
+            //Assert
+            assertOpcionalResponse(resultado);
 
-        verify(opcionalRepository).findById(ID_VALIDO);
-        verify(opcionalMapper).toResponse(entity);
+            verify(opcionalRepository).findByIdAndAtivoTrue(ID_VALIDO);
+            verify(opcionalMapper).toResponse(entity);
+            verifyNoMoreInteractions(opcionalRepository, opcionalMapper);
+        }
 
-        verifyNoMoreInteractions(
-                opcionalRepository,
-                opcionalMapper
-        );
+        @Test
+        @DisplayName("Deve lançar exceção ao buscar opcional inativo")
+        void deveLancarExcecaoAoBuscarOpcionalInativo() {
+            //Arrange
+            when(opcionalRepository.findByIdAndAtivoTrue(ID_VALIDO))
+                    .thenReturn(Optional.empty());
+            //ACT
+            var exception = assertThrows(NotFoundException.class,
+                    () -> opcionalService.buscarOpcionalAtivoPorId(ID_VALIDO));
+            //Assert
+            assertNotFoundResponseError(exception, OPCIONAL, ID_VALIDO);
+
+            verify(opcionalRepository).findByIdAndAtivoTrue(ID_VALIDO);
+            verifyNoMoreInteractions(opcionalRepository);
+
+            verifyNoInteractions(opcionalMapper);
+        }
     }
 
-    @Test
-    @DisplayName("Deve lançar uma exceção ao filtrar um opcional por ID")
-    void deveLancarEcecaoFiltrarOpcionalPorId() {
-        //Arrange
-        when(opcionalRepository.findByIdAndAtivoTrue(ID_INVALIDO))
-                .thenReturn(Optional.empty());
-        //Act
-        var exception = assertThrows(NotFoundException.class,
-                () -> opcionalService.buscarOpcionalAtivoPorId(ID_INVALIDO));
-        //Assert
-        assertNotFoundResponseError(exception, OPCIONAL, ID_INVALIDO);
+    @DisplayName("Testes da atualização do opcional")
+    @Nested
+    class Atualizar {
+        @Test
+        @DisplayName("Deve atualizar um opcional")
+        void deveAtualizarUmOpcional() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+            var entity = criarOpcionalPadrao();
 
-        verify(opcionalRepository).findByIdAndAtivoTrue(ID_INVALIDO);
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(entity));
 
-        verifyNoMoreInteractions(opcionalRepository);
+            when(opcionalRepository.existsByNome(cx.request.nome()))
+                    .thenReturn(false);
 
-        verifyNoInteractions(opcionalMapper);
+            when(opcionalMapper.toResponse(entity))
+                    .thenReturn(cx.response);
+
+            //Act
+            var resultado = opcionalService.atualizar(cx.request, ID_VALIDO);
+            //Assert
+            assertOpcionalResponse(resultado);
+
+            verify(opcionalRepository).findById(ID_VALIDO);
+            verify(opcionalRepository).existsByNome(cx.request.nome());
+            verify(opcionalMapper).toUpdate(cx.request, entity);
+            verify(opcionalMapper).toResponse(entity);
+
+            verifyNoMoreInteractions(
+                    opcionalMapper,
+                    opcionalRepository
+            );
+        }
+
+        @Test
+        @DisplayName("Deve atualizar um opcional inativo")
+        void deveAtualizarUmOpcionalInativo() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+            var entity = OpcionalTestContext.criarOpcional(ID_VALIDO, "Freio Abs", false);
+            var response = OpcionalTestContext.criaOpcionalResponse(ID_VALIDO, "Freio Abs", false);
+
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(entity));
+
+            when(opcionalRepository.existsByNome(cx.request.nome()))
+                    .thenReturn(false);
+
+            when(opcionalMapper.toResponse(entity))
+                    .thenReturn(response);
+
+            //Act
+            var resultado = opcionalService.atualizar(cx.request, ID_VALIDO);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .extracting(
+                            OpcionalResponse::id,
+                            OpcionalResponse::nome,
+                            OpcionalResponse::ativo
+                    ).containsExactly(
+                            ID_VALIDO,
+                            "Freio Abs",
+                            false
+                    );
+
+            verify(opcionalRepository).findById(ID_VALIDO);
+            verify(opcionalRepository).existsByNome(cx.request.nome());
+            verify(opcionalMapper).toUpdate(cx.request, entity);
+            verify(opcionalMapper).toResponse(entity);
+
+            verifyNoMoreInteractions(
+                    opcionalMapper,
+                    opcionalRepository
+            );
+        }
+
+        @Test
+        @DisplayName("Deve lançar uma exceção ao atualizar um opcional")
+        void deveLancarExcecaoAtualizarUmOpcional() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.empty());
+            //Act
+            var excecao = assertThrows(NotFoundException.class,
+                    () -> opcionalService.atualizar(cx.request, ID_VALIDO));
+            //Assert
+            assertNotFoundResponseError(excecao, OPCIONAL, ID_VALIDO);
+
+
+            verify(opcionalRepository).findById(ID_VALIDO);
+            verifyNoMoreInteractions(opcionalRepository);
+
+            verifyNoInteractions(opcionalMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao atualizar com nome já existente")
+        void deveLancarExcecaoAtualizarNomeJaExistente() {
+            //Arrange
+            var cx = new OpcionalTestContext();
+            var entity = criarOpcionalPadrao();
+
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(entity));
+
+            when(opcionalRepository.existsByNome(cx.request.nome()))
+                    .thenReturn(true);
+            //ACT
+            var exception = assertThrows(BusinessException.class,
+                    () -> opcionalService.atualizar(cx.request, ID_VALIDO));
+            //Assert
+            assertThat(exception)
+                    .hasMessage(OPCIONAL.nomeJaExistente());
+
+            verify(opcionalRepository).findById(ID_VALIDO);
+            verify(opcionalRepository).existsByNome(cx.request.nome());
+            verifyNoMoreInteractions(opcionalRepository);
+
+            verifyNoInteractions(opcionalMapper);
+        }
     }
 
-    @Test
-    @DisplayName("Deve atualizar um opcional")
-    void deveAtualizarUmOpcional() {
-        //Arrange
-        var request = criarOpcionalRequest();
-        var entity = criarOpcionalEntity();
-
-        var response = criarOpcionalResponse();
-
-        when(opcionalRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
-
-        doNothing().when(opcionalMapper)
-                .toUpdate(request, entity);
-
-        when(opcionalMapper.toResponse(entity))
-                .thenReturn(response);
-
-        //Act
-        var resultado = opcionalService.atualizar(request, ID_VALIDO);
-        //Assert
-        assertOpcionalResponse(resultado);
-
-        verify(opcionalRepository).findById(ID_VALIDO);
-        verify(opcionalMapper).toResponse(entity);
-
-        verifyNoMoreInteractions(
-                opcionalMapper,
-                opcionalRepository
-        );
-    }
-
-    @Test
-    @DisplayName("Deve lançar uma exceção ao atualizar um opcional")
-    void deveLancarExcecaoAtualizarUmOpcional() {
-        //Arrange
-        var request = criarOpcionalRequest();
-
-        when(opcionalRepository.findById(ID_INVALIDO))
-                .thenReturn(Optional.empty());
-        //Act
-        var excecao = assertThrows(NotFoundException.class,
-                () -> opcionalService.atualizar(request, ID_INVALIDO));
-        //Assert
-        assertNotFoundResponseError(excecao, OPCIONAL, ID_INVALIDO);
-
-
-        verify(opcionalRepository).findById(ID_INVALIDO);
-        verifyNoMoreInteractions(opcionalRepository);
-
-        verifyNoInteractions(opcionalMapper);
-    }
-
-    @Test
     @DisplayName("Deve alterar o status do opcional")
-    void deveAlterarStatusDoOpcional() {
-        //Arrange
-        var entity = criarOpcionalEntity();
-        var request = new StatusRequest(false);
-        var response = OpcionalResponseFactory
-                .criarResponse()
-                .comTodosOsCampos()
-                .comAtivo(false)
-                .build();
+    @Nested
+    class AlterarStatus {
+        @Test
+        @DisplayName("Deve alterar o status do opcional para inativo")
+        void deveAlterarStatusDoOpcionalInativo() {
+            //Arrange
+            var entity = criarOpcionalPadrao();
+            var request = new StatusRequest(false);
+            var response = OpcionalTestContext.criaOpcionalResponse(ID_VALIDO, "Freio Abs", false);
 
-        when(opcionalRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(entity));
 
-        when(opcionalMapper.toResponse(entity))
-                .thenReturn(response);
-        //ACT
-        var resultado = opcionalService.alterarStatus(ID_VALIDO, request);
-        //Assert
-        assertThat(resultado)
-                .isNotNull();
+            when(opcionalMapper.toResponse(entity))
+                    .thenReturn(response);
+            //ACT
+            var resultado = opcionalService.alterarStatus(ID_VALIDO, request);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull();
 
-        assertThat(resultado.ativo()).isFalse();
-        assertThat(entity.isAtivo()).isFalse();
+            assertThat(resultado.ativo()).isFalse();
+            assertThat(entity.isAtivo()).isFalse();
 
-        verify(opcionalRepository).findById(ID_VALIDO);
-        verify(opcionalMapper).toResponse(entity);
+            verify(opcionalRepository).findById(ID_VALIDO);
+            verify(opcionalMapper).toResponse(entity);
 
-        verifyNoMoreInteractions(opcionalRepository);
-        verifyNoMoreInteractions(opcionalMapper);
+            verifyNoMoreInteractions(opcionalRepository, opcionalMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao alterar o opcional já inativo")
+        void deveLancarExcecaoAoAlterarStatusInativo() {
+            //Arrange
+            var entity = OpcionalTestContext.criarOpcional(ID_VALIDO, "Freio Abs", false);
+            var request = new StatusRequest(false);
+
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(entity));
+            //ACT
+            var exception = assertThrows(BusinessException.class,
+                    () -> opcionalService.alterarStatus(ID_VALIDO, request));
+
+            //Assert
+            assertBusinessResponseErrorInativa(exception, OPCIONAL);
+
+            assertThat(entity.isAtivo()).isFalse();
+
+            verify(opcionalRepository).findById(ID_VALIDO);
+
+            verifyNoMoreInteractions(opcionalRepository);
+
+            verifyNoInteractions(opcionalMapper);
+        }
+
+        @Test
+        @DisplayName("Deve alterar o status do opcional para ativo")
+        void deveAlterarStatusDoOpcionalAtivo() {
+            //Arrange
+            var entity = OpcionalTestContext.criarOpcional(ID_VALIDO, "Freio Abs", false);
+            var request = new StatusRequest(true);
+            var response = OpcionalTestContext.criaOpcionalResponse(ID_VALIDO, "Freio Abs", true);
+
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(entity));
+
+            when(opcionalMapper.toResponse(entity))
+                    .thenReturn(response);
+            //ACT
+            var resultado = opcionalService.alterarStatus(ID_VALIDO, request);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull();
+
+            assertThat(resultado.ativo()).isTrue();
+            assertThat(entity.isAtivo()).isTrue();
+
+            verify(opcionalRepository).findById(ID_VALIDO);
+            verify(opcionalMapper).toResponse(entity);
+
+            verifyNoMoreInteractions(opcionalRepository, opcionalMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao alterar o opcional já ativo")
+        void deveLancarExcecaoAoAlterarStatusAtivo() {
+            //Arrange
+            var entity = criarOpcionalPadrao();
+            var request = new StatusRequest(true);
+
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.of(entity));
+            //ACT
+            var exception = assertThrows(BusinessException.class,
+                    () -> opcionalService.alterarStatus(ID_VALIDO, request));
+
+            //Assert
+            assertBusinessResponseError(exception, OPCIONAL);
+
+            assertThat(entity.isAtivo()).isTrue();
+
+            verify(opcionalRepository).findById(ID_VALIDO);
+
+            verifyNoMoreInteractions(opcionalRepository);
+
+            verifyNoInteractions(opcionalMapper);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção do opcional nao encontrada ao alterar status")
+        void deveLancarExcecaoQuandoOpcionalNaoEncontradaAoAlterarStatus() {
+            //Arrange
+            var request = new StatusRequest(true);
+            when(opcionalRepository.findById(ID_VALIDO))
+                    .thenReturn(Optional.empty());
+            //Assert
+            var exception = assertThrows(NotFoundException.class,
+                    () -> opcionalService.alterarStatus(ID_VALIDO, request));
+
+            assertNotFoundResponseError(exception, OPCIONAL, ID_VALIDO);
+            verify(opcionalRepository).findById(ID_VALIDO);
+
+            verifyNoMoreInteractions(opcionalRepository);
+
+            verifyNoInteractions(opcionalMapper);
+        }
     }
 
-    @Test
-    @DisplayName("Deve lançar exceção ao alterar o status")
-    void deveLancarExcecaoAoAlterarStatusCor() {
-        //Arrange
-        var entity = criarOpcionalEntity();
-        var request = new StatusRequest(true);
+    @DisplayName("Testes da busca de opcionais por IDs")
+    @Nested
+    class BuscarPorIDs {
+        @Test
+        @DisplayName("Deve buscar opcionais por IDs")
+        void deveBuscarPorIDs() {
+            //Arrange
+            var ids = List.of(ID_VALIDO, 2L, 3L);
+            var entity1 = criarOpcionalPadrao();
+            var entity2 = OpcionalTestContext.criarOpcional(2L, "Banco de couro", false);
+            var entity3 = OpcionalTestContext.criarOpcional(3L, "Camera de ré", true);
+            var entityList = List.of(entity1, entity2, entity3);
 
-        when(opcionalRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
-        //ACT
-        var exception = assertThrows(BusinessException.class,
-                () -> opcionalService.alterarStatus(ID_VALIDO, request));
+            when(opcionalRepository.findAllByIdIn(ids))
+                    .thenReturn(entityList);
+            //ACT
+            var resultado = opcionalService.buscarOpcionais(ids);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .hasSize(3)
+                    .extracting(
+                            Opcional::getId,
+                            Opcional::getNome,
+                            Opcional::isAtivo
+                    ).containsExactlyInAnyOrder(
+                            tuple(ID_VALIDO, "Freio Abs", true),
+                            tuple(2L, "Banco de couro", false),
+                            tuple(3L, "Camera de ré", true)
+                    );
 
-        //Assert
-        assertBusinessResponseError(exception, OPCIONAL);
-
-        assertThat(entity.isAtivo()).isTrue();
-
-        verify(opcionalRepository).findById(ID_VALIDO);
-
-        verifyNoMoreInteractions(opcionalRepository);
-
-        verifyNoInteractions(opcionalMapper);
+            verify(opcionalRepository).findAllByIdIn(ids);
+            verifyNoMoreInteractions(opcionalRepository);
+        }
     }
 
-    @Test
-    @DisplayName("Deve lançar exceção do opcional nao encontrada ao alterar status")
-    void deveLancarExcecaoQuandoOpcionalNaoEncontradaAoAlterarStatus() {
-        //Arrange
-        var request = new StatusRequest(true);
-        //Assert
-        var exception = assertThrows(NotFoundException.class,
-                () -> opcionalService.alterarStatus(ID_INVALIDO, request));
+    @DisplayName("Testes da busca de opcionais ativos")
+    @Nested
+    class BuscarPorIdsAtivos {
+        @Test
+        @DisplayName("Deve buscar opcionais ativos")
+        void deveBuscarOpcionaisPorIdsAtivos() {
+            //Arrange
+            var ids = List.of(ID_VALIDO, 2L, 3L);
+            var entity1 = criarOpcionalPadrao();
+            var entity2 = OpcionalTestContext.criarOpcional(2L, "Banco de couro", true);
+            var entity3 = OpcionalTestContext.criarOpcional(3L, "Camera de ré", true);
+            var entityList = List.of(entity1, entity2, entity3);
 
-        assertNotFoundResponseError(exception, OPCIONAL, ID_INVALIDO);
-        verify(opcionalRepository).findById(ID_INVALIDO);
+            when(opcionalRepository.findAllByIdInAndAtivoTrue(ids))
+                    .thenReturn(entityList);
+            //ACT
+            var resultado = opcionalService.buscarOpcionaisAtivos(ids);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .hasSize(3)
+                    .extracting(
+                            Opcional::getId,
+                            Opcional::getNome,
+                            Opcional::isAtivo
+                    ).containsExactlyInAnyOrder(
+                            tuple(ID_VALIDO, "Freio Abs", true),
+                            tuple(2L, "Banco de couro", true),
+                            tuple(3L, "Camera de ré", true)
+                    );
 
-        verifyNoMoreInteractions(opcionalRepository);
+            verify(opcionalRepository).findAllByIdInAndAtivoTrue(ids);
+            verifyNoMoreInteractions(opcionalRepository);
+        }
 
-        verifyNoInteractions(opcionalMapper);
     }
 
-    @Test
-    @DisplayName("Deve listar opcionais por ids")
-    void deveListarOpcionaisPorIds() {
-        //Arrange
-        List<Long> ids = List.of(ID_VALIDO, 2L, 3L);
-        var entity = criarOpcionalEntity();
-        var entity2 = OpcionalEntityFactory
-                .criarEntity()
-                .comId(2L)
-                .comNome("Banco de couro")
-                .comAtivo(true)
-                .build();
-        var entity3 = OpcionalEntityFactory
-                .criarEntity()
-                .comId(3L)
-                .comNome("Automatico")
-                .comAtivo(true)
-                .build();
-
-        var listEntity = List.of(entity, entity2, entity3);
-
-        when(opcionalRepository.findAllByIdIn(ids))
-                .thenReturn(listEntity);
-        //ACT
-        var resultado = opcionalService.buscarOpcionais(ids);
-        //Assert
-
-        assertThat(resultado)
-                .isNotNull()
-                .hasSize(3)
-                .extracting(
-                        Opcional::getId,
-                        Opcional::getNome,
-                        Opcional::isAtivo
-                ).containsExactly(
-                        tuple(1L, "Freio ABS", true),
-                        tuple(2L, "Banco de couro", true),
-                        tuple(3L, "Automatico", true)
-                );
-
-        verify(opcionalRepository).findAllByIdIn(ids);
-        verifyNoMoreInteractions(opcionalRepository);
+    private Opcional criarOpcionalPadrao() {
+        return OpcionalTestContext.criarOpcional(ID_VALIDO, "Freio Abs", true);
     }
-
-    @Test
-    @DisplayName("Deve buscar a entidade do opcinal por Id")
-    void deveBuscarAEntidadeOpcional() {
-        //Arrange
-        var entity = criarOpcionalEntity();
-
-        when(opcionalRepository.findById(ID_VALIDO))
-                .thenReturn(Optional.of(entity));
-        //ACT
-        var resultado = opcionalService.buscaOpcional(ID_VALIDO);
-        //Assert
-        assertThat(resultado)
-                .isNotNull()
-                .extracting(
-                        Opcional::getId,
-                        Opcional::getNome,
-                        Opcional::isAtivo)
-                .containsExactly(
-                        1L,
-                        "Freio ABS",
-                        true
-                );
-        verify(opcionalRepository).findById(ID_VALIDO);
-        verifyNoMoreInteractions(opcionalRepository);
-    }
-
-    @Test
-    @DisplayName("Deve lançar exceção ao buscar entidade do opcional por ID")
-    void deveLancarExcecaoAoBuscarEntidadeOpcional() {
-        //Arrange
-        when(opcionalRepository.findById(ID_INVALIDO))
-                .thenReturn(Optional.empty());
-        //ACT
-        var excecao = assertThrows(NotFoundException.class,
-                () -> opcionalService.buscaOpcional(ID_INVALIDO));
-        //Assert
-
-        assertNotFoundResponseError(excecao, OPCIONAL, ID_INVALIDO);
-
-        verify(opcionalRepository).findById(ID_INVALIDO);
-        verifyNoMoreInteractions(opcionalRepository);
-    }
-
 }

@@ -37,10 +37,12 @@ public final class MarcaHelper extends BaseHelper {
                 .extracting(
                         MarcaResponse::id,
                         MarcaResponse::nome,
+                        MarcaResponse::url,
                         MarcaResponse::ativo
                 ).containsExactly(
                         1L,
                         "Ford",
+                        "https://www.ford.com",
                         true
                 );
     }

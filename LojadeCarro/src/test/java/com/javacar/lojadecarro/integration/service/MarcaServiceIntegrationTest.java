@@ -90,7 +90,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
                     () -> marcaService.criar(request));
             //Assert
             assertThat(exception)
-                    .hasMessage("O nome informado já possui um cadastro.");
+                    .hasMessage(MARCA.nomeJaExistente());
         }
 
         @Test
@@ -254,7 +254,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
                     () -> marcaService.atualizar(request, marcaId));
             //Assert
             assertThat(exception)
-                    .hasMessage("O nome informado já possui um cadastro.");
+                    .hasMessage(MARCA.nomeJaExistente());
         }
 
         @Test

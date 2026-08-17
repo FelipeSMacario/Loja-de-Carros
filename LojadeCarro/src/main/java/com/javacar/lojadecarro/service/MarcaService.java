@@ -104,7 +104,7 @@ public class MarcaService {
 
     private void validarNomeUnico(String nome) {
         if (marcaRepository.existsByNome(nome)) {
-            throw new BusinessException("O nome informado já possui um cadastro.");
+            throw new BusinessException(MARCA.nomeJaExistente());
         }
     }
 

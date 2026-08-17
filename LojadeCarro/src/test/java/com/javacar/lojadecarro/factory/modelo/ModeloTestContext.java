@@ -13,6 +13,34 @@ public class ModeloTestContext {
     public final Modelo modelo = criarModeloEntity();
     public final ModeloResponse response = criarModeloResponse();
 
+    public static ModeloRequest criaModeloRequest(String nome, Long idMarca) {
+        return ModeloRequestFactory
+                .criarRequest()
+                .comNome(nome)
+                .comIdMarca(idMarca)
+                .build();
+    }
+
+    public static Modelo criaModelo(Long id, String nome, boolean ativo) {
+        return ModeloEntityFactory
+                .criarEntity()
+                .comId(id)
+                .comNome(nome)
+                .comAtivo(ativo)
+                .comMarca()
+                .build();
+    }
+
+    public static ModeloResponse criaModeloResponse(Long id, String nome, boolean ativo) {
+        return ModeloResponseFactory
+                .criarResponse()
+                .comId(id)
+                .comNome(nome)
+                .comAtivo(ativo)
+                .comMarca()
+                .build();
+    }
+
     public static ModeloResponse criaModeloResponse(boolean ativo) {
         return ModeloResponseFactory
                 .criarResponse()

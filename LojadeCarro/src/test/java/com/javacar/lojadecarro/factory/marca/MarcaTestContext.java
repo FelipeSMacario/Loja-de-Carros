@@ -13,6 +13,26 @@ public class MarcaTestContext {
     public final Marca marca = criarMarcaEntity();
     public final MarcaResponse response = criarMarcaResponse();
 
+    public static Marca criarMarca(Long id, String nome, String url, boolean ativo){
+        return MarcaEntityFactory
+                .criarEntity()
+                .comId(id)
+                .comNome(nome)
+                .comURL(url)
+                .comAtivo(ativo)
+                .build();
+    }
+
+    public static MarcaResponse criaMarcaResponse(Long id, String nome, String url, boolean ativo) {
+        return MarcaResponseFactory
+                .criarResponse()
+                .comId(id)
+                .comNome(nome)
+                .comURL(url)
+                .comAtivo(ativo)
+                .build();
+    }
+
     public static MarcaResponse criaMarcaResponse(boolean ativo) {
         return MarcaResponseFactory
                 .criarResponse()

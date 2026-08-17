@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 
 import static com.javacar.lojadecarro.enums.Entidade.MODELO;
 
@@ -33,8 +34,9 @@ public class ModeloService {
     @Transactional
     public ModeloResponse criar(ModeloRequest request) {
         validarNomeUnico(request.nome());
+        var marca = marcaService.buscaMarcaAtiva(request.idMarca());
         var modeloEntity = modeloMapper.toEntity(request);
-        modeloEntity.setMarca(marcaService.buscaMarca(request.idMarca()));
+        modeloEntity.setMarca(marca);
         var modelo = modeloRepository.save(modeloEntity);
 
         return modeloMapper.toResponse(modelo);
@@ -59,7 +61,7 @@ public class ModeloService {
     @Transactional(readOnly = true)
     public List<ModeloResponse> listarModelosAtivos() {
         return modeloRepository
-                .findByAtivo(true)
+                .findByAtivoTrueAndMarca_AtivoTrue()
                 .stream()
                 .map(modeloMapper::toResponse)
                 .toList();
@@ -77,9 +79,13 @@ public class ModeloService {
         var modelo = buscaModelo(id);
         if (!request.nome().equals(modelo.getNome())) {
             validarNomeUnico(request.nome());
+            modelo.setNome(request.nome());
         }
+        var marca = Objects.equals(request.idMarca(), modelo.getMarca().getId()) ?
+                modelo.getMarca() :
+                marcaService.buscaMarcaAtiva(request.idMarca());
+        modelo.setMarca(marca);
         modeloMapper.toUpdate(request, modelo);
-        modelo.setMarca(marcaService.buscaMarca(request.idMarca()));
         return modeloMapper.toResponse(modelo);
     }
 

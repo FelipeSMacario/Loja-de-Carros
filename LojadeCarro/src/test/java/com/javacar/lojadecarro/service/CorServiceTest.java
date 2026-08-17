@@ -8,15 +8,11 @@ import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.cor.CorTestContext;
 import com.javacar.lojadecarro.mapper.CorMapper;
 import com.javacar.lojadecarro.repository.CoresRepository;
-import com.javacar.lojadecarro.validation.EntityValidation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,17 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Testes da service da cor")
-@ExtendWith(MockitoExtension.class)
-class CorServiceTest {
+class CorServiceTest extends BaseServiceTest {
 
     @Mock
     private CorMapper corMapper;
 
     @Mock
     private CoresRepository coresRepository;
-
-    @Spy
-    private EntityValidation entityValidation;
 
     @InjectMocks
     private CoresService coresService;
@@ -369,17 +361,17 @@ class CorServiceTest {
         @DisplayName("Deve atualizar uma cor inativa")
         void deveAtualizarUmaCorInativa() {
             //Arrange
-            var cx =  new CorTestContext();
+            var cx = new CorTestContext();
             cx.corInativa.setNome("Azul");
 
             when(coresRepository.findById(ID_VALIDO))
-            .thenReturn(Optional.of(cx.corInativa));
+                    .thenReturn(Optional.of(cx.corInativa));
 
             when(coresRepository.existsByNome(cx.corRequest.nome()))
-            .thenReturn(false);
+                    .thenReturn(false);
 
             when(corMapper.toResponse(cx.corInativa))
-            .thenReturn(cx.corResponseInativa);
+                    .thenReturn(cx.corResponseInativa);
             //ACT
             var resultado = coresService.atualizar(cx.corRequest, ID_VALIDO);
             //Assert

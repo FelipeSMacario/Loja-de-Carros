@@ -8,15 +8,11 @@ import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.carroceria.CarroceriaTestContext;
 import com.javacar.lojadecarro.mapper.CarroceriaMapper;
 import com.javacar.lojadecarro.repository.CarroceriaRepository;
-import com.javacar.lojadecarro.validation.EntityValidation;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.Spy;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -29,17 +25,13 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Testes da service da carroceria")
-@ExtendWith(MockitoExtension.class)
-class CarroceriaServiceTest {
+class CarroceriaServiceTest extends BaseServiceTest {
 
     @Mock
     private CarroceriaMapper carroceriaMapper;
 
     @Mock
     private CarroceriaRepository carroceriaRepository;
-
-    @Spy
-    private EntityValidation entityValidation;
 
     @InjectMocks
     private CarroceriaService carroceriaService;
@@ -369,17 +361,17 @@ class CarroceriaServiceTest {
         @DisplayName("Deve atualizar uma carroceria inativa")
         void deveAtualizarUmaCarroceriaInativa() {
             //Arrange
-            var cx =  new CarroceriaTestContext();
+            var cx = new CarroceriaTestContext();
             cx.carroceriaInativa.setNome("Conversivel");
 
             when(carroceriaRepository.findById(ID_VALIDO))
-            .thenReturn(Optional.of(cx.carroceriaInativa));
+                    .thenReturn(Optional.of(cx.carroceriaInativa));
 
             when(carroceriaRepository.existsByNome(cx.carroceriaRequest.nome()))
-            .thenReturn(false);
+                    .thenReturn(false);
 
             when(carroceriaMapper.toResponse(cx.carroceriaInativa))
-            .thenReturn(cx.carroceriaResponseInativa);
+                    .thenReturn(cx.carroceriaResponseInativa);
             //ACT
             var resultado = carroceriaService.atualizar(cx.carroceriaRequest, ID_VALIDO);
             //Assert
