@@ -19,6 +19,7 @@ import java.util.List;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 
+
 @AutoConfigureMockMvc()
 @Import(WebSecurityConfig.class)
 public abstract class BaseControllerTest {
@@ -39,6 +40,21 @@ public abstract class BaseControllerTest {
                                                       String jwtId,
                                                       String role) throws Exception {
         return mockMvc.perform(get(url).with(jwt()
+                .jwt(jwt -> jwt.subject(jwtId))
+                .authorities(
+                        new SimpleGrantedAuthority(role)
+                )
+        ));
+    }
+
+    protected ResultActions performGetComAutenticacao(String url,
+                                                      String parametro,
+                                                      String valor,
+                                                      String jwtId,
+                                                      String role) throws Exception {
+        return mockMvc.perform(get(url)
+                .param(parametro, valor)
+                .with(jwt()
                 .jwt(jwt -> jwt.subject(jwtId))
                 .authorities(
                         new SimpleGrantedAuthority(role)
@@ -153,6 +169,23 @@ public abstract class BaseControllerTest {
     protected ResultActions performPatch(String url, Object body) throws Exception {
         return mockMvc.perform(
                 patch(url)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(body))
+        );
+    }
+
+    protected ResultActions performPatchComAutenticacao(String url,
+                                                        Object body,
+                                                        String jwtId,
+                                                        String role) throws Exception {
+        return mockMvc.perform(
+                patch(url)
+                        .with(jwt()
+                                .jwt(jwt -> jwt.subject(jwtId))
+                                .authorities(
+                                        new SimpleGrantedAuthority(role)
+                                )
+                        )
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body))
         );

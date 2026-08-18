@@ -602,7 +602,7 @@ class ModeloServiceTest extends BaseServiceTest {
             //ACT
             var resultado = modeloService.atualizar(request, ID_VALIDO);
             //Assert
-            assertThat(resultado.marcaResponse())
+            assertThat(resultado.marca())
                     .isNotNull()
                     .extracting(
                             MarcaResponse::id,

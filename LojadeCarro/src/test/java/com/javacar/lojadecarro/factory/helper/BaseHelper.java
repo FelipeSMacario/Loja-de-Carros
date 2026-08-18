@@ -52,14 +52,32 @@ public abstract class BaseHelper {
                 .andExpect(jsonPath("$.message").exists());
     }
 
+    public static void assertStatus403(ResultActions result) throws Exception {
+        result.andExpect(status().isForbidden());
+    }
+
+    public static void assertStatus403ProblemDetail(ResultActions result) throws Exception {
+        result
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.title").value("Acesso negado"))
+                .andExpect(jsonPath("$.detail").value(
+                        "Você não possui permissão para realizar esta operação."
+                ));
+    }
+
     public static void assertStatus204(ResultActions result) throws Exception {
         result.andExpect(status().isNoContent());
     }
 
-    public static void assertStatus401(ResultActions result) throws Exception {
+    public static void assertStatus401ProblemDetail(ResultActions result) throws Exception {
         result.andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.status").value(401))
                 .andExpect(jsonPath("$.message").value("Usuário ou senha inválidos."));
+    }
+
+    public static void assertStatus401(ResultActions result) throws Exception {
+        result.andExpect(status().isUnauthorized());
     }
 
     public static void assertStatus500(ResultActions result) throws Exception {

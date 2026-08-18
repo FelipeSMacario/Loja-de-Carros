@@ -8,7 +8,6 @@ import com.javacar.lojadecarro.service.OpcionalService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -23,7 +22,6 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(OpcionalController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller do opcional")
 class OpcionalControllerTest extends BaseControllerTest {
     private static final String URL = "/opcionais";
@@ -37,8 +35,8 @@ class OpcionalControllerTest extends BaseControllerTest {
     class Listar {
 
         @Test
-        @DisplayName("Deve utilizar ATIVAS como status padrão")
-        void deveUtilizarAtivasComoStatusPadrao() throws Exception {
+        @DisplayName("Deve listar somente os opcionais ativos")
+        void deveListarSomenteOpcionaisAtivos() throws Exception {
             //Arrange
             var response1 = criaOpcionalResponse(true);
             var response2 = criaOpcionalResponse2(true);

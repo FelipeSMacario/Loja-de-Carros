@@ -2,32 +2,26 @@ package com.javacar.lojadecarro.controller.publica;
 
 import com.javacar.lojadecarro.controller.BaseControllerTest;
 import com.javacar.lojadecarro.controller.publico.ModeloController;
-import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.modelo.ModeloTestContext;
 import com.javacar.lojadecarro.service.ModeloService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
 import static com.javacar.lojadecarro.enums.Entidade.MODELO;
-import static com.javacar.lojadecarro.enums.StatusFiltro.ATIVAS;
-import static com.javacar.lojadecarro.enums.StatusFiltro.TODAS;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.*;
 import static com.javacar.lojadecarro.factory.modelo.ModeloTestContext.criaModeloResponse;
 import static com.javacar.lojadecarro.factory.modelo.ModeloTestContext.criaModeloResponse2;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(ModeloController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller do modelo")
 class ModeloControllerTest extends BaseControllerTest {
     private static final String URL = "/modelos";
@@ -40,8 +34,8 @@ class ModeloControllerTest extends BaseControllerTest {
     @DisplayName("Testes de listagem")
     class Listar {
         @Test
-        @DisplayName("Deve utilizar ATIVAS como status padrão")
-        void deveUtilizarAtivasComoStatusPadrao() throws Exception {
+        @DisplayName("Deve listar somente os modelos ativos")
+        void deveListarSomenteModelosAtivos() throws Exception {
             //Arrange
             var response1 = criaModeloResponse(true);
             var response2 = criaModeloResponse2(true);

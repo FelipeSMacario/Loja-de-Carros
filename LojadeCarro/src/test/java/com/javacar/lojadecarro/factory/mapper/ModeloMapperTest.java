@@ -56,7 +56,7 @@ class ModeloMapperTest extends MapperTest {
                         true
                 );
 
-        assertThat(response.marcaResponse())
+        assertThat(response.marca())
                 .isNotNull()
                 .extracting(
                         MarcaResponse::id,

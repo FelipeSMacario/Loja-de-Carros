@@ -13,6 +13,6 @@ public interface ModeloMapper {
 
     void toUpdate(ModeloRequest modeloRequest, @MappingTarget Modelo modelo);
 
-    @Mapping(source = "marca", target = "marcaResponse")
+    @Mapping(source = "marca", target = "marca")
     ModeloResponse toResponse(Modelo modelo);
 }

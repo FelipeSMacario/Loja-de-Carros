@@ -11,8 +11,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus400;
-import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus401;
-import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
+import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus401ProblemDetail;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -55,7 +54,7 @@ class LoginControllerTest extends BaseControllerTest {
                     .thenThrow(new LoginSenhaException());
             //Act + Assert
             var resultado = performPost(URL, cx.request);
-            assertStatus401(resultado);
+            assertStatus401ProblemDetail(resultado);
 
             verify(loginService).autenticar(cx.request);
 

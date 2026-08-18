@@ -10,5 +10,5 @@ public record ModeloResponse(@Schema(example = "1", description = "ID do modelo"
                              @Schema(example = "true", description = "Status do modelo")
                              boolean ativo,
                              @Schema(example = "{ \"id\": 3, \"nome\": \"Chevrolet\", \"url\": \"https://www.chevrolet.com.br\" }")
-                             MarcaResponse marcaResponse) {
+                             MarcaResponse marca) {
 }
