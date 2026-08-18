@@ -8,7 +8,6 @@ import com.javacar.lojadecarro.service.CoresService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -20,16 +19,17 @@ import static com.javacar.lojadecarro.enums.StatusFiltro.TODAS;
 import static com.javacar.lojadecarro.factory.cor.CorTestContext.criaCorResponse;
 import static com.javacar.lojadecarro.factory.cor.CorTestContext.criaCorResponse2;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.*;
-import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
+import static com.javacar.lojadecarro.support.TestConstants.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AdminCorController.class)
-@AutoConfigureMockMvc(addFilters = false)
-@DisplayName("Testes da controller da cor")
+@DisplayName("Testes da controller administrativa da cor")
 class AdminCorControllerTest extends BaseControllerTest {
     private static final String URL = "/admin/cores";
+    private static final String URL_ID = URL + "/" + ID_VALIDO;
+    private static final String URL_STATUS = URL_ID + "/status";
 
     @MockitoBean
     private CoresService coresService;
@@ -39,148 +39,117 @@ class AdminCorControllerTest extends BaseControllerTest {
     class Criar {
         @Test
         @DisplayName("Deve criar uma cor")
-        void deveCriarUmaCor() throws Exception {
-            //Arrange
+        void deveCriarCor() throws Exception {
+            // Arrange
             var cx = new CorTestContext();
 
-            when(coresService.criar(cx.corRequest))
-                    .thenReturn(cx.corResponse);
-            //Act + Assert
-            var resultado = performPost(URL, cx.corRequest);
-            resultado.andExpect(header().exists("Location"));
+            when(coresService.criar(cx.corRequest)).thenReturn(cx.corResponse);
 
-            assertResult(
-                    resultado,
-                    status().isCreated(),
-                    ID_VALIDO,
-                    "Branco",
-                    true);
+            // Act + Assert
+            var resultado = performPostComAutenticacao(URL, cx.corRequest, ID_JWT, ROLE_ADM);
+            resultado.andExpect(header().string("Location", "http://localhost/admin/cores/" + ID_VALIDO));
+            assertResult(resultado, status().isCreated(), ID_VALIDO, "Branco", true);
 
             verify(coresService).criar(cx.corRequest);
             verifyNoMoreInteractions(coresService);
         }
 
         @Test
-        @DisplayName("Deve lançar 400 ao cadastrar uma cor sem nome")
-        void deveLancar400aoCadastrarUmaCorSemNome() throws Exception {
-            //Arrange
+        @DisplayName("Deve retornar 400 quando o nome não for informado")
+        void deveRetornar400QuandoNomeNaoForInformado() throws Exception {
             var cx = new CorTestContext();
 
-            //Act + Assert
-            var resultado = performPost(URL, cx.corRequestIncompleto);
+            var resultado = performPostComAutenticacao(URL, cx.corRequestIncompleto, ID_JWT, ROLE_ADM);
             assertStatus400(resultado);
 
             verifyNoInteractions(coresService);
         }
 
         @Test
-        @DisplayName("Deve lançar 500 ao cadastrar a cor vazio")
-        void deveLancar500AoCriarUmaCor() throws Exception {
-            //Arrange
+        @DisplayName("Deve retornar 500 ao criar uma cor")
+        void deveRetornar500AoCriarCor() throws Exception {
             var cx = new CorTestContext();
-            when(coresService.criar(cx.corRequest))
-                    .thenThrow(new RuntimeException("Erro inesperado"));
-            //Act + Assert
-            var resultado = performPost(URL, cx.corRequest);
+            when(coresService.criar(cx.corRequest)).thenThrow(new RuntimeException("Erro inesperado"));
+
+            var resultado = performPostComAutenticacao(URL, cx.corRequest, ID_JWT, ROLE_ADM);
             assertStatus500(resultado);
+
             verify(coresService).criar(cx.corRequest);
             verifyNoMoreInteractions(coresService);
         }
-
     }
 
     @Nested
     @DisplayName("Testes de listagem")
     class Listar {
         @Test
-        @DisplayName("Deve utilizar ATIVAS como status padrão")
-        void deveListarAsCores() throws Exception {
-            //Arrange
-            var corResponse1 = criaCorResponse(true);
-            var corResponse2 = criaCorResponse2(true);
+        @DisplayName("Deve listar cores ativas")
+        void deveListarCoresAtivas() throws Exception {
+            var response = List.of(criaCorResponse(true), criaCorResponse2(true));
+            when(coresService.listarAdministracao(ATIVAS)).thenReturn(response);
 
-            var response = List.of(corResponse1, corResponse2);
-
-            when(coresService.listarAdministracao(ATIVAS))
-                    .thenReturn(response);
-            //Act + Assert
-            var resultado = performGet(URL, "status", ATIVAS.toString());
-            assertList(
-                    resultado,
-                    ID_VALIDO,
-                    2L,
-                    "Branco",
-                    "Vermelho",
-                    true,
-                    true
-            );
+            var resultado = performGetComAutenticacao(URL, "status", ATIVAS.toString(), ID_JWT, ROLE_ADM);
+            assertList(resultado, ID_VALIDO, 2L, "Branco", "Vermelho", true, true);
 
             verify(coresService).listarAdministracao(ATIVAS);
             verifyNoMoreInteractions(coresService);
         }
 
         @Test
-        @DisplayName("Deve encaminhar o status informado para a service")
-        void deveEncaminharStatusTodas() throws Exception {
-            var corResponse1 = criaCorResponse(true);
-            var corResponse2 = criaCorResponse2(false);
+        @DisplayName("Deve utilizar TODAS como status padrão")
+        void deveUtilizarTodasComoStatusPadrao() throws Exception {
+            var response = List.of(criaCorResponse(true), criaCorResponse2(false));
+            when(coresService.listarAdministracao(TODAS)).thenReturn(response);
 
-            var response = List.of(corResponse1, corResponse2);
-
-            when(coresService.listarAdministracao(TODAS))
-                    .thenReturn(response);
-
-            //Act + Assert
-            var resultado = performGet(URL, "status", TODAS.toString());
-            assertList(
-                    resultado,
-                    ID_VALIDO,
-                    2L,
-                    "Branco",
-                    "Vermelho",
-                    true,
-                    false
-            );
+            var resultado = performGetComAutenticacao(URL, ID_JWT, ROLE_ADM);
+            assertList(resultado, ID_VALIDO, 2L, "Branco", "Vermelho", true, false);
 
             verify(coresService).listarAdministracao(TODAS);
             verifyNoMoreInteractions(coresService);
         }
+
+        @Test
+        @DisplayName("Deve retornar 401 na listagem")
+        void deveRetornar401NaListagem() throws Exception {
+            var resultado = performGet(URL);
+            assertStatus401(resultado);
+
+            verifyNoInteractions(coresService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 403 na listagem")
+        void deveRetornar403NaListagem() throws Exception {
+            var resultado = performGetComAutenticacao(URL, ID_JWT, ROLE_USUARIO);
+            assertStatus403(resultado);
+
+            verifyNoInteractions(coresService);
+        }
     }
 
     @Nested
-    @DisplayName("Testes da busca por ID")
+    @DisplayName("Testes da busca")
     class Buscar {
-
         @Test
-        @DisplayName("Deve buscar uma cor por ID")
-        void deveBuscarUmaCorPorID() throws Exception {
-            //Arrange
+        @DisplayName("Deve buscar cor")
+        void deveBuscarCor() throws Exception {
             var cx = new CorTestContext();
+            when(coresService.buscarPorIdAdministracao(ID_VALIDO)).thenReturn(cx.corResponse);
 
-            when(coresService.buscarPorIdAdministracao(ID_VALIDO))
-                    .thenReturn(cx.corResponse);
-            //Act + Assert
-            var resultado = performGet(URL + "/" + ID_VALIDO);
-            assertResult(
-                    resultado,
-                    status().isOk(),
-                    ID_VALIDO,
-                    "Branco",
-                    true
-            );
+            var resultado = performGetComAutenticacao(URL_ID, ID_JWT, ROLE_ADM);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Branco", true);
 
             verify(coresService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(coresService);
         }
 
         @Test
-        @DisplayName("Deve lançar 404 ao buscar uma cor por ID")
-        void deveLancar404aoBuscarUmaCorPorID() throws Exception {
-            //Arrange
+        @DisplayName("Deve retornar 404 ao buscar uma cor")
+        void deveRetornar404AoBuscarCor() throws Exception {
             when(coresService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenThrow(new NotFoundException(COR, ID_VALIDO));
-            //Act + Assert
-            var resultado = performGet(URL + "/" + ID_VALIDO);
+
+            var resultado = performGetComAutenticacao(URL_ID, ID_JWT, ROLE_ADM);
             assertStatus404(resultado, COR, ID_VALIDO);
 
             verify(coresService).buscarPorIdAdministracao(ID_VALIDO);
@@ -189,53 +158,40 @@ class AdminCorControllerTest extends BaseControllerTest {
     }
 
     @Nested
-    @DisplayName("Testes da atualização")
+    @DisplayName("Testes de atualização")
     class Atualizar {
-
         @Test
-        @DisplayName("Deve atualizar uma cor")
-        void deveAtualizarUmaCor() throws Exception {
-            //Arrange
+        @DisplayName("Deve atualizar a cor")
+        void deveAtualizarCor() throws Exception {
             var cx = new CorTestContext();
+            when(coresService.atualizar(cx.corRequest, ID_VALIDO)).thenReturn(cx.corResponse);
 
-            when(coresService.atualizar(cx.corRequest, ID_VALIDO))
-                    .thenReturn(cx.corResponse);
-            //Act + Assert
-            var resultado = performPut(URL + "/" + ID_VALIDO, cx.corRequest);
-            assertResult(
-                    resultado,
-                    status().isOk(),
-                    ID_VALIDO,
-                    "Branco",
-                    true
-            );
+            var resultado = performPutComAutenticacao(URL_ID, cx.corRequest, ID_JWT, ROLE_ADM);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Branco", true);
+
             verify(coresService).atualizar(cx.corRequest, ID_VALIDO);
             verifyNoMoreInteractions(coresService);
         }
 
         @Test
-        @DisplayName("Deve lançar 400 ao atualizar uma cor")
-        void deveLancar400aoAtualizarUmaCor() throws Exception {
-            //Arrange
+        @DisplayName("Deve retornar 400 ao atualizar uma cor sem nome")
+        void deveRetornar400AoAtualizarCorSemNome() throws Exception {
             var cx = new CorTestContext();
 
-            //Act + Assert
-            var resultado = performPut(URL + "/" + ID_VALIDO, cx.corRequestIncompleto);
+            var resultado = performPutComAutenticacao(URL_ID, cx.corRequestIncompleto, ID_JWT, ROLE_ADM);
             assertStatus400(resultado);
 
             verifyNoInteractions(coresService);
         }
 
         @Test
-        @DisplayName("Deve lançar 404 ao atualizar uma cor")
-        void deveLancar404aoBuscarUmaCor() throws Exception {
-            //Arrange
+        @DisplayName("Deve retornar 404 ao atualizar uma cor")
+        void deveRetornar404AoAtualizarCor() throws Exception {
             var cx = new CorTestContext();
-
             when(coresService.atualizar(cx.corRequest, ID_VALIDO))
                     .thenThrow(new NotFoundException(COR, ID_VALIDO));
-            //Act + Assert
-            var resultado = performPut(URL + "/" + ID_VALIDO, cx.corRequest);
+
+            var resultado = performPutComAutenticacao(URL_ID, cx.corRequest, ID_JWT, ROLE_ADM);
             assertStatus404(resultado, COR, ID_VALIDO);
 
             verify(coresService).atualizar(cx.corRequest, ID_VALIDO);
@@ -249,55 +205,40 @@ class AdminCorControllerTest extends BaseControllerTest {
         @Test
         @DisplayName("Deve alterar o status")
         void deveAlterarStatus() throws Exception {
-            //Arrange
             var cx = new CorTestContext();
-            var status = new StatusRequest(true);
+            var request = new StatusRequest(true);
+            when(coresService.alterarStatus(ID_VALIDO, request)).thenReturn(cx.corResponse);
 
-            when(coresService.alterarStatus(ID_VALIDO, status))
-                    .thenReturn(cx.corResponse);
-            //ACT + assert
-            var resultado = performPatch(URL + "/" + ID_VALIDO + "/status", status);
-            assertResult(
-                    resultado,
-                    status().isOk(),
-                    ID_VALIDO,
-                    "Branco",
-                    true);
+            var resultado = performPatchComAutenticacao(URL_STATUS, request, ID_JWT, ROLE_ADM);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Branco", true);
 
-            verify(coresService).alterarStatus(ID_VALIDO, status);
+            verify(coresService).alterarStatus(ID_VALIDO, request);
             verifyNoMoreInteractions(coresService);
         }
 
         @Test
-        @DisplayName("Deve lançar 400 ao alterar status")
-        void deveLancar400aoAlterarStatus() throws Exception {
-            //Arrange
-            var status = new StatusRequest(null);
-            //ACT + assert
-            var resultado = performPatch(URL + "/" + ID_VALIDO + "/status", status);
+        @DisplayName("Deve retornar 400 ao alterar o status sem valor")
+        void deveRetornar400AoAlterarStatusSemValor() throws Exception {
+            var request = new StatusRequest(null);
 
+            var resultado = performPatchComAutenticacao(URL_STATUS, request, ID_JWT, ROLE_ADM);
             assertStatus400(resultado);
-            verifyNoInteractions(coresService);
 
+            verifyNoInteractions(coresService);
         }
 
         @Test
-        @DisplayName("Deve lançar 404 ao alterar status")
-        void deveLancar404aoAlterarStatus() throws Exception {
-            //Arrange
-            var status = new StatusRequest(true);
-
-            when(coresService.alterarStatus(ID_VALIDO, status))
+        @DisplayName("Deve retornar 404 ao alterar o status")
+        void deveRetornar404AoAlterarStatus() throws Exception {
+            var request = new StatusRequest(true);
+            when(coresService.alterarStatus(ID_VALIDO, request))
                     .thenThrow(new NotFoundException(COR, ID_VALIDO));
-            //ACT + assert
-            var resultado = performPatch(URL + "/" + ID_VALIDO + "/status", status);
-            assertStatus404(resultado,
-                    COR,
-                    ID_VALIDO);
 
-            verify(coresService).alterarStatus(ID_VALIDO, status);
+            var resultado = performPatchComAutenticacao(URL_STATUS, request, ID_JWT, ROLE_ADM);
+            assertStatus404(resultado, COR, ID_VALIDO);
+
+            verify(coresService).alterarStatus(ID_VALIDO, request);
             verifyNoMoreInteractions(coresService);
         }
     }
-
 }
