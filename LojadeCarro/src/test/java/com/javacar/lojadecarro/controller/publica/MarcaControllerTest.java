@@ -8,7 +8,6 @@ import com.javacar.lojadecarro.service.MarcaService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -20,14 +19,13 @@ import static com.javacar.lojadecarro.factory.marca.MarcaTestContext.criaMarcaRe
 import static com.javacar.lojadecarro.factory.marca.MarcaTestContext.criaMarcaResponse2;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(MarcaController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller da marca")
 class MarcaControllerTest extends BaseControllerTest {
     private static final String URL = "/marcas";
+    private static final String URL_ID = URL + "/" + ID_VALIDO;
 
     @MockitoBean
     private MarcaService marcaService;
@@ -36,8 +34,8 @@ class MarcaControllerTest extends BaseControllerTest {
     @DisplayName("Testes de listagem")
     class Listar {
         @Test
-        @DisplayName("Deve utilizar ATIVAS como status padrão")
-        void deveUtilizarAtivasComoStatusPadrao() throws Exception {
+        @DisplayName("Deve listar somente as marcas ativas")
+        void deveListarSomenteMarcasAtivas() throws Exception {
             //Arrange
             var response1 = criaMarcaResponse(true);
             var response2 = criaMarcaResponse2(true);
@@ -54,6 +52,8 @@ class MarcaControllerTest extends BaseControllerTest {
                     2L,
                     "Ford",
                     "Fiat",
+                    "https://www.ford.com",
+                    "https://www.fiat.com",
                     true,
                     true
             );
@@ -64,11 +64,11 @@ class MarcaControllerTest extends BaseControllerTest {
     }
 
     @Nested
-    @DisplayName("Testes da busca por ID")
+    @DisplayName("Testes da busca da marca")
     class Buscar {
         @Test
-        @DisplayName("Deve buscar marca por ID")
-        void deveBuscarMarcaPorId() throws Exception {
+        @DisplayName("Deve buscar marca ativa")
+        void deveBuscarMarcaAtiva() throws Exception {
             //Arrange
             var cx = new MarcaTestContext();
 
@@ -76,23 +76,22 @@ class MarcaControllerTest extends BaseControllerTest {
                     .thenReturn(cx.response);
 
             // Act + Assert
-            var resultado = performGet(URL + "/" + ID_VALIDO);
-            resultado.andExpect(jsonPath("$.url").value("https://www.ford.com"));
-            assertResult(resultado, status().isOk(), ID_VALIDO, "Ford", true);
+            var resultado = performGet(URL_ID);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Ford", "https://www.ford.com", true);
 
             verify(marcaService).buscarMarcaAtivaPorId(ID_VALIDO);
             verifyNoMoreInteractions(marcaService);
         }
 
         @Test
-        @DisplayName("Deve lançar 404 ao buscar uma marca por ID")
-        void deveLancar404AoBuscarMarcaPorId() throws Exception {
+        @DisplayName("Deve retornar 404 ao buscar uma marca não encontrada")
+        void deveRetornar404AoBuscarMarcaNaoEncontrada() throws Exception {
             //Arrange
             when(marcaService.buscarMarcaAtivaPorId(ID_VALIDO))
                     .thenThrow(new NotFoundException(MARCA, ID_VALIDO));
 
             // Act + Assert
-            var resultado = performGet(URL + "/" + ID_VALIDO);
+            var resultado = performGet(URL_ID);
             assertStatus404(resultado, MARCA, ID_VALIDO);
 
             verify(marcaService).buscarMarcaAtivaPorId(ID_VALIDO);

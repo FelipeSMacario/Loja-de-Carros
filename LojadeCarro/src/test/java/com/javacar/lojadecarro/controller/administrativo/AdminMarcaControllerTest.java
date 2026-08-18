@@ -8,7 +8,6 @@ import com.javacar.lojadecarro.service.MarcaService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -20,15 +19,17 @@ import static com.javacar.lojadecarro.enums.StatusFiltro.TODAS;
 import static com.javacar.lojadecarro.factory.helper.MarcaHelper.*;
 import static com.javacar.lojadecarro.factory.marca.MarcaTestContext.criaMarcaResponse;
 import static com.javacar.lojadecarro.factory.marca.MarcaTestContext.criaMarcaResponse2;
-import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
+import static com.javacar.lojadecarro.support.TestConstants.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AdminMarcaController.class)
-@AutoConfigureMockMvc(addFilters = false)
 @DisplayName("Testes da controller da marca")
 class AdminMarcaControllerTest extends BaseControllerTest {
     private static final String URL = "/admin/marcas";
+    private static final String URL_ID = URL + "/" + ID_VALIDO;
+    private static final String URL_STATUS = URL + "/" + ID_VALIDO + "/status";
 
     @MockitoBean
     private MarcaService marcaService;
@@ -46,11 +47,14 @@ class AdminMarcaControllerTest extends BaseControllerTest {
             when(marcaService.criar(cx.request))
                     .thenReturn(cx.response);
             // Act + Assert
-            var resultado = performPost(URL, cx.request);
-            resultado.andExpect(header().exists("Location"));
-            resultado.andExpect(jsonPath("$.url").value("https://www.ford.com"));
-            assertResult(resultado, status().isCreated(), ID_VALIDO, "Ford", true);
-
+            var resultado = performPostComAutenticacao(URL, cx.request, ID_JWT, ROLE_ADM);
+            resultado.andExpect(
+                    header().string(
+                            "Location",
+                            "http://localhost/admin/marcas/" + ID_VALIDO
+                    )
+            );
+            assertResult(resultado, status().isCreated(), ID_VALIDO, "Ford", "https://www.ford.com", true);
             verify(marcaService).criar(cx.request);
             verifyNoMoreInteractions(marcaService);
 
@@ -62,22 +66,22 @@ class AdminMarcaControllerTest extends BaseControllerTest {
             // Arrange
             var cx = new MarcaTestContext();
             // Act + Assert
-            var resultado = performPost(URL, cx.requestIncompleta);
+            var resultado = performPostComAutenticacao(URL, cx.requestIncompleta, ID_JWT, ROLE_ADM);
             assertStatus400(resultado);
 
             verifyNoInteractions(marcaService);
         }
 
         @Test
-        @DisplayName("Deve lançar 500 ao criar uma marca")
-        void deveLancar500AoCriarMarca() throws Exception {
+        @DisplayName("Deve retornar 500 ao criar uma marca")
+        void deveRetornar500AoCriarMarca() throws Exception {
             //Arrange
             var cx = new MarcaTestContext();
 
             when(marcaService.criar(cx.request))
                     .thenThrow(new RuntimeException("Erro inesperado"));
             //Act + Assert
-            var resultado = performPost(URL, cx.request);
+            var resultado = performPostComAutenticacao(URL, cx.request, ID_JWT, ROLE_ADM);
             assertStatus500(resultado);
 
             verify(marcaService).criar(cx.request);
@@ -89,8 +93,8 @@ class AdminMarcaControllerTest extends BaseControllerTest {
     @DisplayName("Testes de listagem")
     class Listar {
         @Test
-        @DisplayName("Deve utilizar ATIVAS como status padrão")
-        void deveUtilizarAtivasComoStatusPadrao() throws Exception {
+        @DisplayName("Deve listar marcas ativas")
+        void deveListarMarcasAtivas() throws Exception {
             //Arrange
             var response1 = criaMarcaResponse(true);
             var response2 = criaMarcaResponse2(true);
@@ -100,13 +104,15 @@ class AdminMarcaControllerTest extends BaseControllerTest {
             when(marcaService.listarAdministracao(ATIVAS))
                     .thenReturn(response);
             //Act + Assert
-            var resultado = performGet(URL, "status", ATIVAS.toString());
+            var resultado = performGetComAutenticacao(URL, "status", ATIVAS.toString(), ID_JWT, ROLE_ADM);
             assertList(
                     resultado,
                     ID_VALIDO,
                     2L,
                     "Ford",
                     "Fiat",
+                    "https://www.ford.com",
+                    "https://www.fiat.com",
                     true,
                     true
             );
@@ -115,8 +121,8 @@ class AdminMarcaControllerTest extends BaseControllerTest {
         }
 
         @Test
-        @DisplayName("Deve encaminhar o status informado para a service")
-        void deveEncaminharStatusTodas() throws Exception {
+        @DisplayName("Deve utilizar TODAS como status padrão")
+        void deveUtilizarTodasComoStatusPadrao() throws Exception {
             //Arrange
             var response1 = criaMarcaResponse(true);
             var response2 = criaMarcaResponse2(false);
@@ -126,13 +132,15 @@ class AdminMarcaControllerTest extends BaseControllerTest {
             when(marcaService.listarAdministracao(TODAS))
                     .thenReturn(response);
             //Act + Assert
-            var resultado = performGet(URL, "status", TODAS.toString());
+            var resultado = performGetComAutenticacao(URL, ID_JWT, ROLE_ADM);
             assertList(
                     resultado,
                     ID_VALIDO,
                     2L,
                     "Ford",
                     "Fiat",
+                    "https://www.ford.com",
+                    "https://www.fiat.com",
                     true,
                     false
             );
@@ -140,14 +148,33 @@ class AdminMarcaControllerTest extends BaseControllerTest {
             verifyNoMoreInteractions(marcaService);
         }
 
+        @Test
+        @DisplayName("Deve retornar 401 na listagem")
+        void deveRetornar401NaListagem() throws Exception {
+            //Arrange
+            //Act + Assert
+            var resultado = performGet(URL);
+            assertStatus401(resultado);
+            verifyNoInteractions(marcaService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 403 na listagem")
+        void deveRetornar403NaListagem() throws Exception {
+            //Arrange
+            //Act + Assert
+            var resultado = performGetComAutenticacao(URL, ID_JWT, ROLE_USUARIO);
+            assertStatus403(resultado);
+            verifyNoInteractions(marcaService);
+        }
 
     }
 
     @Nested
-    @DisplayName("Testes da busca por ID")
+    @DisplayName("Testes da busca")
     class Buscar {
         @Test
-        @DisplayName("Deve buscar marca por ID")
+        @DisplayName("Deve buscar marca")
         void deveBuscarMarcaPorId() throws Exception {
             //Arrange
             var cx = new MarcaTestContext();
@@ -156,23 +183,22 @@ class AdminMarcaControllerTest extends BaseControllerTest {
                     .thenReturn(cx.response);
 
             // Act + Assert
-            var resultado = performGet(URL + "/" + ID_VALIDO);
-            resultado.andExpect(jsonPath("$.url").value("https://www.ford.com"));
-            assertResult(resultado, status().isOk(), ID_VALIDO, "Ford", true);
+            var resultado = performGetComAutenticacao(URL_ID, ID_JWT, ROLE_ADM);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Ford", "https://www.ford.com", true);
 
             verify(marcaService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(marcaService);
         }
 
         @Test
-        @DisplayName("Deve lançar 404 ao buscar uma marca por ID")
-        void deveLancar404AoBuscarMarcaPorId() throws Exception {
+        @DisplayName("Deve retornar 404 ao buscar uma marca")
+        void deveRetornar404AoBuscarMarca() throws Exception {
             //Arrange
             when(marcaService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenThrow(new NotFoundException(MARCA, ID_VALIDO));
 
             // Act + Assert
-            var resultado = performGet(URL + "/" + ID_VALIDO);
+            var resultado = performGetComAutenticacao(URL_ID, ID_JWT, ROLE_ADM);
             assertStatus404(resultado, MARCA, ID_VALIDO);
 
             verify(marcaService).buscarPorIdAdministracao(ID_VALIDO);
@@ -184,8 +210,8 @@ class AdminMarcaControllerTest extends BaseControllerTest {
     @DisplayName("Testes da atualização")
     class Atualizar {
         @Test
-        @DisplayName("Deve atualizar a marca por ID")
-        void deveAtualizarMarcaPorId() throws Exception {
+        @DisplayName("Deve atualizar a marca")
+        void deveAtualizarMarca() throws Exception {
             //Arrange
             var cx = new MarcaTestContext();
 
@@ -193,24 +219,23 @@ class AdminMarcaControllerTest extends BaseControllerTest {
                     .thenReturn(cx.response);
 
             // Act + Assert
-            var resultado = performPut(URL + "/" + ID_VALIDO, cx.request);
-            resultado.andExpect(jsonPath("$.url").value("https://www.ford.com"));
-            assertResult(resultado, status().isOk(), ID_VALIDO, "Ford", true);
+            var resultado = performPutComAutenticacao(URL_ID, cx.request, ID_JWT, ROLE_ADM);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Ford", "https://www.ford.com", true);
 
             verify(marcaService).atualizar(cx.request, ID_VALIDO);
             verifyNoMoreInteractions(marcaService);
         }
 
         @Test
-        @DisplayName("Deve lançar 404 ao atualizar uma merca")
-        void deveLancar404AoAtualizarMarcaPorId() throws Exception {
+        @DisplayName("Deve retornar 404 ao atualizar uma marca")
+        void deveRetornar404AoAtualizarMarca() throws Exception {
             //Arrange
             var cx = new MarcaTestContext();
 
             when(marcaService.atualizar(cx.request, ID_VALIDO))
                     .thenThrow(new NotFoundException(MARCA, ID_VALIDO));
             // Act + Assert
-            var resultado = performPut(URL + "/" + ID_VALIDO, cx.request);
+            var resultado = performPutComAutenticacao(URL_ID, cx.request, ID_JWT, ROLE_ADM);
             assertStatus404(resultado, MARCA, ID_VALIDO);
 
             verify(marcaService).atualizar(cx.request, ID_VALIDO);
@@ -218,13 +243,13 @@ class AdminMarcaControllerTest extends BaseControllerTest {
         }
 
         @Test
-        @DisplayName("Deve lançar 400 quando o nome nao for preenchido na atualização da marca")
-        void deveLancar400NaAtualizarMarcaPorId() throws Exception {
+        @DisplayName("Deve retornar 400 ao atualizar marca")
+        void deveRetornar400AoAtualizarMarca() throws Exception {
             //Arrange
             var cx = new MarcaTestContext();
 
             // Act + Assert
-            var resultado = performPut(URL + "/" + ID_VALIDO, cx.requestIncompleta);
+            var resultado = performPutComAutenticacao(URL_ID, cx.requestIncompleta, ID_JWT, ROLE_ADM);
             assertStatus400(resultado);
 
             verifyNoInteractions(marcaService);
@@ -244,13 +269,13 @@ class AdminMarcaControllerTest extends BaseControllerTest {
             when(marcaService.alterarStatus(ID_VALIDO, status))
                     .thenReturn(cx.response);
             //ACT + assert
-            var resultado = performPatch(URL + "/" + ID_VALIDO + "/status", status);
-            resultado.andExpect(jsonPath("$.url").value("https://www.ford.com"));
+            var resultado = performPatchComAutenticacao(URL_STATUS, status, ID_JWT, ROLE_ADM);
             assertResult(
                     resultado,
                     status().isOk(),
                     ID_VALIDO,
                     "Ford",
+                    "https://www.ford.com",
                     true);
 
             verify(marcaService).alterarStatus(ID_VALIDO, status);
@@ -258,12 +283,12 @@ class AdminMarcaControllerTest extends BaseControllerTest {
         }
 
         @Test
-        @DisplayName("Deve lançar 400 ao alterar status")
-        void deveLancar400AoAlterarStatus() throws Exception {
+        @DisplayName("Deve retornar 400 ao alterar status")
+        void deveRetornar400AoAlterarStatus() throws Exception {
             //Arrange
             var status = new StatusRequest(null);
             //ACT + assert
-            var resultado = performPatch(URL + "/" + ID_VALIDO + "/status", status);
+            var resultado = performPatchComAutenticacao(URL_STATUS, status, ID_JWT, ROLE_ADM);
 
             assertStatus400(resultado);
             verifyNoInteractions(marcaService);
@@ -271,15 +296,15 @@ class AdminMarcaControllerTest extends BaseControllerTest {
         }
 
         @Test
-        @DisplayName("Deve lançar 404 ao alterar status")
-        void deveLancar404aoAlterarStatus() throws Exception {
+        @DisplayName("Deve retornar 404 ao alterar status")
+        void deveRetornar404aoAlterarStatus() throws Exception {
             //Arrange
             var status = new StatusRequest(true);
 
             when(marcaService.alterarStatus(ID_VALIDO, status))
                     .thenThrow(new NotFoundException(MARCA, ID_VALIDO));
             //ACT + assert
-            var resultado = performPatch(URL + "/" + ID_VALIDO + "/status", status);
+            var resultado = performPatchComAutenticacao(URL_STATUS, status, ID_JWT, ROLE_ADM);
             assertStatus404(resultado,
                     MARCA,
                     ID_VALIDO);

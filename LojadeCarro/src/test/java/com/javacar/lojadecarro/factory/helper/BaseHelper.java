@@ -102,6 +102,27 @@ public abstract class BaseHelper {
                 .andExpect(jsonPath("$[1].ativo").value(segundoAtivo));
     }
 
+    public static void assertList(ResultActions result,
+                                  Long primeiroId,
+                                  Long segundoId,
+                                  String primeiroNome,
+                                  String segundoNome,
+                                  String primeiraUrl,
+                                  String segundaUrl,
+                                  boolean primeiroAtivo,
+                                  boolean segundoAtivo) throws Exception {
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(primeiroId))
+                .andExpect(jsonPath("$[1].id").value(segundoId))
+                .andExpect(jsonPath("$[0].nome").value(primeiroNome))
+                .andExpect(jsonPath("$[1].nome").value(segundoNome))
+                .andExpect(jsonPath("$[0].url").value(primeiraUrl))
+                .andExpect(jsonPath("$[1].url").value(segundaUrl))
+                .andExpect(jsonPath("$[0].ativo").value(primeiroAtivo))
+                .andExpect(jsonPath("$[1].ativo").value(segundoAtivo));
+    }
+
     public static void assertResult(ResultActions result,
                                     ResultMatcher status,
                                     Long id,
@@ -111,6 +132,19 @@ public abstract class BaseHelper {
                 .andExpect(status)
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.nome").value(nome))
+                .andExpect(jsonPath("$.ativo").value(ativo));
+    }
+    public static void assertResult(ResultActions result,
+                                    ResultMatcher status,
+                                    Long id,
+                                    String nome,
+                                    String url,
+                                    boolean ativo) throws Exception {
+        result
+                .andExpect(status)
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.nome").value(nome))
+                .andExpect(jsonPath("$.url").value(url))
                 .andExpect(jsonPath("$.ativo").value(ativo));
     }
 

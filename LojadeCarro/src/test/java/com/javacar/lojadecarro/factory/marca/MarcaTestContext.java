@@ -46,6 +46,7 @@ public class MarcaTestContext {
                 .criarResponse()
                 .comId(2L)
                 .comNome("Fiat")
+                .comURL("https://www.fiat.com")
                 .comAtivo(ativo)
                 .build();
     }
