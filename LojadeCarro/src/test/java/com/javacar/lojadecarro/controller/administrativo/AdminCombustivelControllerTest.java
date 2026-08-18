@@ -1,7 +1,6 @@
 package com.javacar.lojadecarro.controller.administrativo;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.javacar.lojadecarro.controller.publico.CombustivelController;
+import com.javacar.lojadecarro.controller.BaseControllerTest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.combustivel.CombustivelTestContext;
@@ -9,79 +8,64 @@ import com.javacar.lojadecarro.service.CombustivelService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
 import static com.javacar.lojadecarro.enums.Entidade.COMBUSTIVEL;
 import static com.javacar.lojadecarro.enums.StatusFiltro.ATIVAS;
 import static com.javacar.lojadecarro.enums.StatusFiltro.TODAS;
+import static com.javacar.lojadecarro.factory.combustivel.CombustivelTestContext.criaCombustivelResponse;
+import static com.javacar.lojadecarro.factory.combustivel.CombustivelTestContext.criaCombustivelResponse2;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.*;
-import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
+import static com.javacar.lojadecarro.support.TestConstants.*;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AdminCombustivelController.class)
-@AutoConfigureMockMvc(addFilters = false)
-@DisplayName("Testes da controller do combustível")
-class AdminCombustivelControllerTest {
+@DisplayName("Testes da controller administrativa do combustível")
+class AdminCombustivelControllerTest extends BaseControllerTest {
     private static final String URL = "/admin/combustiveis";
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+    private static final String URL_ID = URL + "/" + ID_VALIDO;
+    private static final String URL_STATUS = URL_ID + "/status";
 
     @MockitoBean
     private CombustivelService combustivelService;
 
     @Nested
-    @DisplayName("Testes da criação do combustível")
+    @DisplayName("Testes de criação")
     class Criar {
         @Test
         @DisplayName("Deve criar um combustível")
-        void deveCriarUmCombustivel() throws Exception {
-            //Arrange
-            var combustivelcx = new CombustivelTestContext();
+        void deveCriarCombustivel() throws Exception {
+            // Arrange
+            var cx = new CombustivelTestContext();
+            when(combustivelService.criar(cx.combustivelRequest)).thenReturn(cx.combustivelResponse);
 
-            when(combustivelService.criar(combustivelcx.combustivelRequest))
-                    .thenReturn(combustivelcx.combustivelResponse);
-            //Act + Assert
-            var resultado = mockMvc.perform(
-                    post(URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(combustivelcx.combustivelRequest))
-            );
-            resultado.andExpect(header().exists("Location"));
-            assertResult(resultado,
-                    status().isCreated(),
-                    ID_VALIDO,
-                    "Gasolina",
-                    true);
+            // Act + Assert
+            var resultado = performPostComAutenticacao(URL, cx.combustivelRequest, ID_JWT, ROLE_ADM);
+            resultado.andExpect(header().string(
+                    "Location",
+                    "http://localhost/admin/combustiveis/" + ID_VALIDO
+            ));
+            assertResult(resultado, status().isCreated(), ID_VALIDO, "Gasolina", true);
 
-            verify(combustivelService).criar(combustivelcx.combustivelRequest);
+            verify(combustivelService).criar(cx.combustivelRequest);
             verifyNoMoreInteractions(combustivelService);
         }
 
         @Test
-        @DisplayName("Deve lançar 400 ao cadastrar um combustível ao cadastrar sem nome")
-        void deveLancarErroCadastroCombustivel() throws Exception {
-            //Arrange
-            var combustivelcx = new CombustivelTestContext();
+        @DisplayName("Deve retornar 400 quando o nome não for informado")
+        void deveRetornar400QuandoNomeNaoForInformado() throws Exception {
+            var cx = new CombustivelTestContext();
 
-            //Act + Assert
-            var resultado = mockMvc.perform(
-                    post(URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(combustivelcx.combustivelRequestIncompleto))
+            var resultado = performPostComAutenticacao(
+                    URL,
+                    cx.combustivelRequestIncompleto,
+                    ID_JWT,
+                    ROLE_ADM
             );
             assertStatus400(resultado);
 
@@ -89,208 +73,157 @@ class AdminCombustivelControllerTest {
         }
 
         @Test
-        @DisplayName("Deve lançar 500 ao cadastrar o combustível vazio")
-        void deveRetornar500QuandoOcorrerErroInternoAoCriarCombustivel() throws Exception {
-            //Arrange
-            var combustivelcx = new CombustivelTestContext();
-            when(combustivelService.criar(combustivelcx.combustivelRequest))
+        @DisplayName("Deve retornar 500 ao criar um combustível")
+        void deveRetornar500AoCriarCombustivel() throws Exception {
+            var cx = new CombustivelTestContext();
+            when(combustivelService.criar(cx.combustivelRequest))
                     .thenThrow(new RuntimeException("Erro inesperado"));
-            //Act + Assert
-            var resultado = mockMvc.perform(
-                    post(URL)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(combustivelcx.combustivelRequest))
-            );
+
+            var resultado = performPostComAutenticacao(URL, cx.combustivelRequest, ID_JWT, ROLE_ADM);
             assertStatus500(resultado);
-            verify(combustivelService).criar(combustivelcx.combustivelRequest);
+
+            verify(combustivelService).criar(cx.combustivelRequest);
             verifyNoMoreInteractions(combustivelService);
         }
     }
 
     @Nested
-    @DisplayName("Testes da listagem de combustiveis")
+    @DisplayName("Testes de listagem")
     class Listar {
         @Test
-        @DisplayName("Deve utilizar ATIVAS como status padrão")
-        void deveUtilizarAtivasComStatusPadrao() throws Exception {
-            //Arrange
-            var combustivelResponse1 = CombustivelTestContext
-                    .criaCombustivelResponse(true);
-            var combustivelResponse2 = CombustivelTestContext
-                    .criaCombustivelResponse2(true);
-
-            var response = List.of(combustivelResponse1, combustivelResponse2);
-            when(combustivelService.listarAdministracao(ATIVAS))
-                    .thenReturn(response);
-            //Act + Assert
-            var resultado = mockMvc.perform(
-                    get(URL)
-                            .param("status", ATIVAS.toString())
+        @DisplayName("Deve listar combustíveis ativos")
+        void deveListarCombustiveisAtivos() throws Exception {
+            var response = List.of(
+                    criaCombustivelResponse(true),
+                    criaCombustivelResponse2(true)
             );
+            when(combustivelService.listarAdministracao(ATIVAS)).thenReturn(response);
 
-            assertList(resultado,
-                    ID_VALIDO,
-                    2L,
-                    "Gasolina",
-                    "Eletrico",
-                    true,
-                    true);
+            var resultado = performGetComAutenticacao(
+                    URL,
+                    "status",
+                    ATIVAS.toString(),
+                    ID_JWT,
+                    ROLE_ADM
+            );
+            assertList(resultado, ID_VALIDO, 2L, "Gasolina", "Eletrico", true, true);
 
             verify(combustivelService).listarAdministracao(ATIVAS);
             verifyNoMoreInteractions(combustivelService);
         }
 
         @Test
-        @DisplayName("Deve encaminhar o status informado para a service")
-        void deveEncaminharStatusInativo() throws Exception {
-            //Arrange
-            var carroceriaResponse1 = CombustivelTestContext
-                    .criaCombustivelResponse(true);
-            var carroceriaResponse2 = CombustivelTestContext
-                    .criaCombustivelResponse2(false);
-
-            var response = List.of(carroceriaResponse1, carroceriaResponse2);
-            when(combustivelService.listarAdministracao(TODAS))
-                    .thenReturn(response);
-            //Act + Assert
-
-            var resultado = mockMvc.perform(
-                    get(URL)
-                            .param("status", TODAS.toString())
+        @DisplayName("Deve utilizar TODAS como status padrão")
+        void deveUtilizarTodasComoStatusPadrao() throws Exception {
+            var response = List.of(
+                    criaCombustivelResponse(true),
+                    criaCombustivelResponse2(false)
             );
+            when(combustivelService.listarAdministracao(TODAS)).thenReturn(response);
 
-            assertList(resultado,
-                    ID_VALIDO,
-                    2L,
-                    "Gasolina",
-                    "Eletrico",
-                    true,
-                    false);
+            var resultado = performGetComAutenticacao(URL, ID_JWT, ROLE_ADM);
+            assertList(resultado, ID_VALIDO, 2L, "Gasolina", "Eletrico", true, false);
 
             verify(combustivelService).listarAdministracao(TODAS);
             verifyNoMoreInteractions(combustivelService);
         }
+
+        @Test
+        @DisplayName("Deve retornar 401 na listagem")
+        void deveRetornar401NaListagem() throws Exception {
+            var resultado = performGet(URL);
+            assertStatus401(resultado);
+
+            verifyNoInteractions(combustivelService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 403 na listagem")
+        void deveRetornar403NaListagem() throws Exception {
+            var resultado = performGetComAutenticacao(URL, ID_JWT, ROLE_USUARIO);
+            assertStatus403(resultado);
+
+            verifyNoInteractions(combustivelService);
+        }
     }
 
     @Nested
-    @DisplayName("Testes para buscar combustível")
+    @DisplayName("Testes da busca")
     class Buscar {
         @Test
-        @DisplayName("Deve buscar combustivel por ID")
-        void deveBuscarCombustivelPorId() throws Exception {
-            //Arrange
-            var combustivelcx = new CombustivelTestContext();
-
+        @DisplayName("Deve buscar combustível")
+        void deveBuscarCombustivel() throws Exception {
+            var cx = new CombustivelTestContext();
             when(combustivelService.buscarPorIdAdministracao(ID_VALIDO))
-                    .thenReturn(combustivelcx.combustivelResponse);
-            //Act + Assert
-            var resultado = mockMvc.perform(
-                    get(URL + "/" + ID_VALIDO)
-            );
+                    .thenReturn(cx.combustivelResponse);
 
-            assertResult(
-                    resultado,
-                    status().isOk(),
-                    ID_VALIDO,
-                    "Gasolina",
-                    true
-            );
+            var resultado = performGetComAutenticacao(URL_ID, ID_JWT, ROLE_ADM);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Gasolina", true);
 
             verify(combustivelService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(combustivelService);
         }
 
         @Test
-        @DisplayName("Deve lançar 404 ao buscar o combustível")
-        void deveRetornar404AoBuscarCombustivelPorId() throws Exception {
-            //Arrange
+        @DisplayName("Deve retornar 404 ao buscar um combustível")
+        void deveRetornar404AoBuscarCombustivel() throws Exception {
             when(combustivelService.buscarPorIdAdministracao(ID_VALIDO))
                     .thenThrow(new NotFoundException(COMBUSTIVEL, ID_VALIDO));
 
-            //Act + Assert
-            var resultado = mockMvc.perform(
-                    get(URL + "/" + ID_VALIDO)
-            );
-            assertStatus404(
-                    resultado,
-                    COMBUSTIVEL,
-                    ID_VALIDO
-            );
+            var resultado = performGetComAutenticacao(URL_ID, ID_JWT, ROLE_ADM);
+            assertStatus404(resultado, COMBUSTIVEL, ID_VALIDO);
+
             verify(combustivelService).buscarPorIdAdministracao(ID_VALIDO);
             verifyNoMoreInteractions(combustivelService);
         }
     }
 
     @Nested
-    @DisplayName("Testes para atualizar combustível")
+    @DisplayName("Testes de atualização")
     class Atualizar {
         @Test
         @DisplayName("Deve atualizar o combustível")
         void deveAtualizarCombustivel() throws Exception {
-            //Arrange
-            var combustivelcx = new CombustivelTestContext();
+            var cx = new CombustivelTestContext();
+            when(combustivelService.atualizar(cx.combustivelRequest, ID_VALIDO))
+                    .thenReturn(cx.combustivelResponse);
 
-            when(combustivelService.atualizar(combustivelcx.combustivelRequest, ID_VALIDO))
-                    .thenReturn(combustivelcx.combustivelResponse);
-            //Act + Assert
-            var resultado = mockMvc.perform(
-                    put(URL + "/" + ID_VALIDO)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(combustivelcx.combustivelRequest))
-            );
+            var resultado = performPutComAutenticacao(URL_ID, cx.combustivelRequest, ID_JWT, ROLE_ADM);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Gasolina", true);
 
-            assertResult(
-                    resultado,
-                    status().isOk(),
-                    ID_VALIDO,
-                    "Gasolina",
-                    true
-            );
-
-            verify(combustivelService).atualizar(combustivelcx.combustivelRequest, ID_VALIDO);
+            verify(combustivelService).atualizar(cx.combustivelRequest, ID_VALIDO);
             verifyNoMoreInteractions(combustivelService);
         }
 
         @Test
-        @DisplayName("Deve lançar 400 ao atualizar o combustivel sem nome")
-        void deveAtualizarCombustivelSemNome() throws Exception {
-            //Arrange
-            var combustivelcx = new CombustivelTestContext();
+        @DisplayName("Deve retornar 400 ao atualizar um combustível sem nome")
+        void deveRetornar400AoAtualizarCombustivelSemNome() throws Exception {
+            var cx = new CombustivelTestContext();
 
-            //Act + Assert
-            var resultado = mockMvc.perform(
-                    put(URL + "/" + ID_VALIDO)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(combustivelcx
-                                    .combustivelRequestIncompleto))
+            var resultado = performPutComAutenticacao(
+                    URL_ID,
+                    cx.combustivelRequestIncompleto,
+                    ID_JWT,
+                    ROLE_ADM
             );
             assertStatus400(resultado);
 
             verifyNoInteractions(combustivelService);
         }
 
-
         @Test
-        @DisplayName("Deve lançar 404 ao atualizar o combustível")
-        void deveLancar404NaoAtualizarCombustivel() throws Exception {
-            //Arrange
-            var combustivelcx = new CombustivelTestContext();
-
-            when(combustivelService.atualizar(combustivelcx.combustivelRequest, ID_VALIDO))
+        @DisplayName("Deve retornar 404 ao atualizar um combustível")
+        void deveRetornar404AoAtualizarCombustivel() throws Exception {
+            var cx = new CombustivelTestContext();
+            when(combustivelService.atualizar(cx.combustivelRequest, ID_VALIDO))
                     .thenThrow(new NotFoundException(COMBUSTIVEL, ID_VALIDO));
-            //Act + Assert
-            var resultado = mockMvc.perform(
-                    put(URL + "/" + ID_VALIDO)
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(combustivelcx.combustivelRequest))
-            );
 
+            var resultado = performPutComAutenticacao(URL_ID, cx.combustivelRequest, ID_JWT, ROLE_ADM);
             assertStatus404(resultado, COMBUSTIVEL, ID_VALIDO);
 
-            verify(combustivelService).atualizar(combustivelcx.combustivelRequest, ID_VALIDO);
+            verify(combustivelService).atualizar(cx.combustivelRequest, ID_VALIDO);
             verifyNoMoreInteractions(combustivelService);
         }
-
     }
 
     @Nested
@@ -299,65 +232,40 @@ class AdminCombustivelControllerTest {
         @Test
         @DisplayName("Deve alterar o status")
         void deveAlterarStatus() throws Exception {
-            //Arrange
-            var combustivelcx = new CombustivelTestContext();
-            var status = new StatusRequest(true);
+            var cx = new CombustivelTestContext();
+            var request = new StatusRequest(true);
+            when(combustivelService.alterarStatus(ID_VALIDO, request))
+                    .thenReturn(cx.combustivelResponse);
 
-            when(combustivelService.alterarStatus(ID_VALIDO, status))
-                    .thenReturn(combustivelcx.combustivelResponse);
-            //ACT + assert
-            var resultado = mockMvc.perform(
-                    patch(URL + "/" + ID_VALIDO + "/status")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(status))
-            );
-            assertResult(
-                    resultado,
-                    status().isOk(),
-                    ID_VALIDO,
-                    "Gasolina",
-                    true);
+            var resultado = performPatchComAutenticacao(URL_STATUS, request, ID_JWT, ROLE_ADM);
+            assertResult(resultado, status().isOk(), ID_VALIDO, "Gasolina", true);
 
-            verify(combustivelService).alterarStatus(ID_VALIDO, status);
+            verify(combustivelService).alterarStatus(ID_VALIDO, request);
             verifyNoMoreInteractions(combustivelService);
         }
 
         @Test
-        @DisplayName("Deve lançar 400 ao alterar status")
-        void deveLancar400aoAlterarStatus() throws Exception {
-            //Arrange
-            var status = new StatusRequest(null);
-            //ACT + assert
-            var resultado = mockMvc.perform(
-                    patch(URL + "/" + ID_VALIDO + "/status")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(status))
-            );
+        @DisplayName("Deve retornar 400 ao alterar o status sem valor")
+        void deveRetornar400AoAlterarStatusSemValor() throws Exception {
+            var request = new StatusRequest(null);
 
+            var resultado = performPatchComAutenticacao(URL_STATUS, request, ID_JWT, ROLE_ADM);
             assertStatus400(resultado);
-            verifyNoInteractions(combustivelService);
 
+            verifyNoInteractions(combustivelService);
         }
 
         @Test
-        @DisplayName("Deve lançar 404 ao alterar status")
-        void deveLancar404aoAlterarStatus() throws Exception {
-            //Arrange
-            var status = new StatusRequest(true);
-
-            when(combustivelService.alterarStatus(ID_VALIDO, status))
+        @DisplayName("Deve retornar 404 ao alterar o status")
+        void deveRetornar404AoAlterarStatus() throws Exception {
+            var request = new StatusRequest(true);
+            when(combustivelService.alterarStatus(ID_VALIDO, request))
                     .thenThrow(new NotFoundException(COMBUSTIVEL, ID_VALIDO));
-            //ACT + assert
-            var resultado = mockMvc.perform(
-                    patch(URL + "/" + ID_VALIDO + "/status")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(status))
-            );
-            assertStatus404(resultado,
-                    COMBUSTIVEL,
-                    ID_VALIDO);
 
-            verify(combustivelService).alterarStatus(ID_VALIDO, status);
+            var resultado = performPatchComAutenticacao(URL_STATUS, request, ID_JWT, ROLE_ADM);
+            assertStatus404(resultado, COMBUSTIVEL, ID_VALIDO);
+
+            verify(combustivelService).alterarStatus(ID_VALIDO, request);
             verifyNoMoreInteractions(combustivelService);
         }
     }
