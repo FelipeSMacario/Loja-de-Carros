@@ -55,11 +55,11 @@ public abstract class BaseControllerTest {
         return mockMvc.perform(get(url)
                 .param(parametro, valor)
                 .with(jwt()
-                .jwt(jwt -> jwt.subject(jwtId))
-                .authorities(
-                        new SimpleGrantedAuthority(role)
-                )
-        ));
+                        .jwt(jwt -> jwt.subject(jwtId))
+                        .authorities(
+                                new SimpleGrantedAuthority(role)
+                        )
+                ));
     }
 
     protected ResultActions performGet(String url, String parametro, String valor) throws Exception {
@@ -191,6 +191,20 @@ public abstract class BaseControllerTest {
         );
     }
 
+    protected ResultActions performPatchComAutenticacao(String url,
+                                                        String jwtId,
+                                                        String role) throws Exception {
+        return mockMvc.perform(
+                patch(url)
+                        .with(jwt()
+                                .jwt(jwt -> jwt.subject(jwtId))
+                                .authorities(
+                                        new SimpleGrantedAuthority(role)
+                                )
+                        )
+        );
+    }
+
     protected ResultActions performPatch(String url) throws Exception {
         return mockMvc.perform(
                 patch(url)
@@ -210,6 +224,20 @@ public abstract class BaseControllerTest {
         );
 
         return mockMvc.perform(request);
+    }
+
+    protected ResultActions performDeleteComAutenticacao(String url, String jwtId, String role) throws Exception {
+
+        return mockMvc.perform(
+                delete(url)
+                        .with(jwt()
+                                .jwt(jwt -> jwt.subject(jwtId))
+                                .authorities(
+                                        new SimpleGrantedAuthority(role)
+                                )
+                        )
+        );
+
     }
 
     protected ResultActions performDeleteComAutenticacao(String url,

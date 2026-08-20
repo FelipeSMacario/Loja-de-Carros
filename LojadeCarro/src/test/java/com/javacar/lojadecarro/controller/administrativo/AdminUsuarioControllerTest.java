@@ -2,13 +2,13 @@ package com.javacar.lojadecarro.controller.administrativo;
 
 import com.javacar.lojadecarro.controller.BaseControllerTest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
+import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.usuario.UsuarioTestContext;
 import com.javacar.lojadecarro.service.UsuarioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -16,22 +16,22 @@ import java.util.List;
 
 import static com.javacar.lojadecarro.enums.Entidade.ROLE;
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
-import static com.javacar.lojadecarro.enums.StatusFiltro.ATIVAS;
-import static com.javacar.lojadecarro.enums.StatusFiltro.TODAS;
+import static com.javacar.lojadecarro.enums.StatusFiltro.*;
 import static com.javacar.lojadecarro.factory.helper.UsuarioHelper.*;
 import static com.javacar.lojadecarro.factory.usuario.UsuarioTestContext.criaUsuarioResponse;
 import static com.javacar.lojadecarro.factory.usuario.UsuarioTestContext.criaUsuarioResponse2;
-import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
+import static com.javacar.lojadecarro.support.TestConstants.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(AdminUsuarioController.class)
-@AutoConfigureMockMvc(addFilters = false)
 class AdminUsuarioControllerTest extends BaseControllerTest {
     private static final String URL = "/admin/usuarios";
     private static final String URL_ID = URL + "/" + ID_VALIDO;
+    private static final String URL_STATUS = URL + "/" + ID_VALIDO + "/status";
     private static final String URL_ROLE = URL + "/" + ID_VALIDO + "/roles";
     private static final Long ID_ROLE = 2L;
+    private static final String URL_ROLE_ID = URL_ROLE + "/" + ID_ROLE;
 
     @MockitoBean
     private UsuarioService usuarioService;
@@ -40,8 +40,8 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
     @DisplayName("Testes de listagem")
     class Listar {
         @Test
-        @DisplayName("Deve utilizar ATIVAS como status padrão")
-        void deveUtilizarAtivasComoStatusPadrao() throws Exception {
+        @DisplayName("Deve listar usuários ativos")
+        void deveListarUsuariosAtivos() throws Exception {
             //Arrange
             var response1 = criaUsuarioResponse(true);
             var response2 = criaUsuarioResponse2(true);
@@ -51,7 +51,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             when(usuarioService.listar(ATIVAS))
                     .thenReturn(response);
             //Act + Assert
-            var resultado = performGet(URL, "status",  ATIVAS.toString());
+            var resultado = performGetComAutenticacao(URL, "status", ATIVAS.toString(), ID_JWT, ROLE_ADM);
             assertListUsuario(resultado,
                     ID_VALIDO,
                     2L,
@@ -62,10 +62,40 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     "felipesmacario@gmail.com",
                     "goku@gmail.com",
                     "12345678901",
-                    "1234567890"
+                    "12345678901"
             );
 
             verify(usuarioService).listar(ATIVAS);
+            verifyNoMoreInteractions(usuarioService);
+        }
+
+        @Test
+        @DisplayName("Deve listar usuários inativos")
+        void deveListarUsuariosInativos() throws Exception {
+            //Arrange
+            var response1 = criaUsuarioResponse(false);
+            var response2 = criaUsuarioResponse2(false);
+
+            var response = List.of(response1, response2);
+
+            when(usuarioService.listar(INATIVAS))
+                    .thenReturn(response);
+            //Act + Assert
+            var resultado = performGetComAutenticacao(URL, "status", INATIVAS.toString(), ID_JWT, ROLE_ADM);
+            assertListUsuario(resultado,
+                    ID_VALIDO,
+                    2L,
+                    "Felipe",
+                    "Goku",
+                    false,
+                    false,
+                    "felipesmacario@gmail.com",
+                    "goku@gmail.com",
+                    "12345678901",
+                    "12345678901"
+            );
+
+            verify(usuarioService).listar(INATIVAS);
             verifyNoMoreInteractions(usuarioService);
         }
 
@@ -81,7 +111,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             when(usuarioService.listar(TODAS))
                     .thenReturn(response);
             //Act + Assert
-            var resultado = performGet(URL, "status", TODAS.toString());
+            var resultado = performGetComAutenticacao(URL, ID_JWT, ROLE_ADM);
             assertListUsuario(resultado,
                     ID_VALIDO,
                     2L,
@@ -92,10 +122,30 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     "felipesmacario@gmail.com",
                     "goku@gmail.com",
                     "12345678901",
-                    "1234567890"
+                    "12345678901"
             );
             verify(usuarioService).listar(TODAS);
             verifyNoMoreInteractions(usuarioService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 401 na listagem")
+        void deveRetornar401NaListagem() throws Exception {
+            //Arrange
+            //Act + Assert
+            var resultado = performGet(URL);
+            assertStatus401(resultado);
+            verifyNoInteractions(usuarioService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 403 na listagem")
+        void deveRetornar403NaListagem() throws Exception {
+            //Arrange
+            //Act + Assert
+            var resultado = performGetComAutenticacao(URL, ID_JWT, ROLE_USUARIO);
+            assertStatus403(resultado);
+            verifyNoInteractions(usuarioService);
         }
     }
 
@@ -112,7 +162,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             when(usuarioService.buscarPorId(ID_VALIDO))
                     .thenReturn(cx.response);
             //Act + Assert
-            var resultado = performGet(URL_ID);
+            var resultado = performGetComAutenticacao(URL_ID, ID_JWT, ROLE_ADM);
             assertUsuario(
                     resultado,
                     status().isOk(),
@@ -128,13 +178,37 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
         }
 
         @Test
+        @DisplayName("Deve buscar um usuário inativo")
+        void deveBuscarUmUsuarioInativo() throws Exception {
+            //Arrange
+            var response = criarUsuarioPadraoResponseInativo();
+
+            when(usuarioService.buscarPorId(ID_VALIDO))
+                    .thenReturn(response);
+            //Act + Assert
+            var resultado = performGetComAutenticacao(URL_ID, ID_JWT, ROLE_ADM);
+            assertUsuario(
+                    resultado,
+                    status().isOk(),
+                    ID_VALIDO,
+                    "Felipe",
+                    false,
+                    "felipesmacario@gmail.com",
+                    "12345678901"
+            );
+
+            verify(usuarioService).buscarPorId(ID_VALIDO);
+            verifyNoMoreInteractions(usuarioService);
+        }
+
+        @Test
         @DisplayName("Deve retornar 404 ao buscar um usuário por ID")
         void deveRetornar404aoBuscarUmUsuarioPorID() throws Exception {
             //Arrange
             when(usuarioService.buscarPorId(ID_VALIDO))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             //Act + Assert
-            var resultado = performGet(URL_ID);
+            var resultado = performGetComAutenticacao(URL_ID, ID_JWT, ROLE_ADM);
             assertStatus404(resultado, USUARIO, ID_VALIDO);
 
             verify(usuarioService).buscarPorId(ID_VALIDO);
@@ -155,7 +229,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             when(usuarioService.alterarStatus(ID_VALIDO, status))
                     .thenReturn(cx.response);
             //ACT + assert
-            var resultado = performPatch(URL_ID + "/status", status);
+            var resultado = performPatchComAutenticacao(URL_STATUS, status, ID_JWT, ROLE_ADM);
             assertUsuario(
                     resultado,
                     status().isOk(),
@@ -176,7 +250,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             //Arrange
             var status = new StatusRequest(null);
             //ACT + assert
-            var resultado = performPatch(URL_ID + "/status", status);
+            var resultado = performPatchComAutenticacao(URL_STATUS, status, ID_JWT, ROLE_ADM);
 
             assertStatus400(resultado);
             verifyNoInteractions(usuarioService);
@@ -192,7 +266,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             when(usuarioService.alterarStatus(ID_VALIDO, status))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             //ACT + assert
-            var resultado = performPatch(URL_ID + "/status", status);
+            var resultado = performPatchComAutenticacao(URL_STATUS, status, ID_JWT, ROLE_ADM);
             assertStatus404(resultado,
                     USUARIO,
                     ID_VALIDO);
@@ -203,8 +277,43 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
     }
 
     @Nested
+    @DisplayName("Testes da busca de roles por id do usuário")
+    class BuscaRole {
+        @Test
+        @DisplayName("Deve buscar as roles por usuário")
+        void deveBuscarRolesPorUsuario() throws Exception {
+            //Arrange
+            var cx = new UsuarioTestContext();
+            when(usuarioService.buscarRolesUsuario(ID_VALIDO))
+                    .thenReturn(cx.usuarioRolesResponse);
+            //Act + Assert
+            var resultado = performGetComAutenticacao(URL_ROLE, ID_JWT, ROLE_ADM);
+            assertUsuarioRole(resultado, ID_VALIDO, "Felipe Soares Macário", "12345678901");
+
+            verify(usuarioService).buscarRolesUsuario(ID_VALIDO);
+            verifyNoMoreInteractions(usuarioService);
+
+        }
+
+        @Test
+        @DisplayName("Deve retornar 404 ao buscar roles por usuário")
+        void deveRetornar404AoBuscarRolesPorUsuario() throws Exception {
+            //Arrange
+            when(usuarioService.buscarRolesUsuario(ID_VALIDO))
+                    .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
+            //Act + Assert
+            var resultado = performGetComAutenticacao(URL_ROLE, ID_JWT, ROLE_ADM);
+            assertStatus404(resultado, USUARIO, ID_VALIDO);
+
+            verify(usuarioService).buscarRolesUsuario(ID_VALIDO);
+            verifyNoMoreInteractions(usuarioService);
+
+        }
+    }
+
+    @Nested
     @DisplayName("Testes da vinculação da role")
-    class VinculaRole {
+    class VincularRole {
         @Test
         @DisplayName("Deve vincular uma role")
         void deveVincularUmaRole() throws Exception {
@@ -214,8 +323,8 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             when(usuarioService.vincularRole(ID_VALIDO, cx.listRoles.roles()))
                     .thenReturn(cx.usuarioRolesResponse);
             //Act + Assert
-            var resultado = performPost(URL_ROLE, cx.listRoles);
-            assertUsuarioRole(resultado, ID_VALIDO, "Felipe Soares Macário", "1234567890");
+            var resultado = performPostComAutenticacao(URL_ROLE, cx.listRoles, ID_JWT, ROLE_ADM);
+            assertUsuarioRole(resultado, ID_VALIDO, "Felipe Soares Macário", "12345678901");
 
             verify(usuarioService).vincularRole(ID_VALIDO, cx.listRoles.roles());
             verifyNoMoreInteractions(usuarioService);
@@ -228,20 +337,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             var cx = new UsuarioTestContext();
 
             //Act + Assert
-            var resultado = performPost(URL_ROLE, cx.listRolesIncompleta);
-            assertStatus400(resultado);
-
-            verifyNoInteractions(usuarioService);
-        }
-
-        @Test
-        @DisplayName("Deve lançar 400 ao para um ID do usuário invalido")
-        void deveLancar400AoInserirIdUsuarioInvalido() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-
-            //Act + Assert
-            var resultado = performPost(URL + "/A/roles", cx.listRoles.roles());
+            var resultado = performPostComAutenticacao(URL_ROLE, cx.listRolesIncompleta, ID_JWT, ROLE_ADM);
             assertStatus400(resultado);
 
             verifyNoInteractions(usuarioService);
@@ -256,7 +352,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             when(usuarioService.vincularRole(ID_VALIDO, cx.listRoles.roles()))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             //Act + Assert
-            var resultado = performPost(URL_ROLE, cx.listRoles);
+            var resultado = performPostComAutenticacao(URL_ROLE, cx.listRoles, ID_JWT, ROLE_ADM);
             assertStatus404(resultado, USUARIO, ID_VALIDO);
 
             verify(usuarioService).vincularRole(ID_VALIDO, cx.listRoles.roles());
@@ -273,7 +369,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     .thenThrow(new RuntimeException("Erro inesperado"));
 
             //Act + Assert
-            var resultado = performPost(URL_ROLE, cx.listRoles);
+            var resultado = performPostComAutenticacao(URL_ROLE, cx.listRoles, ID_JWT, ROLE_ADM);
             assertStatus500(resultado);
 
             verify(usuarioService).vincularRole(ID_VALIDO, cx.listRoles.roles());
@@ -283,7 +379,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
 
     @Nested
     @DisplayName("Testes da desvinculação de uma role")
-    class DesvinculaRole {
+    class DesvincularRole {
         @Test
         @DisplayName("Deve desvincular uma role")
         void deveDesvincularUmaRole() throws Exception {
@@ -294,8 +390,8 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     .thenReturn(cx.usuarioRolesResponse);
 
             //Act + Assert
-            var resultado = performDelete(URL_ROLE + "/" + ID_ROLE);
-            assertUsuarioRole(resultado, ID_VALIDO, "Felipe Soares Macário", "1234567890");
+            var resultado = performDeleteComAutenticacao(URL_ROLE_ID, ID_JWT, ROLE_ADM);
+            assertUsuarioRole(resultado, ID_VALIDO, "Felipe Soares Macário", "12345678901");
 
             verify(usuarioService).desvincularRole(ID_VALIDO, ID_ROLE);
             verifyNoMoreInteractions(usuarioService);
@@ -309,7 +405,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
 
             //Act + Assert
-            var resultado = performDelete(URL_ROLE + "/" + ID_ROLE);
+            var resultado = performDeleteComAutenticacao(URL_ROLE_ID, ID_JWT, ROLE_ADM);
             assertStatus404(resultado, USUARIO, ID_VALIDO);
 
             verify(usuarioService).desvincularRole(ID_VALIDO, ID_ROLE);
@@ -324,60 +420,23 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     .thenThrow(new NotFoundException(ROLE, ID_ROLE));
 
             //Act + Assert
-            var resultado = performDelete(URL_ROLE + "/" + ID_ROLE);
+            var resultado = performDeleteComAutenticacao(URL_ROLE_ID, ID_JWT, ROLE_ADM);
             assertStatus404(resultado, ROLE, ID_ROLE);
 
             verify(usuarioService).desvincularRole(ID_VALIDO, ID_ROLE);
             verifyNoMoreInteractions(usuarioService);
         }
 
-        @Test
-        @DisplayName("Deve lançar 400 ao desvincular uma role com ID role invalido")
-        void deveLancar400AoInserirIdRoleInvalido() throws Exception {
-            //Arrange
-            when(usuarioService.desvincularRole(ID_VALIDO, ID_ROLE))
-                    .thenThrow(new NotFoundException(ROLE, ID_ROLE));
-
-            //Act + Assert
-            var resultado = performDelete(URL_ROLE + "/" + "A");
-            assertStatus400(resultado);
-
-            verifyNoInteractions(usuarioService);
-        }
     }
 
-    @Nested
-    @DisplayName("Testes da busca de roles por id do usuário")
-    class BuscaRole {
-        @Test
-        @DisplayName("Deve buscar as roles por usuário")
-        void deveBuscarRolesPorUsuario() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-            when(usuarioService.buscarRolesUsuario(ID_VALIDO))
-                    .thenReturn(cx.usuarioRolesResponse);
-            //Act + Assert
-            var resultado = performGet(URL_ROLE);
-            assertUsuarioRole(resultado, ID_VALIDO, "Felipe Soares Macário", "1234567890");
-
-            verify(usuarioService).buscarRolesUsuario(ID_VALIDO);
-            verifyNoMoreInteractions(usuarioService);
-
-        }
-
-        @Test
-        @DisplayName("Deve lançar 404 ao buscar roles por usuário")
-        void deveLancarBuscarRolesPorUsuario() throws Exception {
-            //Arrange
-            when(usuarioService.buscarRolesUsuario(ID_VALIDO))
-                    .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
-            //Act + Assert
-            var resultado = performGet(URL_ROLE);
-            assertStatus404(resultado, USUARIO, ID_VALIDO);
-
-            verify(usuarioService).buscarRolesUsuario(ID_VALIDO);
-            verifyNoMoreInteractions(usuarioService);
-
-        }
+    private UsuarioResponse criarUsuarioPadraoResponseInativo() {
+        return UsuarioTestContext.criaUsuarioResponse(
+                ID_VALIDO,
+                "Felipe",
+                "felipesmacario@gmail.com",
+                "12345678901",
+                false
+        );
     }
+
 }

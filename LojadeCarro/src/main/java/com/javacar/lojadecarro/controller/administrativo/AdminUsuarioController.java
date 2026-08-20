@@ -26,7 +26,7 @@ public class AdminUsuarioController {
 
     @GetMapping
     @Operation(summary = "Listar os usuário")
-    public ResponseEntity<List<UsuarioResponse>> listar(@RequestParam(defaultValue = "ATIVAS") StatusFiltro status) {
+    public ResponseEntity<List<UsuarioResponse>> listar(@RequestParam(defaultValue = "TODAS") StatusFiltro status) {
         log.debug("Buscando os usuários com o status: {}.", status);
         var response = usuarioService.listar(status);
 

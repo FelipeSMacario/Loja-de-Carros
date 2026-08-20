@@ -762,7 +762,7 @@ class UsuarioServiceTest extends BaseServiceTest {
                     .containsExactly(
                             ID_VALIDO,
                             "Felipe Soares Macário",
-                            "1234567890"
+                            "12345678901"
                     );
 
             assertThat(resultado.roles())

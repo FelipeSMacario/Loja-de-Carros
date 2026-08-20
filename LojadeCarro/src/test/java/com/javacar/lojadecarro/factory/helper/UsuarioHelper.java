@@ -93,7 +93,7 @@ public final class UsuarioHelper extends BaseHelper {
 
         return new UsuarioRolesResponse(1L,
                 "Felipe Soares Macário",
-                "1234567890",
+                "12345678901",
                 listRolesResponse);
     }
 
@@ -126,6 +126,14 @@ public final class UsuarioHelper extends BaseHelper {
         result
                 .andExpect(jsonPath("$.email").value(email))
                 .andExpect(jsonPath("$.cpf").value(cpf));
+    }
+
+    public static void assertAlteracaoSenha(ResultActions result,
+                                     String email,
+                                     String mensagem) throws Exception {
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.email").value(email))
+                .andExpect(jsonPath("$.mensagem").value(mensagem));
     }
 
     public static void assertListUsuario(ResultActions result,

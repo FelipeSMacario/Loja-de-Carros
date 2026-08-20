@@ -65,7 +65,7 @@ public class UsuarioController {
     }
 
     @PutMapping("/me")
-    @Operation(summary = "Buscar dados do usuário autenticado")
+    @Operation(summary = "Atualizar dados do usuário autenticado")
     public ResponseEntity<UsuarioResponse> atualizar(@RequestBody
                                                      @Valid UsuarioUpdateRequest request,
                                                      @AuthenticationPrincipal Jwt jwt) {

@@ -58,7 +58,7 @@ public class UsuarioTestContext {
                 .comId(2L)
                 .comNome("Goku")
                 .comEmail("goku@gmail.com")
-                .comCpf("1234567890")
+                .comCpf("12345678901")
                 .comAtivo(ativo)
                 .build();
     }
