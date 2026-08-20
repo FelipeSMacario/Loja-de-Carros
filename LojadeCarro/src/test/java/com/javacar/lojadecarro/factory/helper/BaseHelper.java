@@ -18,6 +18,12 @@ public abstract class BaseHelper {
                 .hasMessage(entidade.naoEncontrada() + idInvalido);
     }
 
+    public static void assertNotFoundResponseError(NotFoundException exception,
+                                                   Entidade entidade) {
+        assertThat(exception)
+                .hasMessage(entidade.naoEncontrada());
+    }
+
     public static void assertBusinessResponseError(BusinessException exception, Entidade entidade) {
         assertThat(exception)
                 .hasMessage(entidade.jaAtiva());

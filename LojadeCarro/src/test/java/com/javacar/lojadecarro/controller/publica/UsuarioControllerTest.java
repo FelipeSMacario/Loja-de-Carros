@@ -56,7 +56,7 @@ class UsuarioControllerTest extends BaseControllerTest {
                     "Felipe",
                     true,
                     "felipesmacario@gmail.com",
-                    "15153769788"
+                    "12345678901"
             );
             resultado.andExpect(header().exists("Location"));
 
@@ -118,7 +118,7 @@ class UsuarioControllerTest extends BaseControllerTest {
                     "Felipe",
                     true,
                     "felipesmacario@gmail.com",
-                    "15153769788"
+                    "12345678901"
             );
 
             verify(usuarioService).atualizar(any(UsuarioUpdateRequest.class),

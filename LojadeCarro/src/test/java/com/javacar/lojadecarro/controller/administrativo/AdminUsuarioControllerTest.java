@@ -61,7 +61,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     true,
                     "felipesmacario@gmail.com",
                     "goku@gmail.com",
-                    "15153769788",
+                    "12345678901",
                     "1234567890"
             );
 
@@ -91,7 +91,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     false,
                     "felipesmacario@gmail.com",
                     "goku@gmail.com",
-                    "15153769788",
+                    "12345678901",
                     "1234567890"
             );
             verify(usuarioService).listar(TODAS);
@@ -120,7 +120,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     "Felipe",
                     true,
                     "felipesmacario@gmail.com",
-                    "15153769788"
+                    "12345678901"
             );
 
             verify(usuarioService).buscarPorId(ID_VALIDO);
@@ -163,7 +163,7 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     "Felipe",
                     true,
                     "felipesmacario@gmail.com",
-                    "15153769788"
+                    "12345678901"
             );
 
             verify(usuarioService).alterarStatus(ID_VALIDO, status);

@@ -45,11 +45,33 @@ public final class UsuarioHelper extends BaseHelper {
                 .extracting(
                         UsuarioResponse::id,
                         UsuarioResponse::nome,
-                        UsuarioResponse::email
+                        UsuarioResponse::email,
+                        UsuarioResponse::cpf,
+                        UsuarioResponse::ativo
                 ).containsExactly(
                         ID_VALIDO,
                         "Felipe",
-                        "felipesmacario@gmail.com"
+                        "felipesmacario@gmail.com",
+                        "12345678901",
+                        true
+                );
+
+    }
+    public static void assertUsuarioResponseInativo(UsuarioResponse response) {
+        assertThat(response)
+                .isNotNull()
+                .extracting(
+                        UsuarioResponse::id,
+                        UsuarioResponse::nome,
+                        UsuarioResponse::email,
+                        UsuarioResponse::cpf,
+                        UsuarioResponse::ativo
+                ).containsExactly(
+                        ID_VALIDO,
+                        "Felipe",
+                        "felipesmacario@gmail.com",
+                        "12345678901",
+                        false
                 );
 
     }

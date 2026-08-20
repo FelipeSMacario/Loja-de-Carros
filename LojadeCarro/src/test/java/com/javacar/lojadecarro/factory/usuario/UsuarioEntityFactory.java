@@ -56,6 +56,10 @@ public final class UsuarioEntityFactory {
         usuario.setEmail(email);
         return this;
     }
+    public UsuarioEntityFactory comSenha(String senha) {
+        usuario.setPassword(senha);
+        return this;
+    }
     public UsuarioEntityFactory comAtivo(boolean ativo) {
         usuario.setAtivo(ativo);
         return this;

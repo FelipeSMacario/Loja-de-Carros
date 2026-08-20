@@ -13,7 +13,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -52,6 +51,7 @@ public class Usuario extends EntidadeBase implements UserDetails, Serializable {
             fetch = FetchType.LAZY
     )
     private Set<UsuarioRole> roles = new HashSet<>();
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
@@ -110,6 +110,7 @@ public class Usuario extends EntidadeBase implements UserDetails, Serializable {
         return roles.stream()
                 .anyMatch(usuarioRole -> usuarioRole.getRole().getId().equals(roleId));
     }
+
     public void removerRole(Long idrole) {
         boolean removido = roles.removeIf(
                 usuarioRole -> usuarioRole.getRole().getId().equals(idrole)
