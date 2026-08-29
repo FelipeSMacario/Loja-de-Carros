@@ -47,4 +47,6 @@ class UsuarioRepositoryIntegrationTest extends AbstractIntegrationTest {
         assertThat(usuarioRepository.existsByCpf("15052036000"))
                 .isTrue();
     }
+
+
 }

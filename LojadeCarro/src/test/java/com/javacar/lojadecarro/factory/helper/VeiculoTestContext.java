@@ -40,7 +40,6 @@ public class VeiculoTestContext {
     public final MultipartFile[] imagemFile = criarImagemFile();
     public final List<Long> idsOpcionais = List.of(1L, 2L);
     public final VeiculoOpcionaisRequest veiculoOpcionaisRequest = new VeiculoOpcionaisRequest(idsOpcionais);
-    public final VeiculoOpcionaisRequest veiculoOpcionaisRequestIncompleto = new VeiculoOpcionaisRequest(null);
     public final List<ImagemResponse> imagemResponseList = List.of(ImagemResponseFactory
                     .criarResponse()
                     .comTodosOsCampos()
@@ -49,6 +48,7 @@ public class VeiculoTestContext {
                     .criarResponse()
                     .comTodosOsCampos()
                     .comId(2L)
+                    .comPrincipal(false)
                     .build());
 
     public final VeiculoResponse veiculoResponse1 = VeiculoResponseFactory
@@ -99,8 +99,8 @@ public class VeiculoTestContext {
                 .build();
     }
 
-    public static VeiculoVendaResponse criarVeiculoVendaResponse(Long id, String marca, String modelo) {
-        return new VeiculoVendaResponse(id, marca, modelo);
+    public static VeiculoVendaResponse criarVeiculoVendaResponse(Long id, String marca, String modelo, StatusVeiculo statusVeiculo) {
+        return new VeiculoVendaResponse(id, marca, modelo, statusVeiculo);
     }
 
 }

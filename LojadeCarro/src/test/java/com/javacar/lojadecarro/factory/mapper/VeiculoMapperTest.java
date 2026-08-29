@@ -68,7 +68,7 @@ class VeiculoMapperTest extends MapperTest {
                 )
                 .containsExactly(
                         1L,
-                        "QUV1F836",
+                        "QUV1F83",
                         "Ford",
                         "Onix",
                         new BigDecimal(58000),

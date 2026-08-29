@@ -22,12 +22,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.javacar.lojadecarro.enums.Entidade.VEICULO;
-import static com.javacar.lojadecarro.enums.StatusVeiculo.*;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
 
 
@@ -60,13 +57,29 @@ public class VeiculoService {
         veiculoEntity.setVendedor(vendedor);
         veiculoEntity.setStatusVeiculo(DISPONIVEL);
 
+
+        var opcionais = Collections.<Opcional>emptyList();
+        if (!request.idsOpcionais().isEmpty()) {
+            opcionais = vincularOpcionais(request);
+            opcionais.forEach(veiculoEntity::adicionarOpcional);
+        }
         var veiculo = veiculoRepository.save(veiculoEntity);
-        if (!request.idsOpcionais().isEmpty())
-            vincularOpcionais(request, veiculo);
 
         adicionarImagens(files, veiculo);
 
         return veiculoMapper.toResponse(veiculo);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public Page<VeiculoResponse> listarAdministrativo(Pageable pageable, StatusVeiculo statusVeiculo) {
+        if (statusVeiculo == null) {
+            return veiculoRepository.findAll(pageable)
+                    .map(veiculoMapper::toResponse);
+        }
+
+        return veiculoRepository.findByStatusVeiculo(statusVeiculo, pageable)
+                .map(veiculoMapper::toResponse);
     }
 
     @Transactional(readOnly = true)
@@ -88,18 +101,6 @@ public class VeiculoService {
                 .map(veiculoMapper::toResponse);
     }
 
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @Transactional(readOnly = true)
-    public Page<VeiculoResponse> listarAdministrativo(Pageable pageable, StatusVeiculo statusVeiculo) {
-        if (statusVeiculo == null) {
-            return veiculoRepository.findAll(pageable)
-                    .map(veiculoMapper::toResponse);
-        }
-
-        return veiculoRepository.findByStatusVeiculo(statusVeiculo, pageable)
-                .map(veiculoMapper::toResponse);
-    }
 
     @Transactional(readOnly = true)
     public VeiculoResponse buscarPorId(Long id) {
@@ -125,7 +126,7 @@ public class VeiculoService {
         }
         veiculoMapper.toUpdate(request, veiculo);
 
-        preencherRelacionamentos(request, veiculo);
+        preencherRelacionamentosAtualizacao(request, veiculo);
         return veiculoMapper.toResponse(veiculo);
     }
 
@@ -191,13 +192,13 @@ public class VeiculoService {
         return imagens;
     }
 
-    private void vincularOpcionais(VeiculoRequest request, Veiculo veiculo) {
+    private List<Opcional> vincularOpcionais(VeiculoRequest request) {
         validaOpcionaisDuplicados(request.idsOpcionais());
         var opcionals = opcionalService.buscarOpcionaisAtivos(request.idsOpcionais());
 
         validaOpcionaisExistentes(opcionals, request.idsOpcionais());
 
-        opcionals.forEach(veiculo::adicionarOpcional);
+        return opcionals;
     }
 
 
@@ -245,11 +246,30 @@ public class VeiculoService {
     }
 
     private void preencherRelacionamentos(VeiculoRequest request, Veiculo veiculoEntity) {
-        veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
-        veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
-        veiculoEntity.setModelo(modeloService.buscaModeloAtivo(request.idModelo()));
+            veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
+            veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
+            veiculoEntity.setModelo(modeloService.buscaModeloAtivo(request.idModelo()));
+            veiculoEntity.setCombustivel(combustivelService.buscaCombustivelAtivo(request.idCombustivel()));
 
-        veiculoEntity.setCombustivel(combustivelService.buscaCombustivelAtivo(request.idCombustivel()));
+    }
+
+    private void preencherRelacionamentosAtualizacao(VeiculoRequest request, Veiculo veiculoEntity) {
+        if (!Objects.equals(request.idCarroceria(), veiculoEntity.getCarroceria().getId())) {
+            veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
+        }
+
+        if (!Objects.equals(request.idCores(), veiculoEntity.getCor().getId())) {
+            veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
+        }
+
+        if (!Objects.equals(request.idModelo(), veiculoEntity.getModelo().getId())) {
+            veiculoEntity.setModelo(modeloService.buscaModeloAtivo(request.idModelo()));
+        }
+
+        if (!Objects.equals(request.idCombustivel(), veiculoEntity.getCombustivel().getId())) {
+            veiculoEntity.setCombustivel(combustivelService.buscaCombustivelAtivo(request.idCombustivel()));
+        }
+
     }
 
     private void validarPlacaUnica(String placa) {

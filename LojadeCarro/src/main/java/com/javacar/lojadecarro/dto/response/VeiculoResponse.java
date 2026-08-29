@@ -7,9 +7,12 @@ import java.math.BigDecimal;
 
 @Schema(description = "Resposta para criação de um veiculo para venda")
 public record VeiculoResponse(@Schema(example = "1", description = "Id do veiculo") Long id,
-                              @Schema(example = "QUV1F836", description = "Placa do veiculo") String placa,
+                              @Schema(example = "QUV1F83", description = "Placa do veiculo") String placa,
                               @Schema(example = "Chevrolet", description = "Marca do veiculo") String marca,
                               @Schema(example = "Onix", description = "Modelo do veiculo") String modelo,
+                              @Schema(example = "SUV", description = "Carroceria do veiculo") String carroceria,
+                              @Schema(example = "Branco", description = "Cor do veiculo") String cor,
+                              @Schema(example = "Etanol", description = "Combustível do veiculo") String combustivel,
                               @Schema(example = "75990.00", description = "Valor do veiculo") BigDecimal valor,
                               @Schema(example = "70000", description = "Quilometragem do veiculo") Integer quilometragem,
                               @Schema(example = "2023", description = "Ano de fabricação do veiculo") short anoFabricacao,

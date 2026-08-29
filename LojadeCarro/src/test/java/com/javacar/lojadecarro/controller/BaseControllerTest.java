@@ -3,12 +3,14 @@ package com.javacar.lojadecarro.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javacar.lojadecarro.security.WebSecurityConfig;
 import com.javacar.lojadecarro.security.service.CustomUserDetailsService;
+import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -31,6 +33,11 @@ public abstract class BaseControllerTest {
     private JwtDecoder jwtDecoder;
     @Autowired
     protected ObjectMapper objectMapper;
+
+    @AfterEach
+    void limparSecurityContext() {
+        SecurityContextHolder.clearContext();
+    }
 
     protected ResultActions performGet(String url) throws Exception {
         return mockMvc.perform(get(url));

@@ -4,6 +4,8 @@ import com.javacar.lojadecarro.enums.StatusVenda;
 import com.javacar.lojadecarro.exception.business.BusinessException;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SourceType;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,10 +19,11 @@ public class Venda {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @CreationTimestamp(source = SourceType.VM)
     @Column(
+            name = "data_venda",
             nullable = false,
-            updatable = false,
-            insertable = false
+            updatable = false
     )
     private LocalDateTime dataVenda;
 

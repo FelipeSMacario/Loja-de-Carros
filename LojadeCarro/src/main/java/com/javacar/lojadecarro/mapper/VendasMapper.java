@@ -18,5 +18,6 @@ public interface VendasMapper {
     @Mapping(source = "venda.vendedor.nome", target = "vendedor.nome")
     @Mapping(source = "venda.comprador.id", target = "comprador.id")
     @Mapping(source = "venda.comprador.nome", target = "comprador.nome")
+    @Mapping(source = "venda.veiculo.statusVeiculo", target = "veiculo.status")
     VendaResponse toResponse(Venda venda);
 }

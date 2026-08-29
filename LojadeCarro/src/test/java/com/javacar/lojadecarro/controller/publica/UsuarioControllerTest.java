@@ -35,11 +35,6 @@ class UsuarioControllerTest extends BaseControllerTest {
     @MockitoBean
     private UsuarioService usuarioService;
 
-    @AfterEach
-    void limparSecurityContext() {
-        SecurityContextHolder.clearContext();
-    }
-
     @Nested
     @DisplayName("Testes de criação")
     class Criar {

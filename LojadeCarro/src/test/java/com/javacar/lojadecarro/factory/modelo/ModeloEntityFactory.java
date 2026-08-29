@@ -46,6 +46,11 @@ public final class ModeloEntityFactory {
         modelo.setMarca(criarMarcaEntity());
         return this;
     }
+    public ModeloEntityFactory comMarca(Marca marca) {
+        modelo.setMarca(marca);
+        return this;
+    }
+
 
     public Modelo build() {
         return modelo;

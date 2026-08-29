@@ -13,6 +13,9 @@ public interface VeiculoMapper {
 
     @Mapping(source = "modelo.marca.nome", target = "marca")
     @Mapping(source = "modelo.nome", target = "modelo")
+    @Mapping(source = "carroceria.nome", target = "carroceria")
+    @Mapping(source = "cor.nome", target = "cor")
+    @Mapping(source = "combustivel.nome", target = "combustivel")
     VeiculoResponse toResponse(Veiculo veiculo);
 
     void toUpdate(VeiculoRequest request, @MappingTarget Veiculo veiculo);

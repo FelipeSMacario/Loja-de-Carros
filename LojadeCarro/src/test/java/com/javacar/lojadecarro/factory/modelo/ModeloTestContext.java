@@ -2,6 +2,7 @@ package com.javacar.lojadecarro.factory.modelo;
 
 import com.javacar.lojadecarro.dto.request.ModeloRequest;
 import com.javacar.lojadecarro.dto.response.ModeloResponse;
+import com.javacar.lojadecarro.entity.Marca;
 import com.javacar.lojadecarro.entity.Modelo;
 
 import static com.javacar.lojadecarro.factory.helper.ModeloHelper.*;
@@ -28,6 +29,16 @@ public class ModeloTestContext {
                 .comNome(nome)
                 .comAtivo(ativo)
                 .comMarca()
+                .build();
+    }
+
+    public static Modelo criaModelo(Long id, String nome, Marca marca, boolean ativo) {
+        return ModeloEntityFactory
+                .criarEntity()
+                .comId(id)
+                .comNome(nome)
+                .comAtivo(ativo)
+                .comMarca(marca)
                 .build();
     }
 

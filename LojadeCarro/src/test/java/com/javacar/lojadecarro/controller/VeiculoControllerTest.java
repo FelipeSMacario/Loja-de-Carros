@@ -375,7 +375,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
                     "imagens/2026/foto.jpg",
                     "imagens/2026/foto.jpg",
                     true,
-                    true
+                    false
             );
 
             verify(veiculoService).listarImagens(ID_VALIDO);

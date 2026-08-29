@@ -122,7 +122,7 @@ public class VendasService {
 
     @PreAuthorize(
             "hasRole('ADMIN') or " +
-                    "@vendaAuthorization.relacionadoAVenda(#idVenda, authentication)"
+                    "@vendaAuthorization.ehVendedor(#idVenda, authentication)"
     )
     @Transactional
     public VendaResponse cancelarVenda(Long idVenda) {
@@ -135,7 +135,7 @@ public class VendasService {
 
     @PreAuthorize(
             "hasRole('ADMIN') or " +
-                    "@vendaAuthorization.ehVendedor(#idVenda, authentication)"
+                    "@vendaAuthorization.relacionadoAVenda(#idVenda, authentication)"
     )
     @Transactional
     public VendaResponse concluirVenda(Long idVenda) {

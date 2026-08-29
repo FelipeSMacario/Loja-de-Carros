@@ -129,14 +129,14 @@ public class Veiculo {
 
     public void reativarAnuncio(){
         if (this.statusVeiculo != PAUSADO){
-            throw new BusinessException("Somente um veiculo pausado pode ser reativado");
+            throw new BusinessException("Somente um veículo pausado pode ser reativado");
         }
         this.statusVeiculo = DISPONIVEL;
     }
 
     public void pausarAnuncio(){
         if (this.statusVeiculo != DISPONIVEL){
-            throw new BusinessException("Somente um veiculo disponível pode ser pausado");
+            throw new BusinessException("Somente um veículo disponível pode ser pausado");
         }
         this.statusVeiculo = PAUSADO;
     }

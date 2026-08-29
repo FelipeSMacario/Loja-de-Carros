@@ -3,6 +3,7 @@ package com.javacar.lojadecarro.dto.request;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
 import java.math.BigDecimal;
@@ -14,7 +15,11 @@ public record VeiculoRequest(@Schema(example = "123000", description = "quilomet
                              @Schema(example = "100000", description = "Valor do veiculo")
                              @NotNull BigDecimal valor,
                              @Schema(example = "123", description = "Placa do veiculo")
-                             @NotBlank @Size(min = 7, max = 7) String placa,
+                             @NotBlank @Size(min = 7, max = 7)
+                             @Pattern(
+                                     regexp = "^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$",
+                                     message = "A placa deve seguir o padrão ABC1234 ou ABC1D23"
+                             )String placa,
                              @Schema(example = "1.0", description = "Motor do veiculo")
                              @NotBlank String motor,
                              @Schema(example = "Veiculo em perfeito estado", description = "Descrição do veiculo")
