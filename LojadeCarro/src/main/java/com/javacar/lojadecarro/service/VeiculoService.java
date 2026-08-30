@@ -58,9 +58,8 @@ public class VeiculoService {
         veiculoEntity.setStatusVeiculo(DISPONIVEL);
 
 
-        var opcionais = Collections.<Opcional>emptyList();
         if (!request.idsOpcionais().isEmpty()) {
-            opcionais = vincularOpcionais(request);
+            var opcionais = vincularOpcionais(request);
             opcionais.forEach(veiculoEntity::adicionarOpcional);
         }
         var veiculo = veiculoRepository.save(veiculoEntity);
@@ -246,10 +245,10 @@ public class VeiculoService {
     }
 
     private void preencherRelacionamentos(VeiculoRequest request, Veiculo veiculoEntity) {
-            veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
-            veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
-            veiculoEntity.setModelo(modeloService.buscaModeloAtivo(request.idModelo()));
-            veiculoEntity.setCombustivel(combustivelService.buscaCombustivelAtivo(request.idCombustivel()));
+        veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
+        veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
+        veiculoEntity.setModelo(modeloService.buscaModeloAtivo(request.idModelo()));
+        veiculoEntity.setCombustivel(combustivelService.buscaCombustivelAtivo(request.idCombustivel()));
 
     }
 
