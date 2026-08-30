@@ -61,6 +61,10 @@ public class VeiculoTestContext {
     public final VeiculoResponse veiculoResponse2 = VeiculoResponseFactory
             .criarResponse()
             .comTodosOsCampos()
+            .comMarca("Ford")
+            .comModelo("Mustang")
+            .comPlaca("QUG3S35")
+            .comValor(BigDecimal.valueOf(80000))
             .comStatus(StatusVeiculo.DISPONIVEL)
             .comId(2L)
             .build();

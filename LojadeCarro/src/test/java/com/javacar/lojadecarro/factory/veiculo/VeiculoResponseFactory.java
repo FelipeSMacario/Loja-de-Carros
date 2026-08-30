@@ -75,6 +75,10 @@ public class VeiculoResponseFactory {
         this.combustivel = combustivel;
         return this;
     }
+    public VeiculoResponseFactory comValor(BigDecimal valor) {
+        this.valor = valor;
+        return this;
+    }
 
     public VeiculoResponse build() {
         return new VeiculoResponse(

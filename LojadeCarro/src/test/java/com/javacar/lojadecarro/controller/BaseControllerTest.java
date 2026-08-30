@@ -69,6 +69,25 @@ public abstract class BaseControllerTest {
                 ));
     }
 
+
+
+    protected ResultActions performGet(String url, MockMultipartFile... files) throws Exception {
+        var request = multipart(url);
+
+        request.file(new MockMultipartFile(
+                "request",
+                "",
+                MediaType.APPLICATION_JSON_VALUE,
+                objectMapper.writeValueAsBytes(null)
+        ));
+
+        for (MockMultipartFile file : files) {
+            request.file(file);
+        }
+
+        return mockMvc.perform(request);
+    }
+
     protected ResultActions performGet(String url, String parametro, String valor) throws Exception {
         return mockMvc.perform(get(url).param(parametro, valor));
     }

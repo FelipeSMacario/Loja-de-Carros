@@ -14,7 +14,7 @@ import java.util.Optional;
 @Repository
 public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
 
-    Page<Veiculo> findByStatusVeiculo(StatusVeiculo descricao, Pageable pageable);
+    Page<Veiculo> findByStatusVeiculo(StatusVeiculo statusVeiculo, Pageable pageable);
     Optional<Veiculo> findByPlaca(String placa);
 
     boolean existsByPlaca(String placa);

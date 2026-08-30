@@ -1,4 +1,4 @@
-package com.javacar.lojadecarro.controller;
+package com.javacar.lojadecarro.controller.publico;
 
 import com.javacar.lojadecarro.dto.request.VeiculoOpcionaisRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
