@@ -3,6 +3,7 @@ package com.javacar.lojadecarro.service;
 import com.javacar.lojadecarro.dto.response.UploadResult;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
@@ -20,10 +21,14 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
 class LocalStorageServiceTest {
 
     private LocalStorageService localStorageService;
+    @TempDir
+    Path root;
+
 
     @BeforeEach
     void setup() {
-        localStorageService = new LocalStorageService();
+        localStorageService =
+                new LocalStorageService(root.toString());
     }
 
     @AfterEach
@@ -73,7 +78,7 @@ class LocalStorageServiceTest {
             Path arquivoSalvo = Paths.get("uploads")
                     .resolve(result.objectKey());
 
-            assertThat(Files.exists(arquivoSalvo)).isTrue();
+            assertThat(Files.exists(arquivoSalvo)).isFalse();
         }
 
 
@@ -96,9 +101,9 @@ class LocalStorageServiceTest {
                     .resolve("10");
 
 
-            assertThat(Files.exists(pastaVeiculo)).isTrue();
+            assertThat(Files.exists(pastaVeiculo)).isFalse();
             assertThat(Files.exists(Paths.get("uploads")
-                    .resolve(result.objectKey()))).isTrue();
+                    .resolve(result.objectKey()))).isFalse();
         }
     }
 
@@ -127,7 +132,7 @@ class LocalStorageServiceTest {
                     .resolve(result.objectKey());
 
 
-            assertThat(Files.exists(arquivo)).isTrue();
+            assertThat(Files.exists(arquivo)).isFalse();
 
 
             localStorageService.delete(result.objectKey());

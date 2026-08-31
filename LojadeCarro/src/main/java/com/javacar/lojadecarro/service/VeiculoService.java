@@ -187,7 +187,6 @@ public class VeiculoService {
     ) throws IOException {
         var imagens = imagensService.criar(files, veiculo);
 
-        imagens.forEach(veiculo::adicionarImagem);
         return imagens;
     }
 

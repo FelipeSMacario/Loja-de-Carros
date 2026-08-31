@@ -96,11 +96,31 @@ public class Veiculo {
         if (imagem == null) {
             throw new BusinessException("Imagem não pode ser nula");
         }
-        if (imagens.isEmpty()) {
-            imagem.setPrincipal(true);
+        imagem.setPrincipal(imagens.isEmpty());
+        imagem.setVeiculo(this);
+        imagens.add(imagem);
+    }
+    public void removerImagem(Imagem imagem) {
+        if (imagem == null) {
+            throw new BusinessException(
+                    "Imagem não pode ser nula"
+            );
         }
 
-        imagens.add(imagem);
+        var eraPrincipal = imagem.isPrincipal();
+        var removida = imagens.remove(imagem);
+
+        if (!removida) {
+            throw new BusinessException(
+                    "O veículo não possui essa imagem"
+            );
+        }
+
+        imagem.setVeiculo(null);
+
+        if (eraPrincipal && !imagens.isEmpty()) {
+            imagens.getFirst().setPrincipal(true);
+        }
     }
 
 

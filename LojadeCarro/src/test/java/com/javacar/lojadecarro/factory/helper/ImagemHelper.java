@@ -3,6 +3,7 @@ package com.javacar.lojadecarro.factory.helper;
 import com.javacar.lojadecarro.dto.response.UploadResult;
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.factory.imagem.ImagemEntityFactory;
+import com.javacar.lojadecarro.factory.veiculo.VeiculoEntityFactory;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.ResultActions;

@@ -7,6 +7,8 @@ import com.javacar.lojadecarro.integration.config.AbstractIntegrationTest;
 import com.javacar.lojadecarro.repository.ImagensRepository;
 import com.javacar.lojadecarro.repository.VeiculoRepository;
 import com.javacar.lojadecarro.service.ImagensService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -26,6 +28,8 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
     private VeiculoRepository veiculoRepository;
     @Autowired
     private ImagensRepository imagensRepository;
+    @PersistenceContext
+    protected EntityManager entityManager;
 
     @Nested
     @WithMockUser(roles = "ADMIN")
@@ -128,6 +132,8 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
             var idVeiculo = imagem.getVeiculo().getId();
             //ACT
             imagensService.delete(idImagem);
+            entityManager.flush();
+            entityManager.clear();
             // força sincronização do Persistence Context
             imagensRepository.flush();
             var veiculo = buscaVeiculo(idVeiculo);
@@ -135,11 +141,11 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
 
             assertThat(veiculo.getImagens())
                     .isNotEmpty()
-                    .hasSize(2);
+                    .hasSize(1);
 
             assertThat(veiculo.getImagens())
                     .extracting(Imagem::getId)
-                    .noneMatch(id -> id.equals(idVeiculo));
+                    .doesNotContain(idImagem);
 
         }
     }

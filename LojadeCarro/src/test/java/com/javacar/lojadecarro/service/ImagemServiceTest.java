@@ -15,6 +15,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -215,6 +216,11 @@ class ImagemServiceTest {
             //Arrange
             var imagem = criarImagemEntity();
 
+            List<Imagem> imagens = new ArrayList<>();
+            imagens.add(imagem);
+            var veiculo = imagem.getVeiculo();
+            veiculo.setImagens(imagens);
+
             when(imagensRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(imagem));
 
@@ -222,9 +228,10 @@ class ImagemServiceTest {
             imagensService.delete(ID_VALIDO);
             //Assert
             verify(imagensRepository).findById(ID_VALIDO);
+            verify(imagensRepository).flush();
             verify(storageService).delete(imagem.getObjectKey());
-            verify(imagensRepository).delete(imagem);
 
+            verifyNoMoreInteractions(imagensRepository, storageService);
         }
 
         @Test
@@ -252,11 +259,13 @@ class ImagemServiceTest {
         void deveLancarExcecaoLocal() throws IOException {
             //Arrange
             var imagem = criarImagemEntity();
+            List<Imagem> imagens = new ArrayList<>();
+            imagens.add(imagem);
+            var veiculo = imagem.getVeiculo();
+            veiculo.setImagens(imagens);
 
             when(imagensRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(imagem));
-
-            doNothing().when(imagensRepository).delete(imagem);
 
             doThrow(new IOException())
                     .when(storageService).delete(imagem.getObjectKey());
@@ -269,35 +278,10 @@ class ImagemServiceTest {
                     .isInstanceOf(IOException.class);
 
             verify(imagensRepository).findById(ID_VALIDO);
+            verify(imagensRepository).flush();
             verify(storageService).delete(imagem.getObjectKey());
 
-            verify(imagensRepository).delete(imagem);
-
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção ao deletar a imagem no banco")
-        void deveLancarExcecaoDeletarImagemBanco() throws IOException {
-            //Arrange
-            var imagem = criarImagemEntity();
-
-            when(imagensRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.of(imagem));
-
-            doThrow(new RuntimeException("Erro ao deletar a imagem no banco"))
-                    .when(imagensRepository).delete(imagem);
-            //ACT
-            var excecao = assertThrows(RuntimeException.class,
-                    () -> imagensService.delete(ID_VALIDO)
-            );
-            //Assert
-            assertThat(excecao)
-                    .hasMessage("Erro ao deletar a imagem no banco");
-
-            verify(imagensRepository).findById(ID_VALIDO);
-            verify(storageService, never()).delete(imagem.getObjectKey());
-            verify(imagensRepository).delete(imagem);
-
+            verifyNoMoreInteractions(imagensRepository, storageService);
         }
     }
 

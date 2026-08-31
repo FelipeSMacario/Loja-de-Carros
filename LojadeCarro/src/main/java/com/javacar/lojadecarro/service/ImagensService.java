@@ -40,7 +40,7 @@ public class ImagensService {
                 var upload = storageService.upload(file, veiculo.getId());
 
                 var imagem = new Imagem(upload);
-                imagem.setVeiculo(veiculo);
+                veiculo.adicionarImagem(imagem);
 
                 imagens.add(imagem);
             }
@@ -49,8 +49,12 @@ public class ImagensService {
 
         } catch (IOException | RuntimeException exception) {
             for (Imagem imagem : imagens) {
+                veiculo.removerImagem(imagem);
+
                 try {
-                    storageService.delete(imagem.getObjectKey());
+                    storageService.delete(
+                            imagem.getObjectKey()
+                    );
                 } catch (IOException cleanupException) {
                     exception.addSuppressed(cleanupException);
                 }
@@ -82,23 +86,17 @@ public class ImagensService {
     @Transactional(rollbackFor = IOException.class)
     public void delete(Long idImagem) throws IOException {
         var imagem = buscaImagem(idImagem);
-        imagem.getVeiculo().validarPodeSerEditado();
-        var isPrincipal = imagem.isPrincipal();
-        var imagemSubstituta = imagem.getVeiculo()
-                .getImagens()
-                .stream()
-                .filter(item -> !item.getId().equals(idImagem))
-                .findFirst();
+        var veiculo = imagem.getVeiculo();
 
+        veiculo.validarPodeSerEditado();
 
-        imagensRepository.delete(imagem);
-        if (isPrincipal) {
-            imagemSubstituta.ifPresent(
-                    item -> item.setPrincipal(true)
-            );
-        }
+        var objectKey = imagem.getObjectKey();
+
+        veiculo.removerImagem(imagem);
+
         imagensRepository.flush();
-        storageService.delete(imagem.getObjectKey());
+
+        storageService.delete(objectKey);
     }
 
     public Imagem buscaImagem(Long idImagem) {

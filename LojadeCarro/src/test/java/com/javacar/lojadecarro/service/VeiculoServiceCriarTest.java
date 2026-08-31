@@ -86,9 +86,6 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest{
                                     .toList()
                     );
 
-            assertThat(cx.entity.getImagens())
-                    .containsExactlyElementsOf(cx.imagens);
-
             assertThat(cx.entity.getVendedor())
                     .isSameAs(cx.usuario);
 

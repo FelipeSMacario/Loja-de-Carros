@@ -1,7 +1,6 @@
 package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
-import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
@@ -29,10 +28,9 @@ import static org.assertj.core.groups.Tuple.tuple;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @DisplayName("Testes das imagens do veículo")
-public class VeiculoServiceImagemTest extends AbstractVeiculoServiceTest{
+public class VeiculoServiceImagemTest extends AbstractVeiculoServiceTest {
     @Nested
     @DisplayName("Testes da listagem de imagens")
     class ListarImagens {
@@ -160,12 +158,6 @@ public class VeiculoServiceImagemTest extends AbstractVeiculoServiceTest{
                             .filter(i -> !i.principal())
                             .count()
             ).isEqualTo(1);
-
-            assertThat(cx.entity.getImagens())
-                    .extracting(Imagem::getId, Imagem::getObjectKey)
-                    .containsExactly(
-                            tuple(imagem1.getId(), imagem1.getObjectKey()),
-                            tuple(imagem2.getId(), imagem2.getObjectKey()));
 
             verify(veiculoRepository).findById(ID_VALIDO);
             verify(imagensService).criar(cx.imagemFile, cx.entity);

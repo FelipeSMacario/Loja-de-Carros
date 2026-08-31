@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.integration.service;
 
+import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.helper.ImagemHelper;
@@ -16,8 +17,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static com.javacar.lojadecarro.enums.Entidade.IMAGEM;
@@ -26,6 +30,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
+@Transactional
 @DisplayName("Testes de exceção da service da imagem")
 public class ImagemServiceIntegrationExceptionTest extends AbstractIntegrationTest {
     @Autowired
@@ -137,6 +142,10 @@ public class ImagemServiceIntegrationExceptionTest extends AbstractIntegrationTe
         void deveLancarExcecaoQuandoDeletarImagemStorage() throws IOException {
             //Arrange
             var imagem = ImagemEntityFactory.criarEntity().comTodosOsCampos().build();
+            var veiculo = imagem.getVeiculo();
+            List<Imagem> imagens = new ArrayList<>();
+            imagens.add(imagem);
+            veiculo.setImagens(imagens);
 
             when(imagensRepository.findById(1L))
                     .thenReturn(Optional.of(imagem));
@@ -153,22 +162,5 @@ public class ImagemServiceIntegrationExceptionTest extends AbstractIntegrationTe
                     .hasMessage("Erro ao deletar image");
         }
 
-        @Test
-        @DisplayName("Deve lançar exceção ao deletar imagem do banco")
-        void deveLancarExcecaoQuandoDeletarImagemBanco() {
-            //Arrange
-            var imagem = ImagemEntityFactory.criarEntity().comTodosOsCampos().build();
-            when(imagensRepository.findById(1L))
-                    .thenReturn(Optional.of(imagem));
-
-            doThrow(new RuntimeException("Erro ao deletar image do banco"))
-                    .when(imagensRepository).delete(imagem);
-            //ACT
-            var exception = assertThrows(RuntimeException.class,
-                    () -> imagensService.delete(1L));
-            //Assert
-            AssertionsForClassTypes.assertThat(exception)
-                    .hasMessage("Erro ao deletar image do banco");
-        }
     }
 }
