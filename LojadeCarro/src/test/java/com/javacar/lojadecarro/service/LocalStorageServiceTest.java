@@ -1,7 +1,10 @@
 package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.response.UploadResult;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.io.TempDir;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -11,11 +14,11 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.Comparator;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatCode;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class LocalStorageServiceTest {
@@ -31,79 +34,133 @@ class LocalStorageServiceTest {
                 new LocalStorageService(root.toString());
     }
 
-    @AfterEach
-    void cleanUp() throws IOException {
-        Path uploads = Paths.get("uploads");
-
-        if (Files.exists(uploads)) {
-            Files.walk(uploads)
-                    .sorted(Comparator.reverseOrder())
-                    .forEach(path -> {
-                        try {
-                            Files.deleteIfExists(path);
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    });
-        }
-    }
-
 
     @Nested
     @DisplayName("Teste de upload")
     class Upload {
 
-
         @Test
         @DisplayName("Deve fazer upload da imagem")
         void deveFazerUploadDoArquivo() throws IOException {
+            var conteudo = "imagem teste".getBytes();
 
             MultipartFile file = new MockMultipartFile(
                     "file",
                     "foto.jpg",
                     "image/jpeg",
-                    "imagem teste".getBytes()
+                    conteudo
             );
 
             var result = localStorageService.upload(file, 1L);
 
+            assertThat(result)
+                    .extracting(
+                            UploadResult::bucket,
+                            UploadResult::nomeOriginal,
+                            UploadResult::contentType,
+                            UploadResult::tamanho
+                    )
+                    .containsExactly(
+                            "uploads",
+                            "foto.jpg",
+                            "image/jpeg",
+                            (long) conteudo.length
+                    );
 
-            assertThat(result.objectKey()).isNotBlank();
-            assertThat(result.bucket()).isEqualTo("uploads");
-            assertThat(result.nomeOriginal()).isEqualTo("foto.jpg");
-            assertThat(result.contentType()).isEqualTo("image/jpeg");
-            assertThat(result.tamanho()).isEqualTo((long) "imagem teste".getBytes().length);
+            assertThat(result.objectKey())
+                    .startsWith("1/")
+                    .endsWith("_foto.jpg");
 
+            var arquivoSalvo = root.resolve(result.objectKey());
 
-            Path arquivoSalvo = Paths.get("uploads")
-                    .resolve(result.objectKey());
-
-            assertThat(Files.exists(arquivoSalvo)).isFalse();
+            assertThat(arquivoSalvo)
+                    .exists()
+                    .hasBinaryContent(conteudo);
         }
 
 
         @Test
         @DisplayName("Deve criar pasta do veículo ao fazer upload")
         void deveCriarPastaDoVeiculo() throws IOException {
-
-            MultipartFile file = new MockMultipartFile(
+            var file = new MockMultipartFile(
                     "file",
                     "foto.jpg",
                     "image/jpeg",
                     "conteudo".getBytes()
             );
 
+            var result = localStorageService.upload(file, 10L);
 
-            UploadResult result = localStorageService.upload(file, 10L);
+            assertThat(root.resolve("10"))
+                    .isDirectory();
 
+            assertThat(root.resolve(result.objectKey()))
+                    .exists();
+        }
 
-            Path pastaVeiculo = Paths.get("uploads")
-                    .resolve("10");
+        @Test
+        @DisplayName("Deve rejeitar arquivo sem nome original")
+        void deveRejeitarArquivoSemNomeOriginal() {
+            var file = new MockMultipartFile(
+                    "file",
+                    null,
+                    "image/jpeg",
+                    "conteudo".getBytes()
+            );
 
+            assertThatThrownBy(() ->
+                    localStorageService.upload(file, 1L)
+            )
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Nome original do arquivo é obrigatório.");
 
-            assertThat(Files.exists(pastaVeiculo)).isFalse();
-            assertThat(Files.exists(Paths.get("uploads")
-                    .resolve(result.objectKey()))).isFalse();
+            assertThat(root.resolve("1")).doesNotExist();
+        }
+
+        @Test
+        @DisplayName("Deve rejeitar arquivo com nome em branco original")
+        void deveRejeitarArquivoComNomeEmBranco() {
+            var file = new MockMultipartFile(
+                    " ",
+                    null,
+                    "image/jpeg",
+                    "conteudo".getBytes()
+            );
+
+            assertThatThrownBy(() ->
+                    localStorageService.upload(file, 1L)
+            )
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Nome original do arquivo é obrigatório.");
+
+            assertThat(root.resolve("1")).doesNotExist();
+        }
+
+        @Test
+        @DisplayName("Deve remover arquivo parcial quando o upload falhar")
+        void deveRemoverArquivoParcialQuandoUploadFalhar() throws IOException {
+            var file = mock(MultipartFile.class);
+
+            when(file.getOriginalFilename())
+                    .thenReturn("foto.jpg");
+
+            doAnswer(invocation -> {
+                Path destino = invocation.getArgument(0);
+
+                Files.writeString(destino, "conteúdo parcial");
+
+                throw new IOException("Falha durante a transferência");
+            }).when(file).transferTo(any(Path.class));
+
+            assertThatThrownBy(() ->
+                    localStorageService.upload(file, 1L)
+            )
+                    .isInstanceOf(IOException.class)
+                    .hasMessage("Falha durante a transferência");
+
+            assertThat(root.resolve("1"))
+                    .isDirectory()
+                    .isEmptyDirectory();
         }
     }
 
@@ -112,35 +169,36 @@ class LocalStorageServiceTest {
     @DisplayName("Teste de exclusão")
     class Delete {
 
-
         @Test
         @DisplayName("Deve deletar arquivo existente")
         void deveDeletarArquivo() throws IOException {
-
-            MultipartFile file = new MockMultipartFile(
+            var file = new MockMultipartFile(
                     "file",
                     "foto.jpg",
                     "image/jpeg",
                     "conteudo".getBytes()
             );
 
+            var result = localStorageService.upload(file, 1L);
+            var arquivo = root.resolve(result.objectKey());
 
-            UploadResult result = localStorageService.upload(file, 1L);
-
-
-            Path arquivo = Paths.get("uploads")
-                    .resolve(result.objectKey());
-
-
-            assertThat(Files.exists(arquivo)).isFalse();
-
+            assertThat(arquivo).exists();
 
             localStorageService.delete(result.objectKey());
 
-
-            assertThat(Files.exists(arquivo)).isFalse();
+            assertThat(arquivo).doesNotExist();
         }
 
+        @Test
+        @DisplayName("Deve rejeitar chave fora do diretório configurado")
+        void deveRejeitarPathTraversal() {
+
+            assertThatThrownBy(() ->
+                    localStorageService.delete("../arquivo.jpg")
+            )
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Chave de objeto inválida.");
+        }
 
         @Test
         @DisplayName("Não deve lançar exceção ao deletar arquivo inexistente")

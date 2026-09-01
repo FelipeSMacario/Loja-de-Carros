@@ -22,24 +22,70 @@ public class LocalStorageService implements StorageService {
     }
 
     @Override
-    public UploadResult upload(MultipartFile file, Long idVeiculo) throws IOException {
+    public UploadResult upload(
+            MultipartFile file,
+            Long idVeiculo
+    ) throws IOException {
 
-        var pasta = root.resolve(idVeiculo.toString());
-        Files.createDirectories(pasta);
+        if (file == null) {
+            throw new IllegalArgumentException(
+                    "Arquivo é obrigatório."
+            );
+        }
 
-        String nomeOriginal = Paths.get(file.getOriginalFilename())
+        if (idVeiculo == null) {
+            throw new IllegalArgumentException(
+                    "Identificação do veículo é obrigatória."
+            );
+        }
+
+        var nomeInformado = file.getOriginalFilename();
+
+        if (nomeInformado == null || nomeInformado.isBlank()) {
+            throw new IllegalArgumentException(
+                    "Nome original do arquivo é obrigatório."
+            );
+        }
+
+        var nomeOriginal = Paths.get(nomeInformado)
                 .getFileName()
                 .toString();
 
-        var objectKey = UUID.randomUUID() + "_" + nomeOriginal;
+        var pasta = root.resolve(idVeiculo.toString())
+                .normalize();
 
-        Path destino = pasta.resolve(objectKey).normalize();
-
-        if (!destino.startsWith(pasta)) {
-            throw new IllegalArgumentException("Nome de arquivo inválido.");
+        if (!pasta.startsWith(root)) {
+            throw new IllegalArgumentException(
+                    "Diretório do veículo inválido."
+            );
         }
 
-        file.transferTo(destino);
+        Files.createDirectories(pasta);
+
+        var objectKey = UUID.randomUUID()
+                + "_"
+                + nomeOriginal;
+
+        var destino = pasta.resolve(objectKey)
+                .normalize();
+
+        if (!destino.startsWith(pasta)) {
+            throw new IllegalArgumentException(
+                    "Nome de arquivo inválido."
+            );
+        }
+
+        try {
+            file.transferTo(destino);
+        } catch (IOException | RuntimeException exception) {
+            try {
+                Files.deleteIfExists(destino);
+            } catch (IOException cleanupException) {
+                exception.addSuppressed(cleanupException);
+            }
+
+            throw exception;
+        }
 
         return new UploadResult(
                 idVeiculo + "/" + objectKey,
@@ -53,14 +99,15 @@ public class LocalStorageService implements StorageService {
     @Override
     public void delete(String objectKey) throws IOException {
 
-        Path arquivo = root.resolve(objectKey);
+            var arquivo = root.resolve(objectKey)
+                    .normalize();
 
-        if (!arquivo.startsWith(root)) {
-            throw new IllegalArgumentException(
-                    "Chave de objeto inválida."
-            );
+            if (!arquivo.startsWith(root)) {
+                throw new IllegalArgumentException(
+                        "Chave de objeto inválida."
+                );
+            }
+
+            Files.deleteIfExists(arquivo);
         }
-
-        Files.deleteIfExists(arquivo);
-    }
 }
