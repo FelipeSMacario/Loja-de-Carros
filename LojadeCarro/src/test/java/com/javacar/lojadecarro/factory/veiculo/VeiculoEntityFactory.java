@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.factory.veiculo;
 
+import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.factory.carroceria.CarroceriaEntityFactory;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
 import static com.javacar.lojadecarro.factory.helper.ModeloHelper.criarModeloEntity;
@@ -57,7 +59,10 @@ public final class VeiculoEntityFactory {
         veiculo.setStatusVeiculo(statusVeiculo);
         return this;
     }
-
+    public VeiculoEntityFactory comImagens (List<Imagem> imagens) {
+        veiculo.setImagens(imagens);
+        return this;
+    }
 
     public Veiculo build() {
         return veiculo;

@@ -2,7 +2,6 @@ package com.javacar.lojadecarro.integration.fixture;
 
 import com.javacar.lojadecarro.entity.*;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
-import com.javacar.lojadecarro.factory.veiculo.VeiculoEntityFactory;
 import com.javacar.lojadecarro.repository.*;
 import lombok.RequiredArgsConstructor;
 
@@ -12,8 +11,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
-import static com.javacar.lojadecarro.enums.StatusVeiculo.RESERVADO;
 import static com.javacar.lojadecarro.utils.Utils.ZONE;
 
 @RequiredArgsConstructor
@@ -72,7 +69,7 @@ public class VendaIntegrationFixture {
                                                     Modelo modelo,
                                                     Combustivel combustivel,
                                                     Usuario vendedor,
-                                                    StatusVeiculo status){
+                                                    StatusVeiculo status) {
         var veiculo = criarVeiculoPersistido(placa, valor, carroceria, cor, modelo, combustivel, vendedor, status);
         List<Imagem> imagems = new ArrayList<>();
         imagems.add(criarImagem(1L, veiculo, true));
@@ -84,12 +81,12 @@ public class VendaIntegrationFixture {
         return veiculoRepository.save(veiculo);
     }
 
-    private Imagem criarImagem(Long id, Veiculo veiculo, boolean principal){
+    public Imagem criarImagem(Long id, Veiculo veiculo, boolean principal) {
         var imagem = new Imagem();
         imagem.setId(id);
         imagem.setNomeOriginal("nomeImagemOriginal" + "/" + id);
-        imagem.setObjectKey("imagens/2026/"  + id + "/foto.jpg");
-        imagem.setBucket("bucketImagem"+ "/" + id);
+        imagem.setObjectKey("imagens/2026/" + id + "/foto.jpg");
+        imagem.setBucket("bucketImagem" + "/" + id);
         imagem.setContentType("image/" + id + "/jpeg");
         imagem.setTamanho(200L);
         imagem.setPrincipal(principal);
@@ -99,13 +96,13 @@ public class VendaIntegrationFixture {
     }
 
     public Veiculo criarVeiculoPersistidoComOpcionais(String placa,
-                                                    BigDecimal valor,
-                                                    Carroceria carroceria,
-                                                    Cor cor,
-                                                    Modelo modelo,
-                                                    Combustivel combustivel,
-                                                    Usuario vendedor,
-                                                    StatusVeiculo status){
+                                                      BigDecimal valor,
+                                                      Carroceria carroceria,
+                                                      Cor cor,
+                                                      Modelo modelo,
+                                                      Combustivel combustivel,
+                                                      Usuario vendedor,
+                                                      StatusVeiculo status) {
         var veiculo = criarVeiculoPersistido(placa, valor, carroceria, cor, modelo, combustivel, vendedor, status);
         veiculo.adicionarOpcional(criarOpcional("Nitrogênio", true));
         veiculo.adicionarOpcional(criarOpcional("Suspenção magnética", true));
@@ -114,7 +111,7 @@ public class VendaIntegrationFixture {
         return veiculoRepository.save(veiculo);
     }
 
-    public Opcional criarOpcional(String nome, boolean ativo){
+    public Opcional criarOpcional(String nome, boolean ativo) {
         var opcional = new Opcional();
         opcional.setNome(nome);
         opcional.setAtivo(ativo);
@@ -148,6 +145,7 @@ public class VendaIntegrationFixture {
 
         return coresRepository.save(cor);
     }
+
     public Cor criarCorPersistida(String nome, boolean ativo) {
         var cor = new Cor();
         cor.setNome(nome);
@@ -166,6 +164,7 @@ public class VendaIntegrationFixture {
 
         return modeloRepository.save(modelo);
     }
+
     public Modelo criarModeloPersistido(String nome, boolean ativo) {
         var modelo = new Modelo();
         modelo.setNome(nome);
@@ -185,6 +184,7 @@ public class VendaIntegrationFixture {
 
         return marcaRepository.save(marca);
     }
+
     private Marca criarMarca2Persistida() {
         var marca = new Marca();
         marca.setNome("MARCA TESTE2");

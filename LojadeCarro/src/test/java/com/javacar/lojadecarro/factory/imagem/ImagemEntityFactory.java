@@ -44,7 +44,7 @@ public final class ImagemEntityFactory {
         imagem.setPrincipal(principal);
         return this;
     }
-    public ImagemEntityFactory comIdVeiculo(Veiculo veiculo) {
+    public ImagemEntityFactory comVeiculo(Veiculo veiculo) {
         imagem.setVeiculo(veiculo);
         return this;
     }

@@ -116,8 +116,6 @@ public class Veiculo {
             );
         }
 
-        imagem.setVeiculo(null);
-
         if (eraPrincipal && !imagens.isEmpty()) {
             imagens.getFirst().setPrincipal(true);
         }
