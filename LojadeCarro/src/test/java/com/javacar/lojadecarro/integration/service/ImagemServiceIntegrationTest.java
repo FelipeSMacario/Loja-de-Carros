@@ -383,6 +383,7 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
                         vendaIntegrationFixture.criarModeloPersistido(),
                         vendaIntegrationFixture.criarCombustivelPersistido(),
                         vendedor,
-                        status);
+                        status,
+                        List.of(1, 2, 3));
     }
 }

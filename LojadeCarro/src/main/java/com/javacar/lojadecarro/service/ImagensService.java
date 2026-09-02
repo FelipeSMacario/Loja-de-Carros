@@ -25,6 +25,7 @@ public class ImagensService {
 
     private final ImagensRepository imagensRepository;
     private final StorageService storageService;
+    private final StorageTransactionSupport storageTransactionSupport;
 
     @Transactional(rollbackFor = IOException.class )
     public List<Imagem> criar(MultipartFile[] files, Veiculo veiculo)
@@ -45,7 +46,15 @@ public class ImagensService {
                 imagens.add(imagem);
             }
 
-            return imagensRepository.saveAll(imagens);
+            var imagensPersistidas =
+                    imagensRepository.saveAll(imagens);
+
+            imagensPersistidas.forEach(imagem ->
+                    storageTransactionSupport.deleteOnRollback(
+                            imagem.getObjectKey()
+                    )
+            );
+            return imagensPersistidas;
 
         } catch (IOException | RuntimeException exception) {
             for (Imagem imagem : imagens) {
@@ -83,7 +92,7 @@ public class ImagensService {
             "hasRole('ADMIN') or " +
                     "@imagemAuthorization.ehVendedor(#idImagem, authentication)"
     )
-    @Transactional(rollbackFor = IOException.class)
+    @Transactional()
     public void delete(Long idImagem) throws IOException {
         var imagem = buscaImagem(idImagem);
         var veiculo = imagem.getVeiculo();
@@ -96,7 +105,7 @@ public class ImagensService {
 
         imagensRepository.flush();
 
-        storageService.delete(objectKey);
+        storageTransactionSupport.deleteAfterCommit(objectKey);
     }
 
     public Imagem buscaImagem(Long idImagem) {

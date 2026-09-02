@@ -135,7 +135,7 @@ public class VeiculoServiceAtualizacaoIntegrationTest extends AbstractVeiculoSer
         @DisplayName("Deve atualizar o modelo do veículo com status permitido")
         void deveAtualizarModeloDeVeiculoComStatusPermitido(StatusVeiculo status) {
             //Arrange
-            var modelo = vendaIntegrationFixture.criarModeloPersistido("MODELO TESTE 2", true);
+            var modelo = vendaIntegrationFixture.criarModeloPersistido("MODELO TESTE 2", "MARCA 2", true);
             var veiculo = criarVeiculoPersistido("ZX5AS7Q", status, null);
             var request = criaRequestVeiculo(veiculo, null, null, null, modelo.getId(), null);
 

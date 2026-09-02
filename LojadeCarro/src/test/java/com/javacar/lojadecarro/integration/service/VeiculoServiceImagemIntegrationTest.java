@@ -17,6 +17,8 @@ import org.springframework.security.test.context.support.WithMockUser;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.List;
+
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static com.javacar.lojadecarro.enums.Entidade.VEICULO;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
@@ -203,6 +205,7 @@ public class VeiculoServiceImagemIntegrationTest extends AbstractVeiculoServiceI
                         vendaIntegrationFixture.criarModeloPersistido(),
                         vendaIntegrationFixture.criarCombustivelPersistido(),
                         vendedor,
-                        status);
+                        status,
+                        List.of(1,2,3));
     }
 }

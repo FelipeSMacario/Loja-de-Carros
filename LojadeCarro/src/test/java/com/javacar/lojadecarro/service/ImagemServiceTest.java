@@ -42,6 +42,8 @@ class ImagemServiceTest {
     private StorageService storageService;
     @InjectMocks
     private ImagensService imagensService;
+    @Mock
+    private StorageTransactionSupport storageTransactionSupport;
 
     @Nested
     @DisplayName("Testes referentes ao upload da imagem")
@@ -115,7 +117,13 @@ class ImagemServiceTest {
                     .containsExactly(imagensSalvas.getFirst());
 
             verify(storageService).upload(imagemFile, veiculo.getId());
-            verifyNoMoreInteractions(storageService);
+            verify(storageTransactionSupport)
+                    .deleteOnRollback(primeiraImagem.getObjectKey());
+
+            verify(storageTransactionSupport)
+                    .deleteOnRollback(segundaImagem.getObjectKey());
+
+            verifyNoMoreInteractions(storageService, storageTransactionSupport);
         }
 
         @Test
@@ -371,7 +379,8 @@ class ImagemServiceTest {
             //Assert
             verify(imagensRepository).findById(ID_VALIDO);
             verify(imagensRepository).flush();
-            verify(storageService).delete(imagem.getObjectKey());
+            verify(storageTransactionSupport)
+                    .deleteAfterCommit(imagem.getObjectKey());
 
             verifyNoMoreInteractions(imagensRepository, storageService);
         }
@@ -428,36 +437,6 @@ class ImagemServiceTest {
 
             verifyNoMoreInteractions(imagensRepository);
             verifyNoInteractions(storageService);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção ao deletar imagem local")
-        void deveLancarExcecaoLocal() throws IOException {
-            //Arrange
-            var imagem = criarImagemEntity();
-            List<Imagem> imagens = new ArrayList<>();
-            imagens.add(imagem);
-            var veiculo = imagem.getVeiculo();
-            veiculo.setImagens(imagens);
-
-            when(imagensRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.of(imagem));
-
-            doThrow(new IOException())
-                    .when(storageService).delete(imagem.getObjectKey());
-            //ACT
-            var excecao = assertThrows(IOException.class,
-                    () -> imagensService.delete(ID_VALIDO)
-            );
-            //Assert
-            assertThat(excecao)
-                    .isInstanceOf(IOException.class);
-
-            verify(imagensRepository).findById(ID_VALIDO);
-            verify(imagensRepository).flush();
-            verify(storageService).delete(imagem.getObjectKey());
-
-            verifyNoMoreInteractions(imagensRepository, storageService);
         }
     }
 
