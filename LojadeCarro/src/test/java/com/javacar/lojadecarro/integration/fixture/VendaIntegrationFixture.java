@@ -21,9 +21,8 @@ public class VendaIntegrationFixture {
     private final ModeloRepository modeloRepository;
     private final MarcaRepository marcaRepository;
     private final CombustivelRepository combustivelRepository;
-    private final ImagensRepository imagensRepository;
     private final OpcionalRepository opcionalRepository;
-
+    private final Integer valor = 1;
 
     public Usuario criarUsuarioPersistido(String nome, String cpf, String email) {
         var usuario = new Usuario();
@@ -32,7 +31,7 @@ public class VendaIntegrationFixture {
         usuario.setEmail(email);
         usuario.setPassword("password-hash-teste");
         usuario.setAtivo(true);
-        usuario.setDataNascimento(LocalDate.of(1990, 1, 1));
+        usuario.setDataNascimento(LocalDate.of(1990, valor, valor));
         return usuarioRepository.save(usuario);
     }
 
