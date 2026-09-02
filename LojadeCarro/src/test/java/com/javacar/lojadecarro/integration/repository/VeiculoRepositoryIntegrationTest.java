@@ -58,7 +58,7 @@ class VeiculoRepositoryIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Deve buscar o veículo pela placa")
     void deveBuscarVeiculoPlaca() {
         //Arrange
-        var veiculo = criarVeiculoPersistido("Z7Y46T0", DISPONIVEL, null);
+        var veiculo = criarVeiculoPersistido("Z7Y46L7", DISPONIVEL, null);
         entityManager.flush();
         entityManager.clear();
         //ACT
@@ -82,7 +82,7 @@ class VeiculoRepositoryIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Deve validar a existência do veículo pela placa")
     void deveValidarExistenciaVeiculoPorPlaca() {
         //Arrange
-        var veiculo = criarVeiculoPersistido("Z7Y46T0", DISPONIVEL, null);
+        var veiculo = criarVeiculoPersistido("Z7Y46Q8", DISPONIVEL, null);
         entityManager.flush();
         entityManager.clear();
         //ACT
