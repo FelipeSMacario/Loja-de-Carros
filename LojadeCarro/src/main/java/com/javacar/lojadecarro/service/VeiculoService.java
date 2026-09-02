@@ -185,9 +185,8 @@ public class VeiculoService {
             MultipartFile[] files,
             Veiculo veiculo
     ) throws IOException {
-        var imagens = imagensService.criar(files, veiculo);
 
-        return imagens;
+        return imagensService.criar(files, veiculo);
     }
 
     private List<Opcional> vincularOpcionais(VeiculoRequest request) {

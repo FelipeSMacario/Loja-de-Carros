@@ -8,7 +8,6 @@ import lombok.RequiredArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static com.javacar.lojadecarro.utils.Utils.ZONE;

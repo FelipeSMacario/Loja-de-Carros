@@ -16,7 +16,6 @@ import java.math.BigDecimal;
 import java.util.List;
 
 import static com.javacar.lojadecarro.enums.StatusVenda.*;
-import static com.javacar.lojadecarro.factory.helper.UsuarioHelper.criarUsuarioEntity;
 import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.criarVeiculoEntity;
 import static com.javacar.lojadecarro.factory.helper.VendaHelper.*;
 

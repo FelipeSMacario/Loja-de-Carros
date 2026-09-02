@@ -1,7 +1,6 @@
 package com.javacar.lojadecarro.repository;
 
 import com.javacar.lojadecarro.entity.Usuario;
-import com.javacar.lojadecarro.mapper.UsuarioMapper;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

@@ -1,7 +1,6 @@
 package com.javacar.lojadecarro.factory.venda;
 
 import com.javacar.lojadecarro.dto.response.UsuarioResumoResponse;
-import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoVendaResponse;
 import com.javacar.lojadecarro.dto.response.VendaResponse;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
@@ -47,18 +46,22 @@ public class VendaResponseFactory {
         this.id = id;
         return this;
     }
+
     public VendaResponseFactory comStatusVenda(StatusVenda statusVenda) {
         this.statusVenda = statusVenda;
         return this;
     }
+
     public VendaResponseFactory comValorVenda(BigDecimal valorVenda) {
         this.valorVenda = valorVenda;
         return this;
     }
+
     public VendaResponseFactory comVeiculo(VeiculoVendaResponse veiculoResponse) {
         this.veiculo = veiculoResponse;
         return this;
     }
+
     public VendaResponse build() {
         return new VendaResponse(id, valorVenda, statusVenda, dataVenda, veiculo, vendedor, comprador);
     }

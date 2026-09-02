@@ -93,7 +93,7 @@ public class ImagensService {
                     "@imagemAuthorization.ehVendedor(#idImagem, authentication)"
     )
     @Transactional()
-    public void delete(Long idImagem) throws IOException {
+    public void delete(Long idImagem)  {
         var imagem = buscaImagem(idImagem);
         var veiculo = imagem.getVeiculo();
 

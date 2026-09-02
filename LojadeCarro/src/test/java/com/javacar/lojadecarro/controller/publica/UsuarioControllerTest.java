@@ -9,12 +9,10 @@ import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.usuario.UsuarioTestContext;
 import com.javacar.lojadecarro.service.UsuarioService;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;

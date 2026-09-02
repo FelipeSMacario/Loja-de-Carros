@@ -17,9 +17,9 @@ public record VeiculoRequest(@Schema(example = "123000", description = "quilomet
                              @Schema(example = "123", description = "Placa do veiculo")
                              @NotBlank @Size(min = 7, max = 7)
                              @Pattern(
-                                     regexp = "^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$",
+                                     regexp = "^[A-Z]{3}\\d[A-Z\\d]\\d{2}$",
                                      message = "A placa deve seguir o padrão ABC1234 ou ABC1D23"
-                             )String placa,
+                             ) String placa,
                              @Schema(example = "1.0", description = "Motor do veiculo")
                              @NotBlank String motor,
                              @Schema(example = "Veiculo em perfeito estado", description = "Descrição do veiculo")

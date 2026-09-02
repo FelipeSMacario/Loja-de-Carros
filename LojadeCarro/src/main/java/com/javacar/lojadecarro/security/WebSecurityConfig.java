@@ -69,7 +69,8 @@ public class WebSecurityConfig {
                                 "/opcionais",
                                 "/opcionais/**"
                         ).permitAll()
-
+                            // API stateless autenticada exclusivamente por Bearer Token no header
+                            // Authorization. Não utiliza cookies de sessão/autenticação.
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session

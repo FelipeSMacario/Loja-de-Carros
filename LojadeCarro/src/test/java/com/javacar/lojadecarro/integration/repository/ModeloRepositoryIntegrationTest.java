@@ -87,8 +87,6 @@ class ModeloRepositoryIntegrationTest extends AbstractIntegrationTest {
     @DisplayName("Não deve retornar modelo inativo vinculado a uma marca inativa")
     @Transactional
     void eveRemoverModeloInativoComMarcaInativa() {
-        var marcaAtiva = criarMarca("Marca válida2", "url-valida2", true);
-        var modeloPermitido = criarModelo("Modelo válido2", marcaAtiva, true);
 
         var marcaBloqueada = criarMarca("Exemplo marca3", "Exemplo URL3", true);
         var modeloInativo = criarModelo("Exemplo modelo3", marcaBloqueada, false);
