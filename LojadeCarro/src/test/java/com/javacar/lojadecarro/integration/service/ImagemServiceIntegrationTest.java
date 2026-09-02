@@ -222,7 +222,7 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
                 names = {"DISPONIVEL", "PAUSADO"}
         )
         @DisplayName("Deve deletar a imagem com status permitido")
-        void deveDeletarImagemComStatusPermitido(StatusVeiculo statusVeiculo) throws IOException {
+        void deveDeletarImagemComStatusPermitido(StatusVeiculo statusVeiculo) {
             //Arrange
             var veiculo = criarVeiculoPersistidoComImagens("ZX5AS7Q", statusVeiculo, null);
             var idVeiculo = veiculo.getId();
@@ -270,7 +270,7 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
 
         @Test
         @DisplayName("Deve promover outra imagem ao excluir a principal")
-        void deveDeletarImagemPrincipal() throws IOException {
+        void deveDeletarImagemPrincipal() {
             //Arrange
             var veiculo = criarVeiculoPersistidoComImagens("ZX5AS7Q", DISPONIVEL, null);
             entityManager.flush();

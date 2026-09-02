@@ -214,7 +214,6 @@ class ImagemServiceTest {
                     .isEmpty();
 
 
-
             verify(storageService).upload(imagemFile, veiculo.getId());
             verify(storageService).upload(imagemFile2, veiculo.getId());
             verify(storageService).delete(upload.objectKey());
@@ -350,7 +349,7 @@ class ImagemServiceTest {
                 names = {"DISPONIVEL", "PAUSADO"}
         )
         @DisplayName("Deve deletar a imagem com status permitido")
-        void deveDeletarImagemComStatusPermitido(StatusVeiculo statusVeiculo) throws IOException {
+        void deveDeletarImagemComStatusPermitido(StatusVeiculo statusVeiculo) {
             //Arrange
             var imagem = ImagemEntityFactory
                     .criarEntity()
@@ -415,7 +414,7 @@ class ImagemServiceTest {
             var imagemA = ImagemEntityFactory
                     .criarEntity()
                     .comTodosOsCampos()
-                    .comVeiculo( VeiculoEntityFactory
+                    .comVeiculo(VeiculoEntityFactory
                             .criarEntity()
                             .comTodosOsCampos()
                             .comStatus(statusVeiculo)
