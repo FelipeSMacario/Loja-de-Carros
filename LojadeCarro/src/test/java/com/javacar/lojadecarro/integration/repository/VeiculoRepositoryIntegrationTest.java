@@ -63,7 +63,7 @@ class VeiculoRepositoryIntegrationTest extends AbstractIntegrationTest {
         entityManager.clear();
         //ACT
         var response = veiculoRepository.findByPlaca(veiculo.getPlaca()).orElseThrow();
-        var response2 = veiculoRepository.findByPlaca("Z7Y46T1");
+        var response2 = veiculoRepository.findByPlaca("Z7Y4JT1");
 
         //Assert
         assertThat(response)
@@ -87,7 +87,7 @@ class VeiculoRepositoryIntegrationTest extends AbstractIntegrationTest {
         entityManager.clear();
         //ACT
         var veiculoExistente = veiculoRepository.existsByPlaca(veiculo.getPlaca());
-        var veiculoInexistente = veiculoRepository.existsByPlaca("Z7Y46T1");
+        var veiculoInexistente = veiculoRepository.existsByPlaca("Z7Y4XT1");
         //Assert
         assertThat(veiculoExistente).isTrue();
         assertThat(veiculoInexistente).isFalse();
