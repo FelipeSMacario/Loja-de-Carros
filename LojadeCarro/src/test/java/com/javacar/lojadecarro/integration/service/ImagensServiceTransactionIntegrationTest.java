@@ -144,11 +144,7 @@ class ImagensServiceTransactionIntegrationTest extends AbstractIntegrationTest {
         // Act
         assertThatThrownBy(() ->
                 transactionTemplate.executeWithoutResult(status -> {
-                    try {
-                        imagensService.delete(idImagem);
-                    } catch (IOException exception) {
-                        throw new UncheckedIOException(exception);
-                    }
+                    imagensService.delete(idImagem);
 
                     throw new RuntimeException("Falha posterior");
                 })
@@ -186,11 +182,7 @@ class ImagensServiceTransactionIntegrationTest extends AbstractIntegrationTest {
         // Act
         transactionTemplate.executeWithoutResult(status ->
                 {
-                    try {
-                        imagensService.delete(idImagem);
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                    imagensService.delete(idImagem);
                 }
         );
 
@@ -231,11 +223,7 @@ class ImagensServiceTransactionIntegrationTest extends AbstractIntegrationTest {
         assertThatCode(() ->
                 transactionTemplate.executeWithoutResult(status ->
                         {
-                            try {
-                                imagensService.delete(idImagem);
-                            } catch (IOException e) {
-                                throw new RuntimeException(e);
-                            }
+                            imagensService.delete(idImagem);
                         }
                 )
         ).doesNotThrowAnyException();
