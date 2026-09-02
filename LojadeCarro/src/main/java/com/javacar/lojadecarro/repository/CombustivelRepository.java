@@ -14,4 +14,6 @@ public interface CombustivelRepository extends JpaRepository<Combustivel, Long> 
     Optional<Combustivel> findByNome(String nome);
 
     boolean existsByNome(String nome);
+
+    Optional<Combustivel> findByIdAndAtivoTrue(Long id);
 }

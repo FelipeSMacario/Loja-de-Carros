@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static com.javacar.lojadecarro.enums.Entidade.CARROCERIA;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -28,6 +29,7 @@ public class CarroceriaServiceIntegrationTest extends AbstractIntegrationTest {
     private CarroceriaRepository carroceriaRepository;
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da criação da carroceria")
     class Criar {
         @Test
@@ -71,6 +73,7 @@ public class CarroceriaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da listagem de carrocerias")
     class Listar {
         @Test
@@ -79,7 +82,7 @@ public class CarroceriaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.ATIVAS;
             //ACT
-            var response = carroceriaService.listar(request);
+            var response = carroceriaService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -92,7 +95,7 @@ public class CarroceriaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.INATIVAS;
             //ACT
-            var response = carroceriaService.listar(request);
+            var response = carroceriaService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -105,7 +108,7 @@ public class CarroceriaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.TODAS;
             //ACT
-            var response = carroceriaService.listar(request);
+            var response = carroceriaService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -121,9 +124,9 @@ public class CarroceriaServiceIntegrationTest extends AbstractIntegrationTest {
         @DisplayName("Deve buscar uma carroceria")
         void deveBuscarCarroceria() {
             //Arrange
-            var request = buscarCarroceriaPorNome("Hatch");
+            var request = buscarCarroceriaPorNome("Sedan");
             //ACT
-            var carroceria = carroceriaService.buscarPorId(request.getId());
+            var carroceria = carroceriaService.buscarCarroceriaAtivaPorId(request.getId());
             //Assert
             assertThat(carroceria)
                     .isNotNull();
@@ -141,7 +144,7 @@ public class CarroceriaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             //ACT
             var exception = assertThrows(NotFoundException.class,
-                    () -> carroceriaService.buscarPorId(-1L));
+                    () -> carroceriaService.buscarCarroceriaAtivaPorId(-1L));
             //Assert
             assertThat(exception)
                     .hasMessage(CARROCERIA.naoEncontrada() + -1L);
@@ -149,6 +152,7 @@ public class CarroceriaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da atualização da carroceria")
     class Atualizar {
         @Test
@@ -210,6 +214,7 @@ public class CarroceriaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da alteração do status")
     class AlterarStatus {
         @Test

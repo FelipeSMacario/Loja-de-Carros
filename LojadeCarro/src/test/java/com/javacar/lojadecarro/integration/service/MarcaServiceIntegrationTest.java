@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static com.javacar.lojadecarro.enums.Entidade.MARCA;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -27,6 +28,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
     private MarcaRepository marcaRepository;
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da criação da marca")
     class Criar {
         @Test
@@ -88,7 +90,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
                     () -> marcaService.criar(request));
             //Assert
             assertThat(exception)
-                    .hasMessage("O nome informado já possui um cadastro.");
+                    .hasMessage(MARCA.nomeJaExistente());
         }
 
         @Test
@@ -111,6 +113,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da listagem de marcas")
     class Listar {
         @Test
@@ -119,7 +122,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.ATIVAS;
             //ACT
-            var response = marcaService.listar(request);
+            var response = marcaService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -132,7 +135,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.INATIVAS;
             //ACT
-            var response = marcaService.listar(request);
+            var response = marcaService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -145,7 +148,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.TODAS;
             //ACT
-            var response = marcaService.listar(request);
+            var response = marcaService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -155,6 +158,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da busca de marca")
     class Buscar {
         @Test
@@ -163,7 +167,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = buscaMarcaPorNome("Fiat");
             //ACT
-            var marca = marcaService.buscarPorId(request.getId());
+            var marca = marcaService.buscarPorIdAdministracao(request.getId());
             //Assert
             assertThat(marca)
                     .isNotNull();
@@ -182,7 +186,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             //ACT
             var exception = assertThrows(NotFoundException.class,
-                    () -> marcaService.buscarPorId(-1L));
+                    () -> marcaService.buscarPorIdAdministracao(-1L));
             //Assert
             assertThat(exception)
                     .hasMessage(MARCA.naoEncontrada() + -1L);
@@ -190,6 +194,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da atualização da marca")
     class Atualizacao {
         @Test
@@ -249,7 +254,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
                     () -> marcaService.atualizar(request, marcaId));
             //Assert
             assertThat(exception)
-                    .hasMessage("O nome informado já possui um cadastro.");
+                    .hasMessage(MARCA.nomeJaExistente());
         }
 
         @Test
@@ -274,6 +279,7 @@ public class MarcaServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da alteração do status")
     class AlterarStatus {
         @Test

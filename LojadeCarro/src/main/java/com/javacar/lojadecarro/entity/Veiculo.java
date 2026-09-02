@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static com.javacar.lojadecarro.enums.Entidade.OPCIONAL;
+import static com.javacar.lojadecarro.enums.StatusVeiculo.*;
 
 
 @Getter
@@ -95,11 +96,29 @@ public class Veiculo {
         if (imagem == null) {
             throw new BusinessException("Imagem não pode ser nula");
         }
-        if (imagens.isEmpty()) {
-            imagem.setPrincipal(true);
+        imagem.setPrincipal(imagens.isEmpty());
+        imagem.setVeiculo(this);
+        imagens.add(imagem);
+    }
+    public void removerImagem(Imagem imagem) {
+        if (imagem == null) {
+            throw new BusinessException(
+                    "Imagem não pode ser nula"
+            );
         }
 
-        imagens.add(imagem);
+        var eraPrincipal = imagem.isPrincipal();
+        var removida = imagens.remove(imagem);
+
+        if (!removida) {
+            throw new BusinessException(
+                    "O veículo não possui essa imagem"
+            );
+        }
+
+        if (eraPrincipal && !imagens.isEmpty()) {
+            imagens.getFirst().setPrincipal(true);
+        }
     }
 
 
@@ -113,25 +132,6 @@ public class Veiculo {
         }
     }
 
-
-    public void alterarStatus(StatusVeiculo novoStatus) {
-
-        if (novoStatus == null) {
-            throw new BusinessException("Status inválido");
-        }
-        if (this.statusVeiculo == novoStatus) {
-            throw new BusinessException("Status informado correspondente ao status atual");
-        }
-        if (this.statusVeiculo == StatusVeiculo.VENDIDO) {
-            throw new BusinessException(
-                    "Um veículo vendido não pode ter seu status alterado."
-            );
-        }
-
-
-        this.statusVeiculo = novoStatus;
-    }
-
     private boolean possuiOpcional(Long idOpcional) {
         return this.getOpcionais().stream().anyMatch(op -> op.getOpcional().getId().equals(idOpcional));
     }
@@ -143,5 +143,52 @@ public class Veiculo {
         }
 
         opcionais.add(new VeiculoOpcional(this, opcional));
+    }
+
+    public void reativarAnuncio(){
+        if (this.statusVeiculo != PAUSADO){
+            throw new BusinessException("Somente um veículo pausado pode ser reativado");
+        }
+        this.statusVeiculo = DISPONIVEL;
+    }
+
+    public void pausarAnuncio(){
+        if (this.statusVeiculo != DISPONIVEL){
+            throw new BusinessException("Somente um veículo disponível pode ser pausado");
+        }
+        this.statusVeiculo = PAUSADO;
+    }
+
+    public void disponibilizarAnuncio() {
+        if (this.statusVeiculo != RESERVADO) {
+            throw new BusinessException(
+                    "Somente um veículo reservado pode ser disponibilizado."
+            );
+        }
+
+        this.statusVeiculo = DISPONIVEL;
+    }
+
+    public void concluirVeiculo() {
+        if (this.statusVeiculo != RESERVADO) {
+            throw new BusinessException(
+                    "Somente um veículo reservado pode ser vendido."
+            );
+        }
+
+        this.statusVeiculo = VENDIDO;
+    }
+
+    public void reservarVeiculo() {
+        if (this.statusVeiculo != DISPONIVEL){
+            throw new BusinessException("Somente um veiculo disponível pode ser reservado");
+        }
+        this.statusVeiculo = RESERVADO;
+    }
+
+    public void validarPodeSerEditado () {
+        if (this.statusVeiculo != DISPONIVEL && this.statusVeiculo != PAUSADO){
+            throw new BusinessException("Somente anúncios disponíveis ou pausados podem ser editados.");
+        }
     }
 }

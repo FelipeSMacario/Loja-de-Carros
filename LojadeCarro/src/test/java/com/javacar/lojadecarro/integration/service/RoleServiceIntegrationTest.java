@@ -14,6 +14,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import java.util.List;
 
@@ -29,6 +30,7 @@ public class RoleServiceIntegrationTest extends AbstractIntegrationTest {
     private RoleRepository roleRepository;
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da listagem de roles")
     class Listar {
         @Test
@@ -37,7 +39,7 @@ public class RoleServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.ATIVAS;
             //ACT
-            var response = rolesService.listar(request);
+            var response = rolesService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -50,7 +52,7 @@ public class RoleServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.INATIVAS;
             //ACT
-            var response = rolesService.listar(request);
+            var response = rolesService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -63,7 +65,7 @@ public class RoleServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.TODAS;
             //ACT
-            var response = rolesService.listar(request);
+            var response = rolesService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -73,13 +75,14 @@ public class RoleServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da busca da role")
     class Buscar {
         @Test
         @DisplayName("Deve buscar uma role")
         void deveBuscarRole() {
             //Arrange
-            var request = buscaRolePorNome("VENDEDOR");
+            var request = buscaRolePorNome("ROLE_ADMIN");
             //ACT
             var marca = rolesService.buscarPorId(request.getId());
             //Assert
@@ -108,14 +111,15 @@ public class RoleServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da buscar de roles")
     class BuscarRoles {
         @Test
         @DisplayName("Deve listar roles")
         void  deveListarRoles() {
             //Arrange
-            var roleAdmin = buscaRolePorNome("ADMIN");
-            var roleVendedor = buscaRolePorNome("VENDEDOR");
+            var roleAdmin = buscaRolePorNome("ROLE_ADMIN");
+            var roleVendedor = buscaRolePorNome("ROLE_USUARIO");
 
             var request = List.of(roleAdmin.getId(), roleVendedor.getId());
             //ACT

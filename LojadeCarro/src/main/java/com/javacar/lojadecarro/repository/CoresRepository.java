@@ -14,4 +14,6 @@ public interface CoresRepository extends JpaRepository<Cor, Long> {
     Optional<Cor> findByNome(String nome);
 
     boolean existsByNome(String nome);
+
+    Optional<Cor> findByIdAndAtivoTrue(Long id);
 }

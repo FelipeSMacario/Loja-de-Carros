@@ -59,7 +59,7 @@ public final class OpcionalHelper extends BaseHelper {
                         OpcionalResponse::ativo
                 ).containsExactly(
                         1L,
-                        "Freio ABS",
+                        "Freio Abs",
                         true
                 );
     }

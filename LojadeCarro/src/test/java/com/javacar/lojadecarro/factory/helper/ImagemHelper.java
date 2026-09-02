@@ -34,6 +34,23 @@ public final class ImagemHelper extends BaseHelper {
         return new MultipartFile[]{file};
     }
 
+    public static MultipartFile[] criarNovoImagemFile() {
+        var file = new MockMultipartFile(
+                "files",
+                "onix.jpg",
+                "image/jpeg",
+                "conteudo".getBytes()
+        );
+        var file2 = new MockMultipartFile(
+                "files",
+                "ford.jpg",
+                "image/jpeg",
+                "conteudo2".getBytes()
+        );
+
+        return new MultipartFile[]{file, file2};
+    }
+
     public static MultipartFile[] criarListImagemFile() {
         MultipartFile file = new MockMultipartFile(
                 "files",
@@ -64,6 +81,16 @@ public final class ImagemHelper extends BaseHelper {
                 "onix.jpg",
                 "image/jpeg",
                 200L
+        );
+    }
+
+    public static UploadResult criarNovoUploadResult(MultipartFile imagemFile2) {
+        return new UploadResult(
+                2L + imagemFile2.getName(),
+                "uploads",
+                imagemFile2.getOriginalFilename(),
+                "image/jpeg",
+                imagemFile2.getSize()
         );
     }
 

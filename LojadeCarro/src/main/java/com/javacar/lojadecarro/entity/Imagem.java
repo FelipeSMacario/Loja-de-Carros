@@ -37,7 +37,14 @@ public class Imagem {
     @Column(name = "principal", nullable = false)
     private boolean principal;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(
+            fetch = FetchType.LAZY,
+            optional = false
+    )
+    @JoinColumn(
+            name = "veiculo_id",
+            nullable = false
+    )
     private Veiculo veiculo;
 
     @Column(

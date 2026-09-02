@@ -34,6 +34,15 @@ public final class RoleHelper extends BaseHelper {
                 .build();
     }
 
+    public static Role roleUsuario(){
+        return RoleEntityFactory
+                .criarEntity()
+                .comId(1L)
+                .comNome("ROLE_USUARIO")
+                .comAtivo(true)
+                .build();
+    }
+
     public static List<Role> criaListRole() {
         return List.of(
                 RoleEntityFactory

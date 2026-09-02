@@ -4,7 +4,6 @@ public enum StatusVenda {
     CONCLUIDA("Concluída"),
     EM_ANDAMENTO("Em andamento"),
     CANCELADA("Cancelada"),
-    TODAS("Todas"),
     PAUSADA("Pausada");
 
     private final String descricao;

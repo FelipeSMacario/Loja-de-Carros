@@ -3,8 +3,8 @@ package com.javacar.lojadecarro.enums;
 public enum StatusVeiculo {
     DISPONIVEL("Disponível"),
     RESERVADO("Reservado"),
-    VENDIDO("Vendido"),
-    PAUSADO("Pausado");
+    PAUSADO("Pausado"),
+    VENDIDO("Vendido");
 
     private final String descricao;
 

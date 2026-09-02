@@ -35,7 +35,7 @@ public class ImagensController {
 
     @DeleteMapping("/{idImagem}")
     @Operation(summary = "Excluir imagem")
-    public ResponseEntity<Void> delete(
+    public ResponseEntity<Void> deletar(
             @PathVariable Long idImagem) throws IOException {
 
         log.debug("Removendo imagem {}", idImagem);

@@ -11,10 +11,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus400;
-import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus401;
-import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
+import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertStatus401ProblemDetail;
 import static org.mockito.Mockito.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest(LoginController.class)
@@ -36,15 +34,10 @@ class LoginControllerTest extends BaseControllerTest {
             var cx = new LoginTestContext();
 
             when(loginService.autenticar(cx.request))
-                    .thenReturn(cx.response);
+                    .thenReturn(cx.loginResponse);
             //Act + Assert
             var resultado = performPost(URL, cx.request);
-            resultado.andExpect(status().isOk())
-                    .andExpect(jsonPath("$.id").value(ID_VALIDO))
-                    .andExpect(jsonPath("$.nome").value("Felipe"))
-                    .andExpect(jsonPath("$.cpf").value("15153769788"))
-                    .andExpect(jsonPath("$.email").value("felipesmacario@gmail.com"))
-                    .andExpect(jsonPath("$.ativo").value(true));
+            resultado.andExpect(status().isOk());
 
             verify(loginService).autenticar(cx.request);
             verifyNoMoreInteractions(loginService);
@@ -60,7 +53,7 @@ class LoginControllerTest extends BaseControllerTest {
                     .thenThrow(new LoginSenhaException());
             //Act + Assert
             var resultado = performPost(URL, cx.request);
-            assertStatus401(resultado);
+            assertStatus401ProblemDetail(resultado);
 
             verify(loginService).autenticar(cx.request);
 

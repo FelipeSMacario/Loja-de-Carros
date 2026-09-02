@@ -9,10 +9,11 @@ import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.CombustivelMapper;
 import com.javacar.lojadecarro.repository.CombustivelRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class CombustivelService {
     private final CombustivelMapper combustivelMapper;
     private final EntityValidation entityValidation;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public CombustivelResponse criar(CombustivelRequest request) {
         validarNomeUnico(request.nome());
@@ -36,7 +38,9 @@ public class CombustivelService {
         return combustivelMapper.toResponse(combustivel);
     }
 
-    public List<CombustivelResponse> listar(StatusFiltro status) {
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public List<CombustivelResponse> listarAdministracao(StatusFiltro status) {
         var listaCombustiveis =
                 switch (status) {
                     case TODAS -> combustivelRepository.findAll();
@@ -49,10 +53,22 @@ public class CombustivelService {
                 .toList();
     }
 
-    public CombustivelResponse buscarPorId(Long id) {
+    @Transactional(readOnly = true)
+    public List<CombustivelResponse> listarCombustiveisAtivas() {
+
+        return combustivelRepository.findByAtivo(true)
+                .stream()
+                .map(combustivelMapper::toResponse)
+                .toList();
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public CombustivelResponse buscarPorIdAdministracao(Long id) {
         return combustivelMapper.toResponse(buscaCombustivel(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public CombustivelResponse atualizar(CombustivelRequest request, Long id) {
 
@@ -65,6 +81,7 @@ public class CombustivelService {
         return combustivelMapper.toResponse(combustivel);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public CombustivelResponse alterarStatus(Long id, StatusRequest request) {
         var combustivel = buscaCombustivel(id);
@@ -76,9 +93,20 @@ public class CombustivelService {
     public Combustivel buscaCombustivel(Long id) {
         return entityValidation.obterOuLancarErro(combustivelRepository.findById(id), COMBUSTIVEL, id);
     }
+
+    public Combustivel buscaCombustivelAtivo(Long id) {
+        return entityValidation.obterOuLancarErro(combustivelRepository.findByIdAndAtivoTrue(id), COMBUSTIVEL, id);
+    }
+
     private void validarNomeUnico(String nome) {
-        if (combustivelRepository.existsByNome(nome)){
+        if (combustivelRepository.existsByNome(nome)) {
             throw new BusinessException(COMBUSTIVEL.nomeJaExistente());
         }
     }
+
+    @Transactional(readOnly = true)
+    public CombustivelResponse buscarCombustivelAtivaPorId(Long id) {
+        return combustivelMapper.toResponse(buscaCombustivelAtivo(id));
+    }
+
 }

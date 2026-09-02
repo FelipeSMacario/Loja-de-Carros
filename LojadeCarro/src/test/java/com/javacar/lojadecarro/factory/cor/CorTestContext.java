@@ -11,7 +11,35 @@ public class CorTestContext {
     public final CorRequest corRequest = criarCorRequest();
     public final CorRequest corRequestIncompleto = criarRequest().build();
     public final Cor cor = criarCorEntity();
+    public final Cor corInativa = CorEntityFactory
+            .criarEntity()
+            .comTodosOsCampos()
+            .comAtivo(false)
+            .build();
     public final CorResponse corResponse = criarCorResponse();
+    public final CorResponse corResponseInativa = CorResponseFactory
+            .criarResponse()
+            .comTodosOsCampos()
+            .comAtivo(false)
+            .build();
+
+    public static Cor corEntity(Long id, String nome, boolean ativo) {
+        return CorEntityFactory
+                .criarEntity()
+                .comId(id)
+                .comNome(nome)
+                .comAtivo(ativo)
+                .build();
+    }
+
+    public static CorResponse corResponse(Long id, String nome, boolean ativo) {
+        return CorResponseFactory
+                .criarResponse()
+                .comId(id)
+                .comNome(nome)
+                .comAtivo(ativo)
+                .build();
+    }
 
     public static CorResponse criaCorResponse(boolean ativo) {
         return CorResponseFactory

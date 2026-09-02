@@ -12,7 +12,35 @@ public class CombustivelTestContext {
             .criarRequest()
             .build();
     public final Combustivel combustivel = criarCombustivelEntity();
+    public final Combustivel combustivelInativa = CombustivelEntityFactory
+            .criarEntity()
+            .comTodosOsCampos()
+            .comAtivo(false)
+            .build();
     public final CombustivelResponse combustivelResponse = criarCombustivelResponse();
+    public final CombustivelResponse combustivelResponseInativa = CombustivelResponseFactory
+            .criarResponse()
+            .comTodosOsCampos()
+            .comAtivo(false)
+            .build();
+
+    public static Combustivel combustivelEntity(Long id, String nome, boolean ativo) {
+        return CombustivelEntityFactory
+                .criarEntity()
+                .comId(id)
+                .comNome(nome)
+                .comAtivo(ativo)
+                .build();
+    }
+
+    public static CombustivelResponse combustivelResponse(Long id, String nome, boolean ativo) {
+        return CombustivelResponseFactory
+                .criarResponse()
+                .comId(id)
+                .comNome(nome)
+                .comAtivo(ativo)
+                .build();
+    }
 
 
     public static CombustivelResponse criaCombustivelResponse(boolean ativo) {

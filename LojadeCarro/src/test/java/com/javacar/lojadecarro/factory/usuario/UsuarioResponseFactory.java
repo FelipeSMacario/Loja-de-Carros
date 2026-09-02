@@ -20,7 +20,7 @@ public class UsuarioResponseFactory {
     public UsuarioResponseFactory comTodosOsCampos() {
         this.id = 1L;
         this.nome = "Felipe";
-        this.cpf = "15153769788";
+        this.cpf = "12345678901";
         this.email = "felipesmacario@gmail.com";
         this.ativo = true;
         return this;

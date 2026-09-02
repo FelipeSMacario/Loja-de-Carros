@@ -18,9 +18,20 @@ public abstract class BaseHelper {
                 .hasMessage(entidade.naoEncontrada() + idInvalido);
     }
 
+    public static void assertNotFoundResponseError(NotFoundException exception,
+                                                   Entidade entidade) {
+        assertThat(exception)
+                .hasMessage(entidade.naoEncontrada());
+    }
+
     public static void assertBusinessResponseError(BusinessException exception, Entidade entidade) {
         assertThat(exception)
                 .hasMessage(entidade.jaAtiva());
+    }
+
+    public static void assertBusinessResponseErrorInativa(BusinessException exception, Entidade entidade) {
+        assertThat(exception)
+                .hasMessage(entidade.jaInativa());
     }
 
     public static void assertBusinessResponseError(BusinessException exception, String mensagem) {
@@ -47,14 +58,32 @@ public abstract class BaseHelper {
                 .andExpect(jsonPath("$.message").exists());
     }
 
+    public static void assertStatus403(ResultActions result) throws Exception {
+        result.andExpect(status().isForbidden());
+    }
+
+    public static void assertStatus403ProblemDetail(ResultActions result) throws Exception {
+        result
+                .andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.status").value(403))
+                .andExpect(jsonPath("$.title").value("Acesso negado"))
+                .andExpect(jsonPath("$.detail").value(
+                        "Você não possui permissão para realizar esta operação."
+                ));
+    }
+
     public static void assertStatus204(ResultActions result) throws Exception {
         result.andExpect(status().isNoContent());
     }
 
-    public static void assertStatus401(ResultActions result) throws Exception {
+    public static void assertStatus401ProblemDetail(ResultActions result) throws Exception {
         result.andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.status").value(401))
                 .andExpect(jsonPath("$.message").value("Usuário ou senha inválidos."));
+    }
+
+    public static void assertStatus401(ResultActions result) throws Exception {
+        result.andExpect(status().isUnauthorized());
     }
 
     public static void assertStatus500(ResultActions result) throws Exception {
@@ -79,6 +108,27 @@ public abstract class BaseHelper {
                 .andExpect(jsonPath("$[1].ativo").value(segundoAtivo));
     }
 
+    public static void assertList(ResultActions result,
+                                  Long primeiroId,
+                                  Long segundoId,
+                                  String primeiroNome,
+                                  String segundoNome,
+                                  String primeiraUrl,
+                                  String segundaUrl,
+                                  boolean primeiroAtivo,
+                                  boolean segundoAtivo) throws Exception {
+        result.andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2))
+                .andExpect(jsonPath("$[0].id").value(primeiroId))
+                .andExpect(jsonPath("$[1].id").value(segundoId))
+                .andExpect(jsonPath("$[0].nome").value(primeiroNome))
+                .andExpect(jsonPath("$[1].nome").value(segundoNome))
+                .andExpect(jsonPath("$[0].url").value(primeiraUrl))
+                .andExpect(jsonPath("$[1].url").value(segundaUrl))
+                .andExpect(jsonPath("$[0].ativo").value(primeiroAtivo))
+                .andExpect(jsonPath("$[1].ativo").value(segundoAtivo));
+    }
+
     public static void assertResult(ResultActions result,
                                     ResultMatcher status,
                                     Long id,
@@ -88,6 +138,19 @@ public abstract class BaseHelper {
                 .andExpect(status)
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.nome").value(nome))
+                .andExpect(jsonPath("$.ativo").value(ativo));
+    }
+    public static void assertResult(ResultActions result,
+                                    ResultMatcher status,
+                                    Long id,
+                                    String nome,
+                                    String url,
+                                    boolean ativo) throws Exception {
+        result
+                .andExpect(status)
+                .andExpect(jsonPath("$.id").value(id))
+                .andExpect(jsonPath("$.nome").value(nome))
+                .andExpect(jsonPath("$.url").value(url))
                 .andExpect(jsonPath("$.ativo").value(ativo));
     }
 

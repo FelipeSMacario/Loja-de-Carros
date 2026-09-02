@@ -2,13 +2,8 @@ package com.javacar.lojadecarro.factory.venda;
 
 import com.javacar.lojadecarro.dto.request.VendaRequest;
 
-import java.math.BigDecimal;
-
 public class VendaRequestFactory {
     private Long veiculoId;
-    private Long compradorId;
-    private Long vendedorId;
-    private BigDecimal valor;
 
     private VendaRequestFactory() {
     }
@@ -23,29 +18,15 @@ public class VendaRequestFactory {
 
     public VendaRequestFactory comTodosOsCampos() {
         this.veiculoId = 1L;
-        this.compradorId = 2L;
-        this.vendedorId = 1L;
-        this.valor = BigDecimal.valueOf(200000);
         return this;
     }
+
     public VendaRequestFactory comVeiculoPorId(Long veiculoId) {
         this.veiculoId = veiculoId;
         return this;
     }
-    public VendaRequestFactory comCompradorId(Long compradorId) {
-        this.compradorId = compradorId;
-        return this;
-    }
-    public VendaRequestFactory comVendedorId(Long vendedorId) {
-        this.vendedorId = vendedorId;
-        return this;
-    }
-    public VendaRequestFactory comValor(BigDecimal valor) {
-        this.valor = valor;
-        return this;
-    }
 
     public VendaRequest build() {
-        return new VendaRequest(veiculoId, compradorId, vendedorId, valor);
+        return new VendaRequest(veiculoId);
     }
 }

@@ -15,6 +15,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.test.context.support.WithMockUser;
 
 import static com.javacar.lojadecarro.enums.Entidade.OPCIONAL;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -28,6 +29,7 @@ public class OpcionalServiceIntegrationTest extends AbstractIntegrationTest {
     private OpcionalRepository opcionalRepository;
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da criação do opcional")
     class Criar {
         @Test
@@ -71,6 +73,7 @@ public class OpcionalServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da listagem de opcionais")
     class Listar {
         @Test
@@ -79,7 +82,7 @@ public class OpcionalServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.ATIVAS;
             //ACT
-            var response = opcionalService.listar(request);
+            var response = opcionalService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -92,7 +95,7 @@ public class OpcionalServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.INATIVAS;
             //ACT
-            var response = opcionalService.listar(request);
+            var response = opcionalService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -105,7 +108,7 @@ public class OpcionalServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = StatusFiltro.TODAS;
             //ACT
-            var response = opcionalService.listar(request);
+            var response = opcionalService.listarAdministracao(request);
             //Assert
             assertThat(response)
                     .isNotEmpty()
@@ -115,6 +118,7 @@ public class OpcionalServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da busca do opcional")
     class Buscar {
         @Test
@@ -123,7 +127,7 @@ public class OpcionalServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = buscarOpcionalPorNome("Rodas esportivas");
             //ACT
-            var opcional = opcionalService.buscarPorId(request.getId());
+            var opcional = opcionalService.buscarOpcionalAtivoPorId(request.getId());
             //Assert
             assertThat(opcional)
                     .isNotNull();
@@ -141,7 +145,7 @@ public class OpcionalServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             //ACT
             var exception = assertThrows(NotFoundException.class,
-                    () -> opcionalService.buscarPorId(-1L));
+                    () -> opcionalService.buscarOpcionalAtivoPorId(-1L));
             //Assert
             assertThat(exception)
                     .hasMessage(OPCIONAL.naoEncontrada() + -1L);
@@ -149,6 +153,7 @@ public class OpcionalServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da atualização do opcional")
     class Atualizar {
         @Test
@@ -210,6 +215,7 @@ public class OpcionalServiceIntegrationTest extends AbstractIntegrationTest {
     }
 
     @Nested
+    @WithMockUser(roles = "ADMIN")
     @DisplayName("Testes da alteração do status")
     class AlterarStatus {
         @Test

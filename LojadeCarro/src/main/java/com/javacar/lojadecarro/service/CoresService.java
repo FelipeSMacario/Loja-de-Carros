@@ -9,10 +9,11 @@ import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.mapper.CorMapper;
 import com.javacar.lojadecarro.repository.CoresRepository;
 import com.javacar.lojadecarro.validation.EntityValidation;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class CoresService {
     private final CorMapper corMapper;
     private final EntityValidation entityValidation;
 
+    @PreAuthorize("hasRole('ADMIN')")
     @Transactional
     public CorResponse criar(CorRequest request) {
         validarNomeUnico(request.nome());
@@ -36,7 +38,56 @@ public class CoresService {
         return corMapper.toResponse(cor);
     }
 
-    public List<CorResponse> listar(StatusFiltro status) {
+    @Transactional(readOnly = true)
+    public List<CorResponse> listarCoresAtivas() {
+        return coresRepository.findByAtivo(true)
+                .stream()
+                .map(corMapper::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public CorResponse buscarCorAtivaPorId(Long id) {
+        return corMapper.toResponse(buscaCorAtiva(id));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public CorResponse atualizar(CorRequest request, Long id) {
+        var cor = buscaCor(id);
+        if (!request.nome().equals(cor.getNome())) {
+            validarNomeUnico(request.nome());
+        }
+        corMapper.toUpdate(request, cor);
+        return corMapper.toResponse(cor);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional
+    public CorResponse alterarStatus(Long id, StatusRequest request) {
+        var cor = buscaCor(id);
+        cor.alteraStatus(request.ativo());
+
+        return corMapper.toResponse(cor);
+    }
+
+    private void validarNomeUnico(String nome) {
+        if (coresRepository.existsByNome(nome)) {
+            throw new BusinessException(COR.nomeJaExistente());
+        }
+    }
+
+    public Cor buscaCor(Long id) {
+        return entityValidation.obterOuLancarErro(coresRepository.findById(id), COR, id);
+    }
+
+    public Cor buscaCorAtiva(Long id) {
+        return entityValidation.obterOuLancarErro(coresRepository.findByIdAndAtivoTrue(id), COR, id);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public List<CorResponse> listarAdministracao(StatusFiltro status) {
         var listaCores =
                 switch (status) {
                     case TODAS -> coresRepository.findAll();
@@ -49,35 +100,9 @@ public class CoresService {
                 .toList();
     }
 
-    public CorResponse buscarPorId(Long id) {
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public CorResponse buscarPorIdAdministracao(Long id) {
         return corMapper.toResponse(buscaCor(id));
     }
-
-    @Transactional
-    public CorResponse atualizar(CorRequest request, Long id) {
-        var cor = buscaCor(id);
-        if (!request.nome().equals(cor.getNome())) {
-        validarNomeUnico(request.nome());
-        }
-        corMapper.toUpdate(request, cor);
-        return corMapper.toResponse(cor);
-    }
-
-    @Transactional
-    public CorResponse alterarStatus(Long id, StatusRequest request) {
-        var cor = buscaCor(id);
-        cor.alteraStatus(request.ativo());
-
-        return corMapper.toResponse(cor);
-    }
-    private void validarNomeUnico(String nome) {
-        if (coresRepository.existsByNome(nome)){
-            throw new BusinessException(COR.nomeJaExistente());
-        }
-    }
-
-    public Cor buscaCor(Long id) {
-        return entityValidation.obterOuLancarErro(coresRepository.findById(id), COR, id);
-    }
-
 }

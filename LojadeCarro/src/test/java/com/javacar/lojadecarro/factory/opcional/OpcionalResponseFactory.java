@@ -16,7 +16,7 @@ public class OpcionalResponseFactory {
 
     public OpcionalResponseFactory comTodosOsCampos() {
         this.id = 1L;
-        this.nome = "Freio ABS";
+        this.nome = "Freio Abs";
         this.ativo = true;
         return this;
     }

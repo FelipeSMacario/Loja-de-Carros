@@ -11,6 +11,7 @@ public enum Entidade {
     OPCIONAL("O opcional"),
     IMAGEM("A imagem"),
     ROLE("A role"),
+    VENDA("A venda"),
     USUARIO("O usuário(a)");
 
     private final String descricao;

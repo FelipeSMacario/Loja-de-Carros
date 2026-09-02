@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.factory.modelo;
 
+import com.javacar.lojadecarro.entity.Marca;
 import com.javacar.lojadecarro.entity.Modelo;
 import lombok.RequiredArgsConstructor;
 
@@ -41,6 +42,15 @@ public final class ModeloEntityFactory {
         modelo.setAtivo(ativo);
         return this;
     }
+    public ModeloEntityFactory comMarca() {
+        modelo.setMarca(criarMarcaEntity());
+        return this;
+    }
+    public ModeloEntityFactory comMarca(Marca marca) {
+        modelo.setMarca(marca);
+        return this;
+    }
+
 
     public Modelo build() {
         return modelo;

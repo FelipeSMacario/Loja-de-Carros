@@ -1,9 +1,9 @@
 package com.javacar.lojadecarro.service;
 
-import com.javacar.lojadecarro.dto.request.AlterarStatusRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
+import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Opcional;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
@@ -12,18 +12,17 @@ import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.mapper.ImagemMapper;
 import com.javacar.lojadecarro.mapper.VeiculoMapper;
 import com.javacar.lojadecarro.repository.VeiculoRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.javacar.lojadecarro.enums.Entidade.VEICULO;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
@@ -48,24 +47,31 @@ public class VeiculoService {
     private final CombustivelService combustivelService;
     private final ImagemMapper imagensMapper;
 
-    @Transactional
-    public VeiculoResponse criar(VeiculoRequest request, MultipartFile[] files) throws IOException {
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(rollbackFor = IOException.class)
+    public VeiculoResponse criar(VeiculoRequest request, MultipartFile[] files, Long idUsuario) throws IOException {
+        var vendedor = usuarioService.buscaUsuarioAtivo(idUsuario);
         validarPlacaUnica(request.placa());
         var veiculoEntity = veiculoMapper.toEntity(request);
         preencherRelacionamentos(request, veiculoEntity);
+        veiculoEntity.setVendedor(vendedor);
         veiculoEntity.setStatusVeiculo(DISPONIVEL);
 
+
+        if (!request.idsOpcionais().isEmpty()) {
+            var opcionais = vincularOpcionais(request);
+            opcionais.forEach(veiculoEntity::adicionarOpcional);
+        }
         var veiculo = veiculoRepository.save(veiculoEntity);
-        if (!request.idsOpcionais().isEmpty())
-            vincularOpcionais(request, veiculo);
 
         adicionarImagens(files, veiculo);
 
         return veiculoMapper.toResponse(veiculo);
     }
 
-
-    public Page<VeiculoResponse> listar(Pageable pageable, StatusVeiculo statusVeiculo) {
+    @PreAuthorize("hasRole('ADMIN')")
+    @Transactional(readOnly = true)
+    public Page<VeiculoResponse> listarAdministrativo(Pageable pageable, StatusVeiculo statusVeiculo) {
         if (statusVeiculo == null) {
             return veiculoRepository.findAll(pageable)
                     .map(veiculoMapper::toResponse);
@@ -75,28 +81,73 @@ public class VeiculoService {
                 .map(veiculoMapper::toResponse);
     }
 
+    @Transactional(readOnly = true)
+    public Page<VeiculoResponse> listarAtivos(Pageable pageable) {
+        return veiculoRepository.findByStatusVeiculo(DISPONIVEL, pageable)
+                .map(veiculoMapper::toResponse);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public Page<VeiculoResponse> listarMeusAnuncios(Pageable pageable, Long idUsuario, StatusVeiculo status) {
+        var vendedor = usuarioService.buscaUsuarioAtivo(idUsuario);
+        if (status == null) {
+            return veiculoRepository
+                    .findByVendedor_Id(vendedor.getId(), pageable)
+                    .map(veiculoMapper::toResponse);
+        }
+        return veiculoRepository.findByVendedor_IdAndStatusVeiculo(vendedor.getId(), status, pageable)
+                .map(veiculoMapper::toResponse);
+    }
+
+
+    @Transactional(readOnly = true)
     public VeiculoResponse buscarPorId(Long id) {
-        return veiculoMapper.toResponse(buscaVeiculo(id));
+        return veiculoMapper.toResponse(buscaVeiculoDisponivelPorId(id));
 
     }
 
+    private Veiculo buscaVeiculoDisponivelPorId(Long id) {
+        return veiculoRepository.findByIdAndStatusVeiculo(id, DISPONIVEL)
+                .orElseThrow(() -> new NotFoundException(VEICULO, id));
+    }
+
+    @PreAuthorize(
+            "hasRole('ADMIN') or " +
+                    "@veiculoAuthorization.ehVendedor(#id, authentication)"
+    )
     @Transactional
     public VeiculoResponse atualizar(VeiculoRequest request, Long id) {
         var veiculo = buscaVeiculo(id);
+        veiculo.validarPodeSerEditado();
         if (!request.placa().equals(veiculo.getPlaca())) {
             validarPlacaUnica(request.placa());
         }
         veiculoMapper.toUpdate(request, veiculo);
 
-        preencherRelacionamentos(request, veiculo);
+        preencherRelacionamentosAtualizacao(request, veiculo);
         return veiculoMapper.toResponse(veiculo);
     }
 
-
+    @PreAuthorize(
+            "hasRole('ADMIN') or " +
+                    "@veiculoAuthorization.ehVendedor(#id, authentication)"
+    )
     @Transactional
-    public VeiculoResponse alterarStatus(Long id, AlterarStatusRequest request) {
+    public VeiculoResponse pausarVeiculo(Long id) {
         var veiculo = buscaVeiculo(id);
-        veiculo.alterarStatus(request.status());
+        veiculo.pausarAnuncio();
+        return veiculoMapper.toResponse(veiculo);
+    }
+
+    @PreAuthorize(
+            "hasRole('ADMIN') or " +
+                    "@veiculoAuthorization.ehVendedor(#id, authentication)"
+    )
+    @Transactional
+    public VeiculoResponse reativarVeiculo(Long id) {
+        var veiculo = buscaVeiculo(id);
+        veiculo.reativarAnuncio();
         return veiculoMapper.toResponse(veiculo);
     }
 
@@ -105,6 +156,7 @@ public class VeiculoService {
                 .orElseThrow(() -> new NotFoundException(VEICULO, id));
     }
 
+    @Transactional(readOnly = true)
     public List<ImagemResponse> listarImagens(Long id) {
         return buscaVeiculo(id)
                 .getImagens()
@@ -114,19 +166,36 @@ public class VeiculoService {
 
     }
 
-    private void adicionarImagens(MultipartFile[] files, Veiculo veiculo) throws IOException {
-        var imagens = imagensService.criar(files, veiculo);
+    @PreAuthorize(
+            "hasRole('ADMIN') or " +
+                    "@veiculoAuthorization.ehVendedor(#idVeiculo, authentication)"
+    )
+    @Transactional(rollbackFor = IOException.class)
+    public List<ImagemResponse> vincularImagens(Long idVeiculo, MultipartFile[] files) throws IOException {
+        var veiculo = buscaVeiculo(idVeiculo);
+        veiculo.validarPodeSerEditado();
+        var novasImagens = adicionarImagens(files, veiculo);
 
-        imagens.forEach(veiculo::adicionarImagem);
+        return novasImagens.stream()
+                .map(imagensMapper::toResponse)
+                .toList();
     }
 
-    private void vincularOpcionais(VeiculoRequest request, Veiculo veiculo) {
+    private List<Imagem> adicionarImagens(
+            MultipartFile[] files,
+            Veiculo veiculo
+    ) throws IOException {
+
+        return imagensService.criar(files, veiculo);
+    }
+
+    private List<Opcional> vincularOpcionais(VeiculoRequest request) {
         validaOpcionaisDuplicados(request.idsOpcionais());
-        var opcionals = opcionalService.buscarOpcionais(request.idsOpcionais());
+        var opcionals = opcionalService.buscarOpcionaisAtivos(request.idsOpcionais());
 
         validaOpcionaisExistentes(opcionals, request.idsOpcionais());
 
-        opcionals.forEach(veiculo::adicionarOpcional);
+        return opcionals;
     }
 
 
@@ -138,11 +207,15 @@ public class VeiculoService {
         }
     }
 
-
+    @PreAuthorize(
+            "hasRole('ADMIN') or " +
+                    "@veiculoAuthorization.ehVendedor(#idVeiculo, authentication)"
+    )
     @Transactional
     public void desvincularOpcionais(Long idVeiculo, List<Long> ids) {
         validaOpcionaisDuplicados(ids);
         var veiculo = buscaVeiculo(idVeiculo);
+        veiculo.validarPodeSerEditado();
         var opcionais = opcionalService.buscarOpcionais(ids);
         validaOpcionaisExistentes(opcionais, ids);
         ids.forEach(veiculo::removerOpcional);
@@ -155,22 +228,47 @@ public class VeiculoService {
         }
     }
 
+    @PreAuthorize(
+            "hasRole('ADMIN') or " +
+                    "@veiculoAuthorization.ehVendedor(#idVeiculo, authentication)"
+    )
     @Transactional
     public void vincularOpcionais(Long idVeiculo, List<Long> ids) {
         validaOpcionaisDuplicados(ids);
         var veiculo = buscaVeiculo(idVeiculo);
-        var opcionais = opcionalService.buscarOpcionais(ids);
+        veiculo.validarPodeSerEditado();
+        var opcionais = opcionalService.buscarOpcionaisAtivos(ids);
         validaOpcionaisExistentes(opcionais, ids);
         opcionais.forEach(veiculo::adicionarOpcional);
     }
 
     private void preencherRelacionamentos(VeiculoRequest request, Veiculo veiculoEntity) {
-        veiculoEntity.setCarroceria(carroceriaService.buscaCarroceria(request.idCarroceria()));
-        veiculoEntity.setCor(coresService.buscaCor(request.idCores()));
-        veiculoEntity.setModelo(modeloService.buscaModelo(request.idModelo()));
-        veiculoEntity.setVendedor(usuarioService.buscaUsuario(request.idUsuario()));
-        veiculoEntity.setCombustivel(combustivelService.buscaCombustivel(request.idCombustivel()));
+        veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
+        veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
+        veiculoEntity.setModelo(modeloService.buscaModeloAtivo(request.idModelo()));
+        veiculoEntity.setCombustivel(combustivelService.buscaCombustivelAtivo(request.idCombustivel()));
+
     }
+
+    private void preencherRelacionamentosAtualizacao(VeiculoRequest request, Veiculo veiculoEntity) {
+        if (!Objects.equals(request.idCarroceria(), veiculoEntity.getCarroceria().getId())) {
+            veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
+        }
+
+        if (!Objects.equals(request.idCores(), veiculoEntity.getCor().getId())) {
+            veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
+        }
+
+        if (!Objects.equals(request.idModelo(), veiculoEntity.getModelo().getId())) {
+            veiculoEntity.setModelo(modeloService.buscaModeloAtivo(request.idModelo()));
+        }
+
+        if (!Objects.equals(request.idCombustivel(), veiculoEntity.getCombustivel().getId())) {
+            veiculoEntity.setCombustivel(combustivelService.buscaCombustivelAtivo(request.idCombustivel()));
+        }
+
+    }
+
     private void validarPlacaUnica(String placa) {
         if (veiculoRepository.existsByPlaca(placa)) {
             throw new BusinessException("A placa informada já possui um cadastro.");

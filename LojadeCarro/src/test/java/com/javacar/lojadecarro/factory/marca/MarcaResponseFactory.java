@@ -19,7 +19,7 @@ public class MarcaResponseFactory {
     public MarcaResponseFactory comTodosOsCampos() {
         this.id = 1L;
         this.nome = "Ford";
-        this.url = "https://www.google.com";
+        this.url = "https://www.ford.com";
         this.ativo = true;
         return this;
     }

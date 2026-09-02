@@ -17,7 +17,7 @@ public class MarcaRequestFactory {
 
     public MarcaRequestFactory comTodosOsCampos(){
         this.nome = "Ford";
-        this.url = "https://www.google.com";
+        this.url = "https://www.ford.com";
         return this;
     }
     public MarcaRequestFactory comNome(String nome){

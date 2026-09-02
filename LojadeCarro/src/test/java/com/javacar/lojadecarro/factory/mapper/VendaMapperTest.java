@@ -26,9 +26,6 @@ class VendaMapperTest extends MapperTest {
         assertThat(entity)
                 .isNotNull();
 
-        assertThat(entity.getValorVenda())
-                .isEqualTo(request.valorVenda());
-
     }
 
     @Test

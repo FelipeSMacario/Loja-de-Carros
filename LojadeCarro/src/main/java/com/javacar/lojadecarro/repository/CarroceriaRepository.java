@@ -14,4 +14,6 @@ public interface CarroceriaRepository extends JpaRepository<Carroceria, Long> {
     Optional<Carroceria> findByNome(String nome);
 
     boolean existsByNome(String nome);
+
+    Optional<Carroceria> findByIdAndAtivoTrue(Long id);
 }

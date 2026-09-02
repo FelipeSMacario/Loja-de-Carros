@@ -17,4 +17,5 @@ public interface MarcaRepository extends JpaRepository<Marca, Long> {
     boolean existsByUrl(String url);
 
     Optional<Marca> findByNome(String fiat);
+    Optional<Marca> findByIdAndAtivoTrue(Long id);
 }

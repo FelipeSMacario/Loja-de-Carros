@@ -17,4 +17,8 @@ public interface OpcionalRepository extends JpaRepository<Opcional, Long> {
     Optional<Opcional> findByNome(String nome);
 
     boolean existsByNome(String nome);
+
+    Optional<Opcional> findByIdAndAtivoTrue(Long id);
+
+    List<Opcional> findAllByIdInAndAtivoTrue(List<Long> ids);
 }

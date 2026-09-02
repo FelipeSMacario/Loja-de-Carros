@@ -32,7 +32,7 @@ class MarcaMapperTest extends MapperTest {
                 ).containsExactly(
                         "Ford",
                         true,
-                        "https://www.google.com"
+                        "https://www.ford.com"
                 );
     }
 

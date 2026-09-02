@@ -108,29 +108,6 @@ public final class VeiculoHelper extends BaseHelper {
 
     }
 
-    public static void assertDependenciasVeiculoCompletoSemImagemEOpcional(VeiculoTestContext cx) {
-
-        assertThat(cx.entity.getCarroceria())
-                .isNotNull()
-                .isSameAs(cx.carroceria);
-
-        assertThat(cx.entity.getCor())
-                .isNotNull()
-                .isSameAs(cx.cor);
-
-        assertThat(cx.entity.getModelo())
-                .isNotNull()
-                .isSameAs(cx.modelo);
-
-        assertThat(cx.entity.getVendedor())
-                .isNotNull()
-                .isSameAs(cx.usuario);
-
-        assertThat(cx.entity.getCombustivel())
-                .isNotNull()
-                .isSameAs(cx.combustivel);
-
-    }
     public static void assertVeiculo(ResultActions result,
                                      ResultMatcher status,
                                      Long id,
