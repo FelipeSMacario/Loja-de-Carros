@@ -67,7 +67,8 @@ public class WebSecurityConfig {
                                 "/carrocerias",
                                 "/carrocerias/**",
                                 "/opcionais",
-                                "/opcionais/**"
+                                "/opcionais/**",
+                                "/imagens/*/conteudo"
                         ).permitAll()
                             // API stateless autenticada exclusivamente por Bearer Token no header
                             // Authorization. Não utiliza cookies de sessão/autenticação.

@@ -13,6 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -27,13 +28,11 @@ class LocalStorageServiceTest {
     @TempDir
     Path root;
 
-
     @BeforeEach
     void setup() {
         localStorageService =
                 new LocalStorageService(root.toString());
     }
-
 
     @Nested
     @DisplayName("Teste de upload")
@@ -209,4 +208,61 @@ class LocalStorageServiceTest {
             ).doesNotThrowAnyException();
         }
     }
+
+    @Nested
+    @DisplayName("Teste do download")
+    class Download {
+        @Test
+        @DisplayName("Deve baixar arquivo armazenado localmente")
+        void deveBaixarArquivoArmazenadoLocalmente() throws IOException {
+            // Arrange
+            var conteudo = "conteudo da imagem".getBytes();
+
+            var file = new MockMultipartFile(
+                    "file",
+                    "foto.jpg",
+                    "image/jpeg",
+                    conteudo
+            );
+
+            var upload = localStorageService.upload(file, 10L);
+
+            // Act
+            var resultado = localStorageService.download(
+                    upload.objectKey()
+            );
+
+            // Assert
+            assertThat(resultado)
+                    .isEqualTo(conteudo);
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção ao baixar arquivo inexistente")
+        void deveLancarExcecaoAoBaixarArquivoInexistente() {
+            // Arrange
+            var objectKey = "10/arquivo-inexistente.jpg";
+
+            // Act + Assert
+            assertThatThrownBy(() ->
+                    localStorageService.download(objectKey)
+            )
+                    .isInstanceOf(NoSuchFileException.class);
+        }
+
+        @Test
+        @DisplayName("Deve rejeitar path traversal ao baixar arquivo")
+        void deveRejeitarPathTraversalAoBaixarArquivo()  {
+            //Arrange
+            //ACT + Assert
+            assertThatThrownBy(() ->
+                    localStorageService.download("../arquivo.jpg")
+            )
+                    .isInstanceOf(IllegalArgumentException.class)
+                    .hasMessage("Chave de objeto inválida.");
+
+        }
+    }
+
+
 }

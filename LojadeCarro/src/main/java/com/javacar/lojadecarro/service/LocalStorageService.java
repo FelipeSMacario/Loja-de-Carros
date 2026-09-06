@@ -2,6 +2,7 @@ package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.response.UploadResult;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -12,8 +13,21 @@ import java.nio.file.Paths;
 import java.util.UUID;
 
 @Service
+@ConditionalOnProperty(
+        prefix = "storage",
+        name = "provider",
+        havingValue = "local",
+        matchIfMissing = true
+)
 public class LocalStorageService implements StorageService {
     private final Path root;
+
+    @Override
+    public byte[] download(String objectKey) throws IOException {
+        var arquivo = resolverObjectKey(objectKey);
+
+        return Files.readAllBytes(arquivo);
+    }
 
     public LocalStorageService(@Value("${storage.local.root:uploads}") String root) {
         this.root = Paths.get(root)
@@ -98,16 +112,23 @@ public class LocalStorageService implements StorageService {
 
     @Override
     public void delete(String objectKey) throws IOException {
+        var arquivo = resolverObjectKey(objectKey);
 
-            var arquivo = root.resolve(objectKey)
-                    .normalize();
+        Files.deleteIfExists(arquivo);
+    }
 
-            if (!arquivo.startsWith(root)) {
-                throw new IllegalArgumentException(
-                        "Chave de objeto inválida."
-                );
-            }
+    private Path resolverObjectKey(String objectKey) {
+        var arquivo = root
+                .resolve(objectKey)
+                .normalize();
 
-            Files.deleteIfExists(arquivo);
+        if (!arquivo.startsWith(root)) {
+            throw new IllegalArgumentException(
+                    "Chave de objeto inválida."
+            );
         }
+
+        return arquivo;
+    }
+
 }

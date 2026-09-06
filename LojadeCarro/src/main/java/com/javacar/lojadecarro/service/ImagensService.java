@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.service;
 
+import com.javacar.lojadecarro.dto.response.ImagemDownload;
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
@@ -106,6 +107,21 @@ public class ImagensService {
         imagensRepository.flush();
 
         storageTransactionSupport.deleteAfterCommit(objectKey);
+    }
+
+    @Transactional(readOnly = true)
+    public ImagemDownload download(Long idImagem) throws IOException {
+        var imagem = buscaImagem(idImagem);
+
+        var conteudo = storageService.download(
+                imagem.getObjectKey()
+        );
+
+        return new ImagemDownload(
+                conteudo,
+                imagem.getContentType(),
+                imagem.getNomeOriginal()
+        );
     }
 
     public Imagem buscaImagem(Long idImagem) {
