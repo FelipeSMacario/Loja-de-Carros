@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.service;
 
+import com.javacar.lojadecarro.dto.response.ImagemDownload;
 import com.javacar.lojadecarro.dto.response.UploadResult;
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
@@ -20,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -489,6 +491,80 @@ class ImagemServiceTest {
             assertNotFoundResponseError(excecao, IMAGEM, ID_VALIDO);
             verify(imagensRepository).findById(ID_VALIDO);
             verifyNoMoreInteractions(imagensRepository);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes do download da imagem")
+    class Download {
+        @Test
+        @DisplayName("Deve baixar uma imagem")
+        void deveBaixarUmaImagem() throws IOException {
+            //Arrange
+            var imagem = criarImagemEntity();
+            var conteudoEsperado =
+                    "bytes da imagem".getBytes(StandardCharsets.UTF_8);
+            when(imagensRepository.findById(imagem.getId()))
+                    .thenReturn(Optional.of(imagem));
+
+            when(storageService.download(imagem.getObjectKey()))
+                    .thenReturn(conteudoEsperado);
+            //ACT
+            var resultado = imagensService.download(imagem.getId());
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .extracting(
+                            ImagemDownload::contentType,
+                            ImagemDownload::nomeOriginal
+                    )
+                    .containsExactly(
+                            imagem.getContentType(),
+                            imagem.getNomeOriginal()
+                    );
+
+            assertThat(resultado.conteudo())
+                    .isEqualTo(conteudoEsperado);
+
+            verify(imagensRepository)
+                    .findById(imagem.getId());
+
+            verify(storageService)
+                    .download(imagem.getObjectKey());
+
+            verifyNoMoreInteractions(
+                    imagensRepository,
+                    storageService
+            );
+        }
+
+        @Test
+        @DisplayName("Deve propagar falha ao baixar imagem")
+        void devePropagarFalhaAoBaixarImagem() throws IOException {
+            //Arrange
+            var imagem = criarImagemEntity();
+            when(imagensRepository.findById(imagem.getId()))
+                    .thenReturn(Optional.of(imagem));
+
+            var falhaEsperada =
+                    new IOException("Erro ao baixar imagem");
+
+            when(storageService.download(imagem.getObjectKey()))
+                    .thenThrow(falhaEsperada);
+            //ACT
+            var exception = assertThrows(IOException.class,
+                    () -> imagensService.download(imagem.getId()));
+            //Assert
+            assertThat(exception)
+                    .isSameAs(falhaEsperada);
+
+            verify(imagensRepository).findById(imagem.getId());
+            verify(storageService).download(imagem.getObjectKey());
+
+            verifyNoMoreInteractions(
+                    imagensRepository,
+                    storageService
+            );
         }
     }
 }

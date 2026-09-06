@@ -355,6 +355,18 @@ public class ImagemServiceIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
+    @Nested
+    @DisplayName("Testes do download da imagem")
+    class Download {
+        @Test
+        @DisplayName("Deve baixar uma imagem")
+        void deveBaixarUmaImagem() throws IOException{
+            //Arrange
+            //ACT
+            //Assert
+        }
+    }
+
     private Usuario criarVendedorPersistido() {
         return vendaIntegrationFixture
                 .criarUsuarioPersistido("USUARIO 1", "85296374165", "usuario1@gmail.com");

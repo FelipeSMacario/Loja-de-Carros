@@ -15,6 +15,31 @@ services:
       timeout: 5s
       retries: 10
 
+  localstack:
+    image: localstack/localstack:4.14.0
+    container_name: lojadecarro-localstack
+    ports:
+      - "4566:4566"
+    environment:
+      SERVICES: s3
+      AWS_DEFAULT_REGION: us-east-1
+      STORAGE_BUCKET: loja-veiculos-local
+    volumes:
+      - ./docker/localstack/init:/etc/localstack/init/ready.d
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "awslocal",
+          "s3api",
+          "head-bucket",
+          "--bucket",
+          "loja-veiculos-local"
+        ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
   api:
     build: .
     image: lojadecarro-api
@@ -24,11 +49,21 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      localstack:
+        condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: docker
+
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/loja_de_carros
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
+
+      STORAGE_PROVIDER: s3
+      STORAGE_S3_BUCKET: loja-veiculos-local
+      STORAGE_S3_REGION: us-east-1
+      STORAGE_S3_ENDPOINT: http://localstack:4566
+      STORAGE_S3_ACCESS_KEY: test
+      STORAGE_S3_SECRET_KEY: test
 
 volumes:
   mysql-data:

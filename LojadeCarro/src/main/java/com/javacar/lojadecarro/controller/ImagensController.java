@@ -6,10 +6,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.ContentDisposition;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 @Slf4j
 @RestController
@@ -45,5 +49,37 @@ public class ImagensController {
         log.info("Imagem com id: {} deletada", idImagem);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/{idImagem}/conteudo")
+    @Operation(summary = "Baixar conteúdo da imagem")
+    public ResponseEntity<byte[]> baixar(
+            @PathVariable Long idImagem
+    ) throws IOException {
+        log.debug("Baixando conteúdo da imagem: {}", idImagem);
+
+        var download = imagensService.download(idImagem);
+
+        var contentDisposition = ContentDisposition
+                .inline()
+                .filename(
+                        download.nomeOriginal(),
+                        StandardCharsets.UTF_8
+                )
+                .build();
+
+        return ResponseEntity
+                .ok()
+                .contentType(
+                        MediaType.parseMediaType(
+                                download.contentType()
+                        )
+                )
+                .contentLength(download.conteudo().length)
+                .header(
+                        HttpHeaders.CONTENT_DISPOSITION,
+                        contentDisposition.toString()
+                )
+                .body(download.conteudo());
     }
 }
