@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 import static com.javacar.lojadecarro.utils.Utils.ZONE;
 
@@ -31,7 +32,8 @@ public class VendaIntegrationFixture {
         usuario.setEmail(email);
         usuario.setPassword("password-hash-teste");
         usuario.setAtivo(true);
-        usuario.setDataNascimento(LocalDate.of(1990, valor, valor));
+        usuario.setDataNascimento(LocalDate.of(1990, 1, 1));
+        usuario.setIdentityProviderId(UUID.randomUUID().toString());
         return usuarioRepository.save(usuario);
     }
 

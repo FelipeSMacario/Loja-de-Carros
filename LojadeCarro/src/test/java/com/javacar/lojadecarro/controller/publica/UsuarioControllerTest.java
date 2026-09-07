@@ -7,7 +7,9 @@ import com.javacar.lojadecarro.dto.request.UsuarioUpdateRequest;
 import com.javacar.lojadecarro.dto.response.AlteracaoSenhaResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
+import com.javacar.lojadecarro.exception.security.UsuarioNaoVinculadoException;
 import com.javacar.lojadecarro.factory.usuario.UsuarioTestContext;
+import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.UsuarioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -32,6 +34,8 @@ class UsuarioControllerTest extends BaseControllerTest {
 
     @MockitoBean
     private UsuarioService usuarioService;
+    @MockitoBean
+    private UsuarioAutenticadoService usuarioAutenticadoService;
 
     @Nested
     @DisplayName("Testes de criação")
@@ -105,6 +109,9 @@ class UsuarioControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new UsuarioTestContext();
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
             when(usuarioService.buscarMeuUsuario(ID_VALIDO))
                     .thenReturn(cx.response);
             //Act + Assert
@@ -120,6 +127,7 @@ class UsuarioControllerTest extends BaseControllerTest {
                     "12345678901"
             );
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(usuarioService).buscarMeuUsuario(ID_VALIDO);
             verifyNoMoreInteractions(usuarioService);
         }
@@ -128,12 +136,16 @@ class UsuarioControllerTest extends BaseControllerTest {
         @DisplayName("Deve retornar 404 ao buscar o usuário autenticado")
         void deveRetornar404AoBuscarUmUsuario() throws Exception {
             //Arrange
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
             when(usuarioService.buscarMeuUsuario(ID_VALIDO))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             //Act + Assert
             var resultado = performGetComAutenticacao(URL_ME, ID_JWT, ROLE_USUARIO);
             assertStatus404(resultado, USUARIO, ID_VALIDO);
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(usuarioService).buscarMeuUsuario(ID_VALIDO);
             verifyNoMoreInteractions(usuarioService);
         }
@@ -147,6 +159,27 @@ class UsuarioControllerTest extends BaseControllerTest {
             assertStatus401(exception);
             verifyNoInteractions(usuarioService);
         }
+
+        @Test
+        @DisplayName("Deve retornar 403 quando o usuário autenticado não possuir vínculo local")
+        void deveRetornar403QuandoUsuarioAutenticadoNaoPossuirVinculoLocal()
+                throws Exception {
+
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenThrow(new UsuarioNaoVinculadoException());
+
+            var resultado = performGetComAutenticacao(
+                    URL_ME,
+                    ID_JWT,
+                    ROLE_USUARIO
+            );
+
+            assertStatus403Autenticacao(resultado);
+
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
+            verifyNoInteractions(usuarioService);
+            verifyNoMoreInteractions(usuarioAutenticadoService);
+        }
     }
 
     @Nested
@@ -158,6 +191,8 @@ class UsuarioControllerTest extends BaseControllerTest {
             //Arrange
             var response = criarUsuarioPadraoResponseInativo();
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(usuarioService.desativarUsuario(ID_VALIDO))
                     .thenReturn(response);
             //Act + Assert
@@ -171,6 +206,7 @@ class UsuarioControllerTest extends BaseControllerTest {
                     "felipesmacario@gmail.com",
                     "12345678901"
             );
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(usuarioService).desativarUsuario(ID_VALIDO);
             verifyNoMoreInteractions(usuarioService);
         }
@@ -179,12 +215,15 @@ class UsuarioControllerTest extends BaseControllerTest {
         @DisplayName("Deve retornar 404 ao não encontrar o usuário para desativar")
         void deveRetornar404AoDesativarUsuarioNaoEncontrado() throws Exception {
             //Arrange
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(usuarioService.desativarUsuario(ID_VALIDO))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             //Act + Assert
             var resultado = performPatchComAutenticacao(URL_ME_DESATIVAR, ID_JWT, ROLE_USUARIO);
             assertStatus404(resultado, USUARIO, ID_VALIDO);
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(usuarioService).desativarUsuario(ID_VALIDO);
             verifyNoMoreInteractions(usuarioService);
         }
@@ -211,6 +250,8 @@ class UsuarioControllerTest extends BaseControllerTest {
             var cx = new UsuarioTestContext();
             var request = atualizarUsuarioValido();
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(usuarioService.atualizar(
                     request,
                     ID_VALIDO
@@ -227,6 +268,7 @@ class UsuarioControllerTest extends BaseControllerTest {
                     "12345678901"
             );
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(usuarioService).atualizar(request,
                     ID_VALIDO);
             verifyNoMoreInteractions(usuarioService);
@@ -249,6 +291,8 @@ class UsuarioControllerTest extends BaseControllerTest {
         void deveRetornar404aoAtualizarUmUsuarioComIDErrado() throws Exception {
             //Arrange
             var request = atualizarUsuarioValido();
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(usuarioService.atualizar(request,
                     ID_VALIDO))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
@@ -256,6 +300,7 @@ class UsuarioControllerTest extends BaseControllerTest {
             var resultado = performPutComAutenticacao(URL_ME, request, ID_JWT, ROLE_USUARIO);
             assertStatus404(resultado, USUARIO, ID_VALIDO);
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(usuarioService).atualizar(request,
                     ID_VALIDO);
             verifyNoMoreInteractions(usuarioService);
@@ -286,12 +331,16 @@ class UsuarioControllerTest extends BaseControllerTest {
             );
             var response = new AlteracaoSenhaResponse("felipesmacario@gmail.com", "Senha atualizada com sucesso");
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
             when(usuarioService.alterarSenha(request, ID_VALIDO))
                     .thenReturn(response);
             //Act + Assert
             var resultado = performPatchComAutenticacao(URL_ME_SENHA, request, ID_JWT, ROLE_USUARIO);
             assertAlteracaoSenha(resultado, "felipesmacario@gmail.com", "Senha atualizada com sucesso");
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(usuarioService).alterarSenha(request, ID_VALIDO);
             verifyNoMoreInteractions(usuarioService);
 
@@ -306,12 +355,15 @@ class UsuarioControllerTest extends BaseControllerTest {
                     "senhaAntiga",
                     "senhaNova"
             );
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(usuarioService.alterarSenha(request, ID_VALIDO))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             //Act + Assert
             var resultado = performPatchComAutenticacao(URL_ME_SENHA, request, ID_JWT, ROLE_USUARIO);
             assertStatus404(resultado, USUARIO, ID_VALIDO);
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(usuarioService).alterarSenha(request, ID_VALIDO);
             verifyNoMoreInteractions(usuarioService);
         }

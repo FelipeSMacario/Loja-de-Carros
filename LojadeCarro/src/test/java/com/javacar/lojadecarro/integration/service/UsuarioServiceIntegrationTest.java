@@ -8,13 +8,18 @@ import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.usuario.UsuarioTestContext;
 import com.javacar.lojadecarro.integration.config.AbstractIntegrationTest;
+import com.javacar.lojadecarro.integration.fixture.VendaIntegrationFixture;
 import com.javacar.lojadecarro.repository.UsuarioRepository;
 import com.javacar.lojadecarro.service.UsuarioService;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Import;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 
@@ -26,6 +31,8 @@ import static com.javacar.lojadecarro.enums.StatusFiltro.*;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+@Transactional
+@Import(VendaIntegrationFixture.class)
 @DisplayName("Testes de integração da service usuário")
 public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     @Autowired
@@ -36,6 +43,12 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
+    @Autowired
+    private VendaIntegrationFixture vendaIntegrationFixture;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     @Nested
     @DisplayName("Testes de criação do usuário")
@@ -48,6 +61,8 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             var request = UsuarioTestContext.criarUsuarioValido();
             //ACT
             var response = usuarioService.criar(request);
+            entityManager.flush();
+            entityManager.clear();
             //Assert
 
             assertThat(response.id())
@@ -114,6 +129,57 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             assertThat(exception)
                     .hasMessage("O email informado já possui um cadastro.");
 
+        }
+
+        @Test
+        @DisplayName("Deve buscar usuário pelo identificador do provedor de identidade")
+        void deveBuscarUsuarioPeloIdentityProviderId() {
+            //Arrange
+            var usuario = vendaIntegrationFixture.criarUsuarioPersistido("USUARIO 1", "14569874122", "usuario1@email.com");
+            entityManager.flush();
+            entityManager.clear();
+            //ACT
+            var usuarioPorId = usuarioRepository.findByIdentityProviderId(usuario.getIdentityProviderId()).orElseThrow();
+            //Assert
+            assertThat(usuarioPorId)
+                    .extracting(
+                            Usuario::getId,
+                            Usuario::getEmail,
+                            Usuario::getCpf,
+                            Usuario::getIdentityProviderId
+                    )
+                    .containsExactly(
+                            usuario.getId(),
+                            usuario.getEmail(),
+                            usuario.getCpf(),
+                            usuario.getIdentityProviderId()
+                    );
+        }
+
+        @Test
+        @DisplayName("Deve retornar vazio quando o identificador do provedor não existir")
+        void deveRetornarVazioQuandoIdentityProviderIdNaoExistir() {
+            //Arrange
+            //ACT
+            var usuarioPorId = usuarioRepository.findByIdentityProviderId("-99");
+            //Assert
+            assertThat(usuarioPorId)
+                    .isEmpty();
+        }
+
+        @Test
+        @DisplayName("Não deve permitir identificador do provedor duplicado")
+        void naoDevePermitirIdentityProviderIdDuplicado() {
+            //Arrange
+            var usuario = vendaIntegrationFixture.criarUsuarioPersistido("USUARIO 1", "14569874122", "usuario1@email.com");
+            entityManager.flush();
+            entityManager.clear();
+
+            var usuarioNovo = vendaIntegrationFixture.criarUsuarioPersistido("USUARIO 2", "14569874121", "usuario2@email.com");
+            usuarioNovo.setIdentityProviderId(usuario.getIdentityProviderId());
+            //ACT + Assert
+            assertThrows(DataIntegrityViolationException.class,
+                    () -> usuarioRepository.saveAndFlush(usuarioNovo));
         }
     }
 
@@ -233,7 +299,6 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     class AlterarStatus {
         @Test
         @DisplayName("Deve alterar o status para ativa")
-        @Transactional
         void deveAlterarStatusAtiva() {
             var usuario = usuarioRepository.findByEmail("batmaimMorcegao@gmail.com").orElseThrow();
             usuarioService.alterarStatus(usuario.getId(), new StatusRequest(true));
@@ -245,7 +310,6 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
 
         @Test
         @DisplayName("Deve lançar exceção ao tentar ativar um usuário já ativo")
-        @Transactional
         void deveLancarExcecaoQuandoUsuarioJaAtivo() {
             var usuario = usuarioRepository.findByEmail("maria.santos@gmail.com").orElseThrow();
             var usuarioId = usuario.getId();
@@ -259,7 +323,6 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
 
         @Test
         @DisplayName("Deve alterar o status para inativa")
-        @Transactional
         void deveAlterarStatusInativa() {
             var usuario = usuarioRepository.findByEmail("carlos.oliveira@gmail.com").orElseThrow();
             usuarioService.alterarStatus(usuario.getId(), new StatusRequest(false));
@@ -271,7 +334,6 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
 
         @Test
         @DisplayName("Deve lançar exceção ao tentar inativar um usuário já inativo")
-        @Transactional
         void deveLancarExcecaoQuandoUsuarioJainativo() {
             var usuario = usuarioRepository.findByEmail("robin@gmail.com").orElseThrow();
             var usuarioId = usuario.getId();
@@ -290,7 +352,6 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     class DesvincularRole {
         @Test
         @DisplayName("Deve desvincular uma role")
-        @Transactional
         void deveDesvincularRole() {
             var usuario = usuarioRepository.findByEmail("joao.silva@gmail.com").orElseThrow();
             var idRole = usuario.getRoles()
@@ -323,7 +384,6 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
 
         @Test
         @DisplayName("Deve lançar exceção ao tentar remover exceção que o usuário não possui")
-        @Transactional
         void deveLancarExcecaoRemoverRoleQueUsuarioNaoPossui() {
             var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
             var usuarioId = usuario.getId();
@@ -341,7 +401,6 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     class VincularRole {
         @Test
         @DisplayName("Deve vincular a role ao usuário")
-        @Transactional
         void deveVincularRoleAoUsuario() {
             var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
             var idsRole = List.of(1L);

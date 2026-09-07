@@ -20,4 +20,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     Optional<Usuario> findByCpf(String cpf);
 
     Optional<Usuario> findByIdAndAtivoTrue(Long id);
+
+    Optional<Usuario> findByIdentityProviderId(String identityProviderId);
 }

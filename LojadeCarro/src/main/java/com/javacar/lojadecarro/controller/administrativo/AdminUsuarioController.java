@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.UsuarioRolesRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
 import com.javacar.lojadecarro.enums.StatusFiltro;
+import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

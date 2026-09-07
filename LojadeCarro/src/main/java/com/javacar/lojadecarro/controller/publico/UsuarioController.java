@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioUpdateRequest;
 import com.javacar.lojadecarro.dto.response.AlteracaoSenhaResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
+import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,6 +26,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class UsuarioController {
 
     private final UsuarioService usuarioService;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
 
     @PostMapping
     @Operation(summary = "Cadastrar um novo usuário")
@@ -45,7 +47,7 @@ public class UsuarioController {
     @GetMapping("/me")
     @Operation(summary = "Buscar dados do usuário autenticado")
     public ResponseEntity<UsuarioResponse> buscarMeuUsuario(@AuthenticationPrincipal Jwt jwt) {
-        var id = Long.valueOf(jwt.getSubject());
+        var id = usuarioAutenticadoService.buscarId(jwt.getSubject());
         log.debug("Usuário logado para buscar seu usuário com o id: {}", id);
         var response = usuarioService.buscarMeuUsuario(id);
 
@@ -56,7 +58,7 @@ public class UsuarioController {
     @PatchMapping("/me/desativar")
     @Operation(summary = "Desativar usuário")
     public ResponseEntity<UsuarioResponse> desativarUsuario(@AuthenticationPrincipal Jwt jwt) {
-        var id = Long.valueOf(jwt.getSubject());
+        var id = usuarioAutenticadoService.buscarId(jwt.getSubject());
         log.debug("Usuário logado para ser desativado com o id: {}", id);
         var response = usuarioService.desativarUsuario(id);
 
@@ -69,7 +71,7 @@ public class UsuarioController {
     public ResponseEntity<UsuarioResponse> atualizar(@RequestBody
                                                      @Valid UsuarioUpdateRequest request,
                                                      @AuthenticationPrincipal Jwt jwt) {
-        var id = Long.valueOf(jwt.getSubject());
+        var id = usuarioAutenticadoService.buscarId(jwt.getSubject());
         log.debug("Usuário logado para atualização com o id: {}", id);
         var response = usuarioService.atualizar(request, id);
 
@@ -82,7 +84,7 @@ public class UsuarioController {
     public ResponseEntity<AlteracaoSenhaResponse> alterarSenha(@RequestBody
                                                                @Valid AlteracaoSenhaRequest request,
                                                                @AuthenticationPrincipal Jwt jwt) {
-        var id = Long.valueOf(jwt.getSubject());
+        var id =usuarioAutenticadoService.buscarId(jwt.getSubject());
         log.debug("Usuário logado para alteração de senha com o id: {}", id);
 
         var response = usuarioService.alterarSenha(request, id);

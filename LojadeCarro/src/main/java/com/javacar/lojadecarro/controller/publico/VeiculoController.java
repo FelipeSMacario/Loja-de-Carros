@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
+import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.VeiculoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -36,6 +37,7 @@ import java.util.List;
 public class VeiculoController {
 
     private final VeiculoService veiculoService;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Cadastrar um novo veiculo")
@@ -47,7 +49,7 @@ public class VeiculoController {
             MultipartFile[] files
     ) throws IOException {
         log.debug("Cadastrar um novo veiculo com o corpo: {}", request);
-        var idUsuario = Long.valueOf(jwt.getSubject());
+        var idUsuario = usuarioAutenticadoService.buscarId(jwt.getSubject());
         var imagens = files == null ? new MultipartFile[0] : files;
         var response = veiculoService.criar(request, imagens, idUsuario);
 
@@ -187,7 +189,7 @@ public class VeiculoController {
             Pageable pageable,
             @RequestParam(required = false)
             StatusVeiculo status) {
-        var idUsuario = Long.valueOf(jwt.getSubject());
+        var idUsuario = usuarioAutenticadoService.buscarId(jwt.getSubject());
         log.debug("Buscando todos os anuncios do usuario com id: {}.", idUsuario);
         var response = veiculoService.listarMeusAnuncios(pageable, idUsuario, status);
 

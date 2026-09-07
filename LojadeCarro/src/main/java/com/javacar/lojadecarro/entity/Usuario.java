@@ -52,6 +52,13 @@ public class Usuario extends EntidadeBase implements UserDetails, Serializable {
     )
     private Set<UsuarioRole> roles = new HashSet<>();
 
+    @Column(
+            name = "identity_provider_id",
+            unique = true,
+            length = 255
+    )
+    private String identityProviderId;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()

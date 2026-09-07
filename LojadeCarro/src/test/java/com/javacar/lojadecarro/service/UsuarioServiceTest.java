@@ -1432,6 +1432,8 @@ class UsuarioServiceTest extends BaseServiceTest {
         }
     }
 
+
+
     private Usuario criarUsuarioPadrao() {
         return UsuarioTestContext.criarUsuario(
                 ID_VALIDO,
