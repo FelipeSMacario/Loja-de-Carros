@@ -45,18 +45,4 @@ public class JwtConfig {
 
         return new NimbusJwtEncoder(jwkSource);
     }
-    @Bean
-    public JwtDecoder jwtDecoder(KeyPair keyPair) {
-        var publicKey = (RSAPublicKey) keyPair.getPublic();
-
-        var decoder = NimbusJwtDecoder
-                .withPublicKey(publicKey)
-                .build();
-
-        decoder.setJwtValidator(
-                JwtValidators.createDefaultWithIssuer("loja-de-carros-api")
-        );
-
-        return decoder;
-    }
 }

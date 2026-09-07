@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.security;
 
+import com.javacar.lojadecarro.security.converter.KeycloakRealmRoleConverter;
 import com.javacar.lojadecarro.security.service.CustomUserDetailsService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -110,14 +111,11 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
-        var authoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        var authenticationConverter =
+                new JwtAuthenticationConverter();
 
-        authoritiesConverter.setAuthoritiesClaimName("roles");
-        authoritiesConverter.setAuthorityPrefix("");
-
-        var authenticationConverter = new JwtAuthenticationConverter();
         authenticationConverter.setJwtGrantedAuthoritiesConverter(
-                authoritiesConverter
+                new KeycloakRealmRoleConverter()
         );
 
         return authenticationConverter;
