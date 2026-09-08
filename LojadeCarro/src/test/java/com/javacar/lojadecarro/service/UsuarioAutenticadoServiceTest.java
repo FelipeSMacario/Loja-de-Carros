@@ -93,7 +93,6 @@ class UsuarioAutenticadoServiceTest extends BaseServiceTest {
                 "Felipe",
                 "felipesmacario@gmail.com",
                 "12345678901",
-                "123456",
                 true
         );
         usuario.setIdentityProviderId(SUBJECT);

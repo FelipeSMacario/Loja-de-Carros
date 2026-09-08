@@ -1,9 +1,7 @@
 package com.javacar.lojadecarro.controller.publico;
 
-import com.javacar.lojadecarro.dto.request.AlteracaoSenhaRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioUpdateRequest;
-import com.javacar.lojadecarro.dto.response.AlteracaoSenhaResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.UsuarioService;
@@ -29,10 +27,23 @@ public class UsuarioController {
     private final UsuarioAutenticadoService usuarioAutenticadoService;
 
     @PostMapping
-    @Operation(summary = "Cadastrar um novo usuário")
-    public ResponseEntity<UsuarioResponse> criar(@RequestBody @Valid UsuarioRequest request) {
-        log.debug("Cadastrar um novo usuário ");
-        var response = usuarioService.criar(request);
+    @Operation(summary = "Cadastrar o perfil de um novo usuário")
+    public ResponseEntity<UsuarioResponse> criar(
+            @AuthenticationPrincipal Jwt jwt,
+            @RequestBody @Valid UsuarioRequest request
+    ) {
+        var subject = jwt.getSubject();
+        var email = jwt.getClaimAsString("email");
+
+        log.debug(
+                "Cadastrando perfil local para o usuário autenticado"
+        );
+
+        var response = usuarioService.criar(
+                request,
+                subject,
+                email
+        );
 
         var location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -40,8 +51,14 @@ public class UsuarioController {
                 .buildAndExpand(response.id())
                 .toUri();
 
-        log.info("Usuário criado com sucesso com o id: {}", response.id());
-        return ResponseEntity.created(location).body(response);
+        log.info(
+                "Perfil do usuário criado com sucesso. Id: {}",
+                response.id()
+        );
+
+        return ResponseEntity
+                .created(location)
+                .body(response);
     }
 
     @GetMapping("/me")
@@ -79,16 +96,4 @@ public class UsuarioController {
         return ResponseEntity.ok(response);
     }
 
-    @PatchMapping("/me/senha")
-    @Operation(summary = "Atualizar a senha do usuário")
-    public ResponseEntity<AlteracaoSenhaResponse> alterarSenha(@RequestBody
-                                                               @Valid AlteracaoSenhaRequest request,
-                                                               @AuthenticationPrincipal Jwt jwt) {
-        var id =usuarioAutenticadoService.buscarId(jwt.getSubject());
-        log.debug("Usuário logado para alteração de senha com o id: {}", id);
-
-        var response = usuarioService.alterarSenha(request, id);
-        log.info("Usuário com o id: {} teve a senha atualizada com sucesso", id);
-        return ResponseEntity.ok(response);
-    }
 }

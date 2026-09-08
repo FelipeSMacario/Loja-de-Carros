@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.integration.service;
 
 import com.javacar.lojadecarro.dto.request.StatusRequest;
+import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.entity.Usuario;
 import com.javacar.lojadecarro.enums.Entidade;
@@ -20,12 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Import;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 
-import java.util.List;
+import java.time.LocalDate;
 
-import static com.javacar.lojadecarro.enums.Entidade.ROLE;
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 import static com.javacar.lojadecarro.enums.StatusFiltro.*;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
@@ -39,9 +38,6 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
     private UsuarioService usuarioService;
 
     @Autowired
-    private BCryptPasswordEncoder encoder;
-
-    @Autowired
     private UsuarioRepository usuarioRepository;
 
     @Autowired
@@ -49,6 +45,9 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
 
     @PersistenceContext
     private EntityManager entityManager;
+
+    private static final String SUBJECT = "keycloak-sub-usuario-1";
+    private static final String EMAIL = "usuario@email.com";
 
     @Nested
     @DisplayName("Testes de criação do usuário")
@@ -60,7 +59,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             //Arrange
             var request = UsuarioTestContext.criarUsuarioValido();
             //ACT
-            var response = usuarioService.criar(request);
+            var response = usuarioService.criar(request, SUBJECT, EMAIL);
             entityManager.flush();
             entityManager.clear();
             //Assert
@@ -78,11 +77,11 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
                     ).containsExactly(
                             request.nome(),
                             request.cpf(),
-                            request.email(),
+                            EMAIL,
                             true
                     );
 
-            var usuario = usuarioRepository.findByEmail(request.email())
+            var usuario = usuarioRepository.findByEmail(EMAIL)
                     .orElseThrow();
 
             assertThat(usuario)
@@ -91,14 +90,8 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
                             Usuario::getDataCadastro
                     ).doesNotContainNull();
 
-            assertThat(
-                    encoder.matches(
-                            request.password(),
-                            usuario.getPassword()
-                    )
-            ).isTrue();
             assertThat(usuario.getCpf()).isEqualTo(request.cpf());
-            assertThat(usuario.getEmail()).isEqualTo(request.email());
+            assertThat(usuario.getEmail()).isEqualTo(EMAIL);
             assertThat(usuario.isAtivo())
                     .isTrue();
         }
@@ -110,7 +103,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             var request = UsuarioTestContext.criarUsuarioCPFRepetidoValido();
             //ACT
             var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.criar(request));
+                    () -> usuarioService.criar(request, SUBJECT, EMAIL));
             //Assert
             assertThat(exception)
                     .hasMessage("O CPF informado já possui um cadastro.");
@@ -121,10 +114,13 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
         @DisplayName("Deve validar o email unico")
         void deveLancarExcecaoQuandoEmailJaExistir() {
             //Arrange
-            var request = UsuarioTestContext.criarUsuarioEmailRepetidoValido();
+            var usuario = vendaIntegrationFixture.criarUsuarioPersistido("USUARIO 1", "14569874122", "usuario1@email.com");
+            entityManager.flush();
+            entityManager.clear();
+            var request =new UsuarioRequest("USUARIO 2", "12965478122", LocalDate.now());
             //ACT
             var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.criar(request));
+                    () -> usuarioService.criar(request, SUBJECT, usuario.getEmail()));
             //Assert
             assertThat(exception)
                     .hasMessage("O email informado já possui um cadastro.");
@@ -346,98 +342,5 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
         }
     }
 
-    @Nested
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("Testes para desvincular uma role")
-    class DesvincularRole {
-        @Test
-        @DisplayName("Deve desvincular uma role")
-        void deveDesvincularRole() {
-            var usuario = usuarioRepository.findByEmail("joao.silva@gmail.com").orElseThrow();
-            var idRole = usuario.getRoles()
-                    .stream()
-                    .findFirst()
-                    .stream()
-                    .findFirst()
-                    .map(role -> role.getRole().getId())
-                    .orElseThrow();
-            usuarioService.desvincularRole(usuario.getId(), idRole);
 
-            var usuarioAtualizado = usuarioRepository.findById(usuario.getId()).orElseThrow();
-
-            assertThat(usuarioAtualizado.getRoles())
-                    .hasSize(1)
-                    .allMatch(role -> !role.getRole().getId().equals(idRole));
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção de role inexistente")
-        void deveLancarExcecaoQuandoRoleInexistente() {
-            var usuario = usuarioRepository.findByEmail("joao.silva@gmail.com").orElseThrow();
-            var usuarioId = usuario.getId();
-            var exception = assertThrows(NotFoundException.class,
-                    () -> usuarioService.desvincularRole(usuarioId, -1L));
-
-            assertThat(exception)
-                    .hasMessage(ROLE.naoEncontrada() + -1L);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção ao tentar remover exceção que o usuário não possui")
-        void deveLancarExcecaoRemoverRoleQueUsuarioNaoPossui() {
-            var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
-            var usuarioId = usuario.getId();
-            var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.desvincularRole(usuarioId, 1L));
-            assertThat(exception)
-                    .hasMessage("O usuário não possui uma role com o id informado.");
-
-        }
-    }
-
-    @Nested
-    @WithMockUser(roles = "ADMIN")
-    @DisplayName("Testes para vincular uma role ao usuário")
-    class VincularRole {
-        @Test
-        @DisplayName("Deve vincular a role ao usuário")
-        void deveVincularRoleAoUsuario() {
-            var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
-            var idsRole = List.of(1L);
-            usuarioService.vincularRole(usuario.getId(), idsRole);
-
-            var usuarioAtualizado = usuarioRepository.findById(usuario.getId()).orElseThrow();
-            assertThat(usuarioAtualizado.getRoles())
-                    .extracting(ur -> ur.getRole().getId())
-                    .containsExactlyInAnyOrder(1L, 2L);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção de role inexistente")
-        void deveLancarExcecaoQuandoRoleInexistente() {
-            var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
-            var idsRole = List.of(1L, 2L, -1L);
-            var usuarioId = usuario.getId();
-
-            var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.vincularRole(usuarioId, idsRole));
-
-            assertThat(exception)
-                    .hasMessage("Uma ou mais roles informadas não foram encontradas.");
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção ao adicionar uma role que o usuário já possui")
-        void deveLancarExcecaoQuandoUsuarioJaPossuiRole() {
-            var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
-            var idsRole = List.of(1L, 2L, 3L);
-            var id = usuario.getId();
-
-            var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.vincularRole(id, idsRole));
-
-            assertThat(exception)
-                    .hasMessage(ROLE.jaAtiva());
-        }
-    }
 }

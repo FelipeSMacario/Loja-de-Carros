@@ -1,29 +1,23 @@
 package com.javacar.lojadecarro.entity;
 
 import com.javacar.lojadecarro.exception.business.BusinessException;
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import java.io.Serial;
 import java.io.Serializable;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
-import static com.javacar.lojadecarro.enums.Entidade.ROLE;
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 
 @Getter
 @Setter
 @NoArgsConstructor
 @Entity
-public class Usuario extends EntidadeBase implements UserDetails, Serializable {
+public class Usuario extends EntidadeBase implements Serializable {
     @Serial
     private static final long serialVersionUID = 1L;
 
@@ -39,98 +33,12 @@ public class Usuario extends EntidadeBase implements UserDetails, Serializable {
     @Column(nullable = false, length = 150)
     private String nome;
 
-    @Column(name = "password_hash", nullable = false, length = 255)
-    private String password;
-
-
-    @SuppressWarnings("java:S1948")
-    @OneToMany(
-            mappedBy = "usuario",
-            cascade = CascadeType.ALL,
-            orphanRemoval = true,
-            fetch = FetchType.LAZY
-    )
-    private Set<UsuarioRole> roles = new HashSet<>();
-
     @Column(
             name = "identity_provider_id",
             unique = true,
             length = 255
     )
     private String identityProviderId;
-
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(usuarioRole ->
-                        new SimpleGrantedAuthority(usuarioRole.getRole().getNome()))
-                .toList();
-    }
-
-
-    @Override
-    public String getUsername() {
-        return this.email;
-    }
-
-    @Override
-    public String getPassword() {
-        return this.password;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return true;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return true;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return ativo;
-    }
-
-    public void alteraStatus(boolean novoStatus) {
-        if (this.ativo == novoStatus) {
-            throw new BusinessException(novoStatus ? USUARIO.jaAtiva() : USUARIO.jaInativa());
-        }
-        this.ativo = novoStatus;
-    }
-
-    public void adicionarRole(Role role) {
-        if (possuiRole(role.getId())) {
-            throw new BusinessException(ROLE.jaAtiva());
-        }
-
-        roles.add(new UsuarioRole(this, role));
-    }
-
-    private boolean possuiRole(Long roleId) {
-        return roles.stream()
-                .anyMatch(usuarioRole -> usuarioRole.getRole().getId().equals(roleId));
-    }
-
-    public void removerRole(Long idrole) {
-        boolean removido = roles.removeIf(
-                usuarioRole -> usuarioRole.getRole().getId().equals(idrole)
-        );
-
-        if (!removido) {
-            throw new BusinessException("O usuário não possui uma role com o id informado.");
-        }
-    }
-
-    public void alterarSenha(String novoPasswordHash) {
-        this.password = novoPasswordHash;
-    }
 
     public void ativar() {
         if (this.ativo) {

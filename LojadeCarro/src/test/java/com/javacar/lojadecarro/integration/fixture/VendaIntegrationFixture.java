@@ -23,14 +23,12 @@ public class VendaIntegrationFixture {
     private final MarcaRepository marcaRepository;
     private final CombustivelRepository combustivelRepository;
     private final OpcionalRepository opcionalRepository;
-    private final Integer valor = 1;
 
     public Usuario criarUsuarioPersistido(String nome, String cpf, String email) {
         var usuario = new Usuario();
         usuario.setNome(nome);
         usuario.setCpf(cpf);
         usuario.setEmail(email);
-        usuario.setPassword("password-hash-teste");
         usuario.setAtivo(true);
         usuario.setDataNascimento(LocalDate.of(1990, 1, 1));
         usuario.setIdentityProviderId(UUID.randomUUID().toString());

@@ -14,7 +14,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.util.List;
 
-import static com.javacar.lojadecarro.enums.Entidade.ROLE;
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 import static com.javacar.lojadecarro.enums.StatusFiltro.*;
 import static com.javacar.lojadecarro.factory.helper.UsuarioHelper.*;
@@ -29,9 +28,6 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
     private static final String URL = "/admin/usuarios";
     private static final String URL_ID = URL + "/" + ID_VALIDO;
     private static final String URL_STATUS = URL + "/" + ID_VALIDO + "/status";
-    private static final String URL_ROLE = URL + "/" + ID_VALIDO + "/roles";
-    private static final Long ID_ROLE = 2L;
-    private static final String URL_ROLE_ID = URL_ROLE + "/" + ID_ROLE;
 
     @MockitoBean
     private UsuarioService usuarioService;
@@ -274,159 +270,6 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             verify(usuarioService).alterarStatus(ID_VALIDO, status);
             verifyNoMoreInteractions(usuarioService);
         }
-    }
-
-    @Nested
-    @DisplayName("Testes da busca de roles por id do usuário")
-    class BuscaRole {
-        @Test
-        @DisplayName("Deve buscar as roles por usuário")
-        void deveBuscarRolesPorUsuario() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-            when(usuarioService.buscarRolesUsuario(ID_VALIDO))
-                    .thenReturn(cx.usuarioRolesResponse);
-            //Act + Assert
-            var resultado = performGetComAutenticacao(URL_ROLE, ID_JWT, ROLE_ADM);
-            assertUsuarioRole(resultado, ID_VALIDO, "Felipe Soares Macário", "12345678901");
-
-            verify(usuarioService).buscarRolesUsuario(ID_VALIDO);
-            verifyNoMoreInteractions(usuarioService);
-
-        }
-
-        @Test
-        @DisplayName("Deve retornar 404 ao buscar roles por usuário")
-        void deveRetornar404AoBuscarRolesPorUsuario() throws Exception {
-            //Arrange
-            when(usuarioService.buscarRolesUsuario(ID_VALIDO))
-                    .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
-            //Act + Assert
-            var resultado = performGetComAutenticacao(URL_ROLE, ID_JWT, ROLE_ADM);
-            assertStatus404(resultado, USUARIO, ID_VALIDO);
-
-            verify(usuarioService).buscarRolesUsuario(ID_VALIDO);
-            verifyNoMoreInteractions(usuarioService);
-
-        }
-    }
-
-    @Nested
-    @DisplayName("Testes da vinculação da role")
-    class VincularRole {
-        @Test
-        @DisplayName("Deve vincular uma role")
-        void deveVincularUmaRole() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-
-            when(usuarioService.vincularRole(ID_VALIDO, cx.listRoles.roles()))
-                    .thenReturn(cx.usuarioRolesResponse);
-            //Act + Assert
-            var resultado = performPostComAutenticacao(URL_ROLE, cx.listRoles, ID_JWT, ROLE_ADM);
-            assertUsuarioRole(resultado, ID_VALIDO, "Felipe Soares Macário", "12345678901");
-
-            verify(usuarioService).vincularRole(ID_VALIDO, cx.listRoles.roles());
-            verifyNoMoreInteractions(usuarioService);
-        }
-
-        @Test
-        @DisplayName("Deve lançar 400 ao vincular uma role")
-        void deveLancar400AoVincularUmaRole() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-
-            //Act + Assert
-            var resultado = performPostComAutenticacao(URL_ROLE, cx.listRolesIncompleta, ID_JWT, ROLE_ADM);
-            assertStatus400(resultado);
-
-            verifyNoInteractions(usuarioService);
-        }
-
-        @Test
-        @DisplayName("Deve lançar 404 ao vincular uma role")
-        void deveLancar404AoVincularUmaRole() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-
-            when(usuarioService.vincularRole(ID_VALIDO, cx.listRoles.roles()))
-                    .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
-            //Act + Assert
-            var resultado = performPostComAutenticacao(URL_ROLE, cx.listRoles, ID_JWT, ROLE_ADM);
-            assertStatus404(resultado, USUARIO, ID_VALIDO);
-
-            verify(usuarioService).vincularRole(ID_VALIDO, cx.listRoles.roles());
-            verifyNoMoreInteractions(usuarioService);
-        }
-
-        @Test
-        @DisplayName("Deve retornar 500 ao vincular uma role")
-        void deveLancar500AoVincularUmaRole() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-
-            when(usuarioService.vincularRole(ID_VALIDO, cx.listRoles.roles()))
-                    .thenThrow(new RuntimeException("Erro inesperado"));
-
-            //Act + Assert
-            var resultado = performPostComAutenticacao(URL_ROLE, cx.listRoles, ID_JWT, ROLE_ADM);
-            assertStatus500(resultado);
-
-            verify(usuarioService).vincularRole(ID_VALIDO, cx.listRoles.roles());
-            verifyNoMoreInteractions(usuarioService);
-        }
-    }
-
-    @Nested
-    @DisplayName("Testes da desvinculação de uma role")
-    class DesvincularRole {
-        @Test
-        @DisplayName("Deve desvincular uma role")
-        void deveDesvincularUmaRole() throws Exception {
-            //Arrange
-            var cx = new UsuarioTestContext();
-
-            when(usuarioService.desvincularRole(ID_VALIDO, ID_ROLE))
-                    .thenReturn(cx.usuarioRolesResponse);
-
-            //Act + Assert
-            var resultado = performDeleteComAutenticacao(URL_ROLE_ID, ID_JWT, ROLE_ADM);
-            assertUsuarioRole(resultado, ID_VALIDO, "Felipe Soares Macário", "12345678901");
-
-            verify(usuarioService).desvincularRole(ID_VALIDO, ID_ROLE);
-            verifyNoMoreInteractions(usuarioService);
-        }
-
-        @Test
-        @DisplayName("Deve lançar 404 ao desvincular uma role com ID do usuário invalido")
-        void deveLancar404IdUsuarioIncorreto() throws Exception {
-            //Arrange
-            when(usuarioService.desvincularRole(ID_VALIDO, ID_ROLE))
-                    .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
-
-            //Act + Assert
-            var resultado = performDeleteComAutenticacao(URL_ROLE_ID, ID_JWT, ROLE_ADM);
-            assertStatus404(resultado, USUARIO, ID_VALIDO);
-
-            verify(usuarioService).desvincularRole(ID_VALIDO, ID_ROLE);
-            verifyNoMoreInteractions(usuarioService);
-        }
-
-        @Test
-        @DisplayName("Deve lançar 404 ao desvincular uma role com ID da role invalida")
-        void deveLancar404IdRoleIncorreta() throws Exception {
-            //Arrange
-            when(usuarioService.desvincularRole(ID_VALIDO, ID_ROLE))
-                    .thenThrow(new NotFoundException(ROLE, ID_ROLE));
-
-            //Act + Assert
-            var resultado = performDeleteComAutenticacao(URL_ROLE_ID, ID_JWT, ROLE_ADM);
-            assertStatus404(resultado, ROLE, ID_ROLE);
-
-            verify(usuarioService).desvincularRole(ID_VALIDO, ID_ROLE);
-            verifyNoMoreInteractions(usuarioService);
-        }
-
     }
 
     private UsuarioResponse criarUsuarioPadraoResponseInativo() {

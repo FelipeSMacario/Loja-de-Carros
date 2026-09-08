@@ -2,20 +2,17 @@ package com.javacar.lojadecarro.factory.helper;
 
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
-import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
 import com.javacar.lojadecarro.entity.Usuario;
-import com.javacar.lojadecarro.factory.role.RoleResponseFactory;
 import com.javacar.lojadecarro.factory.usuario.UsuarioEntityFactory;
 import com.javacar.lojadecarro.factory.usuario.UsuarioRequestFactory;
 import com.javacar.lojadecarro.factory.usuario.UsuarioResponseFactory;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.ResultMatcher;
 
-import java.util.List;
-
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public final class UsuarioHelper extends BaseHelper {
     public static UsuarioRequest criarUsuarioRequest() {
@@ -57,6 +54,7 @@ public final class UsuarioHelper extends BaseHelper {
                 );
 
     }
+
     public static void assertUsuarioResponseInativo(UsuarioResponse response) {
         assertThat(response)
                 .isNotNull()
@@ -76,43 +74,6 @@ public final class UsuarioHelper extends BaseHelper {
 
     }
 
-    public static UsuarioRolesResponse criarUsuarioRolesResponse() {
-        var listRolesResponse = List.of(
-                RoleResponseFactory
-                        .criarResponse()
-                .comTodosOsCampos()
-                        .build(),
-                RoleResponseFactory
-                        .criarResponse()
-                        .comNome("VENDEDOR")
-                        .comId(2L)
-                        .comAtivo(true)
-                        .build()
-
-        );
-
-        return new UsuarioRolesResponse(1L,
-                "Felipe Soares Macário",
-                "12345678901",
-                listRolesResponse);
-    }
-
-    public static UsuarioRolesResponse criarUsuarioRolesResponseDesvincula() {
-        var listRolesResponse = List.of(
-                RoleResponseFactory
-                        .criarResponse()
-                        .comNome("VENDEDOR")
-                        .comId(2L)
-                        .comAtivo(true)
-                        .build()
-
-        );
-
-        return new UsuarioRolesResponse(1L,
-                "Felipe Soares Macário",
-                "1234567890",
-                listRolesResponse);
-    }
 
     public static void assertUsuario(ResultActions result,
                                      ResultMatcher status,
@@ -126,14 +87,6 @@ public final class UsuarioHelper extends BaseHelper {
         result
                 .andExpect(jsonPath("$.email").value(email))
                 .andExpect(jsonPath("$.cpf").value(cpf));
-    }
-
-    public static void assertAlteracaoSenha(ResultActions result,
-                                     String email,
-                                     String mensagem) throws Exception {
-        result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(email))
-                .andExpect(jsonPath("$.mensagem").value(mensagem));
     }
 
     public static void assertListUsuario(ResultActions result,
@@ -154,6 +107,7 @@ public final class UsuarioHelper extends BaseHelper {
                 .andExpect(jsonPath("$[0].cpf").value(primeiroCpf))
                 .andExpect(jsonPath("$[1].cpf").value(segundoCpf));
     }
+
     public static void assertUsuarioRole(ResultActions result, Long id, String nome, String cpf) throws Exception {
         result
                 .andExpect(jsonPath("$.id").value(id))

@@ -1,14 +1,9 @@
 package com.javacar.lojadecarro.service;
 
-import com.javacar.lojadecarro.dto.request.AlteracaoSenhaRequest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioUpdateRequest;
-import com.javacar.lojadecarro.dto.response.AlteracaoSenhaResponse;
-import com.javacar.lojadecarro.dto.response.RoleResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
-import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
 import com.javacar.lojadecarro.entity.Usuario;
-import com.javacar.lojadecarro.entity.UsuarioRole;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.exception.business.BusinessException;
@@ -32,17 +27,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static com.javacar.lojadecarro.enums.Entidade.ROLE;
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.*;
 import static com.javacar.lojadecarro.enums.StatusVenda.EM_ANDAMENTO;
-import static com.javacar.lojadecarro.factory.helper.RoleHelper.*;
-import static com.javacar.lojadecarro.factory.helper.RoleHelper.assertBusinessResponseError;
-import static com.javacar.lojadecarro.factory.helper.RoleHelper.assertBusinessResponseErrorInativa;
-import static com.javacar.lojadecarro.factory.helper.RoleHelper.assertNotFoundResponseError;
 import static com.javacar.lojadecarro.factory.helper.UsuarioHelper.*;
 import static com.javacar.lojadecarro.factory.usuario.UsuarioTestContext.atualizarUsuarioValido;
-import static com.javacar.lojadecarro.support.TestConstants.*;
+import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
+import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -58,12 +49,10 @@ class UsuarioServiceTest extends BaseServiceTest {
     private VeiculoRepository veiculoRepository;
     @Mock
     private UsuarioMapper usuarioMapper;
-    @Mock
-    private RolesService rolesService;
-    @Mock
-    private BCryptPasswordEncoder encoder;
     @InjectMocks
     private UsuarioService usuarioService;
+    private static final String SUBJECT = "keycloak-sub-usuario-1";
+    private static final String EMAIL = "usuario@email.com";
 
     @Nested
     @DisplayName("Testes da criação do usuário")
@@ -74,62 +63,59 @@ class UsuarioServiceTest extends BaseServiceTest {
             //Arrange
             var cx = new UsuarioTestContext();
             var entity = criarUsuarioPadrao();
-            var rolePadrao = roleUsuario();
 
+            when(usuarioRepository.existsByIdentityProviderId(SUBJECT))
+                    .thenReturn(false);
             when(usuarioRepository.existsByCpf(cx.request.cpf()))
                     .thenReturn(false);
 
-            when(usuarioRepository.existsByEmail(cx.request.email()))
+            when(usuarioRepository.existsByEmail(EMAIL))
                     .thenReturn(false);
 
             when(usuarioMapper.toEntity(cx.request))
                     .thenReturn(entity);
-            when(encoder.encode(cx.request.password()))
-                    .thenReturn("senhaCriptografada");
 
-            when(rolesService.buscarPorNome(ROLE_USUARIO))
-                    .thenReturn(rolePadrao);
 
             when(usuarioRepository.save(entity))
                     .thenReturn(entity);
             when(usuarioMapper.toResponse(entity))
                     .thenReturn(cx.response);
             //Act
-            var resultado = usuarioService.criar(cx.request);
+            var resultado = usuarioService.criar(cx.request, SUBJECT, EMAIL);
             //Assert
             assertUsuarioResponse(resultado);
-            assertThat(entity.getPassword())
-                    .isNotNull()
-                    .isEqualTo("senhaCriptografada")
-                    .isNotEqualTo(cx.request.password());
-
-            assertThat(entity.getRoles())
-                    .singleElement()
-                    .satisfies(usuarioRole -> {
-                        assertThat(usuarioRole.getUsuario())
-                                .isSameAs(entity);
-
-                        assertThat(usuarioRole.getRole())
-                                .isSameAs(rolePadrao);
-
-                        assertThat(usuarioRole.getRole().getNome())
-                                .isEqualTo(ROLE_USUARIO);
-                    });
 
             verify(usuarioMapper).toEntity(cx.request);
             verify(usuarioMapper).toResponse(entity);
-            verify(usuarioRepository).existsByEmail(cx.request.email());
+            verify(usuarioRepository).existsByIdentityProviderId(SUBJECT);
+            verify(usuarioRepository).existsByEmail(EMAIL);
             verify(usuarioRepository).existsByCpf(cx.request.cpf());
             verify(usuarioRepository).save(entity);
-            verify(encoder).encode(cx.request.password());
-            verify(rolesService).buscarPorNome(ROLE_USUARIO);
 
             verifyNoMoreInteractions(
                     usuarioRepository,
-                    usuarioMapper,
-                    encoder,
-                    rolesService
+                    usuarioMapper
             );
+        }
+
+        @Test
+        @DisplayName("Deve lançar exceção de usuário não vinculado")
+        void deveLancarExcecaoUsuarioNaoVinculado() {
+            //Arrange
+            var cx = new UsuarioTestContext();
+            when(usuarioRepository.existsByIdentityProviderId(SUBJECT))
+                    .thenReturn(true);
+            //ACT
+            var exception = assertThrows(BusinessException.class, () ->
+                    usuarioService.criar(cx.request, SUBJECT, EMAIL));
+            //Assert
+            assertThat(exception)
+                    .hasMessage("Usuário autenticado já possui cadastro local.");
+
+            verify(usuarioRepository).existsByIdentityProviderId(SUBJECT);
+            verifyNoMoreInteractions(usuarioRepository);
+
+            verifyNoInteractions(usuarioMapper);
         }
 
         @Test
@@ -137,19 +123,22 @@ class UsuarioServiceTest extends BaseServiceTest {
         void deveLancarExcecaoCpfUnico() {
             //Arrange
             var cx = new UsuarioTestContext();
+            when(usuarioRepository.existsByIdentityProviderId(SUBJECT))
+                    .thenReturn(false);
             when(usuarioRepository.existsByCpf(cx.request.cpf()))
                     .thenReturn(true);
             //ACT
             var exception = assertThrows(BusinessException.class, () ->
-                    usuarioService.criar(cx.request));
+                    usuarioService.criar(cx.request, SUBJECT, EMAIL));
             //Assert
             assertThat(exception)
                     .hasMessage("O CPF informado já possui um cadastro.");
 
+            verify(usuarioRepository).existsByIdentityProviderId(SUBJECT);
             verify(usuarioRepository).existsByCpf(cx.request.cpf());
             verifyNoMoreInteractions(usuarioRepository);
 
-            verifyNoInteractions(usuarioMapper, rolesService, encoder);
+            verifyNoInteractions(usuarioMapper);
         }
 
         @Test
@@ -157,56 +146,25 @@ class UsuarioServiceTest extends BaseServiceTest {
         void deveLancarExcecaoEmailUnico() {
             //Arrange
             var cx = new UsuarioTestContext();
+            when(usuarioRepository.existsByIdentityProviderId(SUBJECT))
+                    .thenReturn(false);
             when(usuarioRepository.existsByCpf(cx.request.cpf()))
                     .thenReturn(false);
-            when(usuarioRepository.existsByEmail(cx.request.email()))
+            when(usuarioRepository.existsByEmail(EMAIL))
                     .thenReturn(true);
             //ACT
             var exception = assertThrows(BusinessException.class, () ->
-                    usuarioService.criar(cx.request));
+                    usuarioService.criar(cx.request, SUBJECT, EMAIL));
             //Assert
             assertThat(exception)
                     .hasMessage("O email informado já possui um cadastro.");
 
+            verify(usuarioRepository).existsByIdentityProviderId(SUBJECT);
             verify(usuarioRepository).existsByCpf(cx.request.cpf());
-            verify(usuarioRepository).existsByEmail(cx.request.email());
+            verify(usuarioRepository).existsByEmail(EMAIL);
             verifyNoMoreInteractions(usuarioRepository);
 
-            verifyNoInteractions(usuarioMapper, rolesService, encoder);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção ao não encontrar role")
-        void deveLancarExcecaoNaoEncontrarRole() {
-            //Arrange
-            var cx = new UsuarioTestContext();
-            var entity = criarUsuarioPadrao();
-
-            when(usuarioRepository.existsByCpf(cx.request.cpf()))
-                    .thenReturn(false);
-            when(usuarioRepository.existsByEmail(cx.request.email()))
-                    .thenReturn(false);
-
-            when(usuarioMapper.toEntity(cx.request))
-                    .thenReturn(entity);
-            when(encoder.encode(cx.request.password()))
-                    .thenReturn("senhaCriptografada");
-
-            when(rolesService.buscarPorNome(ROLE_USUARIO))
-                    .thenThrow(new NotFoundException(ROLE.naoEncontrada()));
-            //ACT
-            var exception = assertThrows(NotFoundException.class, () ->
-                    usuarioService.criar(cx.request));
-            //Assert
-            assertNotFoundResponseError(exception, ROLE);
-
-            verify(usuarioRepository).existsByCpf(cx.request.cpf());
-            verify(usuarioRepository).existsByEmail(cx.request.email());
-            verify(usuarioMapper).toEntity(cx.request);
-            verify(encoder).encode(cx.request.password());
-            verify(rolesService).buscarPorNome(ROLE_USUARIO);
-
-            verifyNoMoreInteractions(usuarioRepository, usuarioMapper, encoder, rolesService);
+            verifyNoInteractions(usuarioMapper);
         }
     }
 
@@ -220,7 +178,7 @@ class UsuarioServiceTest extends BaseServiceTest {
             //Arrange
             var usuarioEntity1 = criarUsuarioPadrao();
             var usuarioEntity2 = UsuarioTestContext
-                    .criarUsuario(2L, "Goku", "goku@gmail.com", "12345678901", "12345", true);
+                    .criarUsuario(2L, "Goku", "goku@gmail.com", "12345678901", true);
 
             var listEntity = List.of(usuarioEntity1, usuarioEntity2);
 
@@ -268,7 +226,7 @@ class UsuarioServiceTest extends BaseServiceTest {
             //Arrange
             var usuarioEntity1 = criarUsuarioPadraoInativo();
             var usuarioEntity2 = UsuarioTestContext
-                    .criarUsuario(2L, "Goku", "goku@gmail.com", "12345678901", "12345", false);
+                    .criarUsuario(2L, "Goku", "goku@gmail.com", "12345678901", false);
 
             var listEntity = List.of(usuarioEntity1, usuarioEntity2);
 
@@ -315,7 +273,7 @@ class UsuarioServiceTest extends BaseServiceTest {
             //Arrange
             var usuarioEntity1 = criarUsuarioPadrao();
             var usuarioEntity2 = UsuarioTestContext
-                    .criarUsuario(2L, "Goku", "goku@gmail.com", "12345678901", "12345", false);
+                    .criarUsuario(2L, "Goku", "goku@gmail.com", "12345678901", false);
 
             var listEntity = List.of(usuarioEntity1, usuarioEntity2);
 
@@ -473,7 +431,6 @@ class UsuarioServiceTest extends BaseServiceTest {
 
             verifyNoMoreInteractions(
                     usuarioRepository,
-                    encoder,
                     usuarioMapper
             );
         }
@@ -520,7 +477,6 @@ class UsuarioServiceTest extends BaseServiceTest {
 
             verifyNoMoreInteractions(
                     usuarioRepository,
-                    encoder,
                     usuarioMapper
             );
         }
@@ -542,8 +498,7 @@ class UsuarioServiceTest extends BaseServiceTest {
             verifyNoMoreInteractions(usuarioRepository);
 
             verifyNoInteractions(
-                    usuarioMapper,
-                    encoder
+                    usuarioMapper
             );
         }
 
@@ -725,498 +680,6 @@ class UsuarioServiceTest extends BaseServiceTest {
 
             verifyNoMoreInteractions(usuarioRepository);
             verifyNoInteractions(vendasRepository, veiculoRepository, usuarioMapper);
-        }
-    }
-
-    @Nested
-    @DisplayName("Testes para vincular uma role ao usuário")
-    class VincularRole {
-        @Test
-        @DisplayName("Deve vincular uma role ao usuário")
-        void deveVincularUmaRoleAoUsuario() {
-            //Arrange
-            var entity = criarUsuarioPadrao();
-            var response = criarUsuarioRolesResponse();
-            var listRoles = List.of(1L, 2L);
-            var roles = criaListRole();
-
-            when(usuarioRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.of(entity));
-
-            when(rolesService.buscaRoles(listRoles))
-                    .thenReturn(roles);
-
-            when(usuarioMapper.toUsuarioRoleResponse(entity))
-                    .thenReturn(response);
-
-            //ACT
-            var resultado = usuarioService.vincularRole(ID_VALIDO, listRoles);
-            //Assert
-            assertThat(resultado)
-                    .isNotNull()
-                    .extracting(
-                            UsuarioRolesResponse::id,
-                            UsuarioRolesResponse::nome,
-                            UsuarioRolesResponse::cpf
-                    )
-                    .containsExactly(
-                            ID_VALIDO,
-                            "Felipe Soares Macário",
-                            "12345678901"
-                    );
-
-            assertThat(resultado.roles())
-                    .isNotNull()
-                    .hasSize(2)
-                    .extracting(
-                            RoleResponse::id
-                    ).containsExactly(
-                            listRoles.getFirst(),
-                            listRoles.getLast()
-                    );
-            assertThat(entity.getRoles())
-                    .extracting(usuarioRole ->
-                            usuarioRole.getRole().getId()
-                    )
-                    .containsExactlyInAnyOrder(1L, 2L);
-
-            verify(usuarioRepository).findById(ID_VALIDO);
-            verify(rolesService).buscaRoles(listRoles);
-            verify(usuarioMapper)
-                    .toUsuarioRoleResponse(entity);
-            verifyNoMoreInteractions(
-                    usuarioRepository,
-                    rolesService,
-                    usuarioMapper
-            );
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção de roles duplicadas")
-        void deveLancarExcecaoQuandoRolesDuplicadas() {
-            //Arrange
-            var listRoles = List.of(1L, 1L);
-
-            //ACT
-            var excecao = assertThrows(BusinessException.class,
-                    () -> usuarioService.vincularRole(ID_VALIDO, listRoles));
-            //Assert
-            assertBusinessResponseError(excecao, "A requisição possui roles duplicadas.");
-
-            verifyNoInteractions(
-                    usuarioRepository,
-                    rolesService,
-                    usuarioMapper
-            );
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção role já existente")
-        void deveLancarExcecaoQuandoRoleJaExistente() {
-            //Arrange
-            var entity = criarUsuarioEntity();
-            var listRoles = List.of(1L, 2L);
-            var roles = criaListRole();
-
-            roles.forEach(role ->
-                    entity.getRoles().add(new UsuarioRole(entity, role))
-            );
-
-            when(usuarioRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.of(entity));
-
-            when(rolesService.buscaRoles(listRoles))
-                    .thenReturn(roles);
-            //ACT
-
-            var excecao = assertThrows(BusinessException.class,
-                    () -> usuarioService.vincularRole(ID_VALIDO, listRoles));
-            //Assert
-            assertBusinessResponseError(excecao, ROLE.jaAtiva());
-
-            verify(usuarioRepository).findById(ID_VALIDO);
-            verify(rolesService).buscaRoles(listRoles);
-
-            verifyNoMoreInteractions(
-                    usuarioRepository,
-                    rolesService
-            );
-
-            verifyNoInteractions(usuarioMapper);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção ao buscar usuário")
-        void deveLancarExcecaoUsuario() {
-            //Arrange
-            var listRoles = List.of(1L, 2L);
-            when(usuarioRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.empty());
-            //ACT
-            var exception = assertThrows(NotFoundException.class,
-                    () -> usuarioService.vincularRole(ID_VALIDO, listRoles));
-            //Assert
-            assertNotFoundResponseError(exception, USUARIO, ID_VALIDO);
-
-            verify(usuarioRepository).findById(ID_VALIDO);
-            verifyNoMoreInteractions(usuarioRepository);
-            verifyNoInteractions(rolesService, usuarioMapper);
-        }
-
-
-    }
-
-    @Nested
-    @DisplayName("Testes para desvincular uma role")
-    class DesvincularRole {
-        @Test
-        @DisplayName("Deve desvincular uma role")
-        void deveDesvincularUmaRole() {
-            //Arrange
-            var idRole = 1L;
-            var entity = criarUsuarioPadrao();
-            criaListRole().forEach(role ->
-                    entity.getRoles().add(new UsuarioRole(entity, role))
-            );
-            var role = criarRoleEntity();
-            var response = criarUsuarioRolesResponseDesvincula();
-
-            when(usuarioRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.of(entity));
-
-            when(rolesService.buscarPorId(idRole))
-                    .thenReturn(role);
-
-            when(usuarioMapper.toUsuarioRoleResponse(entity))
-                    .thenReturn(response);
-            //ACT
-            var resultado = usuarioService.desvincularRole(ID_VALIDO, idRole);
-            //Assert
-            assertThat(resultado.roles())
-                    .extracting(RoleResponse::id)
-                    .containsExactly(2L);
-
-            assertThat(entity.getRoles())
-                    .extracting(usuarioRole ->
-                            usuarioRole.getRole().getId()
-                    )
-                    .containsExactly(2L);
-
-
-            verify(usuarioRepository).findById(ID_VALIDO);
-            verify(rolesService).buscarPorId(idRole);
-            verify(usuarioMapper).toUsuarioRoleResponse(entity);
-
-            verifyNoMoreInteractions(
-                    usuarioRepository,
-                    rolesService,
-                    usuarioMapper
-            );
-
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção de usuario não encontrado ao desvincular role")
-        void deveLancarExcecaoQuandoUsuarioNaoExistente() {
-            //Arrange
-            when(usuarioRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.empty());
-            //ACT
-            var excecao = assertThrows(NotFoundException.class,
-                    () -> usuarioService.desvincularRole(ID_VALIDO, ID_VALIDO));
-            //Assert
-            assertNotFoundResponseError(excecao, USUARIO, ID_VALIDO);
-
-            verify(usuarioRepository).findById(ID_VALIDO);
-            verifyNoMoreInteractions(usuarioRepository);
-
-            verifyNoInteractions(
-                    rolesService,
-                    usuarioMapper
-            );
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção de role não encontrada ao desvincular role")
-        void deveLancarExcecaoQuandoRoleNaoExistente() {
-            //Arrange
-            var entity = criarUsuarioEntity();
-            when(usuarioRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.of(entity));
-
-            when(rolesService.buscarPorId(ID_VALIDO))
-                    .thenThrow(new NotFoundException(ROLE, ID_VALIDO));
-            //ACT
-            var excecao = assertThrows(NotFoundException.class,
-                    () -> usuarioService.desvincularRole(ID_VALIDO, ID_VALIDO));
-            //Assert
-            assertNotFoundResponseError(excecao, ROLE, ID_VALIDO);
-
-            verify(usuarioRepository).findById(ID_VALIDO);
-            verify(rolesService).buscarPorId(ID_VALIDO);
-
-            verifyNoMoreInteractions(
-                    usuarioRepository,
-                    rolesService
-            );
-
-            verifyNoInteractions(usuarioMapper);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção usuário não possui role")
-        void deveLancarExcecaoQuandoUsuarioNaoPossuiRole() {
-            //Arrange
-            var idRole = 1L;
-            var entity = criarUsuarioEntity();
-            var role = criarRoleEntity();
-
-            when(usuarioRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.of(entity));
-
-            when(rolesService.buscarPorId(idRole))
-                    .thenReturn(role);
-            //ACT
-            var excecao = assertThrows(BusinessException.class,
-                    () -> usuarioService.desvincularRole(ID_VALIDO, idRole));
-            //Assert
-            assertBusinessResponseError(excecao, "O usuário não possui uma role com o id informado.");
-
-            verify(usuarioRepository).findById(ID_VALIDO);
-            verify(rolesService).buscarPorId(idRole);
-
-            verifyNoMoreInteractions(usuarioRepository, rolesService);
-
-            verifyNoInteractions(usuarioMapper);
-        }
-    }
-
-    @Nested
-    @DisplayName("Testes da busca de roles do usuário")
-    class BuscarRole {
-        @Test
-        @DisplayName("Deve buscar uma role")
-        void deveBuscarUmaRole() {
-            //Arrange
-            var entity = criarUsuarioPadrao();
-            var role = UsuarioTestContext.criarRoleResponse(1L, "ROLE_USUARIO", true);
-            var role2 = UsuarioTestContext.criarRoleResponse(2L, "ROLE_ADMIN", true);
-            var listRoles = List.of(role, role2);
-            var response = UsuarioTestContext.criarRoleUsuariosResponse(ID_VALIDO, "Felipe", "1234567890", listRoles);
-
-            when(usuarioRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.of(entity));
-
-            when(usuarioMapper.toUsuarioRoleResponse(entity))
-                    .thenReturn(response);
-            //ACT
-            var resultado = usuarioService.buscarRolesUsuario(ID_VALIDO);
-            //Assert
-            assertThat(resultado)
-                    .isNotNull()
-                    .extracting(
-                            UsuarioRolesResponse::id,
-                            UsuarioRolesResponse::nome,
-                            UsuarioRolesResponse::cpf
-                    ).containsExactly(
-                            ID_VALIDO,
-                            "Felipe",
-                            "1234567890"
-                    );
-
-            assertThat(resultado.roles())
-                    .isNotEmpty()
-                    .extracting(
-                            RoleResponse::id,
-                            RoleResponse::nome,
-                            RoleResponse::ativo
-                    ).containsExactly(
-                            tuple(1L, "ROLE_USUARIO", true),
-                            tuple(2L, "ROLE_ADMIN", true)
-                    );
-
-            verify(usuarioRepository).findById(ID_VALIDO);
-            verify(usuarioMapper).toUsuarioRoleResponse(entity);
-
-            verifyNoMoreInteractions(usuarioRepository, rolesService, usuarioMapper);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção ao buscar usuário")
-        void deveLancarExcecaoQuandoUsuarioNaoExistente() {
-            //Arrange
-            when(usuarioRepository.findById(ID_VALIDO))
-                    .thenReturn(Optional.empty());
-            //ACT
-            var exception = assertThrows(NotFoundException.class,
-                    () -> usuarioService.buscarRolesUsuario(ID_VALIDO));
-            //Assert
-            assertNotFoundResponseError(exception, USUARIO, ID_VALIDO);
-
-            verify(usuarioRepository).findById(ID_VALIDO);
-            verifyNoMoreInteractions(usuarioRepository);
-
-            verifyNoInteractions(usuarioMapper, rolesService);
-        }
-    }
-
-    @Nested
-    @DisplayName("Testes da alteração da senha")
-    class AlterarSenha {
-        @Test
-        @DisplayName("Deve alterar a senha do usuário")
-        void deveAlterarSenha() {
-            // Arrange
-            var request = new AlteracaoSenhaRequest(
-                    "senhaAntiga",
-                    "senhaNova"
-            );
-
-            var entity = criarUsuarioEntity();
-            var passwordHashAnterior = entity.getPassword();
-            var passwordHashNovo = "senhaCriptografada";
-
-            when(usuarioRepository.findByIdAndAtivoTrue(ID_VALIDO))
-                    .thenReturn(Optional.of(entity));
-
-            when(encoder.matches(
-                    request.senhaAntiga(),
-                    passwordHashAnterior
-            )).thenReturn(true);
-
-            when(encoder.matches(
-                    request.senhaNova(),
-                    passwordHashAnterior
-            )).thenReturn(false);
-
-            when(encoder.encode(request.senhaNova()))
-                    .thenReturn(passwordHashNovo);
-
-            // Act
-            var resultado = usuarioService.alterarSenha(
-                    request,
-                    ID_VALIDO
-            );
-
-            // Assert
-            assertThat(resultado)
-                    .isNotNull()
-                    .extracting(
-                            AlteracaoSenhaResponse::email,
-                            AlteracaoSenhaResponse::mensagem
-                    )
-                    .containsExactly(
-                            "felipesmacario@gmail.com",
-                            "Senha atualizada com sucesso"
-                    );
-
-            assertThat(entity.getPassword())
-                    .isEqualTo(passwordHashNovo)
-                    .isNotEqualTo(passwordHashAnterior);
-
-            verify(usuarioRepository)
-                    .findByIdAndAtivoTrue(ID_VALIDO);
-
-            verify(encoder)
-                    .matches(request.senhaAntiga(), passwordHashAnterior);
-
-            verify(encoder)
-                    .matches(request.senhaNova(), passwordHashAnterior);
-
-            verify(encoder)
-                    .encode(request.senhaNova());
-
-            verifyNoMoreInteractions(usuarioRepository, encoder);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção de usuário não encontrado")
-        void deveLancarExcecaoQuandoUsuarioNaoExistente() {
-            //Arrange
-            var request = new AlteracaoSenhaRequest(
-                    "senhaAntiga",
-                    "senhaNova"
-            );
-            when(usuarioRepository.findByIdAndAtivoTrue(ID_VALIDO))
-                    .thenReturn(Optional.empty());
-            //ACT
-            var exception = assertThrows(NotFoundException.class,
-                    () -> usuarioService.alterarSenha(request, ID_VALIDO));
-            //Assert
-            assertNotFoundResponseError(exception, USUARIO, ID_VALIDO);
-            verify(usuarioRepository).findByIdAndAtivoTrue(ID_VALIDO);
-            verifyNoMoreInteractions(usuarioRepository);
-
-            verifyNoInteractions(encoder);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção de senha errada")
-        void deveLancarExcecaoQuandoSenhaErrada() {
-            //Arrange
-            var entity = criarUsuarioPadrao();
-            var request = new AlteracaoSenhaRequest(
-                    "senhaAntiga",
-                    "senhaNova"
-            );
-            when(usuarioRepository.findByIdAndAtivoTrue(ID_VALIDO))
-                    .thenReturn(Optional.of(entity));
-
-            when(encoder.matches(
-                    request.senhaAntiga(),
-                    entity.getPassword()
-            )).thenReturn(false);
-            //ACT
-            var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.alterarSenha(request, ID_VALIDO));
-            //Assert
-            assertThat(exception)
-                    .hasMessage("A senha informada não corresponde à senha atual.");
-
-            verify(usuarioRepository).findByIdAndAtivoTrue(ID_VALIDO);
-            verify(encoder).matches(request.senhaAntiga(),
-                    entity.getPassword());
-            verify(encoder, never())
-                    .encode(anyString());
-            verifyNoMoreInteractions(usuarioRepository, encoder);
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção quando a nova senha for a mesma que a anterior")
-        void deveLancarExcecaoQuandoNovaSenhaMesmaAnterior() {
-            //Arrange
-            var entity = criarUsuarioPadrao();
-            var request = new AlteracaoSenhaRequest(
-                    "senhaAntiga",
-                    "senhaNova"
-            );
-            when(usuarioRepository.findByIdAndAtivoTrue(ID_VALIDO))
-                    .thenReturn(Optional.of(entity));
-
-            when(encoder.matches(
-                    request.senhaAntiga(),
-                    entity.getPassword()
-            )).thenReturn(true);
-
-            when(encoder.matches(
-                    request.senhaNova(),
-                    entity.getPassword()
-            )).thenReturn(true);
-            //ACT
-            var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.alterarSenha(request, ID_VALIDO));
-            //Assert
-            assertThat(exception)
-                    .hasMessage("A nova senha não pode ser igual à senha atual.");
-
-            verify(usuarioRepository).findByIdAndAtivoTrue(ID_VALIDO);
-            verify(encoder).matches(request.senhaAntiga(),
-                    entity.getPassword());
-            verify(encoder)
-                    .matches(request.senhaNova(), entity.getPassword());
-            verify(encoder, never())
-                    .encode(anyString());
-            verifyNoMoreInteractions(usuarioRepository, encoder);
         }
     }
 
@@ -1433,14 +896,12 @@ class UsuarioServiceTest extends BaseServiceTest {
     }
 
 
-
     private Usuario criarUsuarioPadrao() {
         return UsuarioTestContext.criarUsuario(
                 ID_VALIDO,
                 "Felipe",
                 "felipesmacario@gmail.com",
                 "12345678901",
-                "123456",
                 true
         );
     }
@@ -1451,7 +912,6 @@ class UsuarioServiceTest extends BaseServiceTest {
                 "Felipe",
                 "felipesmacario@gmail.com",
                 "12345678901",
-                "123456",
                 false
         );
     }
