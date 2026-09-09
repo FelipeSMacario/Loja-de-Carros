@@ -89,9 +89,6 @@ public class UsuarioService {
     @Transactional
     public UsuarioResponse atualizar(UsuarioUpdateRequest request, Long idUsuario) {
         var usuario = buscaUsuarioAtivo(idUsuario);
-        if (!usuario.getEmail().equals(request.email())) {
-            validarEmailUnico(request.email());
-        }
         usuarioMapper.toUpdate(request, usuario);
 
         return usuarioMapper.toResponse(usuario);

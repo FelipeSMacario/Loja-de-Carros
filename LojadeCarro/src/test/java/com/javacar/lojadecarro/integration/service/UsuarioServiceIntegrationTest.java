@@ -2,6 +2,7 @@ package com.javacar.lojadecarro.integration.service;
 
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
+import com.javacar.lojadecarro.dto.request.UsuarioUpdateRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.entity.Usuario;
 import com.javacar.lojadecarro.enums.Entidade;
@@ -255,37 +256,31 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
         @DisplayName("Deve atualizar o usuário")
         void deveAtualizarUsuario() {
             //Arrange
-            var request = UsuarioTestContext.atualizarUsuarioValido();
+            var usuario = vendaIntegrationFixture.criarUsuarioPersistido("USUARIO 1", "14569874122", "usuario1@email.com");
+            entityManager.flush();
+            entityManager.clear();
+
+
+            var request = new UsuarioUpdateRequest("USUARIO 2", usuario.getDataNascimento());
             //ACT
-            var usuario = usuarioRepository.findByEmail(request.email()).orElseThrow();
             var response = usuarioService.atualizar(request, usuario.getId());
+            entityManager.flush();
+            entityManager.clear();
+
+            var usuarioAtualizado = usuarioRepository.findById(usuario.getId()).orElseThrow();
 
             //Assert
             assertThat(response)
                     .isNotNull()
                     .extracting(
                             UsuarioResponse::nome,
-                            UsuarioResponse::email
-                    ).containsExactly(
+                            UsuarioResponse::cpf,
+                            UsuarioResponse::ativo)
+                    .containsExactly(
                             request.nome(),
-                            request.email()
+                            usuarioAtualizado.getCpf(),
+                            usuarioAtualizado.isAtivo()
                     );
-        }
-
-
-        @Test
-        @DisplayName("Deve validar o email unico na atualização")
-        void deveLancarExcecaoQuandoAtualizarComEmailJaExistir() {
-            //Arrange
-            var request = UsuarioTestContext.atualizarUsuarioEmailInvalido();
-            //ACT
-            var usuario = usuarioRepository.findByEmail("felipe.vendedor@gmail.com").orElseThrow();
-            var usuarioId = usuario.getId();
-            var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.atualizar(request, usuarioId));
-            //Assert
-            assertThat(exception)
-                    .hasMessage("O email informado já possui um cadastro.");
         }
     }
 

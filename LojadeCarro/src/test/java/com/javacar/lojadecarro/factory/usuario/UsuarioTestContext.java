@@ -89,24 +89,21 @@ public class UsuarioTestContext {
     public static UsuarioUpdateRequest atualizarUsuarioValido() {
         return new UsuarioUpdateRequest(
                 "Superman",
-                LocalDate.of(1982, Month.JANUARY, 2),
-                "felipe.vendedor@gmail.com"
+                LocalDate.of(1982, Month.JANUARY, 2)
         );
     }
 
     public static UsuarioUpdateRequest atualizarUsuarioValido(String nome, LocalDate dataNascimento, String email) {
         return new UsuarioUpdateRequest(
                 nome,
-                dataNascimento,
-                email
+                dataNascimento
         );
     }
 
     public static UsuarioUpdateRequest atualizarUsuarioEmailInvalido() {
         return new UsuarioUpdateRequest(
                 "Superman",
-                LocalDate.of(1982, Month.JANUARY, 2),
-                "joao.silva@gmail.com"
+                LocalDate.of(1982, Month.JANUARY, 2)
         );
 
     }

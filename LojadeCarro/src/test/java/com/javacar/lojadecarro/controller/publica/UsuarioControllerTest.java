@@ -304,7 +304,7 @@ class UsuarioControllerTest extends BaseControllerTest {
         @DisplayName("Deve retornar 400 ao atualizar usuário com dados inválidos")
         void deveRetornar400aoAtualizarUmUsuarioSemSenha() throws Exception {
             //Arrange
-            var request = new UsuarioUpdateRequest(null, null, null);
+            var request = new UsuarioUpdateRequest(null,  null);
             //Act + Assert
             var resultado = performPutComAutenticacao(URL_ME, request, ID_JWT, ROLE_USUARIO);
             assertStatus400(resultado);

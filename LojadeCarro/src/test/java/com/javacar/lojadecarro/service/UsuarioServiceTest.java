@@ -399,9 +399,6 @@ class UsuarioServiceTest extends BaseServiceTest {
             when(usuarioRepository.findByIdAndAtivoTrue(ID_VALIDO))
                     .thenReturn(Optional.of(entity));
 
-            when(usuarioRepository.existsByEmail(request.email()))
-                    .thenReturn(false);
-
 
             when(usuarioMapper.toResponse(entity))
                     .thenReturn(response);
@@ -414,18 +411,15 @@ class UsuarioServiceTest extends BaseServiceTest {
                     .extracting(
                             UsuarioResponse::id,
                             UsuarioResponse::nome,
-                            UsuarioResponse::email,
                             UsuarioResponse::cpf,
                             UsuarioResponse::ativo
                     ).containsExactly(
                             ID_VALIDO,
                             "Felipe",
-                            request.email(),
                             "1234567890",
                             true
                     );
             verify(usuarioRepository).findByIdAndAtivoTrue(ID_VALIDO);
-            verify(usuarioRepository).existsByEmail(request.email());
             verify(usuarioMapper).toUpdate(request, entity);
             verify(usuarioMapper).toResponse(entity);
 
@@ -500,32 +494,6 @@ class UsuarioServiceTest extends BaseServiceTest {
             verifyNoInteractions(
                     usuarioMapper
             );
-        }
-
-        @Test
-        @DisplayName("Deve lançar exceção de email unico")
-        void deveLancarExcecaoAoAtualizarUmUsuarioPorEmail() {
-            //Arrange
-            var request = usuarioAtualizacaoRequestPadrao();
-            var entity = criarUsuarioPadrao();
-
-            when(usuarioRepository.findByIdAndAtivoTrue(ID_VALIDO))
-                    .thenReturn(Optional.of(entity));
-
-            when(usuarioRepository.existsByEmail(request.email()))
-                    .thenReturn(true);
-            //ACT
-            var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.atualizar(request, ID_VALIDO));
-            //Assert
-            assertThat(exception)
-                    .hasMessage("O email informado já possui um cadastro.");
-
-            verify(usuarioRepository).findByIdAndAtivoTrue(ID_VALIDO);
-            verify(usuarioRepository).existsByEmail(request.email());
-            verifyNoMoreInteractions(usuarioRepository);
-
-            verifyNoInteractions(usuarioMapper);
         }
     }
 
