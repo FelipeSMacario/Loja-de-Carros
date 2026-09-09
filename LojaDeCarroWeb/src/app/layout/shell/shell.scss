@@ -1,0 +1,14 @@
+:host {
+  display: block;
+  min-height: 100%;
+}
+
+.app-shell {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100vh;
+}
+
+.app-shell__content {
+  width: 100%;
+}
