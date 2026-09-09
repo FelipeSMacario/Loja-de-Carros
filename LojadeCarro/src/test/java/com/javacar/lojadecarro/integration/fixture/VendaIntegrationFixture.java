@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
 import java.util.UUID;
 
@@ -30,7 +31,7 @@ public class VendaIntegrationFixture {
         usuario.setCpf(cpf);
         usuario.setEmail(email);
         usuario.setAtivo(true);
-        usuario.setDataNascimento(LocalDate.of(1990, 1, 1));
+        usuario.setDataNascimento(LocalDate.of(1990, Month.JANUARY, 1));
         usuario.setIdentityProviderId(UUID.randomUUID().toString());
         return usuarioRepository.save(usuario);
     }

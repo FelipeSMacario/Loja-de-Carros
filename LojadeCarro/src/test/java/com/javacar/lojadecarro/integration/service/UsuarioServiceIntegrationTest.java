@@ -119,9 +119,10 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             entityManager.flush();
             entityManager.clear();
             var request =new UsuarioRequest("USUARIO 2", "12965478122", LocalDate.now());
+            var emailUsuario = usuario.getEmail();
             //ACT
             var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.criar(request, SUBJECT, usuario.getEmail()));
+                    () -> usuarioService.criar(request, SUBJECT, emailUsuario));
             //Assert
             assertThat(exception)
                     .hasMessage("O email informado já possui um cadastro.");

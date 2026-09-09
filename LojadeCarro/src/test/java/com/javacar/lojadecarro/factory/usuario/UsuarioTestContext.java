@@ -93,7 +93,7 @@ public class UsuarioTestContext {
         );
     }
 
-    public static UsuarioUpdateRequest atualizarUsuarioValido(String nome, LocalDate dataNascimento, String email) {
+    public static UsuarioUpdateRequest atualizarUsuarioValido(String nome, LocalDate dataNascimento) {
         return new UsuarioUpdateRequest(
                 nome,
                 dataNascimento

@@ -12,7 +12,6 @@ import org.springframework.test.web.servlet.ResultMatcher;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public final class UsuarioHelper extends BaseHelper {
     public static UsuarioRequest criarUsuarioRequest() {

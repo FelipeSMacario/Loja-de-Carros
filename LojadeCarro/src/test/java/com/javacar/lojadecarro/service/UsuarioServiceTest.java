@@ -19,7 +19,6 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDate;
 import java.time.Month;
@@ -433,8 +432,7 @@ class UsuarioServiceTest extends BaseServiceTest {
         @DisplayName("Deve atualizar o nome do usuário")
         void deveAtualizarNomeUsuario() {
             //Arrange
-            var request = UsuarioTestContext
-                    .atualizarUsuarioValido("Felipe2", LocalDate.of(1982, Month.JANUARY, 2), "felipesmacario@gmail.com");
+            var request = atualizarUsuarioValido("Felipe2", LocalDate.of(1982, Month.JANUARY, 2));
             var entity = criarUsuarioPadrao();
             var response = UsuarioTestContext
                     .criaUsuarioResponse(ID_VALIDO, "Felipe2", "felipesmacario@gmail.com", "1234567890", true);
@@ -905,6 +903,6 @@ class UsuarioServiceTest extends BaseServiceTest {
     }
 
     private UsuarioUpdateRequest usuarioAtualizacaoRequestPadrao() {
-        return atualizarUsuarioValido("Felipe", LocalDate.of(1982, Month.JANUARY, 2), "felipe2macario@gmail.com");
+        return atualizarUsuarioValido("Felipe", LocalDate.of(1982, Month.JANUARY, 2));
     }
 }

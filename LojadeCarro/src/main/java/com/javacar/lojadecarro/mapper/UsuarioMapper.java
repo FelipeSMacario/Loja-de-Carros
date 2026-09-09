@@ -5,11 +5,7 @@ import com.javacar.lojadecarro.dto.request.UsuarioUpdateRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.entity.Usuario;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-
-import java.util.List;
-import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface UsuarioMapper {
@@ -17,10 +13,10 @@ public interface UsuarioMapper {
     Usuario toEntity(UsuarioRequest usuarioRequest);
 
     void toUpdate(UsuarioRequest usuarioRequest,
-                     @MappingTarget Usuario usuario);
+                  @MappingTarget Usuario usuario);
 
     void toUpdate(UsuarioUpdateRequest usuarioRequest,
-                               @MappingTarget Usuario usuario);
+                  @MappingTarget Usuario usuario);
 
 
     UsuarioResponse toResponse(Usuario usuario);
