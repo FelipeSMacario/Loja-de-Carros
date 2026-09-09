@@ -14,7 +14,6 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
         CarroceriaMapperImpl.class,
         ImagemMapperImpl.class,
         OpcionalMapperImpl.class,
-        RoleMapperImpl.class,
         UsuarioMapperImpl.class,
         VeiculoMapperImpl.class,
         VendasMapperImpl.class})

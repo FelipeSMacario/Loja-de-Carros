@@ -3,6 +3,7 @@ package com.javacar.lojadecarro.controller;
 import com.javacar.lojadecarro.dto.request.VendaRequest;
 import com.javacar.lojadecarro.dto.response.VendaResponse;
 import com.javacar.lojadecarro.enums.StatusVenda;
+import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.VendasService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -26,6 +27,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 @RequestMapping("/vendas")
 public class VendaController {
     private final VendasService vendasService;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
 
     @GetMapping
     @Operation(summary = "Listar todos as vendas")
@@ -45,7 +47,7 @@ public class VendaController {
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody @Valid VendaRequest request) {
         log.debug("Cadastrar uma nova venda com o corpo: {}", request);
-        var idUsuario = Long.valueOf(jwt.getSubject());
+        var idUsuario = usuarioAutenticadoService.buscarId(jwt.getSubject());
         var response = vendasService.criar(request, idUsuario);
 
         var location = ServletUriComponentsBuilder
@@ -80,7 +82,7 @@ public class VendaController {
                                                                    )
                                                                    Pageable pageable,
                                                                    @RequestParam(required = false) StatusVenda status) {
-        var idUsuario = Long.valueOf(jwt.getSubject());
+        var idUsuario = usuarioAutenticadoService.buscarId(jwt.getSubject());
         var response = vendasService.buscarMinhasCompras(idUsuario, pageable, status);
         return ResponseEntity.ok(response);
     }
@@ -95,7 +97,7 @@ public class VendaController {
                                                                   )
                                                                   Pageable pageable,
                                                                   @RequestParam(required = false) StatusVenda status) {
-        var idUsuario = Long.valueOf(jwt.getSubject());
+        var idUsuario = usuarioAutenticadoService.buscarId(jwt.getSubject());
         var response = vendasService.buscarMinhasVendas(idUsuario, pageable, status);
         return ResponseEntity.ok(response);
     }

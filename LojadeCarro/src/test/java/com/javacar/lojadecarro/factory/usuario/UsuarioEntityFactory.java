@@ -27,7 +27,6 @@ public final class UsuarioEntityFactory {
         usuario.setDataNascimento(LocalDate.of(1991, Month.MAY, 14));
         usuario.setEmail("felipesmacario@gmail.com");
         usuario.setNome("Felipe Soares Macário");
-        usuario.setPassword("123456");
         usuario.setAtivo(true);
         return this;
     }
@@ -40,10 +39,6 @@ public final class UsuarioEntityFactory {
         usuario.setNome(nome);
         return this;
     }
-    public UsuarioEntityFactory comPassword(String password) {
-        usuario.setPassword(password);
-        return this;
-    }
     public UsuarioEntityFactory comCPF(String cpf) {
         usuario.setCpf(cpf);
         return this;
@@ -54,10 +49,6 @@ public final class UsuarioEntityFactory {
     }
     public UsuarioEntityFactory comEmail(String email) {
         usuario.setEmail(email);
-        return this;
-    }
-    public UsuarioEntityFactory comSenha(String senha) {
-        usuario.setPassword(senha);
         return this;
     }
     public UsuarioEntityFactory comAtivo(boolean ativo) {

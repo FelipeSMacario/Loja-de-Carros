@@ -4,9 +4,7 @@ import com.javacar.lojadecarro.dto.request.AlteracaoSenhaRequest;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioRequest;
 import com.javacar.lojadecarro.dto.request.UsuarioUpdateRequest;
-import com.javacar.lojadecarro.dto.response.AlteracaoSenhaResponse;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
-import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
 import com.javacar.lojadecarro.entity.Usuario;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.enums.StatusFiltro;
@@ -24,9 +22,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
@@ -39,24 +35,33 @@ import static com.javacar.lojadecarro.enums.StatusVenda.EM_ANDAMENTO;
 public class UsuarioService {
     private final UsuarioRepository usuarioRepository;
     private final UsuarioMapper usuarioMapper;
-    private final BCryptPasswordEncoder encoder;
     private final EntityValidation entityValidation;
-    private final RolesService rolesService;
     private final VendasRepository vendasRepository;
     private final VeiculoRepository veiculoRepository;
 
 
     @Transactional
-    public UsuarioResponse criar(UsuarioRequest request) {
+    public UsuarioResponse criar(UsuarioRequest request, String subject, String email) {
+        validarUsuarioNaoVinculado(subject);
         validarCpfUnico(request.cpf());
-        validarEmailUnico(request.email());
-        var usuarioEntity = usuarioMapper.toEntity(request);
-        usuarioEntity.alterarSenha(encoder.encode(request.password()));
-        var roleUsuario = rolesService.buscarPorNome("ROLE_USUARIO");
-        usuarioEntity.adicionarRole(roleUsuario);
-        var usuario = usuarioRepository.save(usuarioEntity);
+        validarEmailUnico(email);
+
+        var usuarioEntity =
+                usuarioMapper.toEntity(request);
+
+        usuarioEntity.setIdentityProviderId(subject);
+        usuarioEntity.setEmail(email);
+
+        var usuario =
+                usuarioRepository.save(usuarioEntity);
 
         return usuarioMapper.toResponse(usuario);
+    }
+
+    private void validarUsuarioNaoVinculado(String subject) {
+        if (usuarioRepository.existsByIdentityProviderId(subject)) {
+            throw new BusinessException("Usuário autenticado já possui cadastro local.");
+        }
     }
 
 
@@ -84,9 +89,6 @@ public class UsuarioService {
     @Transactional
     public UsuarioResponse atualizar(UsuarioUpdateRequest request, Long idUsuario) {
         var usuario = buscaUsuarioAtivo(idUsuario);
-        if (!usuario.getEmail().equals(request.email())) {
-            validarEmailUnico(request.email());
-        }
         usuarioMapper.toUpdate(request, usuario);
 
         return usuarioMapper.toResponse(usuario);
@@ -114,51 +116,6 @@ public class UsuarioService {
                 .orElseThrow(() -> new NotFoundException(USUARIO, id));
     }
 
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @Transactional
-    public UsuarioRolesResponse vincularRole(Long id, List<Long> requests) {
-        validaRolesDuplicadas(requests);
-
-        var usuario = buscaUsuario(id);
-
-        var roles = rolesService.buscaRoles(requests);
-
-        roles.forEach(usuario::adicionarRole);
-
-        return usuarioMapper.toUsuarioRoleResponse(usuario);
-    }
-
-
-    private void validaRolesDuplicadas(List<Long> idsRoles) {
-        Set<Long> ids = new HashSet<>(idsRoles);
-
-        if (ids.size() != idsRoles.size()) {
-            throw new BusinessException("A requisição possui roles duplicadas.");
-        }
-    }
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @Transactional
-    public UsuarioRolesResponse desvincularRole(Long id, Long roleId) {
-        var usuario = buscaUsuario(id);
-
-        var role = rolesService.buscarPorId(roleId);
-
-        usuario.removerRole(role.getId());
-
-        return usuarioMapper.toUsuarioRoleResponse(usuario);
-    }
-
-
-    @PreAuthorize("hasRole('ADMIN')")
-    @Transactional(readOnly = true)
-    public UsuarioRolesResponse buscarRolesUsuario(Long id) {
-        var usuario = buscaUsuario(id);
-
-        return usuarioMapper.toUsuarioRoleResponse(usuario);
-    }
-
     private void validarCpfUnico(String cpf) {
         if (usuarioRepository.existsByCpf(cpf)) {
             throw new BusinessException("O CPF informado já possui um cadastro.");
@@ -171,39 +128,6 @@ public class UsuarioService {
         }
     }
 
-    @PreAuthorize("isAuthenticated()")
-    @Transactional
-    public AlteracaoSenhaResponse alterarSenha(AlteracaoSenhaRequest request, Long idUsuario) {
-        var usuario = buscaUsuarioAtivo(idUsuario);
-        validarSenhaAtual(usuario.getPassword(), request.senhaAntiga());
-        validarSenhaNova(usuario.getPassword(), request.senhaNova());
-
-        usuario.alterarSenha(encoder.encode(request.senhaNova()));
-
-        return new AlteracaoSenhaResponse(usuario.getEmail(), "Senha atualizada com sucesso");
-    }
-
-    private void validarSenhaAtual(
-            String passwordHash,
-            String senhaAtual
-    ) {
-        if (!encoder.matches(senhaAtual, passwordHash)) {
-            throw new BusinessException(
-                    "A senha informada não corresponde à senha atual."
-            );
-        }
-    }
-
-    private void validarSenhaNova(
-            String passwordHash,
-            String senhaNova
-    ) {
-        if (encoder.matches(senhaNova, passwordHash)) {
-            throw new BusinessException(
-                    "A nova senha não pode ser igual à senha atual."
-            );
-        }
-    }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)

@@ -3,6 +3,7 @@ package com.javacar.lojadecarro.exception.handler;
 import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.exception.security.SecurityException;
+import com.javacar.lojadecarro.exception.security.UsuarioNaoVinculadoException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -172,6 +173,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
                 .body(problemDetail);
+    }
+
+    @ExceptionHandler(UsuarioNaoVinculadoException.class)
+    public ResponseEntity<ResponseError> usuarioNaoVinculado(
+            UsuarioNaoVinculadoException exception,
+            HttpServletRequest request
+    ) {
+        var response = new ResponseError(
+                exception.getMessage(),
+                HttpStatus.FORBIDDEN.value(),
+                LocalDateTime.now(ZONE),
+                request.getRequestURI()
+        );
+
+        log.warn("Usuário autenticado sem cadastro local: {}",
+                exception.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(response);
     }
 
 }

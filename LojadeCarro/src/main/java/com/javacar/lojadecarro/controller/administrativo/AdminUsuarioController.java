@@ -1,9 +1,7 @@
 package com.javacar.lojadecarro.controller.administrativo;
 
 import com.javacar.lojadecarro.dto.request.StatusRequest;
-import com.javacar.lojadecarro.dto.request.UsuarioRolesRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
-import com.javacar.lojadecarro.dto.response.UsuarioRolesResponse;
 import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -35,6 +33,7 @@ public class AdminUsuarioController {
 
         return ResponseEntity.ok(response);
     }
+
     @GetMapping("/{id}")
     @Operation(summary = "Buscar usuário por id")
     public ResponseEntity<UsuarioResponse> buscarPorId(@PathVariable Long id) {
@@ -54,38 +53,6 @@ public class AdminUsuarioController {
 
         log.info("Status do usuário com o id: {} alterado com sucesso", id);
         log.debug("Resposta da alteração de status para o id: {}. Resposta: {}", id, response);
-        return ResponseEntity.ok(response);
-    }
-    @GetMapping("/{id}/roles")
-    @Operation(summary = "Buscar as roles para um usuário")
-    public ResponseEntity<UsuarioRolesResponse> buscarRolesUsuario(@PathVariable Long id) {
-        log.debug("Buscando todas as roles para o usuário com id: {}.", id);
-        var response = usuarioService.buscarRolesUsuario(id);
-        log.info("Consulta das roles do usuário realizada com sucesso. id={}", id);
-        log.debug("A consulta de todos as roles retornou com o tamanho de: {} valores", response.roles().size());
-        return ResponseEntity.ok(response);
-    }
-    @PostMapping("/{id}/roles")
-    @Operation(summary = "Vincular uma role para um usuário")
-    public ResponseEntity<UsuarioRolesResponse> vincularRole(@PathVariable Long id,
-                                                             @RequestBody @Valid UsuarioRolesRequest requests) {
-        log.debug("Cadastrando roles para o usuário com id: {}", id);
-        var response = usuarioService.vincularRole(id, requests.roles());
-
-        log.info("Roles vinculadas com sucesso ao usuário id={}", id);
-        log.debug("Resposta da vinculação das roles: {}", response);
-        return ResponseEntity.ok(response);
-    }
-
-    @DeleteMapping("/{id}/roles/{roleId}")
-    @Operation(summary = "Desvincular uma role para um usuário")
-    public ResponseEntity<UsuarioRolesResponse> desvincularRole(@PathVariable Long id,
-                                                                @PathVariable Long roleId) {
-        log.debug("Desvinculando role {} do usuário {}", roleId, id);
-        var response = usuarioService.desvincularRole(id, roleId);
-
-        log.info("Roles removidas com sucesso. Id: {}", id);
-        log.debug("Resposta da remoção da role: {}", response);
         return ResponseEntity.ok(response);
     }
 }

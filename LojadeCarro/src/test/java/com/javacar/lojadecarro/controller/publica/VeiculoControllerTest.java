@@ -7,8 +7,10 @@ import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
+import com.javacar.lojadecarro.exception.security.UsuarioNaoVinculadoException;
 import com.javacar.lojadecarro.factory.helper.VeiculoTestContext;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoResponseFactory;
+import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.VeiculoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -60,6 +62,8 @@ public class VeiculoControllerTest extends BaseControllerTest {
 
     @MockitoBean
     private VeiculoService veiculoService;
+    @MockitoBean
+    private UsuarioAutenticadoService usuarioAutenticadoService;
 
     @Nested
     @DisplayName("Testes do cadastro do veiculo")
@@ -69,6 +73,9 @@ public class VeiculoControllerTest extends BaseControllerTest {
         void deveCadastrarVeiculo() throws Exception {
             //Arrange
             var cx = new VeiculoTestContext();
+
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
 
             when(veiculoService.criar(
                     any(VeiculoRequest.class),
@@ -116,6 +123,8 @@ public class VeiculoControllerTest extends BaseControllerTest {
 
             assertThat(arquivos[1].getOriginalFilename())
                     .isEqualTo("foto2.jpg");
+
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verifyNoMoreInteractions(veiculoService);
         }
         @Test
@@ -123,6 +132,9 @@ public class VeiculoControllerTest extends BaseControllerTest {
         void deveRetornar404AoNaoEncontrarRelacionamento() throws Exception {
             //Arrange
             var cx = new VeiculoTestContext();
+
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
 
             when(veiculoService.criar(
                     any(VeiculoRequest.class),
@@ -138,7 +150,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
                     imagem("foto1.jpg"),
                     imagem("foto2.jpg")
             );
-
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             assertStatus404(exception, CARROCERIA, ID_INVALIDO);
         }
         @Test
@@ -146,6 +158,9 @@ public class VeiculoControllerTest extends BaseControllerTest {
         void deveRetornar400aoCadastroVeiculo() throws Exception {
             //Arrange
             var cx = new VeiculoTestContext();
+
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             //Act + Assert
             var resultado = performPostComAutenticacao(
                     URL,
@@ -165,6 +180,9 @@ public class VeiculoControllerTest extends BaseControllerTest {
         void deveCadastrarVeiculoSemImagens() throws Exception {
             // Arrange
             var cx = new VeiculoTestContext();
+
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
 
             when(veiculoService.criar(
                     any(VeiculoRequest.class),
@@ -192,6 +210,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
             ArgumentCaptor<MultipartFile[]> captor =
                     ArgumentCaptor.forClass(MultipartFile[].class);
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(veiculoService).criar(eq(cx.request), captor.capture(), eq(ID_VALIDO));
 
             assertThat(captor.getValue()).isEmpty();
@@ -204,6 +223,9 @@ public class VeiculoControllerTest extends BaseControllerTest {
         void deveRetornar500aoCadastroVeiculo() throws Exception {
             //Arrange
             var cx = new VeiculoTestContext();
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
             when(veiculoService.criar(any(VeiculoRequest.class),
                     any(MultipartFile[].class),
                     eq(ID_VALIDO))
@@ -220,6 +242,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
             );
 
             assertStatus500(resultado);
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(veiculoService).criar(any(VeiculoRequest.class),
                     any(MultipartFile[].class),
                     eq(ID_VALIDO));
@@ -230,6 +253,9 @@ public class VeiculoControllerTest extends BaseControllerTest {
         void deveRetornar401AoCadastrarUmVeiculo() throws Exception {
             //Arrange
             var cx = new VeiculoTestContext();
+
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
 
             when(veiculoService.criar(
                     any(VeiculoRequest.class),
@@ -815,7 +841,8 @@ public class VeiculoControllerTest extends BaseControllerTest {
                     PageRequest.of(0, 9),
                     2
             );
-
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(veiculoService.listarMeusAnuncios(
                     any(Pageable.class),
                     eq(ID_VALIDO),
@@ -837,6 +864,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
 
             var captor = ArgumentCaptor.forClass(Pageable.class);
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(veiculoService).listarMeusAnuncios(
                     captor.capture(),
                     eq(ID_VALIDO),
@@ -856,12 +884,12 @@ public class VeiculoControllerTest extends BaseControllerTest {
         @ParameterizedTest
         @EnumSource(StatusVeiculo.class)
         @DisplayName("Deve listar meus anúncios por status")
-        void deveListarMeusAnunciosPorStatus(
-                StatusVeiculo statusVeiculo
-        ) throws Exception {
+        void deveListarMeusAnunciosPorStatus(StatusVeiculo statusVeiculo) throws Exception {
             // Arrange
             var page = veiculosResponseList(statusVeiculo);
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(veiculoService.listarMeusAnuncios(
                     any(Pageable.class),
                     eq(ID_VALIDO),
@@ -885,6 +913,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
                             everyItem(is(statusVeiculo.name()))
                     ));
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(veiculoService).listarMeusAnuncios(
                     any(Pageable.class),
                     eq(ID_VALIDO),
@@ -915,6 +944,27 @@ public class VeiculoControllerTest extends BaseControllerTest {
 
             assertStatus400(resultado);
             verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 403 quando o usuário autenticado não possuir vínculo local")
+        void deveRetornar403QuandoUsuarioAutenticadoNaoPossuirVinculoLocal()
+                throws Exception {
+
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenThrow(new UsuarioNaoVinculadoException());
+
+            var resultado = performGetComAutenticacao(
+                    URL_MEUS_ANUNCIOS,
+                    ID_JWT,
+                    ROLE_USUARIO
+            );
+
+            assertStatus403Autenticacao(resultado);
+
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
+            verifyNoInteractions(veiculoService);
+            verifyNoMoreInteractions(usuarioAutenticadoService);
         }
     }
 

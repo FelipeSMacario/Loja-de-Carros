@@ -2,7 +2,9 @@ package com.javacar.lojadecarro.controller;
 
 import com.javacar.lojadecarro.dto.response.VendaResponse;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
+import com.javacar.lojadecarro.exception.security.UsuarioNaoVinculadoException;
 import com.javacar.lojadecarro.factory.venda.VendaTestContext;
+import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.VendasService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -41,6 +43,8 @@ public class VendaControllerTest extends BaseControllerTest {
 
     @MockitoBean
     private VendasService vendasService;
+    @MockitoBean
+    private UsuarioAutenticadoService usuarioAutenticadoService;
 
     @Nested
     @DisplayName("Testes de criação")
@@ -52,6 +56,9 @@ public class VendaControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new VendaTestContext();
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
             when(vendasService.criar(cx.vendaRequest, ID_VALIDO))
                     .thenReturn(cx.vendaResponse);
             // Act + Assert
@@ -59,6 +66,7 @@ public class VendaControllerTest extends BaseControllerTest {
             assertVendaResponse(resultado, status().isCreated());
             resultado.andExpect(header().string("Location", "http://localhost/vendas/" + ID_VALIDO));
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(vendasService).criar(cx.vendaRequest, ID_VALIDO);
             verifyNoMoreInteractions(vendasService);
 
@@ -81,12 +89,15 @@ public class VendaControllerTest extends BaseControllerTest {
         void deveRetornar404AoCriarVenda() throws Exception {
             // Arrange
             var cx = new VendaTestContext();
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(vendasService.criar(cx.vendaRequest, ID_VALIDO))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             // Act + Assert
             var resultado = performPostComAutenticacao(URL, cx.vendaRequest, ID_JWT, ROLE_USUARIO);
             assertStatus404(resultado, USUARIO, ID_VALIDO);
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(vendasService).criar(cx.vendaRequest, ID_VALIDO);
             verifyNoMoreInteractions(vendasService);
         }
@@ -97,12 +108,16 @@ public class VendaControllerTest extends BaseControllerTest {
             //Arrange
             var cx = new VendaTestContext();
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
             when(vendasService.criar(cx.vendaRequest, ID_VALIDO))
                     .thenThrow(new RuntimeException("Erro inesperado"));
             //Act + Assert
             var resultado = performPostComAutenticacao(URL, cx.vendaRequest, ID_JWT, ROLE_USUARIO);
             assertStatus500(resultado);
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(vendasService).criar(cx.vendaRequest, ID_VALIDO);
             verifyNoMoreInteractions(vendasService);
         }
@@ -276,6 +291,8 @@ public class VendaControllerTest extends BaseControllerTest {
             Page<VendaResponse> page =
                     new PageImpl<>(listaVendasResponse);
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(vendasService.buscarMinhasCompras(eq(ID_VALIDO), any(Pageable.class), eq(EM_ANDAMENTO)))
                     .thenReturn(page);
             //Act + Assert
@@ -284,6 +301,7 @@ public class VendaControllerTest extends BaseControllerTest {
 
             var pageable =
                     ArgumentCaptor.forClass(Pageable.class);
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(vendasService).buscarMinhasCompras(
                     eq(ID_VALIDO),
                     pageable.capture(),
@@ -306,6 +324,9 @@ public class VendaControllerTest extends BaseControllerTest {
             // Arrange
             var pagina = Page.<VendaResponse>empty();
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
             when(vendasService.buscarMinhasCompras(
                     eq(ID_VALIDO),
                     any(Pageable.class),
@@ -324,6 +345,7 @@ public class VendaControllerTest extends BaseControllerTest {
                     .andExpect(jsonPath("$.content").isEmpty())
                     .andExpect(jsonPath("$.totalElements").value(0));
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(vendasService).buscarMinhasCompras(
                     eq(ID_VALIDO),
                     any(Pageable.class),
@@ -343,6 +365,27 @@ public class VendaControllerTest extends BaseControllerTest {
 
             verifyNoInteractions(vendasService);
         }
+
+        @Test
+        @DisplayName("Deve retornar 403 quando o usuário autenticado não possuir vínculo local")
+        void deveRetornar403QuandoUsuarioAutenticadoNaoPossuirVinculoLocal()
+                throws Exception {
+
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenThrow(new UsuarioNaoVinculadoException());
+
+            var resultado = performGetComAutenticacao(
+                    URL_COMPRAS,
+                    ID_JWT,
+                    ROLE_USUARIO
+            );
+
+            assertStatus403Autenticacao(resultado);
+
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
+            verifyNoInteractions(vendasService);
+            verifyNoMoreInteractions(usuarioAutenticadoService);
+        }
     }
 
     @Nested
@@ -357,6 +400,8 @@ public class VendaControllerTest extends BaseControllerTest {
             Page<VendaResponse> page =
                     new PageImpl<>(listaVendasResponse);
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(vendasService.buscarMinhasVendas(eq(ID_VALIDO), any(Pageable.class), eq(EM_ANDAMENTO)))
                     .thenReturn(page);
             //Act + Assert
@@ -378,6 +423,7 @@ public class VendaControllerTest extends BaseControllerTest {
                     .extracting(Sort.Order::getDirection)
                     .isEqualTo(Sort.Direction.DESC);
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verifyNoMoreInteractions(vendasService);
         }
 
@@ -387,6 +433,8 @@ public class VendaControllerTest extends BaseControllerTest {
             // Arrange
             var pagina = Page.<VendaResponse>empty();
 
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
             when(vendasService.buscarMinhasVendas(
                     eq(ID_VALIDO),
                     any(Pageable.class),
@@ -405,6 +453,7 @@ public class VendaControllerTest extends BaseControllerTest {
                     .andExpect(jsonPath("$.content").isEmpty())
                     .andExpect(jsonPath("$.totalElements").value(0));
 
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verify(vendasService).buscarMinhasVendas(
                     eq(ID_VALIDO),
                     any(Pageable.class),

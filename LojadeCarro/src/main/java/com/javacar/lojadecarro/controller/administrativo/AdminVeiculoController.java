@@ -1,7 +1,6 @@
 package com.javacar.lojadecarro.controller.administrativo;
 
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
-import com.javacar.lojadecarro.enums.StatusFiltro;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.service.VeiculoService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -28,7 +27,7 @@ public class AdminVeiculoController {
     @GetMapping
     @Operation(summary = "Listar todos os veiculos administrativo")
     public ResponseEntity<Page<VeiculoResponse>> listar(@PageableDefault(size = 9) Pageable pageable,
-                                                              @RequestParam(required = false) StatusVeiculo status) {
+                                                        @RequestParam(required = false) StatusVeiculo status) {
         log.debug("Buscando todos os veiculos administrativo.");
         var response = veiculoService.listarAdministrativo(pageable, status);
 

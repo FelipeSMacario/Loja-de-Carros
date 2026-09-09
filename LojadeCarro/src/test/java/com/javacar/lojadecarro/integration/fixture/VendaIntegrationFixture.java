@@ -8,7 +8,9 @@ import lombok.RequiredArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.List;
+import java.util.UUID;
 
 import static com.javacar.lojadecarro.utils.Utils.ZONE;
 
@@ -22,16 +24,15 @@ public class VendaIntegrationFixture {
     private final MarcaRepository marcaRepository;
     private final CombustivelRepository combustivelRepository;
     private final OpcionalRepository opcionalRepository;
-    private final Integer valor = 1;
 
     public Usuario criarUsuarioPersistido(String nome, String cpf, String email) {
         var usuario = new Usuario();
         usuario.setNome(nome);
         usuario.setCpf(cpf);
         usuario.setEmail(email);
-        usuario.setPassword("password-hash-teste");
         usuario.setAtivo(true);
-        usuario.setDataNascimento(LocalDate.of(1990, valor, valor));
+        usuario.setDataNascimento(LocalDate.of(1990, Month.JANUARY, 1));
+        usuario.setIdentityProviderId(UUID.randomUUID().toString());
         return usuarioRepository.save(usuario);
     }
 

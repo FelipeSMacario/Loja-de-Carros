@@ -62,14 +62,12 @@ public abstract class BaseHelper {
         result.andExpect(status().isForbidden());
     }
 
-    public static void assertStatus403ProblemDetail(ResultActions result) throws Exception {
+    public static void assertStatus403Autenticacao(ResultActions result) throws Exception {
         result
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.status").value(403))
-                .andExpect(jsonPath("$.title").value("Acesso negado"))
-                .andExpect(jsonPath("$.detail").value(
-                        "Você não possui permissão para realizar esta operação."
-                ));
+                .andExpect(jsonPath("$.message")
+                        .value("Usuário autenticado não possui cadastro local."));
     }
 
     public static void assertStatus204(ResultActions result) throws Exception {

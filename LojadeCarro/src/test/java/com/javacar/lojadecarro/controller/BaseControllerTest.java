@@ -2,7 +2,6 @@ package com.javacar.lojadecarro.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.javacar.lojadecarro.security.WebSecurityConfig;
-import com.javacar.lojadecarro.security.service.CustomUserDetailsService;
 import org.junit.jupiter.api.AfterEach;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,12 +10,14 @@ import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -27,8 +28,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 public abstract class BaseControllerTest {
     @Autowired
     protected MockMvc mockMvc;
-    @MockitoBean
-    private CustomUserDetailsService userDetailsService;
     @MockitoBean
     private JwtDecoder jwtDecoder;
     @Autowired
@@ -114,6 +113,31 @@ public abstract class BaseControllerTest {
                         )
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(body))
+        );
+    }
+
+    protected ResultActions performPostComAutenticacao(
+            String url,
+            Object body,
+            String jwtId,
+            String role,
+            Consumer<Jwt.Builder> configurarJwt
+    ) throws Exception {
+        return mockMvc.perform(
+                post(url)
+                        .with(jwt()
+                                .jwt(jwtBuilder -> {
+                                    jwtBuilder.subject(jwtId);
+                                    configurarJwt.accept(jwtBuilder);
+                                })
+                                .authorities(
+                                        new SimpleGrantedAuthority(role)
+                                )
+                        )
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(
+                                objectMapper.writeValueAsString(body)
+                        )
         );
     }
 
