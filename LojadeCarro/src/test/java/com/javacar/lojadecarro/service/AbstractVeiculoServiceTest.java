@@ -2,6 +2,7 @@ package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.mapper.ImagemMapper;
 import com.javacar.lojadecarro.mapper.VeiculoMapper;
+import com.javacar.lojadecarro.repository.ImagensRepository;
 import com.javacar.lojadecarro.repository.VeiculoRepository;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -36,6 +37,9 @@ public abstract class AbstractVeiculoServiceTest extends BaseServiceTest {
 
     @Mock
     protected ImagensService imagensService;
+
+    @Mock
+    protected ImagensRepository imagensRepository;
 
     @InjectMocks
     protected VeiculoService veiculoService;

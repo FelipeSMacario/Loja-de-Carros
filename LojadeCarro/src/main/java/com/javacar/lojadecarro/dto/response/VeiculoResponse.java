@@ -16,5 +16,6 @@ public record VeiculoResponse(@Schema(example = "1", description = "Id do veicul
                               @Schema(example = "75990.00", description = "Valor do veiculo") BigDecimal valor,
                               @Schema(example = "70000", description = "Quilometragem do veiculo") Integer quilometragem,
                               @Schema(example = "2023", description = "Ano de fabricação do veiculo") short anoFabricacao,
+                              @Schema(example = "1", description = "Id da imagem principal") Long imagemPrincipalId,
                               @Schema(example = "DISPONIVEL", description = "Status do veiculo") StatusVeiculo statusVeiculo) {
 }

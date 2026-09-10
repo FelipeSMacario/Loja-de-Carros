@@ -11,12 +11,19 @@ import org.mapstruct.MappingTarget;
 public interface VeiculoMapper {
     Veiculo toEntity(VeiculoRequest carroDTO);
 
-    @Mapping(source = "modelo.marca.nome", target = "marca")
-    @Mapping(source = "modelo.nome", target = "modelo")
-    @Mapping(source = "carroceria.nome", target = "carroceria")
-    @Mapping(source = "cor.nome", target = "cor")
-    @Mapping(source = "combustivel.nome", target = "combustivel")
-    VeiculoResponse toResponse(Veiculo veiculo);
+    @Mapping(source = "veiculo.modelo.marca.nome", target = "marca")
+    @Mapping(source = "veiculo.modelo.nome", target = "modelo")
+    @Mapping(source = "veiculo.carroceria.nome", target = "carroceria")
+    @Mapping(source = "veiculo.cor.nome", target = "cor")
+    @Mapping(source = "veiculo.combustivel.nome", target = "combustivel")
+    @Mapping(
+            source = "imagemPrincipalId",
+            target = "imagemPrincipalId"
+    )
+    VeiculoResponse toResponse(
+            Veiculo veiculo,
+            Long imagemPrincipalId
+    );
 
     void toUpdate(VeiculoRequest request, @MappingTarget Veiculo veiculo);
 }

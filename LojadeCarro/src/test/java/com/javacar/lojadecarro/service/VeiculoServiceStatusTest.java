@@ -30,6 +30,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @DisplayName("Testes das alterações de status do veículo")
 public class VeiculoServiceStatusTest extends AbstractVeiculoServiceTest{
+
     @Nested
     @DisplayName("Testes para pausar o veículo")
     class Pausar {
@@ -47,7 +48,10 @@ public class VeiculoServiceStatusTest extends AbstractVeiculoServiceTest{
             when(veiculoRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(cx.entity));
 
-            when(veiculoMapper.toResponse(cx.entity))
+            when(imagensRepository.findByVeiculo_IdAndPrincipalTrue(cx.entity.getId()))
+                    .thenReturn(Optional.of(cx.imagens.getFirst()));
+
+            when(veiculoMapper.toResponse(cx.entity, cx.imagens.getFirst().getId()))
                     .thenReturn(response);
             //ACT
             var resultado = veiculoService.pausarVeiculo(ID_VALIDO);
@@ -65,8 +69,9 @@ public class VeiculoServiceStatusTest extends AbstractVeiculoServiceTest{
                     .isEqualTo(PAUSADO);
 
             verify(veiculoRepository).findById(ID_VALIDO);
-            verify(veiculoMapper).toResponse(cx.entity);
-            verifyNoMoreInteractions(veiculoRepository, veiculoMapper);
+            verify(imagensRepository).findByVeiculo_IdAndPrincipalTrue(cx.entity.getId());
+            verify(veiculoMapper).toResponse(cx.entity, cx.imagens.getFirst().getId());
+            verifyNoMoreInteractions(veiculoRepository, veiculoMapper, imagensRepository);
         }
 
         @Test
@@ -82,7 +87,7 @@ public class VeiculoServiceStatusTest extends AbstractVeiculoServiceTest{
             assertNotFoundResponseError(exception, VEICULO, ID_VALIDO);
 
             verify(veiculoRepository).findById(ID_VALIDO);
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
             verifyNoMoreInteractions(veiculoRepository, veiculoMapper);
         }
 
@@ -109,7 +114,7 @@ public class VeiculoServiceStatusTest extends AbstractVeiculoServiceTest{
             //Assert
             assertBusinessResponseError(exception, "Somente um veículo disponível pode ser pausado");
             verify(veiculoRepository).findById(ID_VALIDO);
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
             verifyNoMoreInteractions(veiculoRepository, veiculoMapper);
         }
     }
@@ -121,6 +126,7 @@ public class VeiculoServiceStatusTest extends AbstractVeiculoServiceTest{
         @DisplayName("Deve reativar o veículo")
         void deveReativarOVeiculo() {
             //Arrange
+            var cx = new VeiculoTestContext();
             var veiculo = VeiculoEntityFactory
                     .criarEntity()
                     .comTodosOsCampos()
@@ -135,10 +141,13 @@ public class VeiculoServiceStatusTest extends AbstractVeiculoServiceTest{
             when(veiculoRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(veiculo));
 
-            when(veiculoMapper.toResponse(veiculo))
+            when(imagensRepository.findByVeiculo_IdAndPrincipalTrue(veiculo.getId()))
+                    .thenReturn(Optional.of(cx.imagens.getFirst()));
+
+            when(veiculoMapper.toResponse(veiculo, cx.imagens.getFirst().getId()))
                     .thenReturn(response);
             //ACT
-            var resultado = veiculoService.reativarVeiculo(ID_VALIDO);
+            var resultado = veiculoService.reativarVeiculo(veiculo.getId());
             //Assert
             assertThat(resultado)
                     .isNotNull()
@@ -153,8 +162,9 @@ public class VeiculoServiceStatusTest extends AbstractVeiculoServiceTest{
                     .isEqualTo(DISPONIVEL);
 
             verify(veiculoRepository).findById(ID_VALIDO);
-            verify(veiculoMapper).toResponse(veiculo);
-            verifyNoMoreInteractions(veiculoRepository, veiculoMapper);
+            verify(imagensRepository).findByVeiculo_IdAndPrincipalTrue(veiculo.getId());
+            verify(veiculoMapper).toResponse(veiculo, cx.imagens.getFirst().getId());
+            verifyNoMoreInteractions(veiculoRepository, veiculoMapper, imagensRepository);
         }
 
         @Test
@@ -170,7 +180,7 @@ public class VeiculoServiceStatusTest extends AbstractVeiculoServiceTest{
             assertNotFoundResponseError(exception, VEICULO, ID_VALIDO);
 
             verify(veiculoRepository).findById(ID_VALIDO);
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
             verifyNoMoreInteractions(veiculoRepository, veiculoMapper);
         }
 
@@ -197,7 +207,7 @@ public class VeiculoServiceStatusTest extends AbstractVeiculoServiceTest{
             //Assert
             assertBusinessResponseError(exception, "Somente um veículo pausado pode ser reativado");
             verify(veiculoRepository).findById(ID_VALIDO);
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
             verifyNoMoreInteractions(veiculoRepository, veiculoMapper);
         }
     }

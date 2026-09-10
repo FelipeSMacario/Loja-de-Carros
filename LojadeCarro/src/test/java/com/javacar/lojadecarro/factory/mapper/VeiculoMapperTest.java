@@ -52,7 +52,7 @@ class VeiculoMapperTest extends MapperTest {
     @DisplayName("Deve converter a entidade para resposta")
     void deveConverterEntityParaResponse() {
         var entity = criarVeiculoEntity();
-        var response = mapper.toResponse(entity);
+        var response = mapper.toResponse(entity, 10L);
 
         assertThat(response)
                 .isNotNull()

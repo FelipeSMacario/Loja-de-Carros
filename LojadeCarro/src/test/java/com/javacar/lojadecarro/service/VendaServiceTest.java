@@ -487,7 +487,7 @@ public class VendaServiceTest extends BaseServiceTest {
         void deveCancelarAVenda() {
             //Arrange
             var entity = criarVeiculo(RESERVADO, EM_ANDAMENTO);
-            var response = criarVeiculoResponse(DISPONIVEL, CANCELADA);
+            var response = criarVeiculoResponse(DISPONIVEL, CANCELADA, 10L);
 
             assertThat(entity.getStatusVenda()).isEqualTo(EM_ANDAMENTO);
             assertThat(entity.getVeiculo().getStatusVeiculo()).isEqualTo(RESERVADO);
@@ -580,7 +580,7 @@ public class VendaServiceTest extends BaseServiceTest {
         void deveConcluirVenda() {
             //Arrange
             var entity = criarVeiculo(RESERVADO, EM_ANDAMENTO);
-            var response = criarVeiculoResponse(VENDIDO, CONCLUIDA);
+            var response = criarVeiculoResponse(VENDIDO, CONCLUIDA, 10L);
 
             assertThat(entity.getStatusVenda()).isEqualTo(EM_ANDAMENTO);
             assertThat(entity.getVeiculo().getStatusVeiculo()).isEqualTo(RESERVADO);

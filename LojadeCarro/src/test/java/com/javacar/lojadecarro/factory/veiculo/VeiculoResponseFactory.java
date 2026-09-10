@@ -19,6 +19,7 @@ public class VeiculoResponseFactory {
     private Integer quilometragem;
     private Short anoFabricacao;
     private StatusVeiculo statusVeiculo;
+    private Long imagemPrincipalId;
 
     private VeiculoResponseFactory() {
     }
@@ -40,6 +41,7 @@ public class VeiculoResponseFactory {
         this.quilometragem = 67000;
         this.anoFabricacao = (short) 2020;
         this.statusVeiculo = DISPONIVEL;
+        this.imagemPrincipalId = 10L;
         return this;
     }
 
@@ -79,6 +81,10 @@ public class VeiculoResponseFactory {
         this.valor = valor;
         return this;
     }
+    public VeiculoResponseFactory comIdImagemPrincipal(Long imagemPrincipalId) {
+        this.imagemPrincipalId = imagemPrincipalId;
+        return this;
+    }
 
     public VeiculoResponse build() {
         return new VeiculoResponse(
@@ -92,6 +98,7 @@ public class VeiculoResponseFactory {
                 valor,
                 quilometragem,
                 anoFabricacao,
+                imagemPrincipalId,
                 statusVeiculo);
     }
 }
