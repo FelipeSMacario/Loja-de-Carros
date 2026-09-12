@@ -1,1 +1,22 @@
-<p>header works!</p>
+<header class="site-header">
+    <div class="site-header__content">
+        <a class="site-header__brand" routerLink="/home" aria-label="Ir para o início">
+            <span class="site-header__brand-icon">
+                <mat-icon aria-hidden="true">
+                    directions_car
+                </mat-icon>
+            </span>
+
+            <span class="site-header__brand-name">
+                Loja de <strong>Veículos</strong>
+            </span>
+        </a>
+
+        <nav class="site-header__navigation" aria-label="Navegação principal">
+            <a routerLink="/home" routerLinkActive="site-header__link--active"
+                [routerLinkActiveOptions]="{ exact: true }">
+                Estoque
+            </a>
+        </nav>
+    </div>
+</header>

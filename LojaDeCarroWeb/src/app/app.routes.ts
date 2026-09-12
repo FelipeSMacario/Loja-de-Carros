@@ -17,6 +17,13 @@ export const routes: Routes = [
           import('./features/home/pages/home/home')
             .then(component => component.Home),
       },
+      {
+        path: 'veiculos/:id',
+        loadComponent: () =>
+          import(
+            './features/veiculos/pages/veiculo-detalhe/veiculo-detalhe'
+          ).then(component => component.VeiculoDetalhe),
+      },
     ],
   },
   {

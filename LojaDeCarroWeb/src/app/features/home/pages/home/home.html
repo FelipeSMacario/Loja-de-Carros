@@ -1,1 +1,62 @@
-<p>home works!</p>
+<section class="hero">
+  <div class="hero__content">
+    <p class="hero__eyebrow">
+      Sua próxima história começa aqui
+    </p>
+
+    <h1>Encontre o carro ideal para você</h1>
+
+    <p class="hero__description">
+      Consulte veículos selecionados e encontre aquele
+      que combina com o seu momento.
+    </p>
+  </div>
+</section>
+
+<section class="catalog" aria-labelledby="catalog-title">
+  <header class="catalog__header">
+    <div>
+      <p class="catalog__eyebrow">
+        Nosso estoque
+      </p>
+
+      <h2 id="catalog-title">
+        Veículos disponíveis
+      </h2>
+    </div>
+  </header>
+
+  @if (carregando()) {
+  <div class="catalog__feedback" aria-live="polite">
+    <mat-spinner diameter="44" />
+    <p>Carregando veículos...</p>
+  </div>
+  } @else if (erro()) {
+  <div class="catalog__feedback" role="alert">
+    <h3>Não foi possível carregar os veículos</h3>
+    <p>Tente novamente em alguns instantes.</p>
+
+    <button mat-flat-button type="button" (click)="carregarVeiculos()">
+      Tentar novamente
+    </button>
+  </div>
+  } @else if (veiculos().length === 0) {
+  <div class="catalog__feedback">
+    <h3>Nenhum veículo disponível</h3>
+    <p>Novos anúncios aparecerão aqui em breve.</p>
+  </div>
+  } @else {
+  <div class="catalog__grid">
+    @for (veiculo of veiculos(); track veiculo.id) {
+    <app-veiculo-card [veiculo]="veiculo" />
+    }
+  </div>
+
+  @if (totalElementos() > tamanhoPagina()) {
+  <mat-paginator class="catalog__paginator" aria-label="Paginação dos veículos" [length]="totalElementos()"
+    [pageIndex]="paginaAtual()" [pageSize]="tamanhoPagina()" [pageSizeOptions]="[9, 18, 27]"
+    [showFirstLastButtons]="true" (page)="alterarPagina($event)" />
+  }
+  }
+
+</section>

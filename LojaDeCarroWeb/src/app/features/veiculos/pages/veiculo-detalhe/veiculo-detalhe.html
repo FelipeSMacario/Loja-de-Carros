@@ -1,0 +1,218 @@
+<main class="vehicle-detail">
+  <a class="vehicle-detail__back" routerLink="/home">
+    <mat-icon aria-hidden="true">arrow_back</mat-icon>
+    Voltar ao estoque
+  </a>
+
+  @if (carregando()) {
+    <section
+      class="vehicle-detail__feedback"
+      data-testid="vehicle-loading"
+    >
+      <div class="vehicle-detail__loader"></div>
+      <p>Carregando detalhes do veículo...</p>
+    </section>
+  } @else if (erro()) {
+    <section
+      class="vehicle-detail__feedback"
+      data-testid="vehicle-error"
+    >
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+
+      <h1>Não foi possível carregar o veículo</h1>
+
+      <p>
+        O anúncio pode não estar mais disponível ou ocorreu
+        uma falha na comunicação.
+      </p>
+
+      <button type="button" (click)="carregar()">
+        Tentar novamente
+      </button>
+    </section>
+  } @else if (veiculo(); as veiculo) {
+    <div class="vehicle-detail__layout">
+      <section
+        class="vehicle-gallery"
+        aria-label="Galeria do veículo"
+      >
+        <div class="vehicle-gallery__main">
+          @if (imagemSelecionadaUrl(); as imagemUrl) {
+            <img
+              data-testid="selected-vehicle-image"
+              [src]="imagemUrl"
+              [alt]="'Foto do ' + veiculo.marca + ' ' + veiculo.modelo"
+              (error)="tratarFalhaImagem()"
+            />
+          } @else {
+            <div class="vehicle-gallery__placeholder">
+              <mat-icon aria-hidden="true">
+                directions_car
+              </mat-icon>
+
+              <span>Imagem indisponível</span>
+            </div>
+          }
+        </div>
+
+       @if (imagensOrdenadas().length > 1) {
+          <div
+            class="vehicle-gallery__thumbnails"
+            aria-label="Outras imagens"
+          >
+            @for (imagem of imagensOrdenadas(); track imagem.id) {
+              <button
+                type="button"
+                class="vehicle-gallery__thumbnail"
+                [class.vehicle-gallery__thumbnail--selected]="
+                  imagem.id === imagemSelecionadaId()
+                "
+                [attr.aria-pressed]="
+                  imagem.id === imagemSelecionadaId()
+                "
+                [attr.aria-label]="
+                  'Exibir imagem ' + ($index + 1)
+                "
+                (click)="selecionarImagem(imagem.id)"
+              >
+                <img
+                  [src]="imagemUrl(imagem.id)"
+                  [alt]="'Miniatura ' + ($index + 1)"
+                  loading="lazy"
+                />
+              </button>
+            }
+          </div>
+        }
+      </section>
+
+      <section class="vehicle-summary">
+        <p class="vehicle-summary__status">
+          Disponível
+        </p>
+
+        <p class="vehicle-summary__brand">
+          {{ veiculo.marca }}
+        </p>
+
+        <h1 data-testid="vehicle-title">
+          {{ veiculo.modelo }}
+        </h1>
+
+        <p class="vehicle-summary__price">
+          {{ valorFormatado() }}
+        </p>
+
+        <div class="vehicle-summary__facts">
+          <div>
+            <mat-icon aria-hidden="true">
+              calendar_today
+            </mat-icon>
+
+            <span>
+              <small>Ano</small>
+              {{ veiculo.anoFabricacao }}
+            </span>
+          </div>
+
+          <div>
+            <mat-icon aria-hidden="true">speed</mat-icon>
+
+            <span>
+              <small>Quilometragem</small>
+              {{ quilometragemFormatada() }} km
+            </span>
+          </div>
+
+          <div>
+            <mat-icon aria-hidden="true">
+              settings
+            </mat-icon>
+
+            <span>
+              <small>Motor</small>
+              {{ veiculo.motor }}
+            </span>
+          </div>
+
+          <div>
+            <mat-icon aria-hidden="true">
+              local_gas_station
+            </mat-icon>
+
+            <span>
+              <small>Combustível</small>
+              {{ veiculo.combustivel }}
+            </span>
+          </div>
+
+          <div>
+            <mat-icon aria-hidden="true">palette</mat-icon>
+
+            <span>
+              <small>Cor</small>
+              {{ veiculo.cor }}
+            </span>
+          </div>
+
+          <div>
+            <mat-icon aria-hidden="true">
+              directions_car
+            </mat-icon>
+
+            <span>
+              <small>Carroceria</small>
+              {{ veiculo.carroceria }}
+            </span>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <div class="vehicle-detail__additional">
+      <article class="vehicle-information">
+        <h2>Sobre este veículo</h2>
+
+        @if (veiculo.descricao) {
+          <p>{{ veiculo.descricao }}</p>
+        } @else {
+          <p>
+            O vendedor não forneceu informações adicionais.
+          </p>
+        }
+      </article>
+
+      <article class="vehicle-information">
+        <h2>Opcionais</h2>
+
+        @if (veiculo.opcionais.length > 0) {
+          <ul class="vehicle-options">
+            @for (
+              opcional of veiculo.opcionais;
+              track opcional.id
+            ) {
+              <li>
+                <mat-icon aria-hidden="true">
+                  check_circle
+                </mat-icon>
+
+                {{ opcional.nome }}
+              </li>
+            }
+          </ul>
+        } @else {
+          <p>Nenhum opcional informado.</p>
+        }
+      </article>
+
+      <aside class="seller-summary">
+        <mat-icon aria-hidden="true">person</mat-icon>
+
+        <div>
+          <small>Anunciado por</small>
+          <strong>{{ veiculo.vendedor.nome }}</strong>
+        </div>
+      </aside>
+    </div>
+  }
+</main>

@@ -1,9 +1,22 @@
-import { Component } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+} from '@angular/core';
+import { MatIconModule } from '@angular/material/icon';
+import {
+  RouterLink,
+  RouterLinkActive,
+} from '@angular/router';
 
 @Component({
-  imports: [],
   selector: 'app-header',
-  styleUrl: './header.scss',
+  imports: [
+    MatIconModule,
+    RouterLink,
+    RouterLinkActive,
+  ],
   templateUrl: './header.html',
+  styleUrl: './header.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Header {}

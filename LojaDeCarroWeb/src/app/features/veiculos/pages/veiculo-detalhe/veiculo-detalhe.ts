@@ -1,0 +1,129 @@
+import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, } from '@angular/core';
+import { ActivatedRoute, RouterLink, } from '@angular/router';
+import { environment } from '../../../../../environments/environment';
+import { VeiculoApi } from '../../data-access/veiculo-api';
+import { VeiculoDetalheResponse } from '../../models/veiculo-detalhe-response';
+import { MatIconModule } from '@angular/material/icon';
+
+@Component({
+  selector: 'app-veiculo-detalhe',
+  imports: [MatIconModule, RouterLink,],
+  templateUrl: './veiculo-detalhe.html',
+  styleUrl: './veiculo-detalhe.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
+export class VeiculoDetalhe implements OnInit {
+  private readonly route = inject(ActivatedRoute);
+  private readonly veiculoApi = inject(VeiculoApi);
+
+  private idVeiculo: number | null = null;
+
+  readonly veiculo = signal<VeiculoDetalheResponse | null>(null);
+  readonly carregando = signal(true);
+  readonly erro = signal(false);
+  readonly imagemSelecionadaId = signal<number | null>(null);
+  readonly imagemSelecionadaFalhou = signal(false);
+
+  readonly imagemSelecionadaUrl = computed(() => {
+    const id = this.imagemSelecionadaId();
+
+    if (id === null || this.imagemSelecionadaFalhou()) {
+      return null;
+    }
+
+    return `${environment.apiUrl}/imagens/${id}/conteudo`;
+  });
+
+  readonly valorFormatado = computed(() => {
+    const valor = this.veiculo()?.valor;
+
+    return valor === undefined
+      ? ''
+      : new Intl.NumberFormat('pt-BR', {
+        style: 'currency',
+        currency: 'BRL',
+      }).format(valor);
+  });
+
+  readonly imagensOrdenadas = computed(() => {
+  const imagens = this.veiculo()?.imagens ?? [];
+
+  return [...imagens].sort((imagemA, imagemB) => {
+    if (imagemA.principal !== imagemB.principal) {
+      return imagemA.principal ? -1 : 1;
+    }
+
+    return imagemA.id - imagemB.id;
+  });
+});
+
+  readonly quilometragemFormatada = computed(() => {
+    const quilometragem = this.veiculo()?.quilometragem;
+
+    return quilometragem === undefined
+      ? ''
+      : new Intl.NumberFormat('pt-BR')
+        .format(quilometragem);
+  });
+
+  ngOnInit(): void {
+    const id = Number(
+      this.route.snapshot.paramMap.get('id')
+    );
+
+    if (!Number.isInteger(id) || id <= 0) {
+      this.carregando.set(false);
+      this.erro.set(true);
+      return;
+    }
+
+    this.idVeiculo = id;
+    this.carregar();
+  }
+
+  carregar(): void {
+    if (this.idVeiculo === null) {
+      return;
+    }
+
+    this.carregando.set(true);
+    this.erro.set(false);
+
+    this.veiculoApi.buscarPorId(this.idVeiculo)
+      .subscribe({
+        next: veiculo => {
+          this.veiculo.set(veiculo);
+
+          const imagemPrincipal =
+            veiculo.imagens.find(
+              imagem => imagem.principal
+            ) ?? veiculo.imagens[0];
+
+          this.imagemSelecionadaId.set(
+            imagemPrincipal?.id ?? null
+          );
+
+          this.imagemSelecionadaFalhou.set(false);
+          this.carregando.set(false);
+        },
+        error: () => {
+          this.veiculo.set(null);
+          this.imagemSelecionadaId.set(null);
+          this.imagemSelecionadaFalhou.set(false);
+          this.carregando.set(false);
+          this.erro.set(true);
+        },
+      });
+  }
+  selecionarImagem(id: number): void {
+    this.imagemSelecionadaId.set(id);
+    this.imagemSelecionadaFalhou.set(false);
+  }
+
+  imagemUrl(id: number): string {
+    return `${environment.apiUrl}/imagens/${id}/conteudo`;
+  }
+  tratarFalhaImagem(): void {
+  this.imagemSelecionadaFalhou.set(true);
+  }
+}

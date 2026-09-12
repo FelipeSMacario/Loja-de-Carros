@@ -1,1 +1,31 @@
-<p>footer works!</p>
+<footer class="site-footer">
+    <div class="site-footer__content">
+        <div class="site-footer__main">
+            <div class="site-footer__about">
+                <a class="site-footer__brand" routerLink="/home" aria-label="Ir para o início">
+                    Loja de <strong>Veículos</strong>
+                </a>
+
+                <p>
+                    Veículos selecionados e informações claras para
+                    ajudar você a encontrar sua próxima história.
+                </p>
+            </div>
+
+            <nav class="site-footer__navigation" aria-label="Navegação do rodapé">
+                <h2>Navegação</h2>
+
+                <a routerLink="/home">
+                    Ver estoque
+                </a>
+            </nav>
+        </div>
+
+        <div class="site-footer__bottom">
+            <p>
+                &copy; {{ anoAtual }} Loja de Veículos.
+                Todos os direitos reservados.
+            </p>
+        </div>
+    </div>
+</footer>
