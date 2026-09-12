@@ -327,7 +327,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
             var cx = new VeiculoTestContext();
 
             when(veiculoService.buscarPorId(ID_VALIDO))
-                    .thenReturn(cx.response);
+                    .thenReturn(cx.responseDetalhes);
 
             //Act + Assert
             var resultado = performGet(URL_ID);
@@ -335,7 +335,6 @@ public class VeiculoControllerTest extends BaseControllerTest {
                     resultado,
                     status().isOk(),
                     ID_VALIDO,
-                    "QUV1F83",
                     "Chevrolet",
                     "Onix",
                     new BigDecimal("58000"),

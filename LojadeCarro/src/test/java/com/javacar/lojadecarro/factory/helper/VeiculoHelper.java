@@ -1,6 +1,7 @@
 package com.javacar.lojadecarro.factory.helper;
 
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
+import com.javacar.lojadecarro.dto.response.VeiculoDetalheResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.entity.Opcional;
 import com.javacar.lojadecarro.entity.Veiculo;
@@ -54,6 +55,28 @@ public final class VeiculoHelper extends BaseHelper {
                 ).containsExactly(
                         1L,
                         "QUV1F83",
+                        "Chevrolet",
+                        "Onix",
+                        new BigDecimal(58000),
+                        67000,
+                        (short) 2020,
+                        DISPONIVEL
+                );
+    }
+
+    public static void assertVeiculoResponse(VeiculoDetalheResponse resultado) {
+        assertThat(resultado)
+                .isNotNull()
+                .extracting(
+                        VeiculoDetalheResponse::id,
+                        VeiculoDetalheResponse::marca,
+                        VeiculoDetalheResponse::modelo,
+                        VeiculoDetalheResponse::valor,
+                        VeiculoDetalheResponse::quilometragem,
+                        VeiculoDetalheResponse::anoFabricacao,
+                        VeiculoDetalheResponse::statusVeiculo
+                ).containsExactly(
+                        1L,
                         "Chevrolet",
                         "Onix",
                         new BigDecimal(58000),
@@ -122,6 +145,26 @@ public final class VeiculoHelper extends BaseHelper {
                 .andExpect(status)
                 .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.placa").value(placa))
+                .andExpect(jsonPath("$.marca").value(marca))
+                .andExpect(jsonPath("$.modelo").value(modelo))
+                .andExpect(jsonPath("$.valor").value(valor))
+                .andExpect(jsonPath("$.quilometragem").value(quilometragem))
+                .andExpect(jsonPath("$.anoFabricacao").value((int) anoFabricacao))
+                .andExpect(jsonPath("$.statusVeiculo").value(statusVeiculo.toString()));
+    }
+
+    public static void assertVeiculo(ResultActions result,
+                                     ResultMatcher status,
+                                     Long id,
+                                     String marca,
+                                     String modelo,
+                                     BigDecimal valor,
+                                     Double quilometragem,
+                                     short anoFabricacao,
+                                     StatusVeiculo statusVeiculo) throws Exception {
+        result
+                .andExpect(status)
+                .andExpect(jsonPath("$.id").value(id))
                 .andExpect(jsonPath("$.marca").value(marca))
                 .andExpect(jsonPath("$.modelo").value(modelo))
                 .andExpect(jsonPath("$.valor").value(valor))

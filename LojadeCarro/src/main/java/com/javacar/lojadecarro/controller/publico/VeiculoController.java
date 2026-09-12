@@ -1,13 +1,18 @@
 package com.javacar.lojadecarro.controller.publico;
 
+import com.javacar.lojadecarro.dto.request.VeiculoCadastroMultipartOpenApi;
 import com.javacar.lojadecarro.dto.request.VeiculoOpcionaisRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
+import com.javacar.lojadecarro.dto.response.VeiculoDetalheResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.VeiculoService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,12 +45,31 @@ public class VeiculoController {
     private final UsuarioAutenticadoService usuarioAutenticadoService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Cadastrar um novo veiculo")
+    @Operation(
+            summary = "Cadastrar um novo veículo",
+            requestBody =
+            @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    required = true,
+                    content = @Content(
+                            mediaType =
+                                    MediaType.MULTIPART_FORM_DATA_VALUE,
+                            schema = @Schema(
+                                    implementation =
+                                            VeiculoCadastroMultipartOpenApi.class
+                            ),
+                            encoding = @Encoding(
+                                    name = "request",
+                                    contentType =
+                                            MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            )
+    )
     public ResponseEntity<VeiculoResponse> criar(
             @AuthenticationPrincipal Jwt jwt,
             @RequestPart("request")
             @Valid VeiculoRequest request,
-            @RequestPart(value = "files", required = false)
+            @RequestPart(name = "files", required = false)
             MultipartFile[] files
     ) throws IOException {
         log.debug("Cadastrar um novo veiculo com o corpo: {}", request);
@@ -66,28 +90,34 @@ public class VeiculoController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os veiculos ativos")
-    public ResponseEntity<Page<VeiculoResponse>> listarAtivos(@PageableDefault(
-            size = 9,
-            sort = "dataCadastro",
-            direction = Sort.Direction.DESC
-    ) Pageable pageable) {
-        log.debug("Buscando todos os veiculos ativos.");
+    @Operation(summary = "Listar todos os veículos ativos")
+    public ResponseEntity<Page<VeiculoResponse>> listarAtivos(
+            @PageableDefault(
+                    size = 9,
+                    sort = {"dataCadastro", "id"},
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    ) {
+        log.debug("Buscando todos os veículos ativos.");
+
         var response = veiculoService.listarAtivos(pageable);
 
-        log.debug("Consulta retornou {} elementos", response.getNumberOfElements());
+        log.debug(
+                "Consulta retornou {} elementos",
+                response.getNumberOfElements()
+        );
 
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
-    @Operation(summary = "Buscar um veiculo por id")
-    public ResponseEntity<VeiculoResponse> buscarPorId(@PathVariable Long id) {
-        log.debug("Buscando o veiculo por id: {}", id);
+    @Operation(summary = "Buscar os detalhes de um veículo por ID")
+    public ResponseEntity<VeiculoDetalheResponse> buscarPorId(@PathVariable Long id) {
+        log.debug("Buscando o veículo por id: {}", id);
         var response = veiculoService.buscarPorId(id);
+        log.info("Consulta do veículo realizada com sucesso. id={}", id);
 
-        log.info("Consulta do veiculo realizada com sucesso. id={}", id);
-        log.debug("Resposta do veiculo por id: {}", response);
         return ResponseEntity.ok(response);
     }
 

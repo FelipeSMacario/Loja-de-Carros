@@ -19,6 +19,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -32,6 +33,7 @@ import static com.javacar.lojadecarro.factory.helper.ImagemHelper.*;
 import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.criarVeiculoEntity;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
@@ -129,6 +131,96 @@ class ImagemServiceTest {
         }
 
         @Test
+        @DisplayName("Deve permitir completar o limite de imagens do veículo")
+        void devePermitirCompletarLimiteDeImagensDoVeiculo()
+                throws IOException {
+            //Arrange
+            var veiculo = criarVeiculoEntity();
+            String nomeArquivo = "foto-1.jpg";
+            String nomeArquivo2 = "foto-2.jpg";
+
+            var novasImagens = new MultipartFile[]{
+                    criarFile(nomeArquivo),
+                    criarFile(nomeArquivo2)
+            };
+
+            var upload = criarUploadResult(nomeArquivo);
+            var upload2 = criarUploadResult(nomeArquivo2);
+            var imagens = List.of(ImagemEntityFactory
+                    .criarEntity()
+                    .comTodosOsCampos()
+                    .comNomeOriginal(nomeArquivo)
+                    .comObjectKey(upload.objectKey())
+                    .build(),
+                    ImagemEntityFactory
+                    .criarEntity()
+                    .comTodosOsCampos()
+                    .comObjectKey(upload2.objectKey())
+                    .comNomeOriginal(nomeArquivo2)
+                    .build());
+
+            when(imagensRepository.countByVeiculo_Id(veiculo.getId()))
+                    .thenReturn(8L);
+            when(storageService.upload(novasImagens[0], veiculo.getId()))
+                    .thenReturn(upload);
+
+            when(storageService.upload(novasImagens[1], veiculo.getId()))
+                    .thenReturn(upload2);
+
+            when(imagensRepository.saveAll(anyList()))
+                    .thenReturn(imagens);
+            // Act
+            var resultado =
+                    imagensService.criar(novasImagens, veiculo);
+
+            // Assert
+            assertThat(resultado)
+                    .containsExactlyElementsOf(imagens);
+
+            verify(imagensRepository).countByVeiculo_Id(veiculo.getId());
+            verify(storageService).upload(novasImagens[0], veiculo.getId());
+            verify(storageService).upload(novasImagens[1], veiculo.getId());
+            verify(imagensRepository).saveAll(anyList());
+            verify(storageTransactionSupport).deleteOnRollback(imagens.getFirst().getObjectKey());
+
+            verify(storageTransactionSupport).deleteOnRollback(imagens.getLast().getObjectKey());
+
+            verifyNoMoreInteractions(storageService, imagensRepository, storageTransactionSupport);
+        }
+
+        @Test
+        @DisplayName("Deve rejeitar imagens que ultrapassem o limite do veículo")
+        void deveRejeitarImagensQueUltrapassemLimiteDoVeiculo() {
+            // Arrange
+            var veiculo = criarVeiculoEntity();
+
+            var novasImagens = new MultipartFile[]{
+                    criarFile("foto-1.jpg"),
+                    criarFile("foto-2.jpg"),
+                    criarFile("foto-3.jpg")
+            };
+
+            when(imagensRepository.countByVeiculo_Id(veiculo.getId()))
+                    .thenReturn(8L);
+
+            // Act + Assert
+            assertThatThrownBy(() ->
+                    imagensService.criar(novasImagens, veiculo)
+            )
+                    .isInstanceOf(BusinessException.class)
+                    .hasMessage(
+                            "O veículo pode possuir no máximo 10 imagens."
+                    );
+
+            verify(imagensRepository)
+                    .countByVeiculo_Id(veiculo.getId());
+
+            verifyNoInteractions(storageService);
+
+            verifyNoMoreInteractions(imagensRepository);
+        }
+
+        @Test
         @DisplayName("Deve lançar exceção ao fazer upload do arquivo")
         void deveLancarExceaoAoFazerUploadDoArquivo() throws IOException {
             //Arrange
@@ -146,10 +238,10 @@ class ImagemServiceTest {
             assertThat(resultado)
                     .isInstanceOf(IOException.class);
 
+            verify(imagensRepository)
+                    .countByVeiculo_Id(veiculo.getId());
             verify(storageService).upload(imagemFile, veiculo.getId());
-            verifyNoMoreInteractions(storageService);
-
-            verifyNoInteractions(imagensRepository);
+            verifyNoMoreInteractions(storageService, imagensRepository);
         }
 
         @Test
@@ -179,6 +271,8 @@ class ImagemServiceTest {
             assertThat(veiculo.getImagens())
                     .isEmpty();
 
+            verify(imagensRepository)
+                    .countByVeiculo_Id(veiculo.getId());
             verify(storageService).upload(imagemFile, veiculo.getId());
             verify(storageService).upload(imagemFile2, veiculo.getId());
             verify(storageService).delete(upload.objectKey());
@@ -216,6 +310,8 @@ class ImagemServiceTest {
                     .isEmpty();
 
 
+            verify(imagensRepository)
+                    .countByVeiculo_Id(veiculo.getId());
             verify(storageService).upload(imagemFile, veiculo.getId());
             verify(storageService).upload(imagemFile2, veiculo.getId());
             verify(storageService).delete(upload.objectKey());

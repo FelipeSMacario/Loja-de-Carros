@@ -22,4 +22,6 @@ public interface ImagensRepository extends JpaRepository<Imagem, Long> {
     List<Imagem> findByVeiculo_IdInAndPrincipalTrue(List<Long> idsVeiculos);
 
     Optional<Imagem> findByVeiculo_IdAndPrincipalTrue(Long idVeiculo);
+
+    long countByVeiculo_Id(Long idVeiculo);
 }

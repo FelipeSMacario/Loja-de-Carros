@@ -20,6 +20,7 @@ public class VeiculoResponseFactory {
     private Short anoFabricacao;
     private StatusVeiculo statusVeiculo;
     private Long imagemPrincipalId;
+    private String observacao;
 
     private VeiculoResponseFactory() {
     }
@@ -99,6 +100,7 @@ public class VeiculoResponseFactory {
                 quilometragem,
                 anoFabricacao,
                 imagemPrincipalId,
-                statusVeiculo);
+                statusVeiculo,
+                observacao);
     }
 }

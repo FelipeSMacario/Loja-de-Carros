@@ -2,6 +2,7 @@ package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
+import com.javacar.lojadecarro.dto.response.VeiculoDetalheResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Opcional;
@@ -169,9 +170,11 @@ public class VeiculoService {
 
 
     @Transactional(readOnly = true)
-    public VeiculoResponse buscarPorId(Long id) {
-        return mapearComImagemPrincipal(buscaVeiculoDisponivelPorId(id));
+    public VeiculoDetalheResponse buscarPorId(Long id) {
+        var veiculo =
+                buscaVeiculoDisponivelPorId(id);
 
+        return veiculoMapper.toDetalheResponse(veiculo);
     }
 
     private Veiculo buscaVeiculoDisponivelPorId(Long id) {

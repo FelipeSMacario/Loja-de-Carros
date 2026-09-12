@@ -25,7 +25,6 @@ import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 import static com.javacar.lojadecarro.enums.Entidade.VEICULO;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.*;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertNotFoundResponseError;
-import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.assertVeiculoResponse;
 import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -39,8 +38,6 @@ import static org.mockito.Mockito.*;
 public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest {
     private final PageRequest pageable =
             PageRequest.of(0, 10);
-
-    private final Long imagem = 1L;
 
     @Nested
     @DisplayName("Testes da listagem de veículos")
@@ -628,31 +625,40 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest {
     @DisplayName("Testes da busca do veículo disponível por ID")
     class Buscar {
         @Test
-        @DisplayName("Deve buscar o veículo disponivel por ID")
+        @DisplayName("Deve buscar o veículo disponível por ID")
         void deveBuscarVeiculoPorId() {
-            //Arrange
+            // Arrange
             var cx = new VeiculoTestContext();
 
-            when(veiculoRepository.findByIdAndStatusVeiculo(ID_VALIDO, DISPONIVEL))
-                    .thenReturn(Optional.of(cx.entity));
+            when(veiculoRepository.findByIdAndStatusVeiculo(
+                    ID_VALIDO,
+                    DISPONIVEL
+            )).thenReturn(Optional.of(cx.entity));
 
-            when(imagensRepository.findByVeiculo_IdAndPrincipalTrue(cx.entity.getId()))
-                    .thenReturn(Optional.of(cx.imagens.getFirst()));
+            when(veiculoMapper.toDetalheResponse(cx.entity))
+                    .thenReturn(cx.responseDetalhes);
 
-            when(veiculoMapper.toResponse(cx.entity, imagem))
-                    .thenReturn(cx.response);
-            //ACT
-            var resultado = veiculoService.buscarPorId(ID_VALIDO);
-            //Assert
-            assertVeiculoResponse(resultado);
+            // Act
+            var resultado =
+                    veiculoService.buscarPorId(ID_VALIDO);
 
-            verify(veiculoRepository).findByIdAndStatusVeiculo(ID_VALIDO, DISPONIVEL);
-            verify(imagensRepository).findByVeiculo_IdAndPrincipalTrue(cx.entity.getId());
-            verify(veiculoMapper).toResponse(cx.entity, imagem);
+            // Assert
+            assertThat(resultado)
+                    .isSameAs(cx.responseDetalhes);
+
+            verify(veiculoRepository)
+                    .findByIdAndStatusVeiculo(
+                            ID_VALIDO,
+                            DISPONIVEL
+                    );
+
+            verify(veiculoMapper)
+                    .toDetalheResponse(cx.entity);
 
             verifyNoMoreInteractions(
                     veiculoRepository,
-                    veiculoMapper);
+                    veiculoMapper
+            );
         }
 
         @Test
