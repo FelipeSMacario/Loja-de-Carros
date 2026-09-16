@@ -1,8 +1,5 @@
 import { provideHttpClient } from '@angular/common/http';
-import {
-  HttpTestingController,
-  provideHttpClientTesting,
-} from '@angular/common/http/testing';
+import { HttpTestingController, provideHttpClientTesting, } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { VeiculoDetalheResponse } from '../models/veiculo-detalhe-response';
@@ -10,6 +7,7 @@ import { environment } from '../../../../environments/environment';
 import { PageResponse } from '../../../core/http/page-response';
 import { VeiculoResponse } from '../models/veiculo-response';
 import { VeiculoApi } from './veiculo-api';
+import { VeiculoRequest } from '../models/veiculo-request';
 
 describe('VeiculoApi', () => {
   let service: VeiculoApi;
@@ -146,5 +144,108 @@ describe('VeiculoApi', () => {
     request.flush(resposta);
 
     expect(await resultadoPromise).toEqual(resposta);
+  });
+  it('should create a vehicle using multipart form data', async () => {
+    const request: VeiculoRequest = {
+      quilometragem: 28000,
+      valor: 350000,
+      placa: 'ABC1D23',
+      motor: '2.0',
+      descricao: 'Veículo em ótimo estado',
+      anoFabricacao: 2022,
+      idsOpcionais: [1, 2],
+      idCarroceria: 1,
+      idCor: 2,
+      idModelo: 3,
+      idCombustivel: 4,
+    };
+
+    const files = [
+      new File(
+        ['imagem-principal'],
+        'principal.jpg',
+        { type: 'image/jpeg' }
+      ),
+      new File(
+        ['imagem-secundaria'],
+        'secundaria.png',
+        { type: 'image/png' }
+      ),
+    ];
+
+    service.criar(request, files).subscribe();
+
+    const httpRequest = httpTesting.expectOne(
+      `${environment.apiUrl}/veiculos`
+    );
+
+    expect(httpRequest.request.method).toBe('POST');
+
+    expect(
+      httpRequest.request.headers.has('Content-Type')
+    ).toBe(false);
+
+    const formData =
+      httpRequest.request.body as FormData;
+
+    const requestPart = formData.get('request');
+
+    expect(requestPart).toBeInstanceOf(Blob);
+
+    if (!(requestPart instanceof Blob)) {
+      throw new Error(
+        'A parte request deveria ser um Blob'
+      );
+    }
+
+    expect(requestPart.type).toBe('application/json');
+
+    const requestRecebido = JSON.parse(
+      await requestPart.text()
+    );
+
+    expect(requestRecebido).toEqual(request);
+
+    const filesRecebidos =
+      formData.getAll('files') as File[];
+
+    expect(
+      filesRecebidos.map(file => file.name)
+    ).toEqual([
+      'principal.jpg',
+      'secundaria.png',
+    ]);
+
+    httpRequest.flush({});
+  });
+
+  it('should create a vehicle without images', () => {
+    const request: VeiculoRequest = {
+      quilometragem: 0,
+      valor: 75000,
+      placa: 'DEF4G56',
+      motor: '1.0',
+      descricao: 'Veículo sem imagens',
+      anoFabricacao: 2024,
+      idsOpcionais: [],
+      idCarroceria: 1,
+      idCor: 2,
+      idModelo: 3,
+      idCombustivel: 4,
+    };
+
+    service.criar(request, []).subscribe();
+
+    const httpRequest = httpTesting.expectOne(
+      `${environment.apiUrl}/veiculos`
+    );
+
+    const formData =
+      httpRequest.request.body as FormData;
+
+    expect(formData.has('request')).toBe(true);
+    expect(formData.has('files')).toBe(false);
+
+    httpRequest.flush({});
   });
 });

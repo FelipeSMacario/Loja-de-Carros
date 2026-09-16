@@ -1,22 +1,61 @@
 <header class="site-header">
-    <div class="site-header__content">
-        <a class="site-header__brand" routerLink="/home" aria-label="Ir para o início">
-            <span class="site-header__brand-icon">
-                <mat-icon aria-hidden="true">
-                    directions_car
-                </mat-icon>
-            </span>
+  <div class="site-header__content">
+    <a class="site-header__brand" routerLink="/home" aria-label="Ir para o início">
+      <span class="site-header__brand-icon">
+        <mat-icon aria-hidden="true"> directions_car </mat-icon>
+      </span>
 
-            <span class="site-header__brand-name">
-                Loja de <strong>Veículos</strong>
-            </span>
-        </a>
+      <span class="site-header__brand-name"> Loja de <strong>Veículos</strong> </span>
+    </a>
 
-        <nav class="site-header__navigation" aria-label="Navegação principal">
-            <a routerLink="/home" routerLinkActive="site-header__link--active"
-                [routerLinkActiveOptions]="{ exact: true }">
-                Estoque
-            </a>
-        </nav>
-    </div>
+    <nav class="site-header__navigation" aria-label="Navegação principal">
+      <a
+        routerLink="/home"
+        class="site-header__stock-link"
+        routerLinkActive="site-header__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        Estoque
+      </a>
+
+      @if (auth.inicializado()) {
+        @if (auth.autenticado()) {
+          <a
+            class="site-header__announce"
+            routerLink="/veiculos/anunciar"
+            routerLinkActive="site-header__link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            data-testid="announce-link"
+          >
+            <mat-icon aria-hidden="true">add_circle</mat-icon>
+            <span>Anunciar</span>
+          </a>
+          <span class="site-header__user" data-testid="authenticated-user">
+            Olá,
+            <strong>{{ auth.usuario()?.nome }}</strong>
+          </span>
+
+          <button
+            type="button"
+            class="site-header__auth-button site-header__auth-button--secondary"
+            data-testid="logout-button"
+            (click)="sair()"
+          >
+            <mat-icon aria-hidden="true">logout</mat-icon>
+            <span>Sair</span>
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="site-header__auth-button"
+            data-testid="login-button"
+            (click)="entrar()"
+          >
+            <mat-icon aria-hidden="true">login</mat-icon>
+            <span>Entrar</span>
+          </button>
+        }
+      }
+    </nav>
+  </div>
 </header>

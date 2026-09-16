@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { Shell } from './layout/shell/shell';
+import { authGuard } from './core/auth/auth-guard';
 
 export const routes: Routes = [
   {
@@ -16,6 +17,14 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./features/home/pages/home/home')
             .then(component => component.Home),
+      },
+      {
+        path: 'veiculos/anunciar',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './features/veiculos/pages/veiculo-cadastro/veiculo-cadastro'
+          ).then(component => component.VeiculoCadastro),
       },
       {
         path: 'veiculos/:id',
