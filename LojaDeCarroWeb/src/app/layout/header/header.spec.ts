@@ -92,6 +92,13 @@ describe('Header', () => {
       '[data-testid="announce-link"]'
     );
 
+    const myAdsLink = element.querySelector(
+      '[data-testid="my-ads-link"]'
+    );
+
+    expect(myAdsLink?.getAttribute('href'))
+      .toBe('/veiculos/meus-anuncios');
+
     expect(announceLink?.getAttribute('href'))
       .toBe('/veiculos/anunciar');
 

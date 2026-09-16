@@ -17,7 +17,8 @@
     }
   }
 
-  &__announce {
+  &__announce,
+  &__my-ads {
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -181,7 +182,7 @@
     }
 
     &__brand-name {
-      font-size: 1rem;
+      display: none;
     }
 
     &__navigation {
@@ -191,13 +192,22 @@
     &__user {
       display: none;
     }
-  }
-}
 
-@media (max-width: 370px) {
-  .site-header {
-    &__brand-name {
-      display: none;
+    &__announce,
+    &__my-ads {
+      padding-inline: 6px;
+
+      span {
+        display: none;
+      }
+    }
+
+    &__auth-button {
+      padding-inline: 10px;
+
+      span {
+        display: none;
+      }
     }
   }
 }

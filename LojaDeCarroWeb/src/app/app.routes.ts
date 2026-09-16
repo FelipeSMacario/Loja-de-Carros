@@ -27,6 +27,14 @@ export const routes: Routes = [
           ).then(component => component.VeiculoCadastro),
       },
       {
+        path: 'veiculos/meus-anuncios',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './features/veiculos/pages/meus-anuncios/meus-anuncios'
+          ).then(component => component.MeusAnuncios),
+      },
+      {
         path: 'veiculos/:id',
         loadComponent: () =>
           import(

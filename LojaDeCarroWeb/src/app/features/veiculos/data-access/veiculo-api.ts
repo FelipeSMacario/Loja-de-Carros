@@ -4,8 +4,8 @@ import { Observable } from 'rxjs';
 import { VeiculoDetalheResponse } from '../models/veiculo-detalhe-response';
 import { environment } from '../../../../environments/environment';
 import { PageResponse } from '../../../core/http/page-response';
-import { VeiculoResponse } from '../models/veiculo-response';
-import { VeiculoRequest } from  '../models/veiculo-request';
+import { StatusVeiculo, VeiculoResponse, } from '../models/veiculo-response';
+import { VeiculoRequest } from '../models/veiculo-request';
 
 @Injectable({
   providedIn: 'root',
@@ -60,6 +60,39 @@ export class VeiculoApi {
     return this.http.post<VeiculoResponse>(
       this.url,
       formData
+    );
+  }
+  listarMeusAnuncios(
+    page = 0,
+    size = 9,
+    status?: StatusVeiculo
+  ): Observable<PageResponse<VeiculoResponse>> {
+    let params = new HttpParams()
+      .set('page', page)
+      .set('size', size)
+      .set('sort', 'dataCadastro,desc')
+      .append('sort', 'id,desc');
+
+    if (status !== undefined) {
+      params = params.set('status', status);
+    }
+
+    return this.http.get<PageResponse<VeiculoResponse>>(
+      `${this.url}/meus-anuncios`,
+      { params }
+    );
+  }
+  pausar(id: number): Observable<VeiculoResponse> {
+    return this.http.patch<VeiculoResponse>(
+      `${this.url}/${id}/pausar`,
+      null
+    );
+  }
+
+  reativar(id: number): Observable<VeiculoResponse> {
+    return this.http.patch<VeiculoResponse>(
+      `${this.url}/${id}/reativar`,
+      null
     );
   }
 }

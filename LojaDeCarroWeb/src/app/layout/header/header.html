@@ -26,9 +26,22 @@
             routerLinkActive="site-header__link--active"
             [routerLinkActiveOptions]="{ exact: true }"
             data-testid="announce-link"
+            aria-label="Anunciar veículo"
           >
             <mat-icon aria-hidden="true">add_circle</mat-icon>
             <span>Anunciar</span>
+          </a>
+          <a
+            class="site-header__my-ads"
+            routerLink="/veiculos/meus-anuncios"
+            routerLinkActive="site-header__link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            data-testid="my-ads-link"
+            aria-label="Meus anúncios"
+          >
+            <mat-icon aria-hidden="true"> directions_car </mat-icon>
+
+            <span>Meus anúncios</span>
           </a>
           <span class="site-header__user" data-testid="authenticated-user">
             Olá,
@@ -48,6 +61,7 @@
           <button
             type="button"
             class="site-header__auth-button"
+            aria-label="Entrar"
             data-testid="login-button"
             (click)="entrar()"
           >

@@ -1,19 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import {
-  inject,
-  Injectable,
-} from '@angular/core';
-import {
-  forkJoin,
-  Observable,
-} from 'rxjs';
-
+import {inject, Injectable,} from '@angular/core';
+import {forkJoin, Observable,} from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import {
-  CatalogoItem,
-  ModeloCatalogo,
-  VeiculoCatalogos,
-} from '../models/veiculo-catalogos';
+import {CatalogoItem, ModeloCatalogo, VeiculoCatalogos,} from '../models/veiculo-catalogos';
 
 @Injectable({
   providedIn: 'root',
