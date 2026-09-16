@@ -92,7 +92,7 @@ public class VeiculoServiceCriacaoIntegrationTest extends AbstractVeiculoService
                     .isEqualTo(request.placa());
 
             assertThat(veiculo.getCor().getId())
-                    .isEqualTo(request.idCores());
+                    .isEqualTo(request.idCor());
 
             assertThat(veiculo.getOpcionais())
                     .hasSize(3);
@@ -157,7 +157,7 @@ public class VeiculoServiceCriacaoIntegrationTest extends AbstractVeiculoService
             var exception = assertThrows(NotFoundException.class,
                     () -> veiculoService.criar(request, null, ID_VALIDO));
             //Assert
-            assertNotFoundResponseError(exception, COR, request.idCores());
+            assertNotFoundResponseError(exception, COR, request.idCor());
         }
 
         @Test

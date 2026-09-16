@@ -232,7 +232,7 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             when(veiculoRepository.findById(cx.entity.getId()))
                     .thenReturn(Optional.of(cx.entity));
 
-            when(coresService.buscaCorAtiva(request.idCores()))
+            when(coresService.buscaCorAtiva(request.idCor()))
                     .thenReturn(cor);
 
             when(imagensRepository.findByVeiculo_IdAndPrincipalTrue(cx.entity.getId()))
@@ -279,7 +279,7 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(veiculoRepository, never()).existsByPlaca(anyString());
             verify(veiculoMapper).toUpdate(request, cx.entity);
             verify(carroceriaService, never()).buscaCarroceriaAtiva(anyLong());
-            verify(coresService).buscaCorAtiva(request.idCores());
+            verify(coresService).buscaCorAtiva(request.idCor());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
             verify(imagensRepository).findByVeiculo_IdAndPrincipalTrue(cx.entity.getId());
@@ -542,20 +542,20 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             when(veiculoRepository.findById(cx.entity.getId()))
                     .thenReturn(Optional.of(cx.entity));
 
-            when(coresService.buscaCorAtiva(request.idCores()))
-                    .thenThrow(new NotFoundException(COR, request.idCores()));
+            when(coresService.buscaCorAtiva(request.idCor()))
+                    .thenThrow(new NotFoundException(COR, request.idCor()));
 
             //ACT
             var exception = assertThrows(NotFoundException.class,
                     () -> veiculoService.atualizar(request, ID_VALIDO));
             //Assert
-            assertNotFoundResponseError(exception, COR, request.idCores());
+            assertNotFoundResponseError(exception, COR, request.idCor());
 
             verify(veiculoRepository).findById(cx.entity.getId());
             verify(veiculoRepository, never()).existsByPlaca(anyString());
             verify(veiculoMapper).toUpdate(request, cx.entity);
             verify(carroceriaService, never()).buscaCarroceriaAtiva(anyLong());
-            verify(coresService).buscaCorAtiva(request.idCores());
+            verify(coresService).buscaCorAtiva(request.idCor());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
             verify(veiculoMapper, never()).toResponse(any(), anyLong());

@@ -314,7 +314,7 @@ public class VeiculoService {
 
     private void preencherRelacionamentos(VeiculoRequest request, Veiculo veiculoEntity) {
         veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
-        veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
+        veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCor()));
         veiculoEntity.setModelo(modeloService.buscaModeloAtivo(request.idModelo()));
         veiculoEntity.setCombustivel(combustivelService.buscaCombustivelAtivo(request.idCombustivel()));
 
@@ -325,8 +325,8 @@ public class VeiculoService {
             veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
         }
 
-        if (!Objects.equals(request.idCores(), veiculoEntity.getCor().getId())) {
-            veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
+        if (!Objects.equals(request.idCor(), veiculoEntity.getCor().getId())) {
+            veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCor()));
         }
 
         if (!Objects.equals(request.idModelo(), veiculoEntity.getModelo().getId())) {

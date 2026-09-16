@@ -47,7 +47,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             when(carroceriaService.buscaCarroceriaAtiva(cx.request.idCarroceria()))
                     .thenReturn(cx.carroceria);
 
-            when(coresService.buscaCorAtiva(cx.request.idCores()))
+            when(coresService.buscaCorAtiva(cx.request.idCor()))
                     .thenReturn(cx.cor);
 
             when(modeloService.buscaModeloAtivo(cx.request.idModelo()))
@@ -107,7 +107,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoMapper).toEntity(cx.request);
             verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
-            verify(coresService).buscaCorAtiva(cx.request.idCores());
+            verify(coresService).buscaCorAtiva(cx.request.idCor());
             verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
             verify(combustivelService).buscaCombustivelAtivo(cx.request.idCombustivel());
             verify(opcionalService).buscarOpcionaisAtivos(cx.request.idsOpcionais());
@@ -225,20 +225,20 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
                     .thenReturn(cx.entity);
             when(carroceriaService.buscaCarroceriaAtiva(cx.request.idCarroceria()))
                     .thenReturn(cx.carroceria);
-            when(coresService.buscaCorAtiva(cx.request.idCores()))
-                    .thenThrow(new NotFoundException(COR, cx.request.idCores()));
+            when(coresService.buscaCorAtiva(cx.request.idCor()))
+                    .thenThrow(new NotFoundException(COR, cx.request.idCor()));
 
             //ACT
             var excecao = assertThrows(NotFoundException.class,
                     () -> veiculoService.criar(cx.request, cx.imagemFile, ID_VALIDO));
             //Assert
-            assertNotFoundResponseError(excecao, COR, cx.request.idCores());
+            assertNotFoundResponseError(excecao, COR, cx.request.idCor());
 
             verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoMapper).toEntity(cx.request);
             verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
-            verify(coresService).buscaCorAtiva(cx.request.idCores());
+            verify(coresService).buscaCorAtiva(cx.request.idCor());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
             verify(opcionalService, never()).buscarOpcionaisAtivos(any());
@@ -264,7 +264,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             when(carroceriaService.buscaCarroceriaAtiva(cx.request.idCarroceria()))
                     .thenReturn(cx.carroceria);
 
-            when(coresService.buscaCorAtiva(cx.request.idCores()))
+            when(coresService.buscaCorAtiva(cx.request.idCor()))
                     .thenReturn(cx.cor);
 
             when(modeloService.buscaModeloAtivo(cx.request.idModelo()))
@@ -279,7 +279,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoMapper).toEntity(cx.request);
             verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
-            verify(coresService).buscaCorAtiva(cx.request.idCores());
+            verify(coresService).buscaCorAtiva(cx.request.idCor());
             verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
             verify(opcionalService, never()).buscarOpcionaisAtivos(any());
@@ -307,7 +307,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             when(carroceriaService.buscaCarroceriaAtiva(cx.request.idCarroceria()))
                     .thenReturn(cx.carroceria);
 
-            when(coresService.buscaCorAtiva(cx.request.idCores()))
+            when(coresService.buscaCorAtiva(cx.request.idCor()))
                     .thenReturn(cx.cor);
 
             when(modeloService.buscaModeloAtivo(cx.request.idModelo()))
@@ -326,7 +326,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             verify(veiculoRepository).existsByPlaca(cx.request.placa());
             verify(veiculoMapper).toEntity(cx.request);
             verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
-            verify(coresService).buscaCorAtiva(cx.request.idCores());
+            verify(coresService).buscaCorAtiva(cx.request.idCor());
             verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
             verify(combustivelService).buscaCombustivelAtivo(cx.request.idCombustivel());
             verify(opcionalService, never()).buscarOpcionaisAtivos(any());
@@ -358,7 +358,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             when(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()))
                     .thenReturn(cx.carroceria);
 
-            when(coresService.buscaCorAtiva(request.idCores()))
+            when(coresService.buscaCorAtiva(request.idCor()))
                     .thenReturn(cx.cor);
 
             when(modeloService.buscaModeloAtivo(request.idModelo()))
@@ -378,7 +378,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             verify(veiculoRepository).existsByPlaca(request.placa());
             verify(veiculoMapper).toEntity(any());
             verify(carroceriaService).buscaCarroceriaAtiva(request.idCarroceria());
-            verify(coresService).buscaCorAtiva(request.idCores());
+            verify(coresService).buscaCorAtiva(request.idCor());
             verify(modeloService).buscaModeloAtivo(request.idModelo());
             verify(combustivelService).buscaCombustivelAtivo(request.idCombustivel());
             verify(veiculoRepository, never()).save(any());
@@ -411,7 +411,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             when(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()))
                     .thenReturn(cx.carroceria);
 
-            when(coresService.buscaCorAtiva(request.idCores()))
+            when(coresService.buscaCorAtiva(request.idCor()))
                     .thenReturn(cx.cor);
 
             when(modeloService.buscaModeloAtivo(request.idModelo()))
@@ -433,7 +433,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             verify(veiculoRepository).existsByPlaca(request.placa());
             verify(veiculoMapper).toEntity(any());
             verify(carroceriaService).buscaCarroceriaAtiva(request.idCarroceria());
-            verify(coresService).buscaCorAtiva(request.idCores());
+            verify(coresService).buscaCorAtiva(request.idCor());
             verify(modeloService).buscaModeloAtivo(request.idModelo());
             verify(combustivelService).buscaCombustivelAtivo(request.idCombustivel());
             verify(veiculoRepository, never()).save(any());
@@ -459,7 +459,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             when(carroceriaService.buscaCarroceriaAtiva(cx.request.idCarroceria()))
                     .thenReturn(cx.carroceria);
 
-            when(coresService.buscaCorAtiva(cx.request.idCores()))
+            when(coresService.buscaCorAtiva(cx.request.idCor()))
                     .thenReturn(cx.cor);
 
             when(modeloService.buscaModeloAtivo(cx.request.idModelo()))
@@ -488,7 +488,7 @@ public class VeiculoServiceCriarTest extends AbstractVeiculoServiceTest {
             verify(veiculoMapper).toEntity(cx.request);
             verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verify(carroceriaService).buscaCarroceriaAtiva(cx.request.idCarroceria());
-            verify(coresService).buscaCorAtiva(cx.request.idCores());
+            verify(coresService).buscaCorAtiva(cx.request.idCor());
             verify(modeloService).buscaModeloAtivo(cx.request.idModelo());
             verify(combustivelService).buscaCombustivelAtivo(cx.request.idCombustivel());
             verify(veiculoRepository).existsByPlaca(cx.request.placa());

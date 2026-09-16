@@ -276,7 +276,7 @@ public class VeiculoServiceAtualizacaoIntegrationTest extends AbstractVeiculoSer
                     () -> veiculoService.atualizar(request, idVeiculo));
 
             //Assert
-            assertNotFoundResponseError(exception, COR, request.idCores());
+            assertNotFoundResponseError(exception, COR, request.idCor());
 
         }
 
