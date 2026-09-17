@@ -6,6 +6,7 @@ import { environment } from '../../../../environments/environment';
 import { PageResponse } from '../../../core/http/page-response';
 import { StatusVeiculo, VeiculoResponse, } from '../models/veiculo-response';
 import { VeiculoRequest } from '../models/veiculo-request';
+import { VeiculoEdicaoResponse } from '../models/veiculo-edicao-response';
 
 @Injectable({
   providedIn: 'root',
@@ -93,6 +94,29 @@ export class VeiculoApi {
     return this.http.patch<VeiculoResponse>(
       `${this.url}/${id}/reativar`,
       null
+    );
+  }
+  buscarMeuAnuncio(
+    id: number
+  ): Observable<VeiculoDetalheResponse> {
+    return this.http.get<VeiculoDetalheResponse>(
+      `${this.url}/meus-anuncios/${id}`
+    );
+  }
+  buscarMeuAnuncioParaEdicao(
+    id: number
+  ): Observable<VeiculoEdicaoResponse> {
+    return this.http.get<VeiculoEdicaoResponse>(
+      `${this.url}/meus-anuncios/${id}/edicao`
+    );
+  }
+  atualizar(
+    id: number,
+    request: VeiculoRequest
+  ): Observable<VeiculoResponse> {
+    return this.http.put<VeiculoResponse>(
+      `${this.url}/${id}`,
+      request
     );
   }
 }

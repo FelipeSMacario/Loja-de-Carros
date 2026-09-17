@@ -224,4 +224,104 @@ class VeiculoMapperTest extends MapperTest {
                         tuple(3L, "Roda liga leve", true)
                 );
     }
+
+    @Test
+    @DisplayName("Deve converter a entidade para resposta de edição")
+    void deveConverterEntityParaEdicaoResponse() {
+        // Arrange
+        var entity = criarVeiculoEntity();
+
+        entity.setImagens(
+                List.of(
+                        ImagemEntityFactory
+                                .criarEntity()
+                                .comTodosOsCampos()
+                                .comPrincipal(true)
+                                .build(),
+                        ImagemEntityFactory
+                                .criarEntity()
+                                .comTodosOsCampos()
+                                .comId(2L)
+                                .comPrincipal(false)
+                                .build()
+                )
+        );
+
+        var opcionais = List.of(
+                OpcionalEntityFactory
+                        .criarEntity()
+                        .comId(1L)
+                        .comNome("Freio ABS")
+                        .comAtivo(true)
+                        .build(),
+                OpcionalEntityFactory
+                        .criarEntity()
+                        .comId(2L)
+                        .comNome("Multimídia")
+                        .comAtivo(true)
+                        .build()
+        );
+
+        entity.setOpcionais(
+                List.of(
+                        new VeiculoOpcional(
+                                entity,
+                                opcionais.getFirst()
+                        ),
+                        new VeiculoOpcional(
+                                entity,
+                                opcionais.getLast()
+                        )
+                )
+        );
+
+        // Act
+        var response =
+                mapper.toEdicaoResponse(entity);
+
+        // Assert
+        assertThat(response)
+                .isNotNull()
+                .extracting(
+                        VeiculoEdicaoResponse::id,
+                        VeiculoEdicaoResponse::placa,
+                        VeiculoEdicaoResponse::quilometragem,
+                        VeiculoEdicaoResponse::valor,
+                        VeiculoEdicaoResponse::motor,
+                        VeiculoEdicaoResponse::descricao,
+                        VeiculoEdicaoResponse::anoFabricacao,
+                        VeiculoEdicaoResponse::idCarroceria,
+                        VeiculoEdicaoResponse::idCor,
+                        VeiculoEdicaoResponse::idModelo,
+                        VeiculoEdicaoResponse::idCombustivel,
+                        VeiculoEdicaoResponse::statusVeiculo
+                )
+                .containsExactly(
+                        entity.getId(),
+                        entity.getPlaca(),
+                        entity.getQuilometragem(),
+                        entity.getValor(),
+                        entity.getMotor(),
+                        entity.getDescricao(),
+                        entity.getAnoFabricacao(),
+                        entity.getCarroceria().getId(),
+                        entity.getCor().getId(),
+                        entity.getModelo().getId(),
+                        entity.getCombustivel().getId(),
+                        entity.getStatusVeiculo()
+                );
+
+        assertThat(response.idsOpcionais())
+                .containsExactly(1L, 2L);
+
+        assertThat(response.imagens())
+                .extracting(
+                        VeiculoImagemResponse::id,
+                        VeiculoImagemResponse::principal
+                )
+                .containsExactlyInAnyOrder(
+                        tuple(1L, true),
+                        tuple(2L, false)
+                );
+    }
 }

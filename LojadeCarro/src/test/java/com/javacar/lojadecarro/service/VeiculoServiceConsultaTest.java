@@ -1,9 +1,11 @@
 package com.javacar.lojadecarro.service;
 
+import com.javacar.lojadecarro.dto.response.VeiculoEdicaoResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
+import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.helper.VeiculoTestContext;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoEntityFactory;
@@ -677,6 +679,232 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest {
 
             verifyNoMoreInteractions(veiculoRepository, veiculoMapper);
 
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes da busca de um anúncio do vendedor")
+    class BuscarMeuAnuncio {
+
+        @Test
+        @DisplayName(
+                "Deve buscar um anúncio vendido do vendedor"
+        )
+        void deveBuscarAnuncioVendidoDoVendedor() {
+            // Arrange
+            var cx = new VeiculoTestContext();
+            cx.entity.setStatusVeiculo(VENDIDO);
+
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
+            when(veiculoRepository.findByIdAndVendedor_Id(
+                    ID_VALIDO,
+                    cx.usuario.getId()
+            )).thenReturn(Optional.of(cx.entity));
+
+            when(veiculoMapper.toDetalheResponse(cx.entity))
+                    .thenReturn(cx.responseDetalhes);
+
+            // Act
+            var resultado = veiculoService.buscarMeuAnuncio(
+                    ID_VALIDO,
+                    ID_VALIDO
+            );
+
+            // Assert
+            assertThat(resultado)
+                    .isSameAs(cx.responseDetalhes);
+
+            verify(usuarioService)
+                    .buscaUsuarioAtivo(ID_VALIDO);
+
+            verify(veiculoRepository)
+                    .findByIdAndVendedor_Id(
+                            ID_VALIDO,
+                            cx.usuario.getId()
+                    );
+
+            verify(veiculoMapper)
+                    .toDetalheResponse(cx.entity);
+
+            verifyNoMoreInteractions(
+                    usuarioService,
+                    veiculoRepository,
+                    veiculoMapper
+            );
+        }
+
+        @Test
+        @DisplayName(
+                "Deve lançar exceção quando o anúncio não pertencer ao vendedor"
+        )
+        void deveLancarExcecaoQuandoAnuncioNaoPertencerAoVendedor() {
+            // Arrange
+            var cx = new VeiculoTestContext();
+
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
+            when(veiculoRepository.findByIdAndVendedor_Id(
+                    ID_VALIDO,
+                    cx.usuario.getId()
+            )).thenReturn(Optional.empty());
+
+            // Act
+            var exception = assertThrows(
+                    NotFoundException.class,
+                    () -> veiculoService.buscarMeuAnuncio(
+                            ID_VALIDO,
+                            ID_VALIDO
+                    )
+            );
+
+            // Assert
+            assertNotFoundResponseError(
+                    exception,
+                    VEICULO,
+                    ID_VALIDO
+            );
+
+            verify(usuarioService)
+                    .buscaUsuarioAtivo(ID_VALIDO);
+
+            verify(veiculoRepository)
+                    .findByIdAndVendedor_Id(
+                            ID_VALIDO,
+                            cx.usuario.getId()
+                    );
+
+            verifyNoInteractions(veiculoMapper);
+
+            verifyNoMoreInteractions(
+                    usuarioService,
+                    veiculoRepository
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes da busca de um anúncio para edição")
+    class BuscarMeuAnuncioParaEdicao {
+
+        @Test
+        @DisplayName(
+                "Deve buscar um anúncio pausado para edição"
+        )
+        void deveBuscarAnuncioPausadoParaEdicao() {
+            // Arrange
+            var cx = new VeiculoTestContext();
+            cx.entity.setStatusVeiculo(PAUSADO);
+
+            var response = new VeiculoEdicaoResponse(
+                    cx.entity.getId(),
+                    cx.entity.getPlaca(),
+                    cx.entity.getQuilometragem(),
+                    cx.entity.getValor(),
+                    cx.entity.getMotor(),
+                    cx.entity.getDescricao(),
+                    cx.entity.getAnoFabricacao(),
+                    cx.entity.getCarroceria().getId(),
+                    cx.entity.getCor().getId(),
+                    cx.entity.getModelo().getId(),
+                    cx.entity.getCombustivel().getId(),
+                    List.of(),
+                    cx.entity.getStatusVeiculo(),
+                    List.of()
+            );
+
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
+            when(veiculoRepository.findByIdAndVendedor_Id(
+                    ID_VALIDO,
+                    cx.usuario.getId()
+            )).thenReturn(Optional.of(cx.entity));
+
+            when(veiculoMapper.toEdicaoResponse(cx.entity))
+                    .thenReturn(response);
+
+            // Act
+            var resultado =
+                    veiculoService.buscarMeuAnuncioParaEdicao(
+                            ID_VALIDO,
+                            ID_VALIDO
+                    );
+
+            // Assert
+            assertThat(resultado).isSameAs(response);
+
+            verify(usuarioService)
+                    .buscaUsuarioAtivo(ID_VALIDO);
+
+            verify(veiculoRepository)
+                    .findByIdAndVendedor_Id(
+                            ID_VALIDO,
+                            cx.usuario.getId()
+                    );
+
+            verify(veiculoMapper)
+                    .toEdicaoResponse(cx.entity);
+
+            verifyNoMoreInteractions(
+                    usuarioService,
+                    veiculoRepository,
+                    veiculoMapper
+            );
+        }
+
+        @Test
+        @DisplayName(
+                "Deve impedir a edição de um anúncio vendido"
+        )
+        void deveImpedirEdicaoDeAnuncioVendido() {
+            // Arrange
+            var cx = new VeiculoTestContext();
+            cx.entity.setStatusVeiculo(VENDIDO);
+
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
+            when(veiculoRepository.findByIdAndVendedor_Id(
+                    ID_VALIDO,
+                    cx.usuario.getId()
+            )).thenReturn(Optional.of(cx.entity));
+
+            // Act
+            var exception = assertThrows(
+                    BusinessException.class,
+                    () ->
+                            veiculoService
+                                    .buscarMeuAnuncioParaEdicao(
+                                            ID_VALIDO,
+                                            ID_VALIDO
+                                    )
+            );
+
+            // Assert
+            assertThat(exception.getMessage())
+                    .isEqualTo(
+                            "Somente anúncios disponíveis ou pausados " +
+                                    "podem ser editados."
+                    );
+
+            verify(usuarioService)
+                    .buscaUsuarioAtivo(ID_VALIDO);
+
+            verify(veiculoRepository)
+                    .findByIdAndVendedor_Id(
+                            ID_VALIDO,
+                            cx.usuario.getId()
+                    );
+
+            verifyNoInteractions(veiculoMapper);
+
+            verifyNoMoreInteractions(
+                    usuarioService,
+                    veiculoRepository
+            );
         }
     }
 

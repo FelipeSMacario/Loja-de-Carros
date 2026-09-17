@@ -4,10 +4,11 @@ import { environment } from '../../../../../environments/environment';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoDetalheResponse } from '../../models/veiculo-detalhe-response';
 import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from  '@angular/material/button';
 
 @Component({
   selector: 'app-veiculo-detalhe',
-  imports: [MatIconModule, RouterLink,],
+  imports: [MatButtonModule, MatIconModule, RouterLink,],
   templateUrl: './veiculo-detalhe.html',
   styleUrl: './veiculo-detalhe.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -27,11 +28,38 @@ export class VeiculoDetalhe implements OnInit {
   readonly imagemSelecionadaUrl = computed(() => {
     const id = this.imagemSelecionadaId();
 
+
+
     if (id === null || this.imagemSelecionadaFalhou()) {
       return null;
     }
 
     return `${environment.apiUrl}/imagens/${id}/conteudo`;
+  });
+
+  readonly statusFormatado = computed(() => {
+    const status = this.veiculo()?.statusVeiculo;
+
+    if (status === undefined) {
+      return '';
+    }
+
+    return {
+      DISPONIVEL: 'Disponível',
+      RESERVADO: 'Reservado',
+      PAUSADO: 'Pausado',
+      VENDIDO: 'Vendido',
+    }[status];
+  });
+
+  readonly podeEditar = computed(() => {
+    const status = this.veiculo()?.statusVeiculo;
+
+    return this.gerenciandoMeuAnuncio
+      && (
+        status === 'DISPONIVEL'
+        || status === 'PAUSADO'
+      );
   });
 
   readonly valorFormatado = computed(() => {
@@ -46,16 +74,16 @@ export class VeiculoDetalhe implements OnInit {
   });
 
   readonly imagensOrdenadas = computed(() => {
-  const imagens = this.veiculo()?.imagens ?? [];
+    const imagens = this.veiculo()?.imagens ?? [];
 
-  return [...imagens].sort((imagemA, imagemB) => {
-    if (imagemA.principal !== imagemB.principal) {
-      return imagemA.principal ? -1 : 1;
-    }
+    return [...imagens].sort((imagemA, imagemB) => {
+      if (imagemA.principal !== imagemB.principal) {
+        return imagemA.principal ? -1 : 1;
+      }
 
-    return imagemA.id - imagemB.id;
+      return imagemA.id - imagemB.id;
+    });
   });
-});
 
   readonly quilometragemFormatada = computed(() => {
     const quilometragem = this.veiculo()?.quilometragem;
@@ -65,6 +93,17 @@ export class VeiculoDetalhe implements OnInit {
       : new Intl.NumberFormat('pt-BR')
         .format(quilometragem);
   });
+
+  readonly gerenciandoMeuAnuncio =
+    this.route.snapshot.data?.['meuAnuncio'] === true;
+
+  readonly rotaRetorno = this.gerenciandoMeuAnuncio
+    ? '/veiculos/meus-anuncios'
+    : '/home';
+
+  readonly textoRetorno = this.gerenciandoMeuAnuncio
+    ? 'Voltar aos meus anúncios'
+    : 'Voltar ao estoque';
 
   ngOnInit(): void {
     const id = Number(
@@ -89,31 +128,36 @@ export class VeiculoDetalhe implements OnInit {
     this.carregando.set(true);
     this.erro.set(false);
 
-    this.veiculoApi.buscarPorId(this.idVeiculo)
-      .subscribe({
-        next: veiculo => {
-          this.veiculo.set(veiculo);
+    const consulta = this.gerenciandoMeuAnuncio
+      ? this.veiculoApi.buscarMeuAnuncio(this.idVeiculo)
+      : this.veiculoApi.buscarPorId(this.idVeiculo);
 
-          const imagemPrincipal =
-            veiculo.imagens.find(
-              imagem => imagem.principal
-            ) ?? veiculo.imagens[0];
 
-          this.imagemSelecionadaId.set(
-            imagemPrincipal?.id ?? null
-          );
 
-          this.imagemSelecionadaFalhou.set(false);
-          this.carregando.set(false);
-        },
-        error: () => {
-          this.veiculo.set(null);
-          this.imagemSelecionadaId.set(null);
-          this.imagemSelecionadaFalhou.set(false);
-          this.carregando.set(false);
-          this.erro.set(true);
-        },
-      });
+    consulta.subscribe({
+      next: veiculo => {
+        this.veiculo.set(veiculo);
+
+        const imagemPrincipal =
+          veiculo.imagens.find(
+            imagem => imagem.principal
+          ) ?? veiculo.imagens[0];
+
+        this.imagemSelecionadaId.set(
+          imagemPrincipal?.id ?? null
+        );
+
+        this.imagemSelecionadaFalhou.set(false);
+        this.carregando.set(false);
+      },
+      error: () => {
+        this.veiculo.set(null);
+        this.imagemSelecionadaId.set(null);
+        this.imagemSelecionadaFalhou.set(false);
+        this.carregando.set(false);
+        this.erro.set(true);
+      },
+    });
   }
   selecionarImagem(id: number): void {
     this.imagemSelecionadaId.set(id);
@@ -124,6 +168,6 @@ export class VeiculoDetalhe implements OnInit {
     return `${environment.apiUrl}/imagens/${id}/conteudo`;
   }
   tratarFalhaImagem(): void {
-  this.imagemSelecionadaFalhou.set(true);
+    this.imagemSelecionadaFalhou.set(true);
   }
 }

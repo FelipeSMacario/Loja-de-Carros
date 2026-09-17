@@ -1,456 +1,422 @@
 <main class="vehicle-create">
   <header class="vehicle-create__header">
     <p class="vehicle-create__eyebrow">
-      Novo anúncio
+      {{ modoEdicao ? 'Gerenciamento do anúncio' : 'Novo anúncio' }}
     </p>
 
-    <h1>Anuncie seu veículo</h1>
+    <h1>{{ tituloPagina }}</h1>
 
+    @if (modoEdicao) {
+    <p>
+      Atualize os dados do veículo. As imagens permanecem
+      inalteradas nesta etapa.
+    </p>
+    } @else {
     <p>
       Preencha os dados do veículo e adicione até
       {{ limiteImagens }} imagens.
     </p>
+    }
   </header>
 
-  @if (carregandoCatalogos()) {
-    <section
-      class="vehicle-create__feedback"
-      data-testid="catalog-loading"
-    >
-      <mat-spinner diameter="48" />
-      <p>Carregando opções do anúncio...</p>
-    </section>
-  } @else if (erroCatalogos()) {
-    <section
-      class="vehicle-create__feedback"
-      data-testid="catalog-error"
-    >
-      <mat-icon aria-hidden="true">
-        cloud_off
-      </mat-icon>
+  @if (carregandoCatalogos() || carregandoVeiculo()) {
+  <section class="vehicle-create__feedback" data-testid="catalog-loading">
+    <mat-spinner diameter="48" />
+    <p>
+      {{ modoEdicao
+      ? 'Carregando dados do anúncio...'
+      : 'Carregando opções do anúncio...'
+      }}
+    </p>
+  </section>
+  } @else if (erroCarregamentoVeiculo()) {
+  <section class="vehicle-create__feedback" data-testid="vehicle-loading-error">
+    <mat-icon aria-hidden="true">error_outline</mat-icon>
 
-      <h2>Não foi possível carregar as opções</h2>
+    <h2>Não foi possível carregar o anúncio</h2>
 
-      <p>
-        Verifique a conexão com a API e tente novamente.
-      </p>
+    <p>
+      O anúncio pode não existir, não pertencer ao usuário
+      ou não permitir edição.
+    </p>
 
-      <button
-        type="button"
-        mat-flat-button
-        (click)="carregarCatalogos()"
-      >
-        Tentar novamente
-      </button>
-    </section>
+    <button type="button" mat-flat-button (click)="carregarVeiculoParaEdicao()">
+      Tentar novamente
+    </button>
+  </section>
   } @else if (catalogos(); as catalogos) {
-    <form
-      class="vehicle-form"
-      [formGroup]="formulario"
-      (ngSubmit)="salvar()"
-    >
-      <section class="vehicle-form__section">
-        <header class="vehicle-form__section-header">
-          <span>01</span>
+  <form class="vehicle-form" [formGroup]="formulario" (ngSubmit)="salvar()">
+    <section class="vehicle-form__section">
+      <header class="vehicle-form__section-header">
+        <span>01</span>
 
-          <div>
-            <h2>Identificação e valores</h2>
-            <p>Informações principais do anúncio.</p>
-          </div>
-        </header>
-
-        <div class="vehicle-form__grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Placa</mat-label>
-
-            <input
-              matInput
-              formControlName="placa"
-              maxlength="7"
-              autocomplete="off"
-              placeholder="ABC1D23"
-            />
-
-            <mat-hint>Formato Mercosul ou antigo</mat-hint>
-
-            @if (
-              formulario.controls.placa.touched
-              && formulario.controls.placa.hasError('required')
-            ) {
-              <mat-error>Informe a placa.</mat-error>
-            } @else if (
-              formulario.controls.placa.touched
-              && formulario.controls.placa.hasError('pattern')
-            ) {
-              <mat-error>
-                Use o formato ABC1234 ou ABC1D23.
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Ano de fabricação</mat-label>
-
-            <input
-              matInput
-              type="number"
-              formControlName="anoFabricacao"
-              min="1886"
-              [max]="anoAtual + 1"
-            />
-
-            @if (
-              formulario.controls.anoFabricacao.touched
-              && formulario.controls.anoFabricacao.invalid
-            ) {
-              <mat-error>Informe um ano válido.</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Quilometragem</mat-label>
-
-            <input
-              matInput
-              type="number"
-              formControlName="quilometragem"
-              min="0"
-            />
-
-            <span matTextSuffix>km</span>
-
-            @if (
-              formulario.controls.quilometragem.touched
-              && formulario.controls.quilometragem.invalid
-            ) {
-              <mat-error>
-                Informe uma quilometragem válida.
-              </mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Valor</mat-label>
-
-            <span matTextPrefix>R$&nbsp;</span>
-
-            <input
-              matInput
-              type="number"
-              formControlName="valor"
-              min="0.01"
-              step="0.01"
-            />
-
-            @if (
-              formulario.controls.valor.touched
-              && formulario.controls.valor.invalid
-            ) {
-              <mat-error>Informe um valor válido.</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Motor</mat-label>
-
-            <input
-              matInput
-              formControlName="motor"
-              maxlength="255"
-              placeholder="Ex.: 2.0 Turbo"
-            />
-
-            @if (
-              formulario.controls.motor.touched
-              && formulario.controls.motor.invalid
-            ) {
-              <mat-error>Informe o motor.</mat-error>
-            }
-          </mat-form-field>
+        <div>
+          <h2>Identificação e valores</h2>
+          <p>Informações principais do anúncio.</p>
         </div>
-      </section>
+      </header>
 
-      <section class="vehicle-form__section">
-        <header class="vehicle-form__section-header">
-          <span>02</span>
+      <div class="vehicle-form__grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Placa</mat-label>
 
-          <div>
-            <h2>Características</h2>
-            <p>Selecione a configuração do veículo.</p>
-          </div>
-        </header>
+          <input matInput formControlName="placa" maxlength="7" autocomplete="off" placeholder="ABC1D23" />
 
-        <div class="vehicle-form__grid">
-          <mat-form-field appearance="outline">
-            <mat-label>Modelo</mat-label>
-
-            <mat-select formControlName="idModelo">
-              <mat-option [value]="0">
-                Selecione
-              </mat-option>
-
-              @for (
-                modelo of catalogos.modelos;
-                track modelo.id
-              ) {
-                <mat-option [value]="modelo.id">
-                  {{ modelo.marca.nome }} {{ modelo.nome }}
-                </mat-option>
-              }
-            </mat-select>
-
-            @if (
-              formulario.controls.idModelo.touched
-              && formulario.controls.idModelo.invalid
-            ) {
-              <mat-error>Selecione o modelo.</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Carroceria</mat-label>
-
-            <mat-select formControlName="idCarroceria">
-              <mat-option [value]="0">
-                Selecione
-              </mat-option>
-
-              @for (
-                carroceria of catalogos.carrocerias;
-                track carroceria.id
-              ) {
-                <mat-option [value]="carroceria.id">
-                  {{ carroceria.nome }}
-                </mat-option>
-              }
-            </mat-select>
-
-            @if (
-              formulario.controls.idCarroceria.touched
-              && formulario.controls.idCarroceria.invalid
-            ) {
-              <mat-error>Selecione a carroceria.</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Cor</mat-label>
-
-            <mat-select formControlName="idCor">
-              <mat-option [value]="0">
-                Selecione
-              </mat-option>
-
-              @for (cor of catalogos.cores; track cor.id) {
-                <mat-option [value]="cor.id">
-                  {{ cor.nome }}
-                </mat-option>
-              }
-            </mat-select>
-
-            @if (
-              formulario.controls.idCor.touched
-              && formulario.controls.idCor.invalid
-            ) {
-              <mat-error>Selecione a cor.</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Combustível</mat-label>
-
-            <mat-select formControlName="idCombustivel">
-              <mat-option [value]="0">
-                Selecione
-              </mat-option>
-
-              @for (
-                combustivel of catalogos.combustiveis;
-                track combustivel.id
-              ) {
-                <mat-option [value]="combustivel.id">
-                  {{ combustivel.nome }}
-                </mat-option>
-              }
-            </mat-select>
-
-            @if (
-              formulario.controls.idCombustivel.touched
-              && formulario.controls.idCombustivel.invalid
-            ) {
-              <mat-error>Selecione o combustível.</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field
-            appearance="outline"
-            class="vehicle-form__field--wide"
-          >
-            <mat-label>Opcionais</mat-label>
-
-            <mat-select
-              formControlName="idsOpcionais"
-              multiple
-            >
-              @for (
-                opcional of catalogos.opcionais;
-                track opcional.id
-              ) {
-                <mat-option [value]="opcional.id">
-                  {{ opcional.nome }}
-                </mat-option>
-              }
-            </mat-select>
-
-            <mat-hint>
-              Nenhum opcional é obrigatório
-            </mat-hint>
-          </mat-form-field>
-        </div>
-      </section>
-
-      <section class="vehicle-form__section">
-        <header class="vehicle-form__section-header">
-          <span>03</span>
-
-          <div>
-            <h2>Descrição</h2>
-            <p>
-              Informe o estado e os diferenciais do veículo.
-            </p>
-          </div>
-        </header>
-
-        <mat-form-field
-          appearance="outline"
-          class="vehicle-form__field--wide"
-        >
-          <mat-label>Descrição do veículo</mat-label>
-
-          <textarea
-            matInput
-            formControlName="descricao"
-            maxlength="255"
-            rows="5"
-            placeholder="Ex.: veículo em ótimo estado, revisões em dia..."
-          ></textarea>
-
-          <mat-hint align="end">
-            {{ formulario.controls.descricao.value.length }}/255
-          </mat-hint>
+          <mat-hint>Formato Mercosul ou antigo</mat-hint>
 
           @if (
-            formulario.controls.descricao.touched
-            && formulario.controls.descricao.invalid
+          formulario.controls.placa.touched
+          && formulario.controls.placa.hasError('required')
           ) {
-            <mat-error>Informe uma descrição.</mat-error>
+          <mat-error>Informe a placa.</mat-error>
+          } @else if (
+          formulario.controls.placa.touched
+          && formulario.controls.placa.hasError('pattern')
+          ) {
+          <mat-error>
+            Use o formato ABC1234 ou ABC1D23.
+          </mat-error>
           }
         </mat-form-field>
-      </section>
 
-      <section class="vehicle-form__section">
-        <header class="vehicle-form__section-header">
-          <span>04</span>
+        <mat-form-field appearance="outline">
+          <mat-label>Ano de fabricação</mat-label>
 
-          <div>
-            <h2>Imagens</h2>
-            <p>
-              A primeira imagem será definida como principal.
-            </p>
-          </div>
-        </header>
+          <input matInput type="number" formControlName="anoFabricacao" min="1886" [max]="anoAtual + 1" />
 
-        <label class="vehicle-upload">
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            (change)="selecionarArquivos($event)"
-          />
+          @if (
+          formulario.controls.anoFabricacao.touched
+          && formulario.controls.anoFabricacao.invalid
+          ) {
+          <mat-error>Informe um ano válido.</mat-error>
+          }
+        </mat-form-field>
 
-          <mat-icon aria-hidden="true">
-            add_photo_alternate
-          </mat-icon>
+        <mat-form-field appearance="outline">
+          <mat-label>Quilometragem</mat-label>
 
-          <strong>Selecionar imagens</strong>
+          <input matInput type="number" formControlName="quilometragem" min="0" />
 
-          <span>
-            Até {{ limiteImagens }} arquivos. Imagens são opcionais.
-          </span>
-        </label>
+          <span matTextSuffix>km</span>
 
-        @if (erroArquivos(); as mensagem) {
-          <p
-            class="vehicle-form__error"
-            role="alert"
-          >
-            {{ mensagem }}
-          </p>
-        }
+          @if (
+          formulario.controls.quilometragem.touched
+          && formulario.controls.quilometragem.invalid
+          ) {
+          <mat-error>
+            Informe uma quilometragem válida.
+          </mat-error>
+          }
+        </mat-form-field>
 
-        @if (arquivosSelecionados().length > 0) {
-          <ul class="vehicle-files">
-            @for (
-              arquivo of arquivosSelecionados();
-              track arquivo.name + $index;
-              let indice = $index
-            ) {
-              <li>
-                <mat-icon aria-hidden="true">
-                  image
-                </mat-icon>
+        <mat-form-field appearance="outline">
+          <mat-label>Valor</mat-label>
 
-                <span>
-                  <strong>{{ arquivo.name }}</strong>
-                  <small>
-                    {{ (arquivo.size / 1024 / 1024).toFixed(2) }} MB
-                  </small>
-                </span>
+          <span matTextPrefix>R$&nbsp;</span>
 
-                <button
-                  type="button"
-                  aria-label="Remover imagem"
-                  (click)="removerArquivo(indice)"
-                >
-                  <mat-icon aria-hidden="true">
-                    close
-                  </mat-icon>
-                </button>
-              </li>
-            }
-          </ul>
-        }
-      </section>
+          <input matInput type="number" formControlName="valor" min="0.01" step="0.01" />
 
-      @if (erroCadastro()) {
-        <div
-          class="vehicle-form__submit-error"
-          role="alert"
-        >
-          <mat-icon aria-hidden="true">error</mat-icon>
+          @if (
+          formulario.controls.valor.touched
+          && formulario.controls.valor.invalid
+          ) {
+          <mat-error>Informe um valor válido.</mat-error>
+          }
+        </mat-form-field>
 
-          <span>
-            Não foi possível publicar o anúncio.
-            Revise os dados e tente novamente.
-          </span>
+        <mat-form-field appearance="outline">
+          <mat-label>Motor</mat-label>
+
+          <input matInput formControlName="motor" maxlength="255" placeholder="Ex.: 2.0 Turbo" />
+
+          @if (
+          formulario.controls.motor.touched
+          && formulario.controls.motor.invalid
+          ) {
+          <mat-error>Informe o motor.</mat-error>
+          }
+        </mat-form-field>
+      </div>
+    </section>
+
+    <section class="vehicle-form__section">
+      <header class="vehicle-form__section-header">
+        <span>02</span>
+
+        <div>
+          <h2>Características</h2>
+          <p>Selecione a configuração do veículo.</p>
         </div>
+      </header>
+
+      <div class="vehicle-form__grid">
+        <mat-form-field appearance="outline">
+          <mat-label>Modelo</mat-label>
+
+          <mat-select formControlName="idModelo">
+            <mat-option [value]="0">
+              Selecione
+            </mat-option>
+
+            @for (
+            modelo of catalogos.modelos;
+            track modelo.id
+            ) {
+            <mat-option [value]="modelo.id">
+              {{ modelo.marca.nome }} {{ modelo.nome }}
+            </mat-option>
+            }
+          </mat-select>
+
+          @if (
+          formulario.controls.idModelo.touched
+          && formulario.controls.idModelo.invalid
+          ) {
+          <mat-error>Selecione o modelo.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Carroceria</mat-label>
+
+          <mat-select formControlName="idCarroceria">
+            <mat-option [value]="0">
+              Selecione
+            </mat-option>
+
+            @for (
+            carroceria of catalogos.carrocerias;
+            track carroceria.id
+            ) {
+            <mat-option [value]="carroceria.id">
+              {{ carroceria.nome }}
+            </mat-option>
+            }
+          </mat-select>
+
+          @if (
+          formulario.controls.idCarroceria.touched
+          && formulario.controls.idCarroceria.invalid
+          ) {
+          <mat-error>Selecione a carroceria.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Cor</mat-label>
+
+          <mat-select formControlName="idCor">
+            <mat-option [value]="0">
+              Selecione
+            </mat-option>
+
+            @for (cor of catalogos.cores; track cor.id) {
+            <mat-option [value]="cor.id">
+              {{ cor.nome }}
+            </mat-option>
+            }
+          </mat-select>
+
+          @if (
+          formulario.controls.idCor.touched
+          && formulario.controls.idCor.invalid
+          ) {
+          <mat-error>Selecione a cor.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Combustível</mat-label>
+
+          <mat-select formControlName="idCombustivel">
+            <mat-option [value]="0">
+              Selecione
+            </mat-option>
+
+            @for (
+            combustivel of catalogos.combustiveis;
+            track combustivel.id
+            ) {
+            <mat-option [value]="combustivel.id">
+              {{ combustivel.nome }}
+            </mat-option>
+            }
+          </mat-select>
+
+          @if (
+          formulario.controls.idCombustivel.touched
+          && formulario.controls.idCombustivel.invalid
+          ) {
+          <mat-error>Selecione o combustível.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="vehicle-form__field--wide">
+          <mat-label>Opcionais</mat-label>
+
+          <mat-select formControlName="idsOpcionais" multiple>
+            @for (
+            opcional of catalogos.opcionais;
+            track opcional.id
+            ) {
+            <mat-option [value]="opcional.id">
+              {{ opcional.nome }}
+            </mat-option>
+            }
+          </mat-select>
+
+          <mat-hint>
+            Nenhum opcional é obrigatório
+          </mat-hint>
+        </mat-form-field>
+      </div>
+    </section>
+
+    <section class="vehicle-form__section">
+      <header class="vehicle-form__section-header">
+        <span>03</span>
+
+        <div>
+          <h2>Descrição</h2>
+          <p>
+            Informe o estado e os diferenciais do veículo.
+          </p>
+        </div>
+      </header>
+
+      <mat-form-field appearance="outline" class="vehicle-form__field--wide">
+        <mat-label>Descrição do veículo</mat-label>
+
+        <textarea matInput formControlName="descricao" maxlength="255" rows="5"
+          placeholder="Ex.: veículo em ótimo estado, revisões em dia..."></textarea>
+
+        <mat-hint align="end">
+          {{ formulario.controls.descricao.value.length }}/255
+        </mat-hint>
+
+        @if (
+        formulario.controls.descricao.touched
+        && formulario.controls.descricao.invalid
+        ) {
+        <mat-error>Informe uma descrição.</mat-error>
+        }
+      </mat-form-field>
+    </section>
+
+    <section class="vehicle-form__section">
+      <header class="vehicle-form__section-header">
+        <span>04</span>
+
+        <div>
+          <h2>
+            {{ modoEdicao ? 'Imagens atuais' : 'Imagens' }}
+          </h2>
+
+          <p>
+            @if (modoEdicao) {
+            As imagens existentes não serão alteradas.
+            } @else {
+            A primeira imagem será definida como principal.
+            }
+          </p>
+        </div>
+      </header>
+
+      <label class="vehicle-upload">
+        <input type="file" accept="image/*" multiple (change)="selecionarArquivos($event)" />
+
+        <mat-icon aria-hidden="true">
+          add_photo_alternate
+        </mat-icon>
+
+        <strong>Selecionar imagens</strong>
+
+        <span>
+          Até {{ limiteImagens }} arquivos. Imagens são opcionais.
+        </span>
+      </label>
+      @if (!modoEdicao) {
+      @if (erroArquivos(); as mensagem) {
+      <p class="vehicle-form__error" role="alert">
+        {{ mensagem }}
+      </p>
       }
 
-      <footer class="vehicle-form__actions">
-        <button
-          type="submit"
-          mat-flat-button
-          [disabled]="enviando()"
-        >
-          @if (enviando()) {
-            <mat-spinner diameter="20" />
-            Publicando...
-          } @else {
-            <mat-icon aria-hidden="true">publish</mat-icon>
-            Publicar anúncio
-          }
-        </button>
-      </footer>
-    </form>
+      @if (arquivosSelecionados().length > 0) {
+      <ul class="vehicle-files">
+        @for (
+        arquivo of arquivosSelecionados();
+        track arquivo.name + $index;
+        let indice = $index
+        ) {
+        <li>
+          <mat-icon aria-hidden="true">
+            image
+          </mat-icon>
+
+          <span>
+            <strong>{{ arquivo.name }}</strong>
+            <small>
+              {{ (arquivo.size / 1024 / 1024).toFixed(2) }} MB
+            </small>
+          </span>
+
+          <button type="button" aria-label="Remover imagem" (click)="removerArquivo(indice)">
+            <mat-icon aria-hidden="true">
+              close
+            </mat-icon>
+          </button>
+        </li>
+        }
+      </ul>
+      }
+      } @else {
+      <div class="vehicle-form__existing-images">
+        <mat-icon aria-hidden="true">photo_library</mat-icon>
+
+        <span>
+          <strong>
+            {{ imagensExistentes().length }}
+            {{ imagensExistentes().length === 1 ? 'imagem' : 'imagens' }}
+          </strong>
+
+          <small>
+            O gerenciamento das imagens será feito separadamente.
+          </small>
+        </span>
+      </div>
+      }
+    </section>
+
+    @if (erroCadastro()) {
+    <div class="vehicle-form__submit-error" role="alert">
+      <mat-icon aria-hidden="true">error</mat-icon>
+
+      <span>
+        @if (modoEdicao) {
+        Não foi possível salvar as alterações.
+        } @else {
+        Não foi possível publicar o anúncio.
+        }
+        Revise os dados e tente novamente.
+      </span>
+    </div>
+    }
+
+    <footer class="vehicle-form__actions">
+      <button type="submit" mat-flat-button [disabled]="enviando()">
+        @if (enviando()) {
+        <mat-spinner diameter="20" />
+        {{ modoEdicao ? 'Salvando...' : 'Publicando...' }}
+        } @else {
+        <mat-icon aria-hidden="true">
+          {{ modoEdicao ? 'save' : 'publish' }}
+        </mat-icon>
+
+        {{ textoBotaoSalvar }}
+        }
+      </button>
+    </footer>
+  </form>
   }
 </main>

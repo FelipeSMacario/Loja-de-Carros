@@ -44,7 +44,8 @@ public class WebSecurityConfig {
 
                         .requestMatchers(
                                 HttpMethod.GET,
-                                "/veiculos/meus-anuncios"
+                                "/veiculos/meus-anuncios",
+                                "/veiculos/meus-anuncios/**"
                         ).authenticated()
 
                         .requestMatchers(

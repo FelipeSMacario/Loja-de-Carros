@@ -4,8 +4,9 @@ import { vi } from 'vitest';
 import { VeiculoCatalogoApi } from '../../data-access/veiculo-catalogo-api';
 import { VeiculoCatalogos } from '../../models/veiculo-catalogos';
 import { VeiculoCadastro } from './veiculo-cadastro';
-import { Router } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router, } from '@angular/router';
 import { VeiculoApi } from '../../data-access/veiculo-api';
+import { VeiculoEdicaoResponse } from '../../models/veiculo-edicao-response';
 
 describe('VeiculoCadastro', () => {
   let component: VeiculoCadastro;
@@ -39,10 +40,19 @@ describe('VeiculoCadastro', () => {
 
   const veiculoApiMock = {
     criar: vi.fn(),
+    atualizar: vi.fn(),
+    buscarMeuAnuncioParaEdicao: vi.fn(),
   };
 
   const routerMock = {
     navigate: vi.fn(),
+  };
+
+  const activatedRouteMock = {
+    snapshot: {
+      data: {} as Record<string, unknown>,
+      paramMap: convertToParamMap({}),
+    },
   };
 
   const catalogos: VeiculoCatalogos = {
@@ -76,11 +86,37 @@ describe('VeiculoCadastro', () => {
     ],
   };
 
+  const veiculoParaEdicao: VeiculoEdicaoResponse = {
+    id: 42,
+    placa: 'ABC1D23',
+    anoFabricacao: 2024,
+    quilometragem: 28000,
+    valor: 350000,
+    motor: '2.0',
+    descricao: null,
+    idModelo: 4,
+    idCarroceria: 1,
+    idCor: 3,
+    idCombustivel: 2,
+    idsOpcionais: [6],
+    statusVeiculo: 'PAUSADO',
+    imagens: [
+      {
+        id: 10,
+        principal: true,
+      },
+    ],
+  };
+
   const catalogoApiMock = {
     carregar: vi.fn(),
   };
 
   beforeEach(async () => {
+    activatedRouteMock.snapshot.data = {};
+    activatedRouteMock.snapshot.paramMap =
+      convertToParamMap({});
+
     veiculoApiMock.criar.mockReset();
     routerMock.navigate.mockReset();
 
@@ -91,6 +127,12 @@ describe('VeiculoCadastro', () => {
     catalogoApiMock.carregar.mockReturnValue(
       of(catalogos)
     );
+    veiculoApiMock.atualizar
+      .mockReset()
+      .mockReturnValue(of({ id: 99 }));
+
+    veiculoApiMock.buscarMeuAnuncioParaEdicao
+      .mockReset();
 
     await TestBed.configureTestingModule({
       imports: [VeiculoCadastro],
@@ -106,6 +148,10 @@ describe('VeiculoCadastro', () => {
         {
           provide: Router,
           useValue: routerMock,
+        },
+        {
+          provide: ActivatedRoute,
+          useValue: activatedRouteMock,
         },
       ],
     }).compileComponents();
@@ -321,5 +367,123 @@ describe('VeiculoCadastro', () => {
         '/veiculos',
         99,
       ]);
+  });
+  it('should load an ad for editing', () => {
+    activatedRouteMock.snapshot.data = {
+      modoEdicao: true,
+    };
+
+    activatedRouteMock.snapshot.paramMap =
+      convertToParamMap({
+        id: '42',
+      });
+
+    veiculoApiMock.buscarMeuAnuncioParaEdicao
+      .mockReturnValue(of(veiculoParaEdicao));
+
+    criarComponente();
+
+    expect(
+      veiculoApiMock.buscarMeuAnuncioParaEdicao
+    ).toHaveBeenCalledExactlyOnceWith(42);
+
+    expect(component.modoEdicao).toBe(true);
+    expect(component.tituloPagina).toBe('Editar anúncio');
+
+    expect(component.formulario.getRawValue())
+      .toEqual({
+        placa: 'ABC1D23',
+        anoFabricacao: 2024,
+        quilometragem: 28000,
+        valor: 350000,
+        motor: '2.0',
+        descricao: '',
+        idModelo: 4,
+        idCarroceria: 1,
+        idCor: 3,
+        idCombustivel: 2,
+        idsOpcionais: [6],
+      });
+
+    expect(component.imagensExistentes())
+      .toEqual(veiculoParaEdicao.imagens);
+
+    expect(component.carregandoVeiculo())
+      .toBe(false);
+
+    expect(component.erroCarregamentoVeiculo())
+      .toBe(false);
+  });
+
+  it('should update an ad and navigate to its owner details', () => {
+    activatedRouteMock.snapshot.data = {
+      modoEdicao: true,
+    };
+
+    activatedRouteMock.snapshot.paramMap =
+      convertToParamMap({
+        id: '42',
+      });
+
+    veiculoApiMock.buscarMeuAnuncioParaEdicao
+      .mockReturnValue(of(veiculoParaEdicao));
+
+    veiculoApiMock.atualizar.mockReturnValue(
+      of({
+        id: 42,
+      })
+    );
+
+    criarComponente();
+
+    component.formulario.controls.descricao.setValue(
+      'Veículo em ótimo estado'
+    );
+
+    component.salvar();
+
+    expect(veiculoApiMock.atualizar)
+      .toHaveBeenCalledExactlyOnceWith(
+        42,
+        component.formulario.getRawValue()
+      );
+
+    expect(veiculoApiMock.criar)
+      .not.toHaveBeenCalled();
+
+    expect(routerMock.navigate)
+      .toHaveBeenCalledExactlyOnceWith([
+        '/veiculos/meus-anuncios',
+        42,
+      ]);
+  });
+
+  it('should display an error when the ad cannot be loaded for editing', () => {
+    activatedRouteMock.snapshot.data = {
+      modoEdicao: true,
+    };
+
+    activatedRouteMock.snapshot.paramMap =
+      convertToParamMap({
+        id: '42',
+      });
+
+    veiculoApiMock.buscarMeuAnuncioParaEdicao
+      .mockReturnValue(
+        throwError(
+          () => new Error('Falha ao carregar anúncio')
+        )
+      );
+
+    criarComponente();
+
+    expect(component.carregandoVeiculo())
+      .toBe(false);
+
+    expect(component.erroCarregamentoVeiculo())
+      .toBe(true);
+
+    expect(veiculoApiMock.atualizar)
+      .not.toHaveBeenCalled();
   });
 });

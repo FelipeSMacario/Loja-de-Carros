@@ -85,4 +85,39 @@ public interface VeiculoMapper {
             VeiculoRequest request,
             @MappingTarget Veiculo veiculo
     );
+
+    @Mapping(
+            source = "carroceria.id",
+            target = "idCarroceria"
+    )
+    @Mapping(
+            source = "cor.id",
+            target = "idCor"
+    )
+    @Mapping(
+            source = "modelo.id",
+            target = "idModelo"
+    )
+    @Mapping(
+            source = "combustivel.id",
+            target = "idCombustivel"
+    )
+    @Mapping(
+            target = "idsOpcionais",
+            expression = """
+                    java(
+                        veiculo.getOpcionais()
+                            .stream()
+                            .map(veiculoOpcional ->
+                                veiculoOpcional
+                                    .getOpcional()
+                                    .getId()
+                            )
+                            .toList()
+                    )
+                    """
+    )
+    VeiculoEdicaoResponse toEdicaoResponse(
+            Veiculo veiculo
+    );
 }

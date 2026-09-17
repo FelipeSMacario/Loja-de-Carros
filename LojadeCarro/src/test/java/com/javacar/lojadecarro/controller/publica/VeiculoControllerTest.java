@@ -4,6 +4,7 @@ import com.javacar.lojadecarro.controller.BaseControllerTest;
 import com.javacar.lojadecarro.controller.publico.VeiculoController;
 import com.javacar.lojadecarro.dto.request.VeiculoOpcionaisRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
+import com.javacar.lojadecarro.dto.response.VeiculoEdicaoResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
@@ -33,7 +34,6 @@ import java.util.List;
 import static com.javacar.lojadecarro.enums.Entidade.CARROCERIA;
 import static com.javacar.lojadecarro.enums.Entidade.VEICULO;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.*;
-import static com.javacar.lojadecarro.enums.StatusVeiculo.VENDIDO;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.*;
 import static com.javacar.lojadecarro.factory.helper.ImagemHelper.assertImagem;
 import static com.javacar.lojadecarro.factory.helper.ImagemHelper.imagem;
@@ -46,6 +46,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.contains;
 
 @WebMvcTest(VeiculoController.class)
 @DisplayName("Testes da controller do veiculo")
@@ -57,6 +58,8 @@ public class VeiculoControllerTest extends BaseControllerTest {
     private static final String URL_REATIVAR = URL_ID + "/reativar";
     private static final String URL_IMAGEM = URL_ID + "/imagens";
     private static final String URL_OPCIONAL = URL_ID + "/opcionais";
+    private static final String URL_MEU_ANUNCIO = URL_MEUS_ANUNCIOS + "/" + ID_VALIDO;
+    private static final String URL_MEU_ANUNCIO_EDICAO = URL_MEU_ANUNCIO + "/edicao";
     private final PageRequest pageable =
             PageRequest.of(0, 9);
 
@@ -127,6 +130,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
             verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verifyNoMoreInteractions(veiculoService);
         }
+
         @Test
         @DisplayName("Deve retornar 404 ao não encontrar um relacionamento")
         void deveRetornar404AoNaoEncontrarRelacionamento() throws Exception {
@@ -153,6 +157,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
             verify(usuarioAutenticadoService).buscarId(ID_JWT);
             assertStatus404(exception, CARROCERIA, ID_INVALIDO);
         }
+
         @Test
         @DisplayName("Deve retornar 400 ao cadastrar veiculo")
         void deveRetornar400aoCadastroVeiculo() throws Exception {
@@ -248,6 +253,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
                     eq(ID_VALIDO));
             verifyNoMoreInteractions(veiculoService);
         }
+
         @Test
         @DisplayName("Deve retornar 401 ao cadastrar um veiculo")
         void deveRetornar401AoCadastrarUmVeiculo() throws Exception {
@@ -485,7 +491,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
             //Arrange
 
             when(veiculoService.pausarVeiculo(ID_VALIDO))
-                    .thenThrow(new  NotFoundException(VEICULO, ID_VALIDO));
+                    .thenThrow(new NotFoundException(VEICULO, ID_VALIDO));
             //Act + Assert
             var resultado = performPatchComAutenticacao(URL_PAUSAR, ID_JWT, ROLE_ADM);
             assertStatus404(resultado, VEICULO, ID_VALIDO);
@@ -603,7 +609,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
         void deveRetornar404AoVincularAsImagens() throws Exception {
             //Arrange
             when(veiculoService.vincularImagens(eq(ID_VALIDO), any(MultipartFile[].class)))
-                    .thenThrow(new  NotFoundException(VEICULO, ID_VALIDO));
+                    .thenThrow(new NotFoundException(VEICULO, ID_VALIDO));
             //Act + Assert
             var exception = performPostComAutenticacao(URL_IMAGEM, null, ID_JWT, ROLE_ADM, imagem("foto1.jpg"));
 
@@ -930,6 +936,7 @@ public class VeiculoControllerTest extends BaseControllerTest {
             assertStatus401(resultado);
             verifyNoInteractions(veiculoService);
         }
+
         @Test
         @DisplayName("Deve retornar 400 ao informar status inválido")
         void deveRetornar400AoInformarStatusInvalido() throws Exception {
@@ -964,6 +971,222 @@ public class VeiculoControllerTest extends BaseControllerTest {
             verify(usuarioAutenticadoService).buscarId(ID_JWT);
             verifyNoInteractions(veiculoService);
             verifyNoMoreInteractions(usuarioAutenticadoService);
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes da busca de um anúncio do usuário")
+    class BuscarMeuAnuncio {
+
+        @Test
+        @DisplayName("Deve buscar um anúncio do usuário autenticado")
+        void deveBuscarMeuAnuncio() throws Exception {
+            // Arrange
+            var cx = new VeiculoTestContext();
+
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
+            when(veiculoService.buscarMeuAnuncio(
+                    ID_VALIDO,
+                    ID_VALIDO
+            )).thenReturn(cx.responseDetalhes);
+
+            // Act
+            var resultado = performGetComAutenticacao(
+                    URL_MEU_ANUNCIO,
+                    ID_JWT,
+                    ROLE_USUARIO
+            );
+
+            // Assert
+            assertVeiculo(
+                    resultado,
+                    status().isOk(),
+                    ID_VALIDO,
+                    "Chevrolet",
+                    "Onix",
+                    new BigDecimal("58000"),
+                    67000D,
+                    (short) 2020,
+                    DISPONIVEL
+            );
+
+            verify(usuarioAutenticadoService)
+                    .buscarId(ID_JWT);
+
+            verify(veiculoService)
+                    .buscarMeuAnuncio(
+                            ID_VALIDO,
+                            ID_VALIDO
+                    );
+
+            verifyNoMoreInteractions(
+                    usuarioAutenticadoService,
+                    veiculoService
+            );
+        }
+
+        @Test
+        @DisplayName("Deve retornar 404 quando o anúncio não pertencer ao usuário")
+        void deveRetornar404QuandoAnuncioNaoPertencerAoUsuario()
+                throws Exception {
+            // Arrange
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
+            when(veiculoService.buscarMeuAnuncio(
+                    ID_VALIDO,
+                    ID_VALIDO
+            )).thenThrow(
+                    new NotFoundException(
+                            VEICULO,
+                            ID_VALIDO
+                    )
+            );
+
+            // Act
+            var resultado = performGetComAutenticacao(
+                    URL_MEU_ANUNCIO,
+                    ID_JWT,
+                    ROLE_USUARIO
+            );
+
+            // Assert
+            assertStatus404(
+                    resultado,
+                    VEICULO,
+                    ID_VALIDO
+            );
+
+            verify(usuarioAutenticadoService)
+                    .buscarId(ID_JWT);
+
+            verify(veiculoService)
+                    .buscarMeuAnuncio(
+                            ID_VALIDO,
+                            ID_VALIDO
+                    );
+
+            verifyNoMoreInteractions(
+                    usuarioAutenticadoService,
+                    veiculoService
+            );
+        }
+
+        @Test
+        @DisplayName("Deve retornar 401 ao buscar um anúncio sem autenticação")
+        void deveRetornar401AoBuscarMeuAnuncio() throws Exception {
+            // Act
+            var resultado = performGet(URL_MEU_ANUNCIO);
+
+            // Assert
+            assertStatus401(resultado);
+
+            verifyNoInteractions(
+                    usuarioAutenticadoService,
+                    veiculoService
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes da busca de um anúncio para edição")
+    class BuscarMeuAnuncioParaEdicao {
+
+        @Test
+        @DisplayName(
+                "Deve buscar os dados do anúncio para edição"
+        )
+        void deveBuscarMeuAnuncioParaEdicao()
+                throws Exception {
+            // Arrange
+            var response = new VeiculoEdicaoResponse(
+                    ID_VALIDO,
+                    "QUV1F83",
+                    67000,
+                    new BigDecimal("58000"),
+                    "1.0",
+                    "Documentos em dia",
+                    (short) 2020,
+                    1L,
+                    2L,
+                    3L,
+                    4L,
+                    List.of(5L, 6L),
+                    PAUSADO,
+                    List.of()
+            );
+
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
+            when(veiculoService
+                    .buscarMeuAnuncioParaEdicao(
+                            ID_VALIDO,
+                            ID_VALIDO
+                    ))
+                    .thenReturn(response);
+
+            // Act
+            var resultado = performGetComAutenticacao(
+                    URL_MEU_ANUNCIO_EDICAO,
+                    ID_JWT,
+                    ROLE_USUARIO
+            );
+
+            // Assert
+            resultado
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.id")
+                            .value(ID_VALIDO))
+                    .andExpect(jsonPath("$.placa")
+                            .value("QUV1F83"))
+                    .andExpect(jsonPath("$.idCarroceria")
+                            .value(1L))
+                    .andExpect(jsonPath("$.idCor")
+                            .value(2L))
+                    .andExpect(jsonPath("$.idModelo")
+                            .value(3L))
+                    .andExpect(jsonPath("$.idCombustivel")
+                            .value(4L))
+                    .andExpect(jsonPath("$.idsOpcionais")
+                            .value(contains(5, 6)))
+                    .andExpect(jsonPath("$.statusVeiculo")
+                            .value(PAUSADO.name()));
+
+            verify(usuarioAutenticadoService)
+                    .buscarId(ID_JWT);
+
+            verify(veiculoService)
+                    .buscarMeuAnuncioParaEdicao(
+                            ID_VALIDO,
+                            ID_VALIDO
+                    );
+
+            verifyNoMoreInteractions(
+                    usuarioAutenticadoService,
+                    veiculoService
+            );
+        }
+
+        @Test
+        @DisplayName(
+                "Deve retornar 401 ao buscar dados de edição sem autenticação"
+        )
+        void deveRetornar401AoBuscarEdicaoSemAutenticacao()
+                throws Exception {
+            // Act
+            var resultado =
+                    performGet(URL_MEU_ANUNCIO_EDICAO);
+
+            // Assert
+            assertStatus401(resultado);
+
+            verifyNoInteractions(
+                    usuarioAutenticadoService,
+                    veiculoService
+            );
         }
     }
 

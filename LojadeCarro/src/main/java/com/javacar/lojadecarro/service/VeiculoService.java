@@ -3,6 +3,7 @@ package com.javacar.lojadecarro.service;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoDetalheResponse;
+import com.javacar.lojadecarro.dto.response.VeiculoEdicaoResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Opcional;
@@ -134,7 +135,7 @@ public class VeiculoService {
         );
     }
 
-    private  Map<Long, Long> buscarIdsImagensPrincipais(List<Long> idsVeiculos) {
+    private Map<Long, Long> buscarIdsImagensPrincipais(List<Long> idsVeiculos) {
         return imagensRepository
                 .findByVeiculo_IdInAndPrincipalTrue(
                         idsVeiculos
@@ -175,6 +176,36 @@ public class VeiculoService {
                 buscaVeiculoDisponivelPorId(id);
 
         return veiculoMapper.toDetalheResponse(veiculo);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public VeiculoDetalheResponse buscarMeuAnuncio(Long id, Long idUsuario) {
+        var veiculo = buscaAnuncioDoVendedor(id, idUsuario);
+
+        return veiculoMapper.toDetalheResponse(veiculo);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @Transactional(readOnly = true)
+    public VeiculoEdicaoResponse buscarMeuAnuncioParaEdicao(Long id, Long idUsuario) {
+        var veiculo = buscaAnuncioDoVendedor(id, idUsuario);
+        veiculo.validarPodeSerEditado();
+        return veiculoMapper.toEdicaoResponse(veiculo);
+    }
+
+    private Veiculo buscaAnuncioDoVendedor(Long id, Long idUsuario) {
+        var vendedor =
+                usuarioService.buscaUsuarioAtivo(idUsuario);
+
+        return veiculoRepository
+                .findByIdAndVendedor_Id(
+                        id,
+                        vendedor.getId()
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(VEICULO, id)
+                );
     }
 
     private Veiculo buscaVeiculoDisponivelPorId(Long id) {

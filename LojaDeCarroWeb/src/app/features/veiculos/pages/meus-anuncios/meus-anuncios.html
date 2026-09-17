@@ -49,7 +49,7 @@
     <div class="my-ads__grid" data-testid="ads-grid">
         @for (veiculo of veiculos(); track veiculo.id) {
         <article class="my-ads__item">
-            <app-veiculo-card [veiculo]="veiculo" />
+            <app-veiculo-card [veiculo]="veiculo" rotaDetalhe="/veiculos/meus-anuncios" />
 
             <footer class="my-ads__actions">
                 <span class="my-ads__status" [class.my-ads__status--paused]="

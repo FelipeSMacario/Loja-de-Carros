@@ -12,6 +12,7 @@ describe('VeiculoDetalhe', () => {
 
   const veiculoApiMock = {
     buscarPorId: vi.fn(),
+    buscarMeuAnuncio: vi.fn(),
   };
 
   const veiculo: VeiculoDetalheResponse = {
@@ -50,8 +51,16 @@ describe('VeiculoDetalhe', () => {
       },
     ],
   };
-
+  const activatedRouteMock = {
+    snapshot: {
+      paramMap: convertToParamMap({
+        id: '1',
+      }),
+      data: {} as Record<string, unknown>,
+    },
+  };
   beforeEach(async () => {
+    activatedRouteMock.snapshot.data = {};
     vi.clearAllMocks();
 
     await TestBed.configureTestingModule({
@@ -64,13 +73,7 @@ describe('VeiculoDetalhe', () => {
         },
         {
           provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              paramMap: convertToParamMap({
-                id: '1',
-              }),
-            },
-          },
+          useValue: activatedRouteMock,
         },
       ],
     }).compileComponents();
@@ -115,6 +118,11 @@ describe('VeiculoDetalhe', () => {
 
     expect(element.textContent)
       .toContain('Perfeito estado');
+    expect(
+      element.querySelector(
+        '[data-testid="edit-ad-link"]'
+      )
+    ).toBeNull();
   });
 
   it('should display an error when the vehicle cannot be loaded', () => {
@@ -152,5 +160,79 @@ describe('VeiculoDetalhe', () => {
 
     expect(component.imagemSelecionadaUrl())
       .toContain('/imagens/11/conteudo');
+  });
+  it('should load an authenticated user sold ad', () => {
+    const anuncioVendido: VeiculoDetalheResponse = {
+      ...veiculo,
+      statusVeiculo: 'VENDIDO',
+    };
+
+    activatedRouteMock.snapshot.data = {
+      meuAnuncio: true,
+    };
+
+    veiculoApiMock.buscarMeuAnuncio.mockReturnValue(
+      of(anuncioVendido)
+    );
+
+    criarComponente();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.textContent)
+      .toContain('Vendido');
+
+    expect(
+      element.querySelector(
+        '[data-testid="edit-ad-link"]'
+      )
+    ).toBeNull();
+
+    expect(veiculoApiMock.buscarMeuAnuncio)
+      .toHaveBeenCalledExactlyOnceWith(1);
+
+    expect(veiculoApiMock.buscarPorId)
+      .not.toHaveBeenCalled();
+
+    expect(component.gerenciandoMeuAnuncio)
+      .toBe(true);
+
+    expect(component.rotaRetorno)
+      .toBe('/veiculos/meus-anuncios');
+
+    expect(component.textoRetorno)
+      .toBe('Voltar aos meus anúncios');
+
+    expect(component.veiculo()?.statusVeiculo)
+      .toBe('VENDIDO');
+  });
+
+  it('should allow the owner to edit a paused ad', () => {
+    activatedRouteMock.snapshot.data = {
+      meuAnuncio: true,
+    };
+
+    const anuncioPausado: VeiculoDetalheResponse = {
+      ...veiculo,
+      statusVeiculo: 'PAUSADO',
+    };
+
+    veiculoApiMock.buscarMeuAnuncio.mockReturnValue(
+      of(anuncioPausado)
+    );
+
+    criarComponente();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    const link = element.querySelector(
+      '[data-testid="edit-ad-link"]'
+    );
+
+    expect(element.textContent)
+      .toContain('Pausado');
+
+    expect(link?.getAttribute('href'))
+      .toBe('/veiculos/meus-anuncios/1/editar');
   });
 });

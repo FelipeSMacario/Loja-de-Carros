@@ -30,4 +30,6 @@ public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
     );
 
     Optional<Veiculo> findByIdAndStatusVeiculo(Long id, StatusVeiculo statusVeiculo);
+
+    Optional<Veiculo> findByIdAndVendedor_Id(Long idVeiculo, Long idVendedor);
 }

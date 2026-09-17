@@ -111,4 +111,21 @@ describe('VeiculoCard', () => {
     expect(link?.getAttribute('href'))
       .toBe('/veiculos/1');
   });
+  it('should use a custom vehicle detail route', () => {
+    fixture.componentRef.setInput(
+      'rotaDetalhe',
+      '/veiculos/meus-anuncios'
+    );
+
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    const link = element.querySelector(
+      '[data-testid="vehicle-details-link"]'
+    );
+
+    expect(link?.getAttribute('href'))
+      .toBe('/veiculos/meus-anuncios/1');
+  });
 });

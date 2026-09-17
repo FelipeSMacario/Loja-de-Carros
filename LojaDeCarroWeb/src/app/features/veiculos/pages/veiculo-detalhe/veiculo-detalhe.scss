@@ -288,6 +288,35 @@
       text-transform: uppercase;
     }
   }
+
+  &__edit {
+    width: 100%;
+    margin: 0 0 24px;
+    color: #171717 !important;
+    font-weight: 700;
+    background: #d4b95f !important;
+
+    &:hover {
+      background: #e1ca7c !important;
+    }
+  }
+
+  &__status {
+    &--paused {
+      color: #5e594f;
+      background: #eceae5;
+    }
+
+    &--reserved {
+      color: #755900;
+      background: #f8edc4;
+    }
+
+    &--sold {
+      color: #ffffff;
+      background: #343434;
+    }
+  }
 }
 
 .vehicle-information,

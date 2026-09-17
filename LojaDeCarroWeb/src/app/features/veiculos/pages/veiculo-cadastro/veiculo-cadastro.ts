@@ -7,12 +7,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { finalize } from 'rxjs';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoRequest } from '../../models/veiculo-request';
 import { VeiculoCatalogoApi } from '../../data-access/veiculo-catalogo-api';
 import { VeiculoCatalogos } from '../../models/veiculo-catalogos';
+import { VeiculoImagemResponse } from '../../models/veiculo-detalhe-response';
 
 @Component({
   selector: 'app-veiculo-cadastro',
@@ -32,8 +33,9 @@ import { VeiculoCatalogos } from '../../models/veiculo-catalogos';
 })
 export class VeiculoCadastro implements OnInit {
   private readonly formBuilder = inject(FormBuilder);
-  private readonly catalogoApi =
-    inject(VeiculoCatalogoApi);
+  private readonly catalogoApi = inject(VeiculoCatalogoApi);
+  private readonly route = inject(ActivatedRoute);
+  private idVeiculo: number | null = null;
 
   readonly anoAtual = new Date().getFullYear();
 
@@ -131,10 +133,32 @@ export class VeiculoCadastro implements OnInit {
   readonly erroArquivos =
     signal<string | null>(null);
 
+  readonly modoEdicao =
+    this.route.snapshot.data?.['modoEdicao'] === true;
+
+  readonly carregandoVeiculo = signal(false);
+  readonly erroCarregamentoVeiculo = signal(false);
+
+  readonly imagensExistentes =
+    signal<VeiculoImagemResponse[]>([]);
+
+  readonly tituloPagina = this.modoEdicao
+    ? 'Editar anúncio'
+    : 'Anunciar veículo';
+
+  readonly textoBotaoSalvar = this.modoEdicao
+    ? 'Salvar alterações'
+    : 'Publicar anúncio';
+
   readonly enviando = signal(false);
   readonly erroCadastro = signal(false);
+
   ngOnInit(): void {
     this.carregarCatalogos();
+
+    if (this.modoEdicao) {
+      this.carregarVeiculoParaEdicao();
+    }
   }
 
   carregarCatalogos(): void {
@@ -188,7 +212,11 @@ export class VeiculoCadastro implements OnInit {
   }
 
   salvar(): void {
-    if (this.formulario.invalid || this.enviando()) {
+    if (
+      this.formulario.invalid ||
+      this.enviando() ||
+      (this.modoEdicao && this.idVeiculo === null)
+    ) {
       this.formulario.markAllAsTouched();
       return;
     }
@@ -199,10 +227,18 @@ export class VeiculoCadastro implements OnInit {
     this.enviando.set(true);
     this.erroCadastro.set(false);
 
-    this.veiculoApi.criar(
-      request,
-      this.arquivosSelecionados()
-    )
+    const operacao =
+      this.modoEdicao && this.idVeiculo !== null
+        ? this.veiculoApi.atualizar(
+          this.idVeiculo,
+          request
+        )
+        : this.veiculoApi.criar(
+          request,
+          this.arquivosSelecionados()
+        );
+
+    operacao
       .pipe(
         finalize(() => {
           this.enviando.set(false);
@@ -210,13 +246,64 @@ export class VeiculoCadastro implements OnInit {
       )
       .subscribe({
         next: veiculo => {
+          const rota = this.modoEdicao
+            ? '/veiculos/meus-anuncios'
+            : '/veiculos';
+
           void this.router.navigate([
-            '/veiculos',
+            rota,
             veiculo.id,
           ]);
         },
         error: () => {
           this.erroCadastro.set(true);
+        },
+      });
+  }
+
+  carregarVeiculoParaEdicao(): void {
+    const id = Number(
+      this.route.snapshot.paramMap.get('id')
+    );
+
+    if (!Number.isInteger(id) || id <= 0) {
+      this.erroCarregamentoVeiculo.set(true);
+      return;
+    }
+
+    this.idVeiculo = id;
+    this.carregandoVeiculo.set(true);
+    this.erroCarregamentoVeiculo.set(false);
+
+    this.veiculoApi
+      .buscarMeuAnuncioParaEdicao(id)
+      .pipe(
+        finalize(() => {
+          this.carregandoVeiculo.set(false);
+        })
+      )
+      .subscribe({
+        next: veiculo => {
+          this.formulario.patchValue({
+            placa: veiculo.placa,
+            anoFabricacao: veiculo.anoFabricacao,
+            quilometragem: veiculo.quilometragem,
+            valor: veiculo.valor,
+            motor: veiculo.motor,
+            descricao: veiculo.descricao ?? '',
+            idModelo: veiculo.idModelo,
+            idCarroceria: veiculo.idCarroceria,
+            idCor: veiculo.idCor,
+            idCombustivel: veiculo.idCombustivel,
+            idsOpcionais: veiculo.idsOpcionais,
+          });
+
+          this.imagensExistentes.set(
+            veiculo.imagens
+          );
+        },
+        error: () => {
+          this.erroCarregamentoVeiculo.set(true);
         },
       });
   }

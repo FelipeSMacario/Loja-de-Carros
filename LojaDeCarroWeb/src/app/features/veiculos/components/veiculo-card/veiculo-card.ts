@@ -24,6 +24,7 @@ import { VeiculoResponse } from '../../models/veiculo-response';
 })
 export class VeiculoCard {
   readonly veiculo = input.required<VeiculoResponse>();
+  readonly rotaDetalhe = input('/veiculos');
 
   readonly imagemUrl = computed(() => {
     const imagemId = this.veiculo().imagemPrincipalId;

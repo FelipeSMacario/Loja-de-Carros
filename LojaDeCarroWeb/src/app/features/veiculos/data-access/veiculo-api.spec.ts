@@ -8,6 +8,7 @@ import { PageResponse } from '../../../core/http/page-response';
 import { VeiculoResponse } from '../models/veiculo-response';
 import { VeiculoApi } from './veiculo-api';
 import { VeiculoRequest } from '../models/veiculo-request';
+import { VeiculoEdicaoResponse } from '../models/veiculo-edicao-response';
 
 describe('VeiculoApi', () => {
   let service: VeiculoApi;
@@ -354,6 +355,99 @@ describe('VeiculoApi', () => {
     expect(request.request.body).toBeNull();
 
     request.flush(resposta);
+
+    expect(await resultadoPromise).toEqual(resposta);
+  });
+  it('should get one of the authenticated user ads by id', async () => {
+    const resposta = {
+      id: 1,
+      statusVeiculo: 'VENDIDO',
+    } as VeiculoDetalheResponse;
+
+    const resultadoPromise = firstValueFrom(
+      service.buscarMeuAnuncio(1)
+    );
+
+    const request = httpTesting.expectOne(
+      `${environment.apiUrl}/veiculos/meus-anuncios/1`
+    );
+
+    expect(request.request.method).toBe('GET');
+
+    request.flush(resposta);
+
+    expect(await resultadoPromise).toEqual(resposta);
+  });
+  it('should get an authenticated user ad for editing', async () => {
+    const resposta: VeiculoEdicaoResponse = {
+      id: 1,
+      placa: 'ABC1D23',
+      quilometragem: 70000,
+      valor: 75990,
+      motor: '1.0',
+      descricao: 'Veículo em ótimo estado',
+      anoFabricacao: 2023,
+      idCarroceria: 1,
+      idCor: 2,
+      idModelo: 3,
+      idCombustivel: 4,
+      idsOpcionais: [5, 6],
+      statusVeiculo: 'PAUSADO',
+      imagens: [
+        {
+          id: 10,
+          principal: true,
+        },
+      ],
+    };
+
+    const resultadoPromise = firstValueFrom(
+      service.buscarMeuAnuncioParaEdicao(1)
+    );
+
+    const request = httpTesting.expectOne(
+      `${environment.apiUrl}/veiculos/meus-anuncios/1/edicao`
+    );
+
+    expect(request.request.method).toBe('GET');
+
+    request.flush(resposta);
+
+    expect(await resultadoPromise).toEqual(resposta);
+  });
+
+  it('should update a vehicle ad', async () => {
+    const request: VeiculoRequest = {
+      quilometragem: 70000,
+      valor: 75990,
+      placa: 'ABC1D23',
+      motor: '1.0',
+      descricao: 'Veículo revisado',
+      anoFabricacao: 2023,
+      idsOpcionais: [5, 6],
+      idCarroceria: 1,
+      idCor: 2,
+      idModelo: 3,
+      idCombustivel: 4,
+    };
+
+    const resposta = {
+      id: 1,
+      statusVeiculo: 'PAUSADO',
+    } as VeiculoResponse;
+
+    const resultadoPromise = firstValueFrom(
+      service.atualizar(1, request)
+    );
+
+    const requisicao = httpTesting.expectOne(
+      `${environment.apiUrl}/veiculos/1`
+    );
+
+    expect(requisicao.request.method).toBe('PUT');
+    expect(requisicao.request.body).toEqual(request);
+
+    requisicao.flush(resposta);
 
     expect(await resultadoPromise).toEqual(resposta);
   });

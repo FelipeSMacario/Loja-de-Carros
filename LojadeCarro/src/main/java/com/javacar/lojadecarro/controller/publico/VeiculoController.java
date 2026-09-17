@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.VeiculoOpcionaisRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoDetalheResponse;
+import com.javacar.lojadecarro.dto.response.VeiculoEdicaoResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
@@ -45,8 +46,7 @@ public class VeiculoController {
     private final UsuarioAutenticadoService usuarioAutenticadoService;
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(
-            summary = "Cadastrar um novo veículo",
+    @Operation(summary = "Cadastrar um novo veículo",
             requestBody =
             @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     required = true,
@@ -124,7 +124,7 @@ public class VeiculoController {
     @PutMapping("/{id}")
     @Operation(summary = "Atualizar um veiculo buscando por id")
     public ResponseEntity<VeiculoResponse> atualizar(@RequestBody
-                                                         @Valid VeiculoRequest request,
+                                                     @Valid VeiculoRequest request,
                                                      @PathVariable Long id) {
         log.debug("Atualizando o veiculo com id: {} para o corpo: {}", id, request);
         var response = veiculoService.atualizar(request, id);
@@ -228,4 +228,29 @@ public class VeiculoController {
         return ResponseEntity.ok(response);
     }
 
+    @GetMapping("/meus-anuncios/{id}")
+    @Operation(summary = "Buscar detalhes de um anúncio do usuário autenticado")
+    public ResponseEntity<VeiculoDetalheResponse> buscarMeuAnuncio(@AuthenticationPrincipal Jwt jwt,
+                                                                   @PathVariable Long id) {
+        var idUsuario = usuarioAutenticadoService.buscarId(jwt.getSubject());
+        log.debug("Buscando o anúncio com id: {} do usuário com id: {}", id, idUsuario);
+        var response = veiculoService.buscarMeuAnuncio(id, idUsuario);
+        log.info("Consulta do anúncio realizada com sucesso. " + "veiculoId={}, usuarioId={}", id, idUsuario);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/meus-anuncios/{id}/edicao")
+    @Operation(
+            summary = "Buscar os dados de um anúncio para edição"
+    )
+    public ResponseEntity<VeiculoEdicaoResponse>
+    buscarMeuAnuncioParaEdicao(@AuthenticationPrincipal Jwt jwt, @PathVariable Long id) {
+        var idUsuario = usuarioAutenticadoService.buscarId(jwt.getSubject());
+
+        log.debug("Buscando dados para edição do veículo com id: {} " + "do usuário com id: {}", id, idUsuario);
+
+        var response = veiculoService.buscarMeuAnuncioParaEdicao(id, idUsuario);
+
+        return ResponseEntity.ok(response);
+    }
 }
