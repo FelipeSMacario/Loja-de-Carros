@@ -3,8 +3,7 @@ package com.javacar.lojadecarro.enums;
 public enum StatusVenda {
     CONCLUIDA("Concluída"),
     EM_ANDAMENTO("Em andamento"),
-    CANCELADA("Cancelada"),
-    PAUSADA("Pausada");
+    CANCELADA("Cancelada");
 
     private final String descricao;
 

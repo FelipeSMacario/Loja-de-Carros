@@ -84,7 +84,7 @@ public class VendaTestContext {
                 .criarEntity()
                 .comId(2L)
                 .comValorVenda(new BigDecimal(300000))
-                .comStatusVenda(PAUSADA)
+                .comStatusVenda(CANCELADA)
                 .build();
 
         var entity3 = VendaEntityFactory
@@ -116,7 +116,7 @@ public class VendaTestContext {
                 .criarResponse()
                 .comId(2L)
                 .comValorVenda(new BigDecimal(300000))
-                .comStatusVenda(PAUSADA)
+                .comStatusVenda(CANCELADA)
                 .build();
 
         var response3 = VendaResponseFactory

@@ -535,7 +535,7 @@ public class VendaServiceTest extends BaseServiceTest {
         @DisplayName("Deve lançar quando a venda não está em andamento")
         void deveLancarQuandoAVendaNaoEmAndamento() {
             //Arrange
-            var entity = criarVeiculo(RESERVADO, PAUSADA);
+            var entity = criarVeiculo(RESERVADO, CANCELADA);
             when(vendasRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(entity));
             //ACT
@@ -629,7 +629,7 @@ public class VendaServiceTest extends BaseServiceTest {
         @DisplayName("Deve lançar quando a venda não está em andamento")
         void deveLancarQuandoAVendaNaoEmAndamento() {
             //Arrange
-            var entity = criarVeiculo(RESERVADO, PAUSADA);
+            var entity = criarVeiculo(RESERVADO, CANCELADA);
             when(vendasRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(entity));
             //ACT
