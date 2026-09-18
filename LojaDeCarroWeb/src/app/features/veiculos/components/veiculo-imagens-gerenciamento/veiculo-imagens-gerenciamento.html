@@ -1,0 +1,208 @@
+<section
+  class="image-manager"
+  aria-labelledby="image-manager-title"
+>
+  <header class="image-manager__header">
+    <div>
+      <p class="image-manager__eyebrow">
+        Galeria do anúncio
+      </p>
+
+      <h2 id="image-manager-title">
+        Gerenciar imagens
+      </h2>
+
+      <p>
+        Você pode manter até
+        {{ limiteImagens }} imagens no anúncio.
+      </p>
+    </div>
+
+    <span class="image-manager__counter">
+      {{ imagens().length }}/{{ limiteImagens }}
+    </span>
+  </header>
+
+  @if (erroAcao(); as mensagem) {
+    <div
+      class="image-manager__message image-manager__message--error"
+      role="alert"
+      data-testid="image-action-error"
+    >
+      <mat-icon aria-hidden="true">error_outline</mat-icon>
+      <span>{{ mensagem }}</span>
+    </div>
+  }
+
+  @if (mensagemSucesso(); as mensagem) {
+    <div
+      class="image-manager__message image-manager__message--success"
+      role="status"
+      data-testid="image-action-success"
+    >
+      <mat-icon aria-hidden="true">check_circle</mat-icon>
+      <span>{{ mensagem }}</span>
+    </div>
+  }
+
+  <div class="image-manager__upload">
+    <input
+      #seletorArquivos
+      class="image-manager__file-input"
+      type="file"
+      accept="image/*"
+      multiple
+      [disabled]="!podeAdicionar() || processando()"
+      (change)="selecionarArquivos($event)"
+    />
+
+    <button
+      type="button"
+      mat-stroked-button
+      [disabled]="!podeAdicionar() || processando()"
+      (click)="seletorArquivos.click()"
+    >
+      <mat-icon aria-hidden="true">add_photo_alternate</mat-icon>
+      Selecionar imagens
+    </button>
+
+    @if (arquivosSelecionados().length > 0) {
+      <span class="image-manager__selection">
+        {{ arquivosSelecionados().length }}
+        imagem(ns) selecionada(s)
+      </span>
+
+      <button
+        type="button"
+        mat-flat-button
+        [disabled]="adicionando()"
+        (click)="adicionarImagens()"
+        data-testid="upload-images-button"
+      >
+        @if (adicionando()) {
+          <mat-spinner diameter="20"></mat-spinner>
+          Enviando...
+        } @else {
+          <mat-icon aria-hidden="true">cloud_upload</mat-icon>
+          Adicionar
+        }
+      </button>
+    }
+
+    @if (!podeAdicionar()) {
+      <span class="image-manager__limit">
+        Limite de imagens atingido.
+      </span>
+    } @else {
+      <span class="image-manager__available">
+        {{ quantidadeDisponivel() }}
+        posição(ões) disponível(is)
+      </span>
+    }
+  </div>
+
+  @if (carregando()) {
+    <div
+      class="image-manager__feedback"
+      data-testid="images-loading"
+    >
+      <mat-spinner diameter="44"></mat-spinner>
+      <p>Carregando imagens...</p>
+    </div>
+  } @else if (erro()) {
+    <div
+      class="image-manager__feedback"
+      data-testid="images-error"
+    >
+      <mat-icon aria-hidden="true">broken_image</mat-icon>
+      <h3>Não foi possível carregar as imagens</h3>
+
+      <button
+        type="button"
+        mat-flat-button
+        (click)="carregar()"
+      >
+        Tentar novamente
+      </button>
+    </div>
+  } @else if (imagens().length === 0) {
+    <div
+      class="image-manager__feedback"
+      data-testid="images-empty"
+    >
+      <mat-icon aria-hidden="true">photo_library</mat-icon>
+      <h3>Nenhuma imagem cadastrada</h3>
+      <p>Adicione imagens para montar a galeria do veículo.</p>
+    </div>
+  } @else {
+    <div
+      class="image-manager__grid"
+      data-testid="images-grid"
+    >
+      @for (imagem of imagens(); track imagem.id) {
+        <article
+          class="image-card"
+          [class.image-card--main]="imagem.principal"
+        >
+          <div class="image-card__preview">
+            <img
+              [src]="imagemUrl(imagem.id)"
+              [alt]="'Imagem ' + imagem.nomeOriginal"
+              loading="lazy"
+            />
+
+            @if (imagem.principal) {
+              <span class="image-card__badge">
+                <mat-icon aria-hidden="true">star</mat-icon>
+                Principal
+              </span>
+            }
+          </div>
+
+          <div class="image-card__content">
+            <p [title]="imagem.nomeOriginal">
+              {{ imagem.nomeOriginal }}
+            </p>
+
+            <div class="image-card__actions">
+              @if (!imagem.principal) {
+                <button
+                  type="button"
+                  mat-stroked-button
+                  [disabled]="processando()"
+                  (click)="definirComoPrincipal(imagem.id)"
+                  [attr.aria-label]="
+                    'Definir ' + imagem.nomeOriginal
+                    + ' como imagem principal'
+                  "
+                >
+                  <mat-icon aria-hidden="true">star_outline</mat-icon>
+                  Tornar principal
+                </button>
+              }
+
+              <button
+                type="button"
+                mat-icon-button
+                class="image-card__delete"
+                [disabled]="processando()"
+                (click)="excluirImagem(imagem.id)"
+                [attr.aria-label]="
+                  'Excluir ' + imagem.nomeOriginal
+                "
+              >
+                @if (
+                  idImagemEmProcessamento() === imagem.id
+                ) {
+                  <mat-spinner diameter="20"></mat-spinner>
+                } @else {
+                  <mat-icon aria-hidden="true">delete_outline</mat-icon>
+                }
+              </button>
+            </div>
+          </div>
+        </article>
+      }
+    </div>
+  }
+</section>

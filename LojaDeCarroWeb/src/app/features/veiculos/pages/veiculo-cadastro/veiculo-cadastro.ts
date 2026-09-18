@@ -14,6 +14,7 @@ import { VeiculoRequest } from '../../models/veiculo-request';
 import { VeiculoCatalogoApi } from '../../data-access/veiculo-catalogo-api';
 import { VeiculoCatalogos } from '../../models/veiculo-catalogos';
 import { VeiculoImagemResponse } from '../../models/veiculo-detalhe-response';
+import { VeiculoImagensGerenciamento } from '../../components/veiculo-imagens-gerenciamento/veiculo-imagens-gerenciamento';
 
 @Component({
   selector: 'app-veiculo-cadastro',
@@ -26,6 +27,7 @@ import { VeiculoImagemResponse } from '../../models/veiculo-detalhe-response';
     MatInputModule,
     MatProgressSpinnerModule,
     MatSelectModule,
+    VeiculoImagensGerenciamento,
   ],
   templateUrl: './veiculo-cadastro.html',
   styleUrl: './veiculo-cadastro.scss',
@@ -36,6 +38,9 @@ export class VeiculoCadastro implements OnInit {
   private readonly catalogoApi = inject(VeiculoCatalogoApi);
   private readonly route = inject(ActivatedRoute);
   private idVeiculo: number | null = null;
+  get idVeiculoEdicao(): number | null {
+    return this.idVeiculo;
+  }
 
   readonly anoAtual = new Date().getFullYear();
 

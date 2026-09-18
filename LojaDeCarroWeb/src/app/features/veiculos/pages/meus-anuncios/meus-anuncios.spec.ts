@@ -6,10 +6,15 @@ import { PageResponse } from '../../../../core/http/page-response';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoResponse } from '../../models/veiculo-response';
 import { MeusAnuncios } from './meus-anuncios';
+import { MatDialog } from '@angular/material/dialog';
 
 describe('MeusAnuncios', () => {
   let component: MeusAnuncios;
   let fixture: ComponentFixture<MeusAnuncios>;
+
+  const dialogMock = {
+    open: vi.fn(),
+  };
 
   const veiculo: VeiculoResponse = {
     id: 1,
@@ -47,6 +52,11 @@ describe('MeusAnuncios', () => {
 
 
   beforeEach(async () => {
+    dialogMock.open
+      .mockReset()
+      .mockReturnValue({
+        afterClosed: () => of(true),
+      });
     veiculoApiMock.listarMeusAnuncios
       .mockReset()
       .mockReturnValue(of(resposta));
@@ -66,6 +76,10 @@ describe('MeusAnuncios', () => {
         {
           provide: VeiculoApi,
           useValue: veiculoApiMock,
+        },
+        {
+          provide: MatDialog,
+          useValue: dialogMock,
         },
       ],
     }).compileComponents();
@@ -147,13 +161,16 @@ describe('MeusAnuncios', () => {
     expect(component.carregando()).toBe(false);
     expect(component.erro()).toBe(true);
   });
-  it('should pause an available vehicle ad', () => {
+  it('should pause an available vehicle ad after confirmation', () => {
     veiculoApiMock.listarMeusAnuncios.mockClear();
 
     component.pausar(veiculo.id);
 
+    expect(dialogMock.open)
+      .toHaveBeenCalledOnce();
+
     expect(veiculoApiMock.pausar)
-      .toHaveBeenCalledWith(veiculo.id);
+      .toHaveBeenCalledExactlyOnceWith(veiculo.id);
 
     expect(
       veiculoApiMock.listarMeusAnuncios
@@ -174,7 +191,9 @@ describe('MeusAnuncios', () => {
 
     expect(veiculoApiMock.reativar)
       .toHaveBeenCalledWith(veiculo.id);
-
+      
+    expect(dialogMock.open)
+      .not.toHaveBeenCalled();
     expect(
       veiculoApiMock.listarMeusAnuncios
     ).toHaveBeenCalledWith(
@@ -205,5 +224,27 @@ describe('MeusAnuncios', () => {
 
     expect(component.acaoEmAndamentoId()).toBeNull();
     expect(component.erroAcao()).toBe(true);
+  });
+
+  it('should not pause an ad when confirmation is cancelled', () => {
+    veiculoApiMock.listarMeusAnuncios.mockClear();
+
+    dialogMock.open.mockReturnValue({
+      afterClosed: () => of(false),
+    });
+
+    component.pausar(veiculo.id);
+
+    expect(dialogMock.open)
+      .toHaveBeenCalledOnce();
+
+    expect(veiculoApiMock.pausar)
+      .not.toHaveBeenCalled();
+
+    expect(veiculoApiMock.listarMeusAnuncios)
+      .not.toHaveBeenCalled();
+
+    expect(component.acaoEmAndamentoId()).toBeNull();
+    expect(component.erroAcao()).toBe(false);
   });
 });

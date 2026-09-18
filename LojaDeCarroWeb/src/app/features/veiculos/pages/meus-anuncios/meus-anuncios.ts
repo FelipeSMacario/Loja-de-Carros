@@ -9,6 +9,9 @@ import { Observable, finalize } from 'rxjs';
 import { VeiculoCard } from '../../components/veiculo-card/veiculo-card';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { StatusVeiculo, VeiculoResponse, } from '../../models/veiculo-response';
+import { MatDialog } from '@angular/material/dialog';
+
+import { DialogoConfirmacao } from '../../../../shared/components/dialogo-confirmacao/dialogo-confirmacao';
 
 interface OpcaoStatus {
   valor: StatusVeiculo | null;
@@ -31,6 +34,8 @@ interface OpcaoStatus {
 })
 export class MeusAnuncios implements OnInit {
   private readonly veiculoApi = inject(VeiculoApi);
+  private readonly dialog = inject(MatDialog);
+
 
   readonly veiculos = signal<VeiculoResponse[]>([]);
   readonly carregando = signal(true);
@@ -97,10 +102,41 @@ export class MeusAnuncios implements OnInit {
     this.carregar();
   }
   pausar(id: number): void {
-    this.executarAcao(
-      id,
-      this.veiculoApi.pausar(id)
+    if (this.acaoEmAndamentoId() !== null) {
+      return;
+    }
+
+    const veiculo = this.veiculos().find(
+      item => item.id === id
     );
+
+    const referencia = this.dialog.open(
+      DialogoConfirmacao,
+      {
+        autoFocus: 'first-tabbable',
+        disableClose: true,
+        maxWidth: 'calc(100vw - 32px)',
+        data: {
+          titulo: 'Pausar anúncio?',
+          mensagem:
+            `O anúncio do ${veiculo?.marca ?? 'veículo'} `
+            + `${veiculo?.modelo ?? ''} deixará de aparecer `
+            + 'no estoque público. Você poderá reativá-lo depois.',
+          textoConfirmar: 'Pausar anúncio',
+          textoCancelar: 'Cancelar',
+          tipo: 'aviso',
+        },
+      }
+    );
+
+    referencia.afterClosed().subscribe(confirmado => {
+      if (confirmado) {
+        this.executarAcao(
+          id,
+          this.veiculoApi.pausar(id)
+        );
+      }
+    });
   }
 
   reativar(id: number): void {

@@ -7,6 +7,7 @@ import { PageResponse } from '../../../core/http/page-response';
 import { StatusVeiculo, VeiculoResponse, } from '../models/veiculo-response';
 import { VeiculoRequest } from '../models/veiculo-request';
 import { VeiculoEdicaoResponse } from '../models/veiculo-edicao-response';
+import { ImagemResponse } from '../models/imagem-response';
 
 @Injectable({
   providedIn: 'root',
@@ -117,6 +118,46 @@ export class VeiculoApi {
     return this.http.put<VeiculoResponse>(
       `${this.url}/${id}`,
       request
+    );
+  }
+  listarImagens(
+    idVeiculo: number
+  ): Observable<ImagemResponse[]> {
+    return this.http.get<ImagemResponse[]>(
+      `${this.url}/${idVeiculo}/imagens`
+    );
+  }
+
+  adicionarImagens(
+    idVeiculo: number,
+    arquivos: readonly File[]
+  ): Observable<ImagemResponse[]> {
+    const formData = new FormData();
+
+    arquivos.forEach(arquivo => {
+      formData.append('files', arquivo);
+    });
+
+    return this.http.post<ImagemResponse[]>(
+      `${this.url}/${idVeiculo}/imagens`,
+      formData
+    );
+  }
+
+  excluirImagem(
+    idImagem: number
+  ): Observable<void> {
+    return this.http.delete<void>(
+      `${environment.apiUrl}/imagens/${idImagem}`
+    );
+  }
+
+  definirImagemPrincipal(
+    idImagem: number
+  ): Observable<void> {
+    return this.http.patch<void>(
+      `${environment.apiUrl}/imagens/${idImagem}/principal`,
+      null
     );
   }
 }

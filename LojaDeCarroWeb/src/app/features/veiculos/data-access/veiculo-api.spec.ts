@@ -9,6 +9,7 @@ import { VeiculoResponse } from '../models/veiculo-response';
 import { VeiculoApi } from './veiculo-api';
 import { VeiculoRequest } from '../models/veiculo-request';
 import { VeiculoEdicaoResponse } from '../models/veiculo-edicao-response';
+import { ImagemResponse } from '../models/imagem-response';
 
 describe('VeiculoApi', () => {
   let service: VeiculoApi;
@@ -450,5 +451,113 @@ describe('VeiculoApi', () => {
     requisicao.flush(resposta);
 
     expect(await resultadoPromise).toEqual(resposta);
+  });
+  it('should list vehicle images', async () => {
+    const imagens: ImagemResponse[] = [
+      {
+        id: 10,
+        nomeOriginal: 'frente.jpg',
+        objectKey: '1/frente.jpg',
+        principal: true,
+      },
+    ];
+
+    const resultadoPromise = firstValueFrom(
+      service.listarImagens(1)
+    );
+
+    const request = httpTesting.expectOne(
+      `${environment.apiUrl}/veiculos/1/imagens`
+    );
+
+    expect(request.request.method).toBe('GET');
+
+    request.flush(imagens);
+
+    expect(await resultadoPromise).toEqual(imagens);
+  });
+
+  it('should add images to a vehicle', async () => {
+    const arquivos = [
+      new File(['frente'], 'frente.jpg', {
+        type: 'image/jpeg',
+      }),
+      new File(['traseira'], 'traseira.jpg', {
+        type: 'image/jpeg',
+      }),
+    ];
+
+    const imagens: ImagemResponse[] = [
+      {
+        id: 10,
+        nomeOriginal: 'frente.jpg',
+        objectKey: '1/frente.jpg',
+        principal: true,
+      },
+      {
+        id: 11,
+        nomeOriginal: 'traseira.jpg',
+        objectKey: '1/traseira.jpg',
+        principal: false,
+      },
+    ];
+
+    const resultadoPromise = firstValueFrom(
+      service.adicionarImagens(1, arquivos)
+    );
+
+    const request = httpTesting.expectOne(
+      `${environment.apiUrl}/veiculos/1/imagens`
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toBeInstanceOf(FormData);
+
+    const formData = request.request.body as FormData;
+
+    expect(formData.getAll('files')).toEqual(arquivos);
+
+    request.flush(imagens);
+
+    expect(await resultadoPromise).toEqual(imagens);
+  });
+
+  it('should delete a vehicle image', async () => {
+    const resultadoPromise = firstValueFrom(
+      service.excluirImagem(10)
+    );
+
+    const request = httpTesting.expectOne(
+      `${environment.apiUrl}/imagens/10`
+    );
+
+    expect(request.request.method).toBe('DELETE');
+
+    request.flush(null, {
+      status: 204,
+      statusText: 'No Content',
+    });
+
+    await resultadoPromise;
+  });
+
+  it('should set a vehicle image as principal', async () => {
+    const resultadoPromise = firstValueFrom(
+      service.definirImagemPrincipal(10)
+    );
+
+    const request = httpTesting.expectOne(
+      `${environment.apiUrl}/imagens/10/principal`
+    );
+
+    expect(request.request.method).toBe('PATCH');
+    expect(request.request.body).toBeNull();
+
+    request.flush(null, {
+      status: 204,
+      statusText: 'No Content',
+    });
+
+    await resultadoPromise;
   });
 });

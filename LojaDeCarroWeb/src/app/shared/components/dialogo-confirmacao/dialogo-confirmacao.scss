@@ -1,0 +1,89 @@
+:host {
+  display: block;
+}
+
+.confirmation-dialog {
+  width: min(420px, calc(100vw - 48px));
+  padding-top: 24px;
+
+  &__icon {
+    width: 58px;
+    height: 58px;
+    display: grid;
+    place-items: center;
+    margin: 0 auto 6px;
+    color: #6c5510;
+    border-radius: 50%;
+    background: #f2e8bd;
+
+    mat-icon {
+      width: 30px;
+      height: 30px;
+      font-size: 30px;
+    }
+  }
+
+  h2 {
+    margin: 0;
+    padding: 14px 28px 8px;
+    color: #202020;
+    text-align: center;
+  }
+
+  mat-dialog-content {
+    padding: 0 28px 20px;
+    color: #68645c;
+    text-align: center;
+
+    p {
+      margin: 0;
+      line-height: 1.6;
+    }
+  }
+
+  mat-dialog-actions {
+    gap: 10px;
+    padding: 16px 24px 24px;
+    border-top: 1px solid #ece8de;
+  }
+
+  &__confirm {
+    color: #171717;
+    background: #d4b95f;
+
+    &:hover {
+      background: #e1ca7c;
+    }
+  }
+
+  &--danger {
+    .confirmation-dialog__icon {
+      color: #962f2f;
+      background: #f9dddd;
+    }
+
+    .confirmation-dialog__confirm {
+      color: #ffffff;
+      background: #a73535;
+
+      &:hover {
+        background: #8e2929;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .confirmation-dialog {
+    width: calc(100vw - 32px);
+
+    mat-dialog-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+
+      button {
+        width: 100%;
+      }
+    }
+  }
+}

@@ -8,8 +8,8 @@
 
     @if (modoEdicao) {
     <p>
-      Atualize os dados do veículo. As imagens permanecem
-      inalteradas nesta etapa.
+      Atualize os dados do veículo e gerencie as imagens
+      do anúncio.
     </p>
     } @else {
     <p>
@@ -303,21 +303,15 @@
       </mat-form-field>
     </section>
 
+    @if (!modoEdicao) {
     <section class="vehicle-form__section">
       <header class="vehicle-form__section-header">
         <span>04</span>
 
         <div>
-          <h2>
-            {{ modoEdicao ? 'Imagens atuais' : 'Imagens' }}
-          </h2>
-
+          <h2>Imagens</h2>
           <p>
-            @if (modoEdicao) {
-            As imagens existentes não serão alteradas.
-            } @else {
             A primeira imagem será definida como principal.
-            }
           </p>
         </div>
       </header>
@@ -332,10 +326,11 @@
         <strong>Selecionar imagens</strong>
 
         <span>
-          Até {{ limiteImagens }} arquivos. Imagens são opcionais.
+          Até {{ limiteImagens }} arquivos.
+          Imagens são opcionais.
         </span>
       </label>
-      @if (!modoEdicao) {
+
       @if (erroArquivos(); as mensagem) {
       <p class="vehicle-form__error" role="alert">
         {{ mensagem }}
@@ -350,43 +345,28 @@
         let indice = $index
         ) {
         <li>
-          <mat-icon aria-hidden="true">
-            image
-          </mat-icon>
+          <mat-icon aria-hidden="true">image</mat-icon>
 
           <span>
             <strong>{{ arquivo.name }}</strong>
+
             <small>
-              {{ (arquivo.size / 1024 / 1024).toFixed(2) }} MB
+              {{
+              (arquivo.size / 1024 / 1024)
+              .toFixed(2)
+              }} MB
             </small>
           </span>
 
           <button type="button" aria-label="Remover imagem" (click)="removerArquivo(indice)">
-            <mat-icon aria-hidden="true">
-              close
-            </mat-icon>
+            <mat-icon aria-hidden="true">close</mat-icon>
           </button>
         </li>
         }
       </ul>
       }
-      } @else {
-      <div class="vehicle-form__existing-images">
-        <mat-icon aria-hidden="true">photo_library</mat-icon>
-
-        <span>
-          <strong>
-            {{ imagensExistentes().length }}
-            {{ imagensExistentes().length === 1 ? 'imagem' : 'imagens' }}
-          </strong>
-
-          <small>
-            O gerenciamento das imagens será feito separadamente.
-          </small>
-        </span>
-      </div>
-      }
     </section>
+    }
 
     @if (erroCadastro()) {
     <div class="vehicle-form__submit-error" role="alert">
@@ -418,5 +398,10 @@
       </button>
     </footer>
   </form>
+  @if (modoEdicao) {
+  @if (idVeiculoEdicao; as idVeiculo) {
+  <app-veiculo-imagens-gerenciamento [idVeiculo]="idVeiculo" />
+  }
+  }
   }
 </main>
