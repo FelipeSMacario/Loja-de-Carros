@@ -4,7 +4,14 @@ import { environment } from '../../../../../environments/environment';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoDetalheResponse } from '../../models/veiculo-detalhe-response';
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from  '@angular/material/button';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDialog } from '@angular/material/dialog';
+import { finalize, take } from 'rxjs';
+import { AuthService } from '../../../../core/auth/auth-service';
+import { DialogoConfirmacao } from '../../../../shared/components/dialogo-confirmacao/dialogo-confirmacao';
+import { VendaResponse } from '../../models/venda-response';
+import { VendaApi } from '../../data-access/venda-api';
+import { UsuarioApi } from '../../data-access/usuario-api';
 
 @Component({
   selector: 'app-veiculo-detalhe',
@@ -25,9 +32,49 @@ export class VeiculoDetalhe implements OnInit {
   readonly imagemSelecionadaId = signal<number | null>(null);
   readonly imagemSelecionadaFalhou = signal(false);
 
+  readonly auth = inject(AuthService);
+
+  private readonly dialog = inject(MatDialog);
+
+  readonly usuarioAtualId = signal<number | null>(null);
+  readonly carregandoUsuario = signal(false);
+  readonly erroUsuario = signal(false);
+
+  readonly confirmandoCompra = signal(false);
+  readonly enviandoCompra = signal(false);
+  readonly erroCompra = signal(false);
+
+
+  private readonly usuarioApi = inject(UsuarioApi);
+  private readonly vendaApi = inject(VendaApi);
+
+  readonly vendaCriada = signal<VendaResponse | null>(null);
+
+  readonly podeIniciarCompra = computed(() => {
+    const veiculo = this.veiculo();
+
+    if (
+      this.gerenciandoMeuAnuncio
+      || !this.auth.inicializado()
+      || veiculo?.statusVeiculo !== 'DISPONIVEL'
+      || this.vendaCriada() !== null
+    ) {
+      return false;
+    }
+
+    if (!this.auth.autenticado()) {
+      return true; // O botão levará ao login.
+    }
+
+    return this.auth.possuiRole('USUARIO')
+      && !this.carregandoUsuario()
+      && !this.erroUsuario()
+      && this.usuarioAtualId() !== null
+      && this.usuarioAtualId() !== veiculo.vendedor.id;
+  });
+
   readonly imagemSelecionadaUrl = computed(() => {
     const id = this.imagemSelecionadaId();
-
 
 
     if (id === null || this.imagemSelecionadaFalhou()) {
@@ -118,6 +165,10 @@ export class VeiculoDetalhe implements OnInit {
 
     this.idVeiculo = id;
     this.carregar();
+
+    if (this.auth.autenticado() && !this.gerenciandoMeuAnuncio) {
+      this.carregarUsuarioAtual();
+    }
   }
 
   carregar(): void {
@@ -169,5 +220,92 @@ export class VeiculoDetalhe implements OnInit {
   }
   tratarFalhaImagem(): void {
     this.imagemSelecionadaFalhou.set(true);
+  }
+
+  carregarUsuarioAtual(): void {
+    if (!this.auth.autenticado() || this.gerenciandoMeuAnuncio) {
+      return;
+    }
+
+    this.carregandoUsuario.set(true);
+    this.erroUsuario.set(false);
+    this.usuarioAtualId.set(null);
+
+    this.usuarioApi.buscarAtual()
+      .pipe(finalize(() => this.carregandoUsuario.set(false)))
+      .subscribe({
+        next: usuario => {
+          this.usuarioAtualId.set(usuario.id);
+        },
+        error: () => {
+          this.erroUsuario.set(true);
+        },
+      });
+  }
+
+  iniciarCompra(): void {
+    const veiculo = this.veiculo();
+
+    if (
+      !veiculo
+      || !this.podeIniciarCompra()
+      || this.confirmandoCompra()
+      || this.enviandoCompra()
+    ) {
+      return;
+    }
+
+    if (!this.auth.autenticado()) {
+      void this.auth.entrar();
+      return;
+    }
+
+    this.confirmandoCompra.set(true);
+    this.erroCompra.set(false);
+
+    this.dialog.open(DialogoConfirmacao, {
+      autoFocus: 'first-tabbable',
+      disableClose: true,
+      maxWidth: 'calc(100vw - 32px)',
+      data: {
+        titulo: 'Reservar veículo?',
+        mensagem:
+          `O anúncio de ${veiculo.marca} ${veiculo.modelo} `
+          + 'ficará reservado para você. Você poderá cancelar '
+          + 'a venda; a conclusão depende do vendedor.',
+        textoConfirmar: 'Reservar veículo',
+        textoCancelar: 'Voltar',
+        tipo: 'aviso',
+      },
+    }).afterClosed().pipe(take(1))
+      .subscribe(confirmado => {
+        this.confirmandoCompra.set(false);
+
+        if (!confirmado) {
+          return;
+        }
+
+        this.enviandoCompra.set(true);
+
+        this.vendaApi.criar({ veiculoId: veiculo.id })
+          .pipe(finalize(() => this.enviandoCompra.set(false)))
+          .subscribe({
+            next: venda => {
+              this.vendaCriada.set(venda);
+
+              this.veiculo.update(atual =>
+                atual?.id === venda.veiculo.id
+                  ? {
+                    ...atual,
+                    statusVeiculo: venda.veiculo.status,
+                  }
+                  : atual
+              );
+            },
+            error: () => {
+              this.erroCompra.set(true);
+            },
+          });
+      });
   }
 }

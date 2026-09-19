@@ -317,6 +317,50 @@
       background: #343434;
     }
   }
+
+  &__purchase {
+    width: 100%;
+    min-height: 46px;
+    margin: 0 0 24px;
+    color: #171717;
+    font-weight: 700;
+    background: #d4b95f;
+
+    mat-icon {
+      margin-right: 6px;
+    }
+
+    &:hover:not(:disabled) {
+      background: #e1ca7c;
+    }
+  }
+
+  &__purchase-loading {
+    margin: 0 0 24px;
+    color: #68645c;
+  }
+
+  &__purchase-success,
+  &__purchase-error {
+    margin: 0 0 24px;
+    padding: 14px 16px;
+    line-height: 1.5;
+    border-radius: 10px;
+  }
+
+  &__purchase-success {
+    color: #245c32;
+    background: #e3f3e6;
+  }
+
+  &__purchase-error {
+    color: #8c2727;
+    background: #fbe7e7;
+
+    p {
+      margin: 0 0 12px;
+    }
+  }
 }
 
 .vehicle-information,

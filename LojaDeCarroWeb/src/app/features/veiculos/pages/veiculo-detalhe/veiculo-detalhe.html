@@ -78,6 +78,10 @@
         {{ veiculo.modelo }}
       </h1>
 
+      <p class="vehicle-summary__price">
+        {{ valorFormatado() }}
+      </p>
+
       @if (podeEditar()) {
       <a class="vehicle-summary__edit" mat-flat-button [routerLink]="[
       '/veiculos/meus-anuncios',
@@ -87,6 +91,47 @@
         <mat-icon aria-hidden="true">edit</mat-icon>
         Editar anúncio
       </a>
+      }
+      @if (vendaCriada(); as venda) {
+      <p class="vehicle-summary__purchase-success" role="status">
+        Compra iniciada! Venda nº {{ venda.id }}.
+        O veículo foi reservado para você.
+      </p>
+      } @else if (
+      !gerenciandoMeuAnuncio
+      && veiculo.statusVeiculo === 'DISPONIVEL'
+      && auth.inicializado()
+      ) {
+      @if (erroUsuario()) {
+      <div class="vehicle-summary__purchase-error" role="alert">
+        <p>Não foi possível verificar sua conta.</p>
+        <button type="button" mat-stroked-button (click)="carregarUsuarioAtual()">
+          Tentar novamente
+        </button>
+      </div>
+      } @else if (auth.autenticado() && carregandoUsuario()) {
+      <p class="vehicle-summary__purchase-loading" role="status">
+        Verificando sua conta...
+      </p>
+      } @else if (podeIniciarCompra()) {
+      <button type="button" mat-flat-button class="vehicle-summary__purchase" data-testid="start-purchase-button"
+        [disabled]="confirmandoCompra() || enviandoCompra()" (click)="iniciarCompra()">
+        <mat-icon aria-hidden="true">shopping_cart</mat-icon>
+
+        @if (enviandoCompra()) {
+        Reservando...
+        } @else {
+        {{ auth.autenticado() ? 'Iniciar compra' : 'Entrar para comprar' }}
+        }
+      </button>
+
+      @if (erroCompra()) {
+      <p class="vehicle-summary__purchase-error" role="alert">
+        Não foi possível iniciar a compra.
+        Atualize a página e verifique se o anúncio ainda está disponível.
+      </p>
+      }
+      }
       }
 
       <div class="vehicle-summary__facts">

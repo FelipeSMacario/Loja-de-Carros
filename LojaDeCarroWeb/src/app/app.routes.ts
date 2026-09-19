@@ -35,6 +35,22 @@ export const routes: Routes = [
           ).then(component => component.MeusAnuncios),
       },
       {
+        path: 'vendas/minhas-compras',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './features/veiculos/pages/minhas-compras/minhas-compras'
+          ).then(component => component.MinhasCompras),
+      },
+      {
+        path: 'vendas/minhas-vendas',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './features/veiculos/pages/minhas-vendas/minhas-vendas'
+          ).then(component => component.MinhasVendas),
+      },
+      {
         path: 'veiculos/meus-anuncios/:id/editar',
         canActivate: [authGuard],
         data: {

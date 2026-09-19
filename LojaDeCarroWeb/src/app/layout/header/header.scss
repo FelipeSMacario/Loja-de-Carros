@@ -18,7 +18,9 @@
   }
 
   &__announce,
-  &__my-ads {
+  &__my-ads,
+  &__purchases,
+  &__sales {
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -194,7 +196,9 @@
     }
 
     &__announce,
-    &__my-ads {
+    &__my-ads,
+    &__purchases,
+    &__sales {
       padding-inline: 6px;
 
       span {

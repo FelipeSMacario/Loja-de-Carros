@@ -5,6 +5,11 @@ import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoDetalheResponse } from '../../models/veiculo-detalhe-response';
 import { VeiculoDetalhe } from './veiculo-detalhe';
 import { provideRouter } from '@angular/router';
+import { signal } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { AuthService } from '../../../../core/auth/auth-service';
+import { VendaApi } from '../../data-access/venda-api';
+import { UsuarioApi } from '../../data-access/usuario-api';
 
 describe('VeiculoDetalhe', () => {
   let component: VeiculoDetalhe;
@@ -13,6 +18,28 @@ describe('VeiculoDetalhe', () => {
   const veiculoApiMock = {
     buscarPorId: vi.fn(),
     buscarMeuAnuncio: vi.fn(),
+  };
+
+  const autenticado = signal(false);
+  const inicializado = signal(true);
+
+  const authServiceMock = {
+    autenticado,
+    inicializado,
+    possuiRole: vi.fn().mockReturnValue(true),
+    entrar: vi.fn().mockResolvedValue(undefined),
+  };
+
+  const usuarioApiMock = {
+    buscarAtual: vi.fn(),
+  };
+
+  const vendaApiMock = {
+    criar: vi.fn(),
+  };
+
+  const dialogMock = {
+    open: vi.fn(),
   };
 
   const veiculo: VeiculoDetalheResponse = {
@@ -51,17 +78,25 @@ describe('VeiculoDetalhe', () => {
       },
     ],
   };
+
   const activatedRouteMock = {
     snapshot: {
-      paramMap: convertToParamMap({
-        id: '1',
-      }),
+      paramMap: convertToParamMap({ id: '1' }),
       data: {} as Record<string, unknown>,
     },
   };
+
   beforeEach(async () => {
     activatedRouteMock.snapshot.data = {};
     vi.clearAllMocks();
+
+    autenticado.set(false);
+    inicializado.set(true);
+
+    usuarioApiMock.buscarAtual.mockReset();
+    vendaApiMock.criar.mockReset();
+    dialogMock.open.mockReset();
+    authServiceMock.possuiRole.mockReturnValue(true);
 
     await TestBed.configureTestingModule({
       imports: [VeiculoDetalhe],
@@ -74,6 +109,22 @@ describe('VeiculoDetalhe', () => {
         {
           provide: ActivatedRoute,
           useValue: activatedRouteMock,
+        },
+        {
+          provide: AuthService,
+          useValue: authServiceMock,
+        },
+        {
+          provide: UsuarioApi,
+          useValue: usuarioApiMock,
+        },
+        {
+          provide: VendaApi,
+          useValue: vendaApiMock,
+        },
+        {
+          provide: MatDialog,
+          useValue: dialogMock,
         },
       ],
     }).compileComponents();
@@ -234,5 +285,100 @@ describe('VeiculoDetalhe', () => {
 
     expect(link?.getAttribute('href'))
       .toBe('/veiculos/meus-anuncios/1/editar');
+  });
+  it('should send a visitor to login before purchasing', () => {
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
+
+    criarComponente();
+    component.iniciarCompra();
+
+    expect(authServiceMock.entrar).toHaveBeenCalledOnce();
+    expect(dialogMock.open).not.toHaveBeenCalled();
+    expect(vendaApiMock.criar).not.toHaveBeenCalled();
+  });
+
+  it('should hide the purchase action from the seller', () => {
+    autenticado.set(true);
+    usuarioApiMock.buscarAtual.mockReturnValue(
+      of({ id: veiculo.vendedor.id })
+    );
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
+
+    criarComponente();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(usuarioApiMock.buscarAtual)
+      .toHaveBeenCalledOnce();
+
+    expect(
+      element.querySelector(
+        '[data-testid="start-purchase-button"]'
+      )
+    ).toBeNull();
+
+    expect(component.podeIniciarCompra()).toBe(false);
+  });
+
+  it('should not create a sale when confirmation is cancelled', () => {
+    autenticado.set(true);
+    usuarioApiMock.buscarAtual.mockReturnValue(
+      of({ id: 6 })
+    );
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
+    dialogMock.open.mockReturnValue({
+      afterClosed: () => of(false),
+    });
+
+    criarComponente();
+    component.iniciarCompra();
+
+    expect(dialogMock.open).toHaveBeenCalledOnce();
+    expect(vendaApiMock.criar).not.toHaveBeenCalled();
+    expect(component.vendaCriada()).toBeNull();
+  });
+
+  it('should reserve the vehicle after confirming the purchase', () => {
+    autenticado.set(true);
+    usuarioApiMock.buscarAtual.mockReturnValue(
+      of({ id: 6 })
+    );
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
+    dialogMock.open.mockReturnValue({
+      afterClosed: () => of(true),
+    });
+    vendaApiMock.criar.mockReturnValue(
+      of({
+        id: 7,
+        veiculo: {
+          id: veiculo.id,
+          status: 'RESERVADO',
+        },
+      })
+    );
+
+    criarComponente();
+    component.iniciarCompra();
+    fixture.detectChanges();
+
+    expect(vendaApiMock.criar)
+      .toHaveBeenCalledExactlyOnceWith({
+        veiculoId: 1,
+      });
+
+    expect(component.vendaCriada()?.id).toBe(7);
+    expect(component.veiculo()?.statusVeiculo)
+      .toBe('RESERVADO');
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.textContent)
+      .toContain('Compra iniciada!');
+
+    expect(
+      element.querySelector(
+        '[data-testid="start-purchase-button"]'
+      )
+    ).toBeNull();
   });
 });

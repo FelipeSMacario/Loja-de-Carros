@@ -1,0 +1,154 @@
+<main class="sales">
+  <header class="sales__header">
+    <div>
+      <p class="sales__eyebrow">
+        Área do vendedor
+      </p>
+
+      <h1>Minhas vendas</h1>
+
+      <p class="sales__description">
+        Acompanhe as negociações dos seus veículos
+        e conclua as vendas realizadas.
+      </p>
+    </div>
+  </header>
+
+  <div
+    class="sales__filters"
+    role="group"
+    aria-label="Filtrar vendas por status"
+  >
+    @for (opcao of opcoesStatus; track opcao.rotulo) {
+      <button
+        type="button"
+        class="sales__filter"
+        [class.sales__filter--active]="
+          statusSelecionado() === opcao.valor
+        "
+        [attr.aria-pressed]="
+          statusSelecionado() === opcao.valor
+        "
+        (click)="alterarStatus(opcao.valor)"
+      >
+        {{ opcao.rotulo }}
+      </button>
+    }
+  </div>
+
+  @if (carregando()) {
+    <section
+      class="sales__feedback"
+      data-testid="loading-state"
+    >
+      <mat-spinner diameter="48" />
+      <p>Carregando suas vendas...</p>
+    </section>
+  } @else if (erro()) {
+    <section
+      class="sales__feedback"
+      data-testid="error-state"
+    >
+      <mat-icon aria-hidden="true">
+        error_outline
+      </mat-icon>
+
+      <h2>Não foi possível carregar suas vendas</h2>
+
+      <p>Tente novamente em alguns instantes.</p>
+
+      <button
+        type="button"
+        mat-flat-button
+        (click)="carregar()"
+      >
+        Tentar novamente
+      </button>
+    </section>
+  } @else {
+    @if (erroAcao()) {
+      <div
+        class="sales__action-error"
+        role="alert"
+        data-testid="action-error"
+      >
+        <mat-icon aria-hidden="true">
+          error_outline
+        </mat-icon>
+
+        <span>
+          Não foi possível alterar a venda.
+          Tente novamente.
+        </span>
+
+        <button
+          type="button"
+          aria-label="Fechar aviso"
+          (click)="erroAcao.set(false)"
+        >
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </div>
+    }
+
+    @if (vendas().length === 0) {
+      <section
+        class="sales__feedback"
+        data-testid="empty-state"
+      >
+        <mat-icon aria-hidden="true">
+          receipt_long
+        </mat-icon>
+
+        <h2>Nenhuma venda encontrada</h2>
+
+        @if (statusSelecionado() === null) {
+          <p>
+            Seus veículos ainda não possuem negociações.
+          </p>
+        } @else {
+          <p>
+            Você não possui vendas com o status
+            selecionado.
+          </p>
+
+          <button
+            type="button"
+            mat-flat-button
+            (click)="alterarStatus(null)"
+          >
+            Visualizar todas
+          </button>
+        }
+      </section>
+    } @else {
+      <section
+        class="sales__grid"
+        data-testid="sales-grid"
+        aria-label="Lista de vendas"
+      >
+        @for (venda of vendas(); track venda.id) {
+          <app-venda-card
+            [venda]="venda"
+            contexto="VENDA"
+            [acaoEmAndamento]="
+              acaoEmAndamentoId() === venda.id
+            "
+            (cancelar)="cancelar($event)"
+            (concluir)="concluir($event)"
+          />
+        }
+      </section>
+
+      <mat-paginator
+        class="sales__paginator"
+        aria-label="Paginação das minhas vendas"
+        [length]="totalElementos()"
+        [pageIndex]="pagina()"
+        [pageSize]="tamanhoPagina()"
+        [pageSizeOptions]="[6, 9, 12]"
+        (page)="alterarPagina($event)"
+      />
+    }
+  }
+</main>
