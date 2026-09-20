@@ -61,7 +61,8 @@
   &__announce,
   &__my-ads,
   &__purchases,
-  &__sales {
+  &__sales,
+  &__account {
     display: inline-flex;
     align-items: center;
     gap: 7px;
@@ -208,7 +209,7 @@
   }
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
   .site-header {
     &__navigation--desktop {
       display: none;

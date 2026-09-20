@@ -79,6 +79,14 @@ export const routes: Routes = [
             './features/veiculos/pages/veiculo-detalhe/veiculo-detalhe'
           ).then(component => component.VeiculoDetalhe),
       },
+      {
+        path: 'conta',
+        canActivate: [authGuard],
+        loadComponent: () =>
+          import(
+            './features/usuarios/pages/minha-conta/minha-conta'
+          ).then(component => component.MinhaConta),
+      },
     ],
   },
   {

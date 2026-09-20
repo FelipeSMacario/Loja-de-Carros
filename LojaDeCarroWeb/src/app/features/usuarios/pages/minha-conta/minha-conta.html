@@ -1,0 +1,155 @@
+<main class="account">
+  <header class="account__header">
+    <p class="account__eyebrow">
+      Configurações
+    </p>
+
+    <h1>Minha conta</h1>
+
+    <p class="account__description">
+      Consulte seus dados e gerencie o acesso à loja.
+    </p>
+  </header>
+
+  @if (carregando()) {
+    <section
+      class="account__feedback"
+      data-testid="loading-state"
+    >
+      <mat-spinner diameter="48" />
+      <p>Carregando os dados da sua conta...</p>
+    </section>
+  } @else if (erroCarregamento()) {
+    <section
+      class="account__feedback"
+      data-testid="error-state"
+    >
+      <mat-icon aria-hidden="true">
+        error_outline
+      </mat-icon>
+
+      <h2>Não foi possível carregar sua conta</h2>
+
+      <p>Tente novamente em alguns instantes.</p>
+
+      <button
+        type="button"
+        mat-flat-button
+        (click)="carregar()"
+      >
+        Tentar novamente
+      </button>
+    </section>
+  } @else if (usuario(); as usuario) {
+    <section
+      class="account__profile"
+      data-testid="account-profile"
+    >
+      <header class="account__profile-header">
+        <span class="account__avatar">
+          <mat-icon aria-hidden="true">person</mat-icon>
+        </span>
+
+        <div>
+          <p>Conta pessoal</p>
+          <h2>{{ usuario.nome }}</h2>
+        </div>
+
+        <span
+          class="account__status"
+          [class.account__status--inactive]="!usuario.ativo"
+        >
+          {{ usuario.ativo ? 'Ativa' : 'Inativa' }}
+        </span>
+      </header>
+
+      <dl class="account__information">
+        <div>
+          <dt>
+            <mat-icon aria-hidden="true">email</mat-icon>
+            E-mail
+          </dt>
+          <dd>{{ usuario.email }}</dd>
+        </div>
+
+        <div>
+          <dt>
+            <mat-icon aria-hidden="true">badge</mat-icon>
+            CPF
+          </dt>
+          <dd>{{ cpfFormatado() }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="account__danger-zone">
+      <div class="account__danger-content">
+        <span class="account__danger-icon">
+          <mat-icon aria-hidden="true">
+            warning
+          </mat-icon>
+        </span>
+
+        <div>
+          <h2>Desativar conta</h2>
+
+          <p>
+            Seus anúncios disponíveis serão pausados e
+            você será desconectado da aplicação.
+          </p>
+
+          <p>
+            Não é possível desativar uma conta que tenha
+            compras, vendas ou veículos reservados.
+          </p>
+
+          <strong>
+            A reativação deverá ser realizada por um
+            administrador.
+          </strong>
+        </div>
+      </div>
+
+      @if (erroDesativacao(); as mensagemErro) {
+        <div
+          class="account__deactivation-error"
+          role="alert"
+          data-testid="deactivation-error"
+        >
+          <mat-icon aria-hidden="true">
+            error_outline
+          </mat-icon>
+
+          <span>{{ mensagemErro }}</span>
+
+          <button
+            type="button"
+            aria-label="Fechar aviso"
+            (click)="erroDesativacao.set(null)"
+          >
+            <mat-icon aria-hidden="true">close</mat-icon>
+          </button>
+        </div>
+      }
+
+      <button
+        type="button"
+        mat-stroked-button
+        class="account__deactivate"
+        data-testid="deactivate-account-button"
+        [disabled]="desativando()"
+        (click)="solicitarDesativacao()"
+      >
+        @if (desativando()) {
+          <mat-spinner diameter="18" />
+        } @else {
+          <mat-icon aria-hidden="true">
+            person_off
+          </mat-icon>
+        }
+
+        Desativar minha conta
+      </button>
+    </section>
+  }
+</main>

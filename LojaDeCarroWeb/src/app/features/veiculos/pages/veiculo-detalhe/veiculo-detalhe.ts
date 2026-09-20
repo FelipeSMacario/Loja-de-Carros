@@ -11,7 +11,7 @@ import { AuthService } from '../../../../core/auth/auth-service';
 import { DialogoConfirmacao } from '../../../../shared/components/dialogo-confirmacao/dialogo-confirmacao';
 import { VendaResponse } from '../../models/venda-response';
 import { VendaApi } from '../../data-access/venda-api';
-import { UsuarioApi } from '../../data-access/usuario-api';
+import { UsuarioApi } from '../../../usuarios/data-access/usuario-api';
 
 @Component({
   selector: 'app-veiculo-detalhe',

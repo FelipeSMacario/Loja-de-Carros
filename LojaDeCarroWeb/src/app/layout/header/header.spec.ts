@@ -72,6 +72,11 @@ describe('Header', () => {
         '[data-testid="my-sales-link"]'
       )
     ).toBeNull();
+    expect(
+      element.querySelector(
+        '[data-testid="account-link"]'
+      )
+    ).toBeNull();
 
     button.click();
   });
@@ -88,6 +93,9 @@ describe('Header', () => {
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
+    const accountLink = element.querySelector(
+      '[data-testid="account-link"]'
+    );
 
     const menuButton = element.querySelector(
       '[data-testid="mobile-menu-button"]'
@@ -136,6 +144,12 @@ describe('Header', () => {
       )?.getAttribute('href')
     ).toBe('/vendas/minhas-vendas');
 
+    expect(
+      overlay.querySelector(
+        '[data-testid="mobile-account-link"]'
+      )?.getAttribute('href')
+    ).toBe('/conta');
+
     const logoutButton = overlay.querySelector(
       '[data-testid="mobile-logout-button"]'
     ) as HTMLButtonElement;
@@ -144,6 +158,9 @@ describe('Header', () => {
 
     expect(authServiceMock.sair)
       .toHaveBeenCalledOnce();
+
+    expect(accountLink?.getAttribute('href'))
+      .toBe('/conta');
   });
 
   it('should display the user and logout when authenticated', () => {

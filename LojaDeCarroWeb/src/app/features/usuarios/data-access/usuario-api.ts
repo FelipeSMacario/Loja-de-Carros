@@ -7,6 +7,10 @@ import { environment } from
 
 export interface UsuarioAtualResponse {
   id: number;
+  nome: string;
+  cpf: string;
+  email: string;
+  ativo: boolean;
 }
 
 @Injectable({
@@ -14,10 +18,19 @@ export interface UsuarioAtualResponse {
 })
 export class UsuarioApi {
   private readonly http = inject(HttpClient);
+  private readonly url =
+    `${environment.apiUrl}/usuarios/me`;
 
   buscarAtual(): Observable<UsuarioAtualResponse> {
     return this.http.get<UsuarioAtualResponse>(
-      `${environment.apiUrl}/usuarios/me`
+      this.url
+    );
+  }
+
+  desativar(): Observable<UsuarioAtualResponse> {
+    return this.http.patch<UsuarioAtualResponse>(
+      `${this.url}/desativar`,
+      null
     );
   }
 }

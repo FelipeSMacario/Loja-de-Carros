@@ -9,7 +9,7 @@ import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../../../core/auth/auth-service';
 import { VendaApi } from '../../data-access/venda-api';
-import { UsuarioApi } from '../../data-access/usuario-api';
+import { UsuarioApi } from '../../../usuarios/data-access/usuario-api';
 
 describe('VeiculoDetalhe', () => {
   let component: VeiculoDetalhe;
