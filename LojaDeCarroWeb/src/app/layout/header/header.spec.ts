@@ -1,20 +1,15 @@
-import {
-  ComponentFixture,
-  TestBed,
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed, } from '@angular/core/testing';
 import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { vi } from 'vitest';
-
-import {
-  AuthService,
-  UsuarioAutenticado,
-} from '../../core/auth/auth-service';
+import { OverlayContainer } from '@angular/cdk/overlay';
+import { AuthService, UsuarioAutenticado, } from '../../core/auth/auth-service';
 import { Header } from './header';
 
 describe('Header', () => {
   let component: Header;
   let fixture: ComponentFixture<Header>;
+  let overlayContainer: OverlayContainer;
 
   const inicializado = signal(true);
   const autenticado = signal(false);
@@ -33,6 +28,7 @@ describe('Header', () => {
     autenticado.set(false);
     usuario.set(null);
 
+
     authServiceMock.entrar.mockClear();
     authServiceMock.sair.mockClear();
 
@@ -47,6 +43,7 @@ describe('Header', () => {
       ],
     }).compileComponents();
 
+    overlayContainer = TestBed.inject(OverlayContainer);
     fixture = TestBed.createComponent(Header);
     component = fixture.componentInstance;
     fixture.detectChanges();
@@ -77,6 +74,76 @@ describe('Header', () => {
     ).toBeNull();
 
     button.click();
+  });
+
+  it('should display authenticated navigation in the mobile menu', async () => {
+    autenticado.set(true);
+    usuario.set({
+      subject: 'keycloak-user-id',
+      nome: 'Steven Seagal',
+      email: 'steven@email.com',
+      roles: ['USUARIO'],
+    });
+
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    const menuButton = element.querySelector(
+      '[data-testid="mobile-menu-button"]'
+    ) as HTMLButtonElement;
+
+    expect(menuButton).not.toBeNull();
+
+    menuButton.click();
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const overlay =
+      overlayContainer.getContainerElement();
+
+    expect(overlay.textContent)
+      .toContain('Steven Seagal');
+
+    expect(
+      overlay.querySelector(
+        '[data-testid="mobile-stock-link"]'
+      )?.getAttribute('href')
+    ).toBe('/home');
+
+    expect(
+      overlay.querySelector(
+        '[data-testid="mobile-announce-link"]'
+      )?.getAttribute('href')
+    ).toBe('/veiculos/anunciar');
+
+    expect(
+      overlay.querySelector(
+        '[data-testid="mobile-my-ads-link"]'
+      )?.getAttribute('href')
+    ).toBe('/veiculos/meus-anuncios');
+
+    expect(
+      overlay.querySelector(
+        '[data-testid="mobile-my-purchases-link"]'
+      )?.getAttribute('href')
+    ).toBe('/vendas/minhas-compras');
+
+    expect(
+      overlay.querySelector(
+        '[data-testid="mobile-my-sales-link"]'
+      )?.getAttribute('href')
+    ).toBe('/vendas/minhas-vendas');
+
+    const logoutButton = overlay.querySelector(
+      '[data-testid="mobile-logout-button"]'
+    ) as HTMLButtonElement;
+
+    logoutButton.click();
+
+    expect(authServiceMock.sair)
+      .toHaveBeenCalledOnce();
   });
 
   it('should display the user and logout when authenticated', () => {

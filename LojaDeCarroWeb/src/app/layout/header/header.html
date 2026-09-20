@@ -1,66 +1,217 @@
 <header class="site-header">
   <div class="site-header__content">
-    <a class="site-header__brand" routerLink="/home" aria-label="Ir para o início">
+    <a
+      class="site-header__brand"
+      routerLink="/home"
+      aria-label="Ir para o início"
+    >
       <span class="site-header__brand-icon">
-        <mat-icon aria-hidden="true"> directions_car </mat-icon>
+        <mat-icon aria-hidden="true">
+          directions_car
+        </mat-icon>
       </span>
 
-      <span class="site-header__brand-name"> Loja de <strong>Veículos</strong> </span>
+      <span class="site-header__brand-name">
+        Loja de <strong>Veículos</strong>
+      </span>
     </a>
 
-    <nav class="site-header__navigation" aria-label="Navegação principal">
-      <a routerLink="/home" class="site-header__stock-link" routerLinkActive="site-header__link--active"
-        [routerLinkActiveOptions]="{ exact: true }">
+    <nav
+      class="site-header__navigation site-header__navigation--desktop"
+      aria-label="Navegação principal"
+    >
+      <a
+        routerLink="/home"
+        class="site-header__stock-link"
+        routerLinkActive="site-header__link--active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
         Estoque
       </a>
 
       @if (auth.inicializado()) {
-      @if (auth.autenticado()) {
-      <a class="site-header__announce" routerLink="/veiculos/anunciar" routerLinkActive="site-header__link--active"
-        [routerLinkActiveOptions]="{ exact: true }" data-testid="announce-link" aria-label="Anunciar veículo">
-        <mat-icon aria-hidden="true">add_circle</mat-icon>
-        <span>Anunciar</span>
-      </a>
-      <a class="site-header__my-ads" routerLink="/veiculos/meus-anuncios" routerLinkActive="site-header__link--active"
-        [routerLinkActiveOptions]="{ exact: true }" data-testid="my-ads-link" aria-label="Meus anúncios">
-        <mat-icon aria-hidden="true"> directions_car </mat-icon>
+        @if (auth.autenticado()) {
+          <a
+            class="site-header__announce"
+            routerLink="/veiculos/anunciar"
+            routerLinkActive="site-header__link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            data-testid="announce-link"
+          >
+            <mat-icon aria-hidden="true">
+              add_circle
+            </mat-icon>
+            <span>Anunciar</span>
+          </a>
 
-        <span>Meus anúncios</span>
-      </a>
-      <a class="site-header__purchases" routerLink="/vendas/minhas-compras" routerLinkActive="site-header__link--active"
-        [routerLinkActiveOptions]="{ exact: true }" data-testid="my-purchases-link" aria-label="Minhas compras">
-        <mat-icon aria-hidden="true">
-          shopping_cart
-        </mat-icon>
+          <a
+            class="site-header__my-ads"
+            routerLink="/veiculos/meus-anuncios"
+            routerLinkActive="site-header__link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            data-testid="my-ads-link"
+          >
+            <mat-icon aria-hidden="true">
+              directions_car
+            </mat-icon>
+            <span>Meus anúncios</span>
+          </a>
 
-        <span>Compras</span>
-      </a>
-      <a class="site-header__sales" routerLink="/vendas/minhas-vendas" routerLinkActive="site-header__link--active"
-        [routerLinkActiveOptions]="{ exact: true }" data-testid="my-sales-link" aria-label="Minhas vendas">
-        <mat-icon aria-hidden="true">
-          receipt_long
-        </mat-icon>
+          <a
+            class="site-header__purchases"
+            routerLink="/vendas/minhas-compras"
+            routerLinkActive="site-header__link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            data-testid="my-purchases-link"
+          >
+            <mat-icon aria-hidden="true">
+              shopping_cart
+            </mat-icon>
+            <span>Compras</span>
+          </a>
 
-        <span>Vendas</span>
-      </a>
-      <span class="site-header__user" data-testid="authenticated-user">
-        Olá,
-        <strong>{{ auth.usuario()?.nome }}</strong>
-      </span>
+          <a
+            class="site-header__sales"
+            routerLink="/vendas/minhas-vendas"
+            routerLinkActive="site-header__link--active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            data-testid="my-sales-link"
+          >
+            <mat-icon aria-hidden="true">
+              receipt_long
+            </mat-icon>
+            <span>Vendas</span>
+          </a>
 
-      <button type="button" class="site-header__auth-button site-header__auth-button--secondary"
-        data-testid="logout-button" (click)="sair()">
-        <mat-icon aria-hidden="true">logout</mat-icon>
-        <span>Sair</span>
-      </button>
-      } @else {
-      <button type="button" class="site-header__auth-button" aria-label="Entrar" data-testid="login-button"
-        (click)="entrar()">
-        <mat-icon aria-hidden="true">login</mat-icon>
-        <span>Entrar</span>
-      </button>
-      }
+          <span
+            class="site-header__user"
+            data-testid="authenticated-user"
+          >
+            Olá,
+            <strong>{{ auth.usuario()?.nome }}</strong>
+          </span>
+
+          <button
+            type="button"
+            class="site-header__auth-button site-header__auth-button--secondary"
+            data-testid="logout-button"
+            (click)="sair()"
+          >
+            <mat-icon aria-hidden="true">logout</mat-icon>
+            <span>Sair</span>
+          </button>
+        } @else {
+          <button
+            type="button"
+            class="site-header__auth-button"
+            aria-label="Entrar"
+            data-testid="login-button"
+            (click)="entrar()"
+          >
+            <mat-icon aria-hidden="true">login</mat-icon>
+            <span>Entrar</span>
+          </button>
+        }
       }
     </nav>
+
+    <div class="site-header__mobile-actions">
+      @if (auth.inicializado()) {
+        @if (auth.autenticado()) {
+          <button
+            type="button"
+            mat-icon-button
+            class="site-header__menu-button"
+            aria-label="Abrir menu da conta"
+            data-testid="mobile-menu-button"
+            [matMenuTriggerFor]="navigationMenu"
+          >
+            <mat-icon aria-hidden="true">menu</mat-icon>
+          </button>
+        } @else {
+          <button
+            type="button"
+            mat-icon-button
+            class="site-header__mobile-login"
+            aria-label="Entrar"
+            data-testid="mobile-login-button"
+            (click)="entrar()"
+          >
+            <mat-icon aria-hidden="true">login</mat-icon>
+          </button>
+        }
+      }
+    </div>
   </div>
 </header>
+
+<mat-menu
+  #navigationMenu="matMenu"
+  xPosition="before"
+>
+  <div class="site-header__menu-user">
+    <small>Conta conectada</small>
+    <strong>{{ auth.usuario()?.nome }}</strong>
+  </div>
+
+  <a
+    mat-menu-item
+    routerLink="/home"
+    data-testid="mobile-stock-link"
+  >
+    <mat-icon aria-hidden="true">storefront</mat-icon>
+    <span>Estoque</span>
+  </a>
+
+  <a
+    mat-menu-item
+    routerLink="/veiculos/anunciar"
+    data-testid="mobile-announce-link"
+  >
+    <mat-icon aria-hidden="true">add_circle</mat-icon>
+    <span>Anunciar veículo</span>
+  </a>
+
+  <a
+    mat-menu-item
+    routerLink="/veiculos/meus-anuncios"
+    data-testid="mobile-my-ads-link"
+  >
+    <mat-icon aria-hidden="true">
+      directions_car
+    </mat-icon>
+    <span>Meus anúncios</span>
+  </a>
+
+  <a
+    mat-menu-item
+    routerLink="/vendas/minhas-compras"
+    data-testid="mobile-my-purchases-link"
+  >
+    <mat-icon aria-hidden="true">
+      shopping_cart
+    </mat-icon>
+    <span>Minhas compras</span>
+  </a>
+
+  <a
+    mat-menu-item
+    routerLink="/vendas/minhas-vendas"
+    data-testid="mobile-my-sales-link"
+  >
+    <mat-icon aria-hidden="true">
+      receipt_long
+    </mat-icon>
+    <span>Minhas vendas</span>
+  </a>
+
+  <button
+    type="button"
+    mat-menu-item
+    data-testid="mobile-logout-button"
+    (click)="sair()"
+  >
+    <mat-icon aria-hidden="true">logout</mat-icon>
+    <span>Sair</span>
+  </button>
+</mat-menu>

@@ -7,6 +7,47 @@
   border-bottom: 1px solid rgb(212 185 95 / 28%);
   background: #171717;
 
+  &__mobile-actions {
+    display: none;
+    align-items: center;
+  }
+
+  &__menu-button,
+  &__mobile-login {
+    color: #ffffff;
+    border: 1px solid rgb(212 185 95 / 55%);
+    border-radius: 10px;
+
+    &:hover {
+      color: #171717;
+      background: #d4b95f;
+    }
+
+    &:focus-visible {
+      outline: 3px solid #d4b95f;
+      outline-offset: 3px;
+    }
+  }
+
+  &__menu-user {
+    min-width: 230px;
+    display: grid;
+    gap: 3px;
+    padding: 13px 16px;
+    border-bottom: 1px solid #ece8de;
+
+    small {
+      color: #777168;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }
+
+    strong {
+      overflow-wrap: anywhere;
+      color: #242424;
+    }
+  }
+
   &__user {
     color: #d8d8d8;
     font-size: 0.9rem;
@@ -167,15 +208,23 @@
   }
 }
 
+@media (max-width: 900px) {
+  .site-header {
+    &__navigation--desktop {
+      display: none;
+    }
+
+    &__mobile-actions {
+      display: flex;
+    }
+  }
+}
+
 @media (max-width: 600px) {
   .site-header {
     &__content {
       width: min(100% - 32px, 1180px);
       min-height: 68px;
-    }
-
-    &__stock-link {
-      display: none;
     }
 
     &__brand-icon {
@@ -184,34 +233,15 @@
     }
 
     &__brand-name {
+      font-size: 1rem;
+    }
+  }
+}
+
+@media (max-width: 390px) {
+  .site-header {
+    &__brand-name {
       display: none;
-    }
-
-    &__navigation {
-      gap: 12px;
-    }
-
-    &__user {
-      display: none;
-    }
-
-    &__announce,
-    &__my-ads,
-    &__purchases,
-    &__sales {
-      padding-inline: 6px;
-
-      span {
-        display: none;
-      }
-    }
-
-    &__auth-button {
-      padding-inline: 10px;
-
-      span {
-        display: none;
-      }
     }
   }
 }
