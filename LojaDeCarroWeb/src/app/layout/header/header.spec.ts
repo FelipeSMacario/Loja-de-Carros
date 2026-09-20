@@ -64,9 +64,19 @@ describe('Header', () => {
 
     expect(button).not.toBeNull();
 
-    button.click();
+    expect(
+      element.querySelector(
+        '[data-testid="my-purchases-link"]'
+      )
+    ).toBeNull();
 
-    expect(authServiceMock.entrar).toHaveBeenCalledOnce();
+    expect(
+      element.querySelector(
+        '[data-testid="my-sales-link"]'
+      )
+    ).toBeNull();
+
+    button.click();
   });
 
   it('should display the user and logout when authenticated', () => {
@@ -96,8 +106,22 @@ describe('Header', () => {
       '[data-testid="my-ads-link"]'
     );
 
+    const myPurchasesLink = element.querySelector(
+      '[data-testid="my-purchases-link"]'
+    );
+
+    const mySalesLink = element.querySelector(
+      '[data-testid="my-sales-link"]'
+    );
+
     expect(myAdsLink?.getAttribute('href'))
       .toBe('/veiculos/meus-anuncios');
+
+    expect(myPurchasesLink?.getAttribute('href'))
+      .toBe('/vendas/minhas-compras');
+
+    expect(mySalesLink?.getAttribute('href'))
+      .toBe('/vendas/minhas-vendas');
 
     expect(announceLink?.getAttribute('href'))
       .toBe('/veiculos/anunciar');
