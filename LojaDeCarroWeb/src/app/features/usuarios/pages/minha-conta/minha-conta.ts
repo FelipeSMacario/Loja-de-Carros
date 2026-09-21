@@ -1,3 +1,4 @@
+import { HttpErrorResponse } from '@angular/common/http';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -6,20 +7,31 @@ import {
   OnInit,
   signal,
 } from '@angular/core';
-import { HttpErrorResponse } from '@angular/common/http';
+import {
+  FormBuilder,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatInputModule } from '@angular/material/input';
+import {
+  MatProgressSpinnerModule,
+} from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs';
 
-import { AuthService } from '../../../../core/auth/auth-service';
+import {
+  AuthService,
+} from '../../../../core/auth/auth-service';
 import {
   DialogoConfirmacao,
 } from '../../../../shared/components/dialogo-confirmacao/dialogo-confirmacao';
 import {
   UsuarioApi,
   UsuarioAtualResponse,
+  UsuarioUpdateRequest,
 } from '../../data-access/usuario-api';
 
 interface ApiErrorResponse {
@@ -32,8 +44,11 @@ interface ApiErrorResponse {
   selector: 'app-minha-conta',
   imports: [
     MatButtonModule,
+    MatFormFieldModule,
     MatIconModule,
+    MatInputModule,
     MatProgressSpinnerModule,
+    ReactiveFormsModule,
   ],
   templateUrl: './minha-conta.html',
   styleUrl: './minha-conta.scss',
@@ -43,16 +58,41 @@ export class MinhaConta implements OnInit {
   private readonly usuarioApi = inject(UsuarioApi);
   private readonly auth = inject(AuthService);
   private readonly dialog = inject(MatDialog);
+  private readonly formBuilder = inject(FormBuilder);
 
   readonly usuario =
     signal<UsuarioAtualResponse | null>(null);
 
   readonly carregando = signal(true);
   readonly erroCarregamento = signal(false);
+
+  readonly editando = signal(false);
+  readonly salvando = signal(false);
+  readonly atualizacaoConcluida = signal(false);
+
+  readonly erroAtualizacao =
+    signal<string | null>(null);
+
   readonly desativando = signal(false);
 
   readonly erroDesativacao =
     signal<string | null>(null);
+
+  readonly formulario = this.formBuilder.nonNullable.group({
+    nome: [
+      '',
+      [
+        Validators.required,
+        Validators.pattern(/\S/),
+      ],
+    ],
+    dataNascimento: [
+      '',
+      [
+        Validators.required,
+      ],
+    ],
+  });
 
   readonly cpfFormatado = computed(() => {
     const cpf = this.usuario()
@@ -64,6 +104,22 @@ export class MinhaConta implements OnInit {
     }
 
     return `***.***.${cpf.slice(6, 9)}-${cpf.slice(9)}`;
+  });
+
+  readonly dataNascimentoFormatada = computed(() => {
+    const data = this.usuario()?.dataNascimento;
+
+    if (!data) {
+      return '';
+    }
+
+    const [ano, mes, dia] = data.split('-');
+
+    if (!ano || !mes || !dia) {
+      return data;
+    }
+
+    return `${dia}/${mes}/${ano}`;
   });
 
   ngOnInit(): void {
@@ -83,6 +139,72 @@ export class MinhaConta implements OnInit {
         this.usuario.set(null);
         this.carregando.set(false);
         this.erroCarregamento.set(true);
+      },
+    });
+  }
+
+  iniciarEdicao(): void {
+    const usuario = this.usuario();
+
+    if (!usuario || this.salvando()) {
+      return;
+    }
+
+    this.formulario.reset({
+      nome: usuario.nome,
+      dataNascimento: usuario.dataNascimento,
+    });
+
+    this.erroAtualizacao.set(null);
+    this.atualizacaoConcluida.set(false);
+    this.editando.set(true);
+  }
+
+  cancelarEdicao(): void {
+    if (this.salvando()) {
+      return;
+    }
+
+    this.editando.set(false);
+    this.erroAtualizacao.set(null);
+    this.atualizacaoConcluida.set(false);
+  }
+
+  salvarAlteracoes(): void {
+    if (this.salvando()) {
+      return;
+    }
+
+    if (this.formulario.invalid) {
+      this.formulario.markAllAsTouched();
+      return;
+    }
+
+    const request: UsuarioUpdateRequest =
+      this.formulario.getRawValue();
+
+    this.salvando.set(true);
+    this.erroAtualizacao.set(null);
+    this.atualizacaoConcluida.set(false);
+
+    this.usuarioApi.atualizar(request).pipe(
+      finalize(() => {
+        this.salvando.set(false);
+      })
+    ).subscribe({
+      next: usuario => {
+        this.usuario.set(usuario);
+        this.editando.set(false);
+        this.atualizacaoConcluida.set(true);
+      },
+      error: erro => {
+        this.erroAtualizacao.set(
+          this.obterMensagemErro(
+            erro,
+            'Não foi possível atualizar seus dados. '
+            + 'Revise as informações e tente novamente.'
+          )
+        );
       },
     });
   }
@@ -138,17 +260,20 @@ export class MinhaConta implements OnInit {
       },
       error: erro => {
         this.erroDesativacao.set(
-          this.obterMensagemErro(erro)
+          this.obterMensagemErro(
+            erro,
+            'Não foi possível desativar sua conta. '
+            + 'Verifique se existem negociações em andamento.'
+          )
         );
       },
     });
   }
 
-  private obterMensagemErro(erro: unknown): string {
-    const mensagemPadrao =
-      'Não foi possível desativar sua conta. '
-      + 'Verifique se existem negociações em andamento.';
-
+  private obterMensagemErro(
+    erro: unknown,
+    mensagemPadrao: string
+  ): string {
     if (!(erro instanceof HttpErrorResponse)) {
       return mensagemPadrao;
     }

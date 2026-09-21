@@ -22,12 +22,14 @@ describe('MinhaConta', () => {
     id: 3,
     nome: 'Steven Seagal',
     cpf: '12345678901',
+    dataNascimento: '1952-04-10',
     email: 'steven@email.com',
     ativo: true,
   };
 
   const usuarioApiMock = {
     buscarAtual: vi.fn(),
+    atualizar: vi.fn(),
     desativar: vi.fn(),
   };
 
@@ -52,6 +54,10 @@ describe('MinhaConta', () => {
           ativo: false,
         })
       );
+
+    usuarioApiMock.atualizar
+      .mockReset()
+      .mockReturnValue(of(usuario));
 
     authServiceMock.sair
       .mockReset()
@@ -111,7 +117,7 @@ describe('MinhaConta', () => {
 
     expect(element.textContent)
       .not.toContain('12345678901');
-      
+
   });
 
   it('should display an error when the account cannot be loaded', () => {
@@ -205,6 +211,140 @@ describe('MinhaConta', () => {
     expect(
       element.querySelector(
         '[data-testid="deactivation-error"]'
+      )?.textContent
+    ).toContain(mensagem);
+  });
+
+  it('should open the form with the current user data', () => {
+    component.iniciarEdicao();
+    fixture.detectChanges();
+
+    expect(component.editando()).toBe(true);
+
+    expect(component.formulario.getRawValue())
+      .toEqual({
+        nome: 'Steven Seagal',
+        dataNascimento: '1952-04-10',
+      });
+
+    expect(
+      fixture.nativeElement.querySelector(
+        '[data-testid="account-form"]'
+      )
+    ).not.toBeNull();
+  });
+
+  it('should cancel account editing', () => {
+    component.iniciarEdicao();
+
+    component.formulario.patchValue({
+      nome: 'Nome alterado apenas no formulário',
+    });
+
+    component.cancelarEdicao();
+    fixture.detectChanges();
+
+    expect(component.editando()).toBe(false);
+
+    expect(usuarioApiMock.atualizar)
+      .not.toHaveBeenCalled();
+
+    expect(
+      fixture.nativeElement.querySelector(
+        '[data-testid="account-form"]'
+      )
+    ).toBeNull();
+  });
+
+  it('should not update an invalid account form', () => {
+    component.iniciarEdicao();
+
+    component.formulario.patchValue({
+      nome: '   ',
+    });
+
+    component.salvarAlteracoes();
+
+    expect(component.formulario.invalid).toBe(true);
+
+    expect(usuarioApiMock.atualizar)
+      .not.toHaveBeenCalled();
+
+    expect(component.editando()).toBe(true);
+  });
+
+  it('should update the authenticated user', () => {
+    const usuarioAtualizado: UsuarioAtualResponse = {
+      ...usuario,
+      nome: 'Steven Seagal da Silva',
+      dataNascimento: '1952-04-11',
+    };
+
+    usuarioApiMock.atualizar.mockReturnValue(
+      of(usuarioAtualizado)
+    );
+
+    component.iniciarEdicao();
+
+    component.formulario.setValue({
+      nome: 'Steven Seagal da Silva',
+      dataNascimento: '1952-04-11',
+    });
+
+    component.salvarAlteracoes();
+    fixture.detectChanges();
+
+    expect(usuarioApiMock.atualizar)
+      .toHaveBeenCalledExactlyOnceWith({
+        nome: 'Steven Seagal da Silva',
+        dataNascimento: '1952-04-11',
+      });
+
+    expect(component.usuario())
+      .toEqual(usuarioAtualizado);
+
+    expect(component.editando()).toBe(false);
+    expect(component.salvando()).toBe(false);
+    expect(component.atualizacaoConcluida()).toBe(true);
+
+    expect(
+      fixture.nativeElement.querySelector(
+        '[data-testid="update-success"]'
+      )?.textContent
+    ).toContain('Dados atualizados com sucesso');
+  });
+
+  it('should display the backend error when account update fails', () => {
+    const mensagem =
+      'Não foi possível atualizar os dados informados.';
+
+    usuarioApiMock.atualizar.mockReturnValue(
+      throwError(() =>
+        new HttpErrorResponse({
+          status: 400,
+          statusText: 'Bad Request',
+          error: {
+            detail: mensagem,
+          },
+        })
+      )
+    );
+
+    component.iniciarEdicao();
+    component.salvarAlteracoes();
+    fixture.detectChanges();
+
+    expect(usuarioApiMock.atualizar)
+      .toHaveBeenCalledOnce();
+
+    expect(component.editando()).toBe(true);
+    expect(component.salvando()).toBe(false);
+    expect(component.erroAtualizacao())
+      .toBe(mensagem);
+
+    expect(
+      fixture.nativeElement.querySelector(
+        '[data-testid="update-error"]'
       )?.textContent
     ).toContain(mensagem);
   });

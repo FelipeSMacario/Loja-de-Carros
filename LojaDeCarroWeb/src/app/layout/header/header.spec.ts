@@ -5,6 +5,12 @@ import { vi } from 'vitest';
 import { OverlayContainer } from '@angular/cdk/overlay';
 import { AuthService, UsuarioAutenticado, } from '../../core/auth/auth-service';
 import { Header } from './header';
+import { of } from 'rxjs';
+
+import {
+  UsuarioApi,
+  UsuarioAtualResponse,
+} from '../../features/usuarios/data-access/usuario-api';
 
 describe('Header', () => {
   let component: Header;
@@ -23,7 +29,37 @@ describe('Header', () => {
     sair: vi.fn().mockResolvedValue(undefined),
   };
 
+  const perfilLocal =
+    signal<UsuarioAtualResponse | null>(null);
+
+  const usuarioLocal: UsuarioAtualResponse = {
+    id: 3,
+    nome: 'Felipe',
+    cpf: '12345678901',
+    dataNascimento: '1991-05-14',
+    email: 'felipe@email.com',
+    ativo: true,
+  };
+
+  const usuarioApiMock = {
+    usuarioAtual: perfilLocal.asReadonly(),
+    buscarAtual: vi.fn(),
+    limparUsuarioAtual: vi.fn(() => {
+      perfilLocal.set(null);
+    }),
+  };
+
   beforeEach(async () => {
+    perfilLocal.set(null);
+
+    usuarioApiMock.buscarAtual
+      .mockReset()
+      .mockImplementation(() => {
+        perfilLocal.set(usuarioLocal);
+        return of(usuarioLocal);
+      });
+
+    usuarioApiMock.limparUsuarioAtual.mockClear();
     inicializado.set(true);
     autenticado.set(false);
     usuario.set(null);
@@ -39,6 +75,10 @@ describe('Header', () => {
         {
           provide: AuthService,
           useValue: authServiceMock,
+        },
+        {
+          provide: UsuarioApi,
+          useValue: usuarioApiMock,
         },
       ],
     }).compileComponents();
@@ -107,6 +147,9 @@ describe('Header', () => {
 
     await fixture.whenStable();
     fixture.detectChanges();
+
+    expect(usuarioApiMock.buscarAtual)
+      .toHaveBeenCalledOnce();
 
     const overlay =
       overlayContainer.getContainerElement();
@@ -219,5 +262,39 @@ describe('Header', () => {
     button.click();
 
     expect(authServiceMock.sair).toHaveBeenCalledOnce();
+  });
+
+  it('should update the displayed name from the local profile', () => {
+    autenticado.set(true);
+
+    usuario.set({
+      subject: 'keycloak-user-id',
+      nome: 'Nome do Keycloak',
+      email: 'felipe@email.com',
+      roles: ['VENDEDOR'],
+    });
+
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+    const user = element.querySelector(
+      '[data-testid="authenticated-user"]'
+    );
+
+    expect(user?.textContent)
+      .toContain('Felipe');
+
+    perfilLocal.set({
+      ...usuarioLocal,
+      nome: 'Felipe Jr',
+    });
+
+    fixture.detectChanges();
+
+    expect(user?.textContent)
+      .toContain('Felipe Jr');
+
+    expect(user?.textContent)
+      .not.toContain('Nome do Keycloak');
   });
 });
