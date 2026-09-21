@@ -2,10 +2,13 @@ package com.javacar.lojadecarro.factory.usuario;
 
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 
+import java.time.LocalDate;
+
 public class UsuarioResponseFactory {
     private Long id;
     private String nome;
     private String cpf;
+    private LocalDate dataNascimento;
     private String email;
     private boolean ativo;
 
@@ -52,6 +55,6 @@ public class UsuarioResponseFactory {
     }
 
     public UsuarioResponse build() {
-        return new UsuarioResponse(id, nome, cpf, email, ativo);
+        return new UsuarioResponse(id, nome, cpf, dataNascimento, email, ativo);
     }
 }

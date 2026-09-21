@@ -2,6 +2,8 @@ package com.javacar.lojadecarro.dto.response;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 
+import java.time.LocalDate;
+
 @Schema(description = "Resposta do usuário")
 public record UsuarioResponse(@Schema(example = "1", description = "ID do usuário")
                               Long id,
@@ -9,6 +11,11 @@ public record UsuarioResponse(@Schema(example = "1", description = "ID do usuár
                               String nome,
                               @Schema(example = "15153769788", description = "CPF do usuário")
                               String cpf,
+                              @Schema(
+                                      example = "1998-05-20",
+                                      description = "Data de nascimento"
+                              )
+                              LocalDate dataNascimento,
                               @Schema(example = "felipesmacario@gmail.com", description = "Email do usuário")
                               String email,
                               @Schema(example = "true", description = "Status da usuário")
