@@ -3,7 +3,7 @@ import { HttpTestingController, provideHttpClientTesting, } from '@angular/commo
 import { TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../../environments/environment';
-import { UsuarioApi, UsuarioAtualResponse, UsuarioUpdateRequest, } from './usuario-api';
+import { UsuarioApi, UsuarioAtualResponse, UsuarioUpdateRequest, UsuarioCadastroRequest, } from './usuario-api';
 
 describe('UsuarioApi', () => {
   let api: UsuarioApi;
@@ -128,5 +128,41 @@ describe('UsuarioApi', () => {
     api.limparUsuarioAtual();
 
     expect(api.usuarioAtual()).toBeNull();
+  });
+  it('should create the authenticated user profile', async () => {
+    const cadastro: UsuarioCadastroRequest = {
+      nome: 'Chuck Norris',
+      cpf: '15152736999',
+      dataNascimento: '1940-03-10',
+    };
+
+    const usuarioCriado: UsuarioAtualResponse = {
+      id: 4,
+      ...cadastro,
+      email: 'chuck@email.com',
+      ativo: true,
+    };
+
+    const resultado = firstValueFrom(
+      api.criar(cadastro)
+    );
+
+    const request = httpTesting.expectOne(
+      `${environment.apiUrl}/usuarios`
+    );
+
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual(cadastro);
+
+    request.flush(usuarioCriado, {
+      status: 201,
+      statusText: 'Created',
+    });
+
+    expect(await resultado)
+      .toEqual(usuarioCriado);
+
+    expect(api.usuarioAtual())
+      .toEqual(usuarioCriado);
   });
 });

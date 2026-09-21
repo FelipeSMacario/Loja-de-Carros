@@ -1,5 +1,5 @@
 import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, } from '@angular/core';
-import { ActivatedRoute, RouterLink, } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink, } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoDetalheResponse } from '../../models/veiculo-detalhe-response';
@@ -11,7 +11,7 @@ import { AuthService } from '../../../../core/auth/auth-service';
 import { DialogoConfirmacao } from '../../../../shared/components/dialogo-confirmacao/dialogo-confirmacao';
 import { VendaResponse } from '../../models/venda-response';
 import { VendaApi } from '../../data-access/venda-api';
-import { UsuarioApi } from '../../../usuarios/data-access/usuario-api';
+import { perfilUsuarioPendente, UsuarioApi, } from '../../../usuarios/data-access/usuario-api';
 
 @Component({
   selector: 'app-veiculo-detalhe',
@@ -22,6 +22,7 @@ import { UsuarioApi } from '../../../usuarios/data-access/usuario-api';
 })
 export class VeiculoDetalhe implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly veiculoApi = inject(VeiculoApi);
 
   private idVeiculo: number | null = null;
@@ -237,7 +238,24 @@ export class VeiculoDetalhe implements OnInit {
         next: usuario => {
           this.usuarioAtualId.set(usuario.id);
         },
-        error: () => {
+        error: erro => {
+          if (
+            perfilUsuarioPendente(erro)
+            && this.idVeiculo !== null
+          ) {
+            void this.router.navigate(
+              ['/completar-cadastro'],
+              {
+                queryParams: {
+                  returnUrl:
+                    `/veiculos/${this.idVeiculo}`,
+                },
+              }
+            );
+
+            return;
+          }
+
           this.erroUsuario.set(true);
         },
       });

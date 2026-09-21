@@ -1,0 +1,174 @@
+<main class="registration">
+    <section class="registration__content">
+        <header class="registration__header">
+            <span class="registration__icon">
+                <mat-icon aria-hidden="true">
+                    person_add
+                </mat-icon>
+            </span>
+
+            <div>
+                <p class="registration__eyebrow">
+                    Primeiro acesso
+                </p>
+
+                <h1>Complete seu cadastro</h1>
+
+                <p class="registration__description">
+                    Precisamos de algumas informações para você
+                    anunciar veículos e iniciar compras.
+                </p>
+            </div>
+        </header>
+
+        @if (emailAutenticado()) {
+        <div class="registration__identity">
+            <mat-icon aria-hidden="true">verified_user</mat-icon>
+
+            <div>
+                <small>Conta autenticada</small>
+                <strong>{{ emailAutenticado() }}</strong>
+            </div>
+        </div>
+        }
+
+        <form class="registration__form" data-testid="registration-form" [formGroup]="formulario"
+            (ngSubmit)="concluirCadastro()">
+            <mat-form-field appearance="outline">
+                <mat-label>Nome de exibição</mat-label>
+
+                <input matInput type="text" autocomplete="name" formControlName="nome"
+                    data-testid="registration-name-input" />
+
+                <mat-icon matSuffix aria-hidden="true">
+                    person
+                </mat-icon>
+
+                @if (
+                formulario.controls.nome.touched
+                && (
+                formulario.controls.nome.hasError('required')
+                || formulario.controls.nome.hasError('pattern')
+                )
+                ) {
+                <mat-error>Informe seu nome.</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>CPF</mat-label>
+
+                <input matInput type="text" inputmode="numeric" autocomplete="off" maxlength="14" formControlName="cpf"
+                    placeholder="000.000.000-00" (input)="formatarCpf($event)" />
+
+                <mat-icon matSuffix aria-hidden="true">
+                    badge
+                </mat-icon>
+
+                @if (
+                formulario.controls.cpf.touched
+                && formulario.controls.cpf.hasError('required')
+                ) {
+                <mat-error>Informe seu CPF.</mat-error>
+                } @else if (
+                formulario.controls.cpf.touched
+                && formulario.controls.cpf.hasError('cpf')
+                ) {
+                <mat-error>Informe um CPF válido.</mat-error>
+                }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+                <mat-label>Data de nascimento</mat-label>
+
+                <input matInput type="date" autocomplete="bday" formControlName="dataNascimento" [max]="dataMaxima" />
+
+                <mat-icon matSuffix aria-hidden="true">
+                    calendar_today
+                </mat-icon>
+
+                @if (
+                formulario.controls.dataNascimento.touched
+                && formulario.controls.dataNascimento.hasError('required')
+                ) {
+                <mat-error>
+                    Informe sua data de nascimento.
+                </mat-error>
+                }
+            </mat-form-field>
+
+            @if (erroCadastro(); as mensagemErro) {
+            <div class="registration__error" role="alert" data-testid="registration-error">
+                <mat-icon aria-hidden="true">
+                    error_outline
+                </mat-icon>
+
+                <span>{{ mensagemErro }}</span>
+            </div>
+            }
+
+            <button type="submit" mat-flat-button class="registration__submit"
+                data-testid="complete-registration-button" [disabled]="enviando()">
+                @if (enviando()) {
+                <mat-spinner diameter="18" />
+                Criando seu perfil...
+                } @else {
+                <mat-icon aria-hidden="true">
+                    check_circle
+                </mat-icon>
+                Concluir cadastro
+                }
+            </button>
+        </form>
+    </section>
+
+    <aside class="registration__aside">
+        <p class="registration__aside-eyebrow">
+            Seus dados
+        </p>
+
+        <h2>Por que precisamos dessas informações?</h2>
+
+        <ul>
+            <li>
+                <mat-icon aria-hidden="true">
+                    check_circle
+                </mat-icon>
+
+                <span>
+                    O CPF identifica seu perfil e evita cadastros
+                    duplicados.
+                </span>
+            </li>
+
+            <li>
+                <mat-icon aria-hidden="true">
+                    check_circle
+                </mat-icon>
+
+                <span>
+                    Seu e-mail permanece vinculado à conta autenticada.
+                </span>
+            </li>
+
+            <li>
+                <mat-icon aria-hidden="true">
+                    check_circle
+                </mat-icon>
+
+                <span>
+                    Sua senha continua sendo administrada pelo
+                    provedor de autenticação.
+                </span>
+            </li>
+        </ul>
+
+        <div class="registration__security">
+            <mat-icon aria-hidden="true">lock</mat-icon>
+
+            <p>
+                Nunca solicitaremos sua senha dentro desta tela.
+            </p>
+        </div>
+    </aside>
+</main>

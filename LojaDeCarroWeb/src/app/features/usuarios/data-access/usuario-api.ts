@@ -1,4 +1,7 @@
-import { HttpClient } from '@angular/common/http';
+import {
+  HttpClient,
+  HttpErrorResponse,
+} from '@angular/common/http';
 import {
   inject,
   Injectable,
@@ -26,22 +29,53 @@ export interface UsuarioUpdateRequest {
   dataNascimento: string;
 }
 
+export interface UsuarioCadastroRequest {
+  nome: string;
+  cpf: string;
+  dataNascimento: string;
+}
+export function perfilUsuarioPendente(
+  erro: unknown
+): boolean {
+  return erro instanceof HttpErrorResponse
+    && (
+      erro.status === 403
+      || erro.status === 404
+    );
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class UsuarioApi {
   private readonly http = inject(HttpClient);
-  private readonly url =
-    `${environment.apiUrl}/usuarios/me`;
+  private readonly baseUrl =
+    `${environment.apiUrl}/usuarios`;
+
+  private readonly urlUsuarioAtual =
+    `${this.baseUrl}/me`;
   private readonly usuarioAtualState =
     signal<UsuarioAtualResponse | null>(null);
 
   readonly usuarioAtual =
     this.usuarioAtualState.asReadonly();
 
+  criar(
+    request: UsuarioCadastroRequest
+  ): Observable<UsuarioAtualResponse> {
+    return this.http.post<UsuarioAtualResponse>(
+      this.baseUrl,
+      request
+    ).pipe(
+      tap(usuario => {
+        this.usuarioAtualState.set(usuario);
+      })
+    );
+  }
+
   buscarAtual(): Observable<UsuarioAtualResponse> {
     return this.http.get<UsuarioAtualResponse>(
-      this.url
+      this.urlUsuarioAtual
     ).pipe(
       tap(usuario => {
         this.usuarioAtualState.set(usuario);
@@ -53,7 +87,7 @@ export class UsuarioApi {
     request: UsuarioUpdateRequest
   ): Observable<UsuarioAtualResponse> {
     return this.http.put<UsuarioAtualResponse>(
-      this.url,
+      this.urlUsuarioAtual,
       request
     ).pipe(
       tap(usuario => {
@@ -64,7 +98,7 @@ export class UsuarioApi {
 
   desativar(): Observable<UsuarioAtualResponse> {
     return this.http.patch<UsuarioAtualResponse>(
-      `${this.url}/desativar`,
+      `${this.urlUsuarioAtual}/desativar`,
       null
     ).pipe(
       tap(usuario => {

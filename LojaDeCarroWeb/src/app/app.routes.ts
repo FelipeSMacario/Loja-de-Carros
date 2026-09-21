@@ -1,6 +1,10 @@
 import { Routes } from '@angular/router';
 import { Shell } from './layout/shell/shell';
 import { authGuard } from './core/auth/auth-guard';
+import {
+  cadastroPendenteGuard,
+  perfilCompletoGuard,
+} from './features/usuarios/guards/perfil-guards';
 
 export const routes: Routes = [
   {
@@ -19,8 +23,22 @@ export const routes: Routes = [
             .then(component => component.Home),
       },
       {
+        path: 'completar-cadastro',
+        canActivate: [
+          authGuard,
+          cadastroPendenteGuard,
+        ],
+        loadComponent: () =>
+          import(
+            './features/usuarios/pages/completar-cadastro/completar-cadastro'
+          ).then(component => component.CompletarCadastro),
+      },
+      {
         path: 'veiculos/anunciar',
-        canActivate: [authGuard],
+        canActivate: [
+          authGuard,
+          perfilCompletoGuard,
+        ],
         loadComponent: () =>
           import(
             './features/veiculos/pages/veiculo-cadastro/veiculo-cadastro'
@@ -28,7 +46,10 @@ export const routes: Routes = [
       },
       {
         path: 'veiculos/meus-anuncios',
-        canActivate: [authGuard],
+        canActivate: [
+          authGuard,
+          perfilCompletoGuard,
+        ],
         loadComponent: () =>
           import(
             './features/veiculos/pages/meus-anuncios/meus-anuncios'
@@ -36,7 +57,10 @@ export const routes: Routes = [
       },
       {
         path: 'vendas/minhas-compras',
-        canActivate: [authGuard],
+        canActivate: [
+          authGuard,
+          perfilCompletoGuard,
+        ],
         loadComponent: () =>
           import(
             './features/veiculos/pages/minhas-compras/minhas-compras'
@@ -44,7 +68,10 @@ export const routes: Routes = [
       },
       {
         path: 'vendas/minhas-vendas',
-        canActivate: [authGuard],
+        canActivate: [
+          authGuard,
+          perfilCompletoGuard,
+        ],
         loadComponent: () =>
           import(
             './features/veiculos/pages/minhas-vendas/minhas-vendas'
@@ -52,7 +79,10 @@ export const routes: Routes = [
       },
       {
         path: 'veiculos/meus-anuncios/:id/editar',
-        canActivate: [authGuard],
+        canActivate: [
+          authGuard,
+          perfilCompletoGuard,
+        ],
         data: {
           modoEdicao: true,
         },
@@ -63,7 +93,10 @@ export const routes: Routes = [
       },
       {
         path: 'veiculos/meus-anuncios/:id',
-        canActivate: [authGuard],
+        canActivate: [
+          authGuard,
+          perfilCompletoGuard,
+        ],
         data: {
           meuAnuncio: true,
         },
@@ -81,7 +114,10 @@ export const routes: Routes = [
       },
       {
         path: 'conta',
-        canActivate: [authGuard],
+        canActivate: [
+          authGuard,
+          perfilCompletoGuard,
+        ],
         loadComponent: () =>
           import(
             './features/usuarios/pages/minha-conta/minha-conta'

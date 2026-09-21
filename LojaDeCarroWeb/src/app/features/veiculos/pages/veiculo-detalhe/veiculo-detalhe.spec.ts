@@ -1,19 +1,26 @@
 import { ComponentFixture, TestBed, } from '@angular/core/testing';
-import { ActivatedRoute, convertToParamMap, } from '@angular/router';
+import {
+  ActivatedRoute,
+  convertToParamMap,
+  provideRouter,
+  Router,
+} from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoDetalheResponse } from '../../models/veiculo-detalhe-response';
 import { VeiculoDetalhe } from './veiculo-detalhe';
-import { provideRouter } from '@angular/router';
 import { signal } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AuthService } from '../../../../core/auth/auth-service';
 import { VendaApi } from '../../data-access/venda-api';
 import { UsuarioApi } from '../../../usuarios/data-access/usuario-api';
+import { HttpErrorResponse } from '@angular/common/http';
 
 describe('VeiculoDetalhe', () => {
   let component: VeiculoDetalhe;
   let fixture: ComponentFixture<VeiculoDetalhe>;
+  let router: Router;
+  let navigateMock: ReturnType<typeof vi.spyOn>;
 
   const veiculoApiMock = {
     buscarPorId: vi.fn(),
@@ -128,6 +135,11 @@ describe('VeiculoDetalhe', () => {
         },
       ],
     }).compileComponents();
+    router = TestBed.inject(Router);
+
+    navigateMock = vi
+      .spyOn(router, 'navigate')
+      .mockResolvedValue(true);
   });
 
   function criarComponente(): void {
@@ -380,5 +392,42 @@ describe('VeiculoDetalhe', () => {
         '[data-testid="start-purchase-button"]'
       )
     ).toBeNull();
+  });
+  it('should redirect a user without local profile to registration', () => {
+    autenticado.set(true);
+
+    usuarioApiMock.buscarAtual.mockReturnValue(
+      throwError(() =>
+        new HttpErrorResponse({
+          status: 403,
+          statusText: 'Forbidden',
+          error: {
+            message:
+              'Usuário autenticado não possui cadastro local.',
+          },
+        })
+      )
+    );
+
+    veiculoApiMock.buscarPorId.mockReturnValue(
+      of(veiculo)
+    );
+
+    criarComponente();
+
+    expect(usuarioApiMock.buscarAtual)
+      .toHaveBeenCalledOnce();
+
+    expect(navigateMock)
+      .toHaveBeenCalledExactlyOnceWith(
+        ['/completar-cadastro'],
+        {
+          queryParams: {
+            returnUrl: '/veiculos/1',
+          },
+        }
+      );
+
+    expect(component.erroUsuario()).toBe(false);
   });
 });
