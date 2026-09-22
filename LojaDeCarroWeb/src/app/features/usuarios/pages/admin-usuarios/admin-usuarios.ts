@@ -1,33 +1,24 @@
-import {
-  ChangeDetectionStrategy,
-  Component,
-  inject,
-  OnInit,
-  signal,
-} from '@angular/core';
+import { ChangeDetectionStrategy, Component, inject, OnInit, signal, } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MatProgressSpinnerModule,
-} from '@angular/material/progress-spinner';
+import { MatProgressSpinnerModule, } from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs';
 import { DatePipe } from '@angular/common';
-import {
-  DialogoConfirmacao,
-} from '../../../../shared/components/dialogo-confirmacao/dialogo-confirmacao';
-import {
-  AdminUsuarioApi,
-  StatusFiltroUsuario,
-} from '../../data-access/admin-usuario-api';
-import {
-  UsuarioApi,
-  UsuarioAtualResponse,
-} from '../../data-access/usuario-api';
+import { DialogoConfirmacao, } from '../../../../shared/components/dialogo-confirmacao/dialogo-confirmacao';
+import { AdminUsuarioApi, StatusFiltroUsuario, } from '../../data-access/admin-usuario-api';
+import { UsuarioApi, UsuarioAtualResponse, } from '../../data-access/usuario-api';
+import { HttpErrorResponse } from '@angular/common/http';
 
 interface OpcaoFiltroUsuario {
   valor: StatusFiltroUsuario;
   rotulo: string;
+}
+
+interface ApiErrorResponse {
+  detail?: string;
+  message?: string;
+  mensagem?: string;
 }
 
 @Component({
@@ -50,6 +41,7 @@ export class AdminUsuarios implements OnInit {
 
   readonly usuarioAtual =
     this.usuarioApi.usuarioAtual;
+
 
   ehUsuarioAtual(id: number): boolean {
     return this.usuarioAtual()?.id === id;
@@ -79,7 +71,8 @@ export class AdminUsuarios implements OnInit {
   readonly acaoEmAndamentoId =
     signal<number | null>(null);
 
-  readonly erroAcao = signal(false);
+  readonly erroAcao =
+    signal<string | null>(null);
 
   readonly opcoesFiltro:
     readonly OpcaoFiltroUsuario[] = [
@@ -189,7 +182,7 @@ export class AdminUsuarios implements OnInit {
     ativo: boolean
   ): void {
     this.acaoEmAndamentoId.set(id);
-    this.erroAcao.set(false);
+    this.erroAcao.set(null);
 
     this.adminUsuarioApi
       .alterarStatus(id, ativo)
@@ -202,9 +195,34 @@ export class AdminUsuarios implements OnInit {
         next: () => {
           this.carregar();
         },
-        error: () => {
-          this.erroAcao.set(true);
+        error: erro => {
+          this.erroAcao.set(
+            this.obterMensagemErro(erro)
+          );
         },
       });
+
+
+  }
+  private obterMensagemErro(erro: unknown): string {
+    const mensagemPadrao =
+      'Não foi possível alterar o usuário. '
+      + 'Tente novamente em alguns instantes.';
+
+    if (!(erro instanceof HttpErrorResponse)) {
+      return mensagemPadrao;
+    }
+
+    if (typeof erro.error === 'string') {
+      return erro.error || mensagemPadrao;
+    }
+
+    const resposta =
+      erro.error as ApiErrorResponse | null;
+
+    return resposta?.detail
+      ?? resposta?.message
+      ?? resposta?.mensagem
+      ?? mensagemPadrao;
   }
 }

@@ -34,18 +34,15 @@
         }
     </div>
 
-    @if (erroAcao()) {
+    @if (erroAcao(); as mensagemErro) {
     <div class="admin-users__action-error" role="alert" data-testid="action-error">
         <mat-icon aria-hidden="true">
             error_outline
         </mat-icon>
 
-        <span>
-            Não foi possível alterar o usuário.
-            Verifique se existem negociações em andamento.
-        </span>
+        <span>{{ mensagemErro }}</span>
 
-        <button type="button" aria-label="Fechar aviso" (click)="erroAcao.set(false)">
+        <button type="button" aria-label="Fechar aviso" (click)="erroAcao.set(null)">
             <mat-icon aria-hidden="true">close</mat-icon>
         </button>
     </div>

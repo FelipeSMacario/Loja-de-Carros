@@ -1,22 +1,12 @@
-import {
-  ComponentFixture,
-  TestBed,
-} from '@angular/core/testing';
+import { ComponentFixture, TestBed, } from '@angular/core/testing';
 import { MatDialog } from '@angular/material/dialog';
-import {
-  of,
-  throwError,
-} from 'rxjs';
+import { of, throwError, } from 'rxjs';
 import { vi } from 'vitest';
 import { signal } from '@angular/core';
-import {
-  AdminUsuarioApi,
-} from '../../data-access/admin-usuario-api';
-import {
-  UsuarioApi,
-  UsuarioAtualResponse,
-} from '../../data-access/usuario-api';
+import { AdminUsuarioApi, } from '../../data-access/admin-usuario-api';
+import { UsuarioApi, UsuarioAtualResponse, } from '../../data-access/usuario-api';
 import { AdminUsuarios } from './admin-usuarios';
+import { HttpErrorResponse, } from '@angular/common/http';
 
 describe('AdminUsuarios', () => {
   let component: AdminUsuarios;
@@ -163,7 +153,7 @@ describe('AdminUsuarios', () => {
     expect(component.acaoEmAndamentoId())
       .toBeNull();
 
-    expect(component.erroAcao()).toBe(false);
+    expect(component.erroAcao()).toBeNull();
   });
 
   it('should display an error when users cannot be loaded', () => {
@@ -178,20 +168,44 @@ describe('AdminUsuarios', () => {
     expect(component.erroCarregamento()).toBe(true);
   });
 
-  it('should display an error when status cannot be changed', () => {
+  it('should display the backend error when status cannot be changed', () => {
+    const mensagem =
+      'Não é possível desativar o usuário '
+      + 'com uma ou mais vendas em andamento.';
+
     adminUsuarioApiMock.alterarStatus
       .mockReturnValue(
-        throwError(() => new Error('Erro da API'))
+        throwError(() =>
+          new HttpErrorResponse({
+            status: 400,
+            statusText: 'Bad Request',
+            error: {
+              detail: mensagem,
+            },
+          })
+        )
       );
 
     component.solicitarAlteracaoStatus(
       usuarioInativo
     );
 
+    fixture.detectChanges();
+
     expect(component.acaoEmAndamentoId())
       .toBeNull();
 
-    expect(component.erroAcao()).toBe(true);
+    expect(component.erroAcao())
+      .toBe(mensagem);
+
+    const element =
+      fixture.nativeElement as HTMLElement;
+
+    expect(
+      element.querySelector(
+        '[data-testid="action-error"]'
+      )?.textContent
+    ).toContain(mensagem);
   });
   it('should not allow changing the current administrator status', () => {
     component.solicitarAlteracaoStatus(
