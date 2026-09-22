@@ -132,7 +132,7 @@ public class UsuarioService {
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
     public UsuarioResponse buscarMeuUsuario(Long id) {
-        return usuarioMapper.toResponse(buscaUsuarioAtivo(id));
+        return usuarioMapper.toResponse(buscaUsuario(id));
     }
 
     @PreAuthorize("isAuthenticated()")

@@ -659,7 +659,7 @@ class UsuarioServiceTest extends BaseServiceTest {
             var cx = new UsuarioTestContext();
             var entity = criarUsuarioPadrao();
 
-            when(usuarioRepository.findByIdAndAtivoTrue(ID_VALIDO))
+            when(usuarioRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(entity));
 
             when(usuarioMapper.toResponse(entity))
@@ -669,7 +669,7 @@ class UsuarioServiceTest extends BaseServiceTest {
             //Assert
             assertUsuarioResponse(resultado);
 
-            verify(usuarioRepository).findByIdAndAtivoTrue(ID_VALIDO);
+            verify(usuarioRepository).findById(ID_VALIDO);
             verify(usuarioMapper).toResponse(entity);
             verifyNoMoreInteractions(usuarioRepository, usuarioMapper);
         }
@@ -678,7 +678,7 @@ class UsuarioServiceTest extends BaseServiceTest {
         @DisplayName("Deve lançar exceção quando o usuário autenticado não estiver ativo")
         void deveLancarExcecaoQuandoUsuarioNaoEstiverAtivo() {
             // Arrange
-            when(usuarioRepository.findByIdAndAtivoTrue(ID_VALIDO))
+            when(usuarioRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.empty());
 
             // Act
@@ -695,7 +695,7 @@ class UsuarioServiceTest extends BaseServiceTest {
             );
 
             verify(usuarioRepository)
-                    .findByIdAndAtivoTrue(ID_VALIDO);
+                    .findById(ID_VALIDO);
 
             verifyNoInteractions(usuarioMapper);
             verifyNoMoreInteractions(usuarioRepository);
