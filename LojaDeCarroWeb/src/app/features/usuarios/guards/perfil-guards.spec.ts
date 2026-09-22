@@ -23,6 +23,7 @@ import {
 } from '../data-access/usuario-api';
 import {
     cadastroPendenteGuard,
+    contaDesativadaGuard,
     perfilCompletoGuard,
 } from './perfil-guards';
 
@@ -34,6 +35,11 @@ describe('perfil guards', () => {
         dataNascimento: '1952-04-10',
         email: 'steven@email.com',
         ativo: true,
+    };
+
+    const usuarioDesativado: UsuarioAtualResponse = {
+        ...usuario,
+        ativo: false,
     };
 
     const usuarioAtual =
@@ -208,6 +214,102 @@ describe('perfil guards', () => {
         const resultado = await executarGuard(
             cadastroPendenteGuard,
             '/completar-cadastro'
+        );
+
+        expect(resultado).toBe(true);
+    });
+    it('should redirect a cached inactive user to the inactive account page', async () => {
+        usuarioAtual.set(usuarioDesativado);
+
+        const resultado = await executarGuard(
+            perfilCompletoGuard,
+            '/vendas/minhas-compras'
+        );
+
+        expect(resultado).toBeInstanceOf(UrlTree);
+
+        expect(
+            router.serializeUrl(resultado as UrlTree)
+        ).toBe('/conta-desativada');
+
+        expect(usuarioApiMock.buscarAtual)
+            .not.toHaveBeenCalled();
+    });
+
+    it('should redirect an inactive user loaded from the API', async () => {
+        usuarioApiMock.buscarAtual.mockReturnValue(
+            of(usuarioDesativado)
+        );
+
+        const resultado = await executarGuard(
+            perfilCompletoGuard,
+            '/veiculos/anunciar'
+        );
+
+        expect(resultado).toBeInstanceOf(UrlTree);
+
+        expect(
+            router.serializeUrl(resultado as UrlTree)
+        ).toBe('/conta-desativada');
+    });
+
+    it('should redirect an inactive user away from registration', async () => {
+        usuarioAtual.set(usuarioDesativado);
+
+        const resultado = await executarGuard(
+            cadastroPendenteGuard,
+            '/completar-cadastro'
+        );
+
+        expect(resultado).toBeInstanceOf(UrlTree);
+
+        expect(
+            router.serializeUrl(resultado as UrlTree)
+        ).toBe('/conta-desativada');
+    });
+
+    it('should allow an inactive user to access the inactive account page', async () => {
+        usuarioAtual.set(usuarioDesativado);
+
+        const resultado = await executarGuard(
+            contaDesativadaGuard,
+            '/conta-desativada'
+        );
+
+        expect(resultado).toBe(true);
+
+        expect(usuarioApiMock.buscarAtual)
+            .not.toHaveBeenCalled();
+    });
+
+    it('should redirect an active user away from the inactive account page', async () => {
+        usuarioAtual.set(usuario);
+
+        const resultado = await executarGuard(
+            contaDesativadaGuard,
+            '/conta-desativada'
+        );
+
+        expect(resultado).toBeInstanceOf(UrlTree);
+
+        expect(
+            router.serializeUrl(resultado as UrlTree)
+        ).toBe('/home');
+    });
+
+    it('should not treat a not found response as a pending profile', async () => {
+        usuarioApiMock.buscarAtual.mockReturnValue(
+            throwError(() =>
+                new HttpErrorResponse({
+                    status: 404,
+                    statusText: 'Not Found',
+                })
+            )
+        );
+
+        const resultado = await executarGuard(
+            perfilCompletoGuard,
+            '/conta'
         );
 
         expect(resultado).toBe(true);

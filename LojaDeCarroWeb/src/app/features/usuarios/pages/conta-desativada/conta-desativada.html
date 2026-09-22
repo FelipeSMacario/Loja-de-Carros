@@ -1,0 +1,42 @@
+<main class="inactive-account">
+    <section class="inactive-account__card">
+        <span class="inactive-account__icon">
+            <mat-icon aria-hidden="true">
+                person_off
+            </mat-icon>
+        </span>
+
+        <p class="inactive-account__eyebrow">
+            Acesso restrito
+        </p>
+
+        <h1>Sua conta está desativada</h1>
+
+        <p class="inactive-account__description">
+            Seu cadastro existe, mas não está ativo para realizar
+            compras, vendas ou anunciar veículos.
+        </p>
+
+        <div class="inactive-account__notice">
+            <mat-icon aria-hidden="true">
+                admin_panel_settings
+            </mat-icon>
+
+            <p>
+                A reativação precisa ser realizada por um
+                administrador da loja.
+            </p>
+        </div>
+
+        @if (auth.usuario()?.email; as email) {
+        <p class="inactive-account__identity">
+            Sessão autenticada como <strong>{{ email }}</strong>
+        </p>
+        }
+
+        <button type="button" mat-flat-button data-testid="inactive-account-logout" (click)="sair()">
+            <mat-icon aria-hidden="true">logout</mat-icon>
+            Sair
+        </button>
+    </section>
+</main>

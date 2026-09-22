@@ -38,10 +38,7 @@ export function perfilUsuarioPendente(
   erro: unknown
 ): boolean {
   return erro instanceof HttpErrorResponse
-    && (
-      erro.status === 403
-      || erro.status === 404
-    );
+    && erro.status === 403;
 }
 
 @Injectable({

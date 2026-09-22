@@ -3,6 +3,7 @@ import { Shell } from './layout/shell/shell';
 import { authGuard } from './core/auth/auth-guard';
 import {
   cadastroPendenteGuard,
+  contaDesativadaGuard,
   perfilCompletoGuard,
 } from './features/usuarios/guards/perfil-guards';
 
@@ -111,6 +112,17 @@ export const routes: Routes = [
           import(
             './features/veiculos/pages/veiculo-detalhe/veiculo-detalhe'
           ).then(component => component.VeiculoDetalhe),
+      },
+      {
+        path: 'conta-desativada',
+        canActivate: [
+          authGuard,
+          contaDesativadaGuard,
+        ],
+        loadComponent: () =>
+          import(
+            './features/usuarios/pages/conta-desativada/conta-desativada'
+          ).then(component => component.ContaDesativada),
       },
       {
         path: 'conta',
