@@ -28,6 +28,7 @@ import java.time.LocalDate;
 
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 import static com.javacar.lojadecarro.enums.StatusFiltro.*;
+import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -293,7 +294,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
         @DisplayName("Deve alterar o status para ativa")
         void deveAlterarStatusAtiva() {
             var usuario = usuarioRepository.findByEmail("batmaimMorcegao@gmail.com").orElseThrow();
-            usuarioService.alterarStatus(usuario.getId(), new StatusRequest(true));
+            usuarioService.alterarStatus(usuario.getId(), new StatusRequest(true), ID_INVALIDO);
 
             var usuarioAtualizado = usuarioRepository.findById(usuario.getId()).orElseThrow();
 
@@ -307,7 +308,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             var usuarioId = usuario.getId();
             var status = new StatusRequest(true);
             var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.alterarStatus(usuarioId, status));
+                    () -> usuarioService.alterarStatus(usuarioId, status, ID_INVALIDO));
 
             assertThat(exception)
                     .hasMessage(USUARIO.jaAtiva());
@@ -317,7 +318,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
         @DisplayName("Deve alterar o status para inativa")
         void deveAlterarStatusInativa() {
             var usuario = usuarioRepository.findByEmail("carlos.oliveira@gmail.com").orElseThrow();
-            usuarioService.alterarStatus(usuario.getId(), new StatusRequest(false));
+            usuarioService.alterarStatus(usuario.getId(), new StatusRequest(false), ID_INVALIDO);
 
             var usuarioAtualizado = usuarioRepository.findById(usuario.getId()).orElseThrow();
 
@@ -331,7 +332,7 @@ public class UsuarioServiceIntegrationTest extends AbstractIntegrationTest {
             var usuarioId = usuario.getId();
             var status = new StatusRequest(false);
             var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.alterarStatus(usuarioId, status));
+                    () -> usuarioService.alterarStatus(usuarioId, status, ID_INVALIDO));
 
             assertThat(exception)
                     .hasMessage(USUARIO.jaInativa());

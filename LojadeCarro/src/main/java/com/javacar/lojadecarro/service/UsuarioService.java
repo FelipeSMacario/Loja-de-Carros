@@ -96,7 +96,9 @@ public class UsuarioService {
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional
-    public UsuarioResponse alterarStatus(Long id, StatusRequest request) {
+    public UsuarioResponse alterarStatus(Long id, StatusRequest request, Long idAdministrador) {
+        validarAdministradorNaoDesativaPropriaConta(id, request, idAdministrador);
+
         var usuario = buscaUsuario(id);
         if (request.ativo()) {
             usuario.ativar();
@@ -105,6 +107,12 @@ public class UsuarioService {
         }
 
         return usuarioMapper.toResponse(usuario);
+    }
+
+    private void validarAdministradorNaoDesativaPropriaConta(Long idUsuario, StatusRequest request, Long idAdministrador) {
+        if (Boolean.FALSE.equals(request.ativo()) && idUsuario.equals(idAdministrador)) {
+            throw new BusinessException("O administrador não pode desativar a própria conta pela área administrativa.");
+        }
     }
 
     public Usuario buscaUsuario(Long id) {

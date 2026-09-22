@@ -136,12 +136,21 @@
                     </td>
 
                     <td class="admin-users__actions" data-label="Ação">
+                        @if (ehUsuarioAtual(usuario.id)) {
+                        <span class="admin-users__current-user" data-testid="current-user-label">
+                            <mat-icon aria-hidden="true">
+                                verified_user
+                            </mat-icon>
+
+                            Conta atual
+                        </span>
+                        } @else {
                         <button type="button" mat-stroked-button [class.admin-users__deactivate]="
-                    usuario.ativo
-                  " [disabled]="acaoEmAndamentoId() !== null" [attr.aria-label]="
-                    (usuario.ativo ? 'Desativar ' : 'Reativar ')
-                    + usuario.nome
-                  " (click)="solicitarAlteracaoStatus(usuario)">
+      usuario.ativo
+    " [disabled]="acaoEmAndamentoId() !== null" [attr.aria-label]="
+      (usuario.ativo ? 'Desativar ' : 'Reativar ')
+      + usuario.nome
+    " (click)="solicitarAlteracaoStatus(usuario)">
                             @if (
                             acaoEmAndamentoId() === usuario.id
                             ) {
@@ -162,6 +171,7 @@
                             : 'Reativar'
                             }}
                         </button>
+                        }
                     </td>
                 </tr>
                 }

@@ -525,7 +525,7 @@ class UsuarioServiceTest extends BaseServiceTest {
             when(usuarioMapper.toResponse(entity))
                     .thenReturn(response);
             //ACT
-            var resultado = usuarioService.alterarStatus(ID_VALIDO, request);
+            var resultado = usuarioService.alterarStatus(ID_VALIDO, request, ID_INVALIDO);
             //Assert
             assertThat(resultado)
                     .isNotNull();
@@ -552,7 +552,7 @@ class UsuarioServiceTest extends BaseServiceTest {
                     .thenReturn(Optional.empty());
             //ACT
             var exception = assertThrows(NotFoundException.class,
-                    () -> usuarioService.alterarStatus(ID_VALIDO, request));
+                    () -> usuarioService.alterarStatus(ID_VALIDO, request, ID_INVALIDO));
             //Assert
             assertNotFoundResponseError(exception, USUARIO, ID_VALIDO);
             verify(usuarioRepository).findById(ID_VALIDO);
@@ -584,7 +584,7 @@ class UsuarioServiceTest extends BaseServiceTest {
                     .thenReturn(Collections.emptyList());
             //ACT
             var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.alterarStatus(ID_VALIDO, request));
+                    () -> usuarioService.alterarStatus(ID_VALIDO, request, ID_INVALIDO));
 
             //Assert
             assertBusinessResponseErrorInativa(exception, USUARIO);
@@ -614,7 +614,7 @@ class UsuarioServiceTest extends BaseServiceTest {
             when(usuarioMapper.toResponse(entity))
                     .thenReturn(response);
             //ACT
-            var resultado = usuarioService.alterarStatus(ID_VALIDO, request);
+            var resultado = usuarioService.alterarStatus(ID_VALIDO, request, ID_INVALIDO);
             //Assert
             assertThat(resultado.ativo()).isTrue();
             assertThat(entity.isAtivo()).isTrue();
@@ -638,7 +638,7 @@ class UsuarioServiceTest extends BaseServiceTest {
 
             //ACT
             var exception = assertThrows(BusinessException.class,
-                    () -> usuarioService.alterarStatus(ID_VALIDO, request));
+                    () -> usuarioService.alterarStatus(ID_VALIDO, request, ID_INVALIDO));
             //Assert
             assertBusinessResponseError(exception, USUARIO);
 
@@ -646,6 +646,38 @@ class UsuarioServiceTest extends BaseServiceTest {
 
             verifyNoMoreInteractions(usuarioRepository);
             verifyNoInteractions(vendasRepository, veiculoRepository, usuarioMapper);
+        }
+
+        @Test
+        @DisplayName(
+                "Não deve permitir que o administrador "
+                        + "desative a própria conta"
+        )
+        void naoDevePermitirAdministradorDesativarPropriaConta() {
+            var request = new StatusRequest(false);
+
+            var exception = assertThrows(
+                    BusinessException.class,
+                    () -> usuarioService.alterarStatus(
+                            ID_VALIDO,
+                            request,
+                            ID_VALIDO
+                    )
+            );
+
+            assertThat(exception)
+                    .hasMessage(
+                            "O administrador não pode desativar "
+                                    + "a própria conta pela área "
+                                    + "administrativa."
+                    );
+
+            verifyNoInteractions(
+                    usuarioRepository,
+                    usuarioMapper,
+                    vendasRepository,
+                    veiculoRepository
+            );
         }
     }
 

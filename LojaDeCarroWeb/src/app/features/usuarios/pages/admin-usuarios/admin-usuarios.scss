@@ -317,3 +317,22 @@
         }
     }
 }
+
+.admin-users__current-user {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 10px;
+    color: #665315;
+    font-size: 0.78rem;
+    font-weight: 800;
+    white-space: nowrap;
+    border-radius: 999px;
+    background: #f3e8ba;
+
+    mat-icon {
+        width: 18px;
+        height: 18px;
+        font-size: 18px;
+    }
+}

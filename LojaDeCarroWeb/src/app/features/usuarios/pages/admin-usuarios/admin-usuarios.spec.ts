@@ -8,11 +8,12 @@ import {
   throwError,
 } from 'rxjs';
 import { vi } from 'vitest';
-
+import { signal } from '@angular/core';
 import {
   AdminUsuarioApi,
 } from '../../data-access/admin-usuario-api';
 import {
+  UsuarioApi,
   UsuarioAtualResponse,
 } from '../../data-access/usuario-api';
 import { AdminUsuarios } from './admin-usuarios';
@@ -48,7 +49,15 @@ describe('AdminUsuarios', () => {
     open: vi.fn(),
   };
 
+  const usuarioAtual =
+    signal<UsuarioAtualResponse | null>(usuarioAtivo);
+
+  const usuarioApiMock = {
+    usuarioAtual: usuarioAtual.asReadonly(),
+  };
+
   beforeEach(async () => {
+    usuarioAtual.set(usuarioAtivo);
     adminUsuarioApiMock.listar
       .mockReset()
       .mockReturnValue(
@@ -80,6 +89,10 @@ describe('AdminUsuarios', () => {
         {
           provide: MatDialog,
           useValue: dialogMock,
+        },
+        {
+          provide: UsuarioApi,
+          useValue: usuarioApiMock,
         },
       ],
     }).compileComponents();
@@ -122,7 +135,7 @@ describe('AdminUsuarios', () => {
     });
 
     component.solicitarAlteracaoStatus(
-      usuarioAtivo
+      usuarioInativo
     );
 
     expect(dialogMock.open).toHaveBeenCalledOnce();
@@ -172,12 +185,34 @@ describe('AdminUsuarios', () => {
       );
 
     component.solicitarAlteracaoStatus(
-      usuarioAtivo
+      usuarioInativo
     );
 
     expect(component.acaoEmAndamentoId())
       .toBeNull();
 
     expect(component.erroAcao()).toBe(true);
+  });
+  it('should not allow changing the current administrator status', () => {
+    component.solicitarAlteracaoStatus(
+      usuarioAtivo
+    );
+
+    expect(dialogMock.open)
+      .not.toHaveBeenCalled();
+
+    expect(adminUsuarioApiMock.alterarStatus)
+      .not.toHaveBeenCalled();
+
+    fixture.detectChanges();
+
+    const element =
+      fixture.nativeElement as HTMLElement;
+
+    expect(
+      element.querySelector(
+        '[data-testid="current-user-label"]'
+      )?.textContent
+    ).toContain('Conta atual');
   });
 });

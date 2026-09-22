@@ -21,6 +21,7 @@ import {
   StatusFiltroUsuario,
 } from '../../data-access/admin-usuario-api';
 import {
+  UsuarioApi,
   UsuarioAtualResponse,
 } from '../../data-access/usuario-api';
 
@@ -44,6 +45,15 @@ interface OpcaoFiltroUsuario {
 export class AdminUsuarios implements OnInit {
   private readonly adminUsuarioApi =
     inject(AdminUsuarioApi);
+
+  private readonly usuarioApi = inject(UsuarioApi);
+
+  readonly usuarioAtual =
+    this.usuarioApi.usuarioAtual;
+
+  ehUsuarioAtual(id: number): boolean {
+    return this.usuarioAtual()?.id === id;
+  }
 
   formatarCpf(cpf: string): string {
     const numeros = cpf.replace(/\D/g, '');
@@ -127,6 +137,12 @@ export class AdminUsuarios implements OnInit {
   solicitarAlteracaoStatus(
     usuario: UsuarioAtualResponse
   ): void {
+    if (
+      this.acaoEmAndamentoId() !== null
+      || this.ehUsuarioAtual(usuario.id)
+    ) {
+      return;
+    }
     if (this.acaoEmAndamentoId() !== null) {
       return;
     }

@@ -3,6 +3,7 @@ package com.javacar.lojadecarro.controller.administrativo;
 import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.enums.StatusFiltro;
+import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -10,6 +11,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,6 +24,7 @@ import java.util.List;
 @RequestMapping("/admin/usuarios")
 public class AdminUsuarioController {
     private final UsuarioService usuarioService;
+    private final UsuarioAutenticadoService usuarioAutenticadoService;
 
     @GetMapping
     @Operation(summary = "Listar os usuário")
@@ -47,12 +51,12 @@ public class AdminUsuarioController {
     @PatchMapping("/{id}/status")
     @Operation(summary = "Alterar o status de um usuário")
     public ResponseEntity<UsuarioResponse> alterarStatus(@PathVariable Long id,
-                                                         @RequestBody @Valid StatusRequest request) {
+                                                         @RequestBody @Valid StatusRequest request,
+                                                         @AuthenticationPrincipal Jwt jwt) {
+        var idAdministrador = usuarioAutenticadoService.buscarId(jwt.getSubject());
         log.debug("Alterando status do usuário com id: {} para o status: {}", id, request.ativo());
-        var response = usuarioService.alterarStatus(id, request);
-
+        var response = usuarioService.alterarStatus(id, request, idAdministrador);
         log.info("Status do usuário com o id: {} alterado com sucesso", id);
-        log.debug("Resposta da alteração de status para o id: {}. Resposta: {}", id, response);
         return ResponseEntity.ok(response);
     }
 }
