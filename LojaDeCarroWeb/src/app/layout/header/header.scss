@@ -7,114 +7,6 @@
   border-bottom: 1px solid rgb(212 185 95 / 28%);
   background: #171717;
 
-  &__mobile-actions {
-    display: none;
-    align-items: center;
-  }
-
-  &__menu-button,
-  &__mobile-login {
-    color: #ffffff;
-    border: 1px solid rgb(212 185 95 / 55%);
-    border-radius: 10px;
-
-    &:hover {
-      color: #171717;
-      background: #d4b95f;
-    }
-
-    &:focus-visible {
-      outline: 3px solid #d4b95f;
-      outline-offset: 3px;
-    }
-  }
-
-  &__menu-user {
-    min-width: 230px;
-    display: grid;
-    gap: 3px;
-    padding: 13px 16px;
-    border-bottom: 1px solid #ece8de;
-
-    small {
-      color: #777168;
-      font-size: 0.72rem;
-      text-transform: uppercase;
-    }
-
-    strong {
-      overflow-wrap: anywhere;
-      color: #242424;
-    }
-  }
-
-  &__user {
-    color: #d8d8d8;
-    font-size: 0.9rem;
-    white-space: nowrap;
-
-    strong {
-      color: #ffffff;
-    }
-  }
-
-  &__announce,
-  &__my-ads,
-  &__purchases,
-  &__sales,
-  &__account 
-  &__admin{
-    display: inline-flex;
-    align-items: center;
-    gap: 7px;
-
-    mat-icon {
-      width: 19px;
-      height: 19px;
-      font-size: 19px;
-    }
-  }
-
-  &__auth-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 9px 14px;
-    color: #171717;
-    font: inherit;
-    font-weight: 700;
-    cursor: pointer;
-    border: 1px solid #d4b95f;
-    border-radius: 9px;
-    background: #d4b95f;
-
-    mat-icon {
-      width: 19px;
-      height: 19px;
-      font-size: 19px;
-    }
-
-    &:hover {
-      background: #e1ca7c;
-    }
-
-    &:focus-visible {
-      outline: 3px solid #ffffff;
-      outline-offset: 3px;
-    }
-
-    &--secondary {
-      color: #ffffff;
-      background: transparent;
-
-      &:hover {
-        color: #171717;
-        background: #d4b95f;
-      }
-    }
-  }
-
   &__content {
     width: min(1180px, calc(100% - 48px));
     min-height: 76px;
@@ -201,11 +93,140 @@
     }
   }
 
+  &__announce,
+  &__my-ads,
+  &__purchases,
+  &__sales {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+
+    mat-icon {
+      width: 19px;
+      height: 19px;
+      font-size: 19px;
+    }
+  }
+
   &__link--active {
     color: #ffffff !important;
 
     &::after {
       transform: scaleX(1) !important;
+    }
+  }
+
+  &__account-trigger {
+    max-width: 220px;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding-inline: 12px !important;
+    color: #ffffff !important;
+    border: 1px solid rgb(212 185 95 / 55%);
+    border-radius: 10px;
+
+    &:hover {
+      color: #171717 !important;
+      background: #d4b95f;
+    }
+
+    &:focus-visible {
+      outline: 3px solid #d4b95f;
+      outline-offset: 3px;
+    }
+
+    mat-icon {
+      flex: 0 0 auto;
+    }
+  }
+
+  &__account-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  &__account-arrow {
+    width: 18px !important;
+    height: 18px !important;
+    font-size: 18px !important;
+  }
+
+  &__auth-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 9px 14px;
+    color: #171717;
+    font: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid #d4b95f;
+    border-radius: 9px;
+    background: #d4b95f;
+
+    mat-icon {
+      width: 19px;
+      height: 19px;
+      font-size: 19px;
+    }
+
+    &:hover {
+      background: #e1ca7c;
+    }
+
+    &:focus-visible {
+      outline: 3px solid #ffffff;
+      outline-offset: 3px;
+    }
+  }
+
+  &__mobile-actions {
+    display: none;
+    align-items: center;
+  }
+
+  &__menu-button,
+  &__mobile-login {
+    color: #ffffff;
+    border: 1px solid rgb(212 185 95 / 55%);
+    border-radius: 10px;
+
+    &:hover {
+      color: #171717;
+      background: #d4b95f;
+    }
+
+    &:focus-visible {
+      outline: 3px solid #d4b95f;
+      outline-offset: 3px;
+    }
+  }
+
+  &__menu-user {
+    min-width: 230px;
+    display: grid;
+    gap: 3px;
+    padding: 13px 16px;
+    border-bottom: 1px solid #ece8de;
+
+    small {
+      color: #777168;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+    }
+
+    strong {
+      overflow-wrap: anywhere;
+      color: #242424;
+    }
+
+    span {
+      overflow-wrap: anywhere;
+      color: #777168;
+      font-size: 0.78rem;
     }
   }
 }

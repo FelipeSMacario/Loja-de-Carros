@@ -137,9 +137,7 @@ describe('Header', () => {
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
-    const accountLink = element.querySelector(
-      '[data-testid="account-link"]'
-    );
+
 
     const menuButton = element.querySelector(
       '[data-testid="mobile-menu-button"]'
@@ -159,7 +157,7 @@ describe('Header', () => {
       overlayContainer.getContainerElement();
 
     expect(overlay.textContent)
-      .toContain('Steven Seagal');
+      .toContain('Felipe');
 
     expect(
       overlay.querySelector(
@@ -211,28 +209,22 @@ describe('Header', () => {
     expect(authServiceMock.sair)
       .toHaveBeenCalledOnce();
 
-    expect(accountLink?.getAttribute('href'))
-      .toBe('/conta');
   });
 
-  it('should display the user and logout when authenticated', () => {
+  it('should display the user menu and logout when authenticated', async () => {
     autenticado.set(true);
+
     usuario.set({
       subject: 'keycloak-user-id',
       nome: 'Felipe',
       email: 'felipe@email.com',
-      roles: ['VENDEDOR'],
+      roles: ['USUARIO'],
     });
 
     fixture.detectChanges();
 
-    const element = fixture.nativeElement as HTMLElement;
-    const user = element.querySelector(
-      '[data-testid="authenticated-user"]'
-    );
-    const button = element.querySelector(
-      '[data-testid="logout-button"]'
-    ) as HTMLButtonElement;
+    const element =
+      fixture.nativeElement as HTMLElement;
 
     const announceLink = element.querySelector(
       '[data-testid="announce-link"]'
@@ -250,6 +242,13 @@ describe('Header', () => {
       '[data-testid="my-sales-link"]'
     );
 
+    const accountMenuButton = element.querySelector(
+      '[data-testid="desktop-account-menu-button"]'
+    ) as HTMLButtonElement;
+
+    expect(announceLink?.getAttribute('href'))
+      .toBe('/veiculos/anunciar');
+
     expect(myAdsLink?.getAttribute('href'))
       .toBe('/veiculos/meus-anuncios');
 
@@ -259,18 +258,39 @@ describe('Header', () => {
     expect(mySalesLink?.getAttribute('href'))
       .toBe('/vendas/minhas-vendas');
 
-    expect(announceLink?.getAttribute('href'))
-      .toBe('/veiculos/anunciar');
+    expect(accountMenuButton.textContent)
+      .toContain('Felipe');
 
-    expect(user?.textContent).toContain('Felipe');
-    expect(button).not.toBeNull();
     expect(
-      element.querySelector('[data-testid="login-button"]')
+      element.querySelector(
+        '[data-testid="login-button"]'
+      )
     ).toBeNull();
 
-    button.click();
+    accountMenuButton.click();
 
-    expect(authServiceMock.sair).toHaveBeenCalledOnce();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const overlay =
+      overlayContainer.getContainerElement();
+
+    expect(
+      overlay.querySelector(
+        '[data-testid="account-link"]'
+      )?.getAttribute('href')
+    ).toBe('/conta');
+
+    const logoutButton = overlay.querySelector(
+      '[data-testid="logout-button"]'
+    ) as HTMLButtonElement;
+
+    expect(logoutButton).not.toBeNull();
+
+    logoutButton.click();
+
+    expect(authServiceMock.sair)
+      .toHaveBeenCalledOnce();
   });
 
   it('should update the displayed name from the local profile', () => {
@@ -280,17 +300,19 @@ describe('Header', () => {
       subject: 'keycloak-user-id',
       nome: 'Nome do Keycloak',
       email: 'felipe@email.com',
-      roles: ['VENDEDOR'],
+      roles: ['USUARIO'],
     });
 
     fixture.detectChanges();
 
-    const element = fixture.nativeElement as HTMLElement;
-    const user = element.querySelector(
-      '[data-testid="authenticated-user"]'
-    );
+    const element =
+      fixture.nativeElement as HTMLElement;
 
-    expect(user?.textContent)
+    const accountMenuButton = element.querySelector(
+      '[data-testid="desktop-account-menu-button"]'
+    ) as HTMLButtonElement;
+
+    expect(accountMenuButton.textContent)
       .toContain('Felipe');
 
     perfilLocal.set({
@@ -300,12 +322,13 @@ describe('Header', () => {
 
     fixture.detectChanges();
 
-    expect(user?.textContent)
+    expect(accountMenuButton.textContent)
       .toContain('Felipe Jr');
 
-    expect(user?.textContent)
+    expect(accountMenuButton.textContent)
       .not.toContain('Nome do Keycloak');
   });
+
   it('should display admin navigation only for an administrator', async () => {
     autenticado.set(true);
 
@@ -325,23 +348,34 @@ describe('Header', () => {
     const element =
       fixture.nativeElement as HTMLElement;
 
-    expect(
-      element.querySelector(
-        '[data-testid="admin-users-link"]'
-      )?.getAttribute('href')
-    ).toBe('/admin/usuarios');
-
-    const menuButton = element.querySelector(
-      '[data-testid="mobile-menu-button"]'
+    const accountMenuButton = element.querySelector(
+      '[data-testid="desktop-account-menu-button"]'
     ) as HTMLButtonElement;
 
-    menuButton.click();
+    accountMenuButton.click();
 
     await fixture.whenStable();
     fixture.detectChanges();
 
-    const overlay =
+    let overlay =
       overlayContainer.getContainerElement();
+
+    expect(
+      overlay.querySelector(
+        '[data-testid="admin-users-link"]'
+      )?.getAttribute('href')
+    ).toBe('/admin/usuarios');
+
+    const mobileMenuButton = element.querySelector(
+      '[data-testid="mobile-menu-button"]'
+    ) as HTMLButtonElement;
+
+    mobileMenuButton.click();
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    overlay = overlayContainer.getContainerElement();
 
     expect(
       overlay.querySelector(

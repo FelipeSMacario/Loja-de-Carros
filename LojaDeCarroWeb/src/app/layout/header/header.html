@@ -12,12 +12,14 @@
       </span>
     </a>
 
-    <nav class="site-header__navigation site-header__navigation--desktop" aria-label="Navegação principal">
+    <nav class="
+        site-header__navigation
+        site-header__navigation--desktop
+      " aria-label="Navegação principal">
       <a routerLink="/home" class="site-header__stock-link" routerLinkActive="site-header__link--active"
         [routerLinkActiveOptions]="{ exact: true }">
         Estoque
       </a>
-
 
       @if (auth.inicializado()) {
       @if (auth.autenticado()) {
@@ -26,6 +28,7 @@
         <mat-icon aria-hidden="true">
           add_circle
         </mat-icon>
+
         <span>Anunciar</span>
       </a>
 
@@ -34,6 +37,7 @@
         <mat-icon aria-hidden="true">
           directions_car
         </mat-icon>
+
         <span>Meus anúncios</span>
       </a>
 
@@ -42,6 +46,7 @@
         <mat-icon aria-hidden="true">
           shopping_cart
         </mat-icon>
+
         <span>Compras</span>
       </a>
 
@@ -50,35 +55,23 @@
         <mat-icon aria-hidden="true">
           receipt_long
         </mat-icon>
+
         <span>Vendas</span>
       </a>
-      <a class="site-header__account" routerLink="/conta" routerLinkActive="site-header__link--active"
-        [routerLinkActiveOptions]="{ exact: true }" data-testid="account-link">
+
+      <button type="button" mat-button class="site-header__account-trigger" data-testid="desktop-account-menu-button"
+        [matMenuTriggerFor]="accountMenu">
         <mat-icon aria-hidden="true">
-          manage_accounts
+          account_circle
         </mat-icon>
 
-        <span>Conta</span>
-      </a>
-      @if (auth.possuiRole('ADMIN')) {
-      <a class="site-header__admin" routerLink="/admin/usuarios" routerLinkActive="site-header__link--active"
-        [routerLinkActiveOptions]="{ exact: true }" data-testid="admin-users-link">
-        <mat-icon aria-hidden="true">
-          admin_panel_settings
+        <span class="site-header__account-name">
+          {{ nomeExibicao() }}
+        </span>
+
+        <mat-icon class="site-header__account-arrow" aria-hidden="true">
+          expand_more
         </mat-icon>
-
-        <span>Usuários</span>
-      </a>
-      }
-      <span class="site-header__user" data-testid="authenticated-user">
-        Olá,
-        <strong>{{ nomeExibicao() }}</strong>
-      </span>
-
-      <button type="button" class="site-header__auth-button site-header__auth-button--secondary"
-        data-testid="logout-button" (click)="sair()">
-        <mat-icon aria-hidden="true">logout</mat-icon>
-        <span>Sair</span>
       </button>
       } @else {
       <button type="button" class="site-header__auth-button" aria-label="Entrar" data-testid="login-button"
@@ -108,10 +101,48 @@
   </div>
 </header>
 
+<mat-menu #accountMenu="matMenu" xPosition="before">
+  <div class="site-header__menu-user">
+    <small>Conta conectada</small>
+    <strong>{{ nomeExibicao() }}</strong>
+
+    @if (auth.usuario()?.email; as email) {
+    <span>{{ email }}</span>
+    }
+  </div>
+
+  <a mat-menu-item routerLink="/conta" data-testid="account-link">
+    <mat-icon aria-hidden="true">
+      manage_accounts
+    </mat-icon>
+
+    <span>Minha conta</span>
+  </a>
+
+  @if (auth.possuiRole('ADMIN')) {
+  <a mat-menu-item routerLink="/admin/usuarios" data-testid="admin-users-link">
+    <mat-icon aria-hidden="true">
+      admin_panel_settings
+    </mat-icon>
+
+    <span>Administrar usuários</span>
+  </a>
+  }
+
+  <button type="button" mat-menu-item data-testid="logout-button" (click)="sair()">
+    <mat-icon aria-hidden="true">logout</mat-icon>
+    <span>Sair</span>
+  </button>
+</mat-menu>
+
 <mat-menu #navigationMenu="matMenu" xPosition="before">
   <div class="site-header__menu-user">
     <small>Conta conectada</small>
-    <strong>{{ auth.usuario()?.nome }}</strong>
+    <strong>{{ nomeExibicao() }}</strong>
+
+    @if (auth.usuario()?.email; as email) {
+    <span>{{ email }}</span>
+    }
   </div>
 
   <a mat-menu-item routerLink="/home" data-testid="mobile-stock-link">
@@ -128,6 +159,7 @@
     <mat-icon aria-hidden="true">
       directions_car
     </mat-icon>
+
     <span>Meus anúncios</span>
   </a>
 
@@ -135,6 +167,7 @@
     <mat-icon aria-hidden="true">
       shopping_cart
     </mat-icon>
+
     <span>Minhas compras</span>
   </a>
 
@@ -142,9 +175,9 @@
     <mat-icon aria-hidden="true">
       receipt_long
     </mat-icon>
+
     <span>Minhas vendas</span>
   </a>
-
 
   <a mat-menu-item routerLink="/conta" data-testid="mobile-account-link">
     <mat-icon aria-hidden="true">
@@ -153,6 +186,7 @@
 
     <span>Minha conta</span>
   </a>
+
   @if (auth.possuiRole('ADMIN')) {
   <a mat-menu-item routerLink="/admin/usuarios" data-testid="mobile-admin-users-link">
     <mat-icon aria-hidden="true">
@@ -162,6 +196,7 @@
     <span>Administrar usuários</span>
   </a>
   }
+
   <button type="button" mat-menu-item data-testid="mobile-logout-button" (click)="sair()">
     <mat-icon aria-hidden="true">logout</mat-icon>
     <span>Sair</span>
