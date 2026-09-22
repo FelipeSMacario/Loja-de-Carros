@@ -1,0 +1,172 @@
+<main class="admin-users">
+    <header class="admin-users__header">
+        <div>
+            <p class="admin-users__eyebrow">
+                Administração
+            </p>
+
+            <h1>Usuários</h1>
+
+            <p class="admin-users__description">
+                Consulte os cadastros e gerencie o acesso
+                dos usuários à loja.
+            </p>
+        </div>
+
+        <span class="admin-users__count">
+            {{ usuarios().length }}
+            {{ usuarios().length === 1 ? 'usuário' : 'usuários' }}
+        </span>
+    </header>
+
+    <div class="admin-users__filters" role="group" aria-label="Filtrar usuários por status">
+        @for (
+        opcao of opcoesFiltro;
+        track opcao.valor
+        ) {
+        <button type="button" class="admin-users__filter" [class.admin-users__filter--active]="
+          filtroSelecionado() === opcao.valor
+        " [attr.aria-pressed]="
+          filtroSelecionado() === opcao.valor
+        " [disabled]="acaoEmAndamentoId() !== null" (click)="alterarFiltro(opcao.valor)">
+            {{ opcao.rotulo }}
+        </button>
+        }
+    </div>
+
+    @if (erroAcao()) {
+    <div class="admin-users__action-error" role="alert" data-testid="action-error">
+        <mat-icon aria-hidden="true">
+            error_outline
+        </mat-icon>
+
+        <span>
+            Não foi possível alterar o usuário.
+            Verifique se existem negociações em andamento.
+        </span>
+
+        <button type="button" aria-label="Fechar aviso" (click)="erroAcao.set(false)">
+            <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+    </div>
+    }
+
+    @if (carregando()) {
+    <section class="admin-users__feedback" data-testid="loading-state">
+        <mat-spinner diameter="48" />
+        <p>Carregando usuários...</p>
+    </section>
+    } @else if (erroCarregamento()) {
+    <section class="admin-users__feedback" data-testid="error-state">
+        <mat-icon aria-hidden="true">
+            error_outline
+        </mat-icon>
+
+        <h2>Não foi possível carregar os usuários</h2>
+
+        <p>Tente novamente em alguns instantes.</p>
+
+        <button type="button" mat-flat-button (click)="carregar()">
+            Tentar novamente
+        </button>
+    </section>
+    } @else if (usuarios().length === 0) {
+    <section class="admin-users__feedback" data-testid="empty-state">
+        <mat-icon aria-hidden="true">
+            group_off
+        </mat-icon>
+
+        <h2>Nenhum usuário encontrado</h2>
+
+        <p>
+            Não existem cadastros para o filtro selecionado.
+        </p>
+    </section>
+    } @else {
+    <div class="admin-users__table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th scope="col">Usuário</th>
+                    <th scope="col">CPF</th>
+                    <th scope="col">Nascimento</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">
+                        <span class="sr-only">Ações</span>
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @for (
+                usuario of usuarios();
+                track usuario.id
+                ) {
+                <tr>
+                    <td data-label="Usuário">
+                        <div class="admin-users__identity">
+                            <span>
+                                {{ usuario.nome.charAt(0).toUpperCase() }}
+                            </span>
+
+                            <div>
+                                <strong>{{ usuario.nome }}</strong>
+                                <small>{{ usuario.email }}</small>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td data-label="CPF">
+                        {{ formatarCpf(usuario.cpf) }}
+                    </td>
+
+                    <td data-label="Nascimento">
+                        {{
+                        usuario.dataNascimento
+                        | date: 'dd/MM/yyyy' : 'UTC'
+                        }}
+                    </td>
+
+                    <td data-label="Status">
+                        <span class="admin-users__status" [class.admin-users__status--inactive]="
+                    !usuario.ativo
+                  ">
+                            {{ usuario.ativo ? 'Ativo' : 'Inativo' }}
+                        </span>
+                    </td>
+
+                    <td class="admin-users__actions" data-label="Ação">
+                        <button type="button" mat-stroked-button [class.admin-users__deactivate]="
+                    usuario.ativo
+                  " [disabled]="acaoEmAndamentoId() !== null" [attr.aria-label]="
+                    (usuario.ativo ? 'Desativar ' : 'Reativar ')
+                    + usuario.nome
+                  " (click)="solicitarAlteracaoStatus(usuario)">
+                            @if (
+                            acaoEmAndamentoId() === usuario.id
+                            ) {
+                            <mat-spinner diameter="18" />
+                            } @else {
+                            <mat-icon aria-hidden="true">
+                                {{
+                                usuario.ativo
+                                ? 'person_off'
+                                : 'person_add'
+                                }}
+                            </mat-icon>
+                            }
+
+                            {{
+                            usuario.ativo
+                            ? 'Desativar'
+                            : 'Reativar'
+                            }}
+                        </button>
+                    </td>
+                </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    }
+</main>

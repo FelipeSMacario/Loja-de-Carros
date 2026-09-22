@@ -27,6 +27,7 @@ describe('Header', () => {
     usuario,
     entrar: vi.fn().mockResolvedValue(undefined),
     sair: vi.fn().mockResolvedValue(undefined),
+    possuiRole: vi.fn(),
   };
 
   const perfilLocal =
@@ -51,6 +52,9 @@ describe('Header', () => {
 
   beforeEach(async () => {
     perfilLocal.set(null);
+    authServiceMock.possuiRole
+      .mockReset()
+      .mockReturnValue(false);
 
     usuarioApiMock.buscarAtual
       .mockReset()
@@ -192,6 +196,11 @@ describe('Header', () => {
         '[data-testid="mobile-account-link"]'
       )?.getAttribute('href')
     ).toBe('/conta');
+    expect(
+      overlay.querySelector(
+        '[data-testid="mobile-admin-users-link"]'
+      )
+    ).toBeNull();
 
     const logoutButton = overlay.querySelector(
       '[data-testid="mobile-logout-button"]'
@@ -296,5 +305,48 @@ describe('Header', () => {
 
     expect(user?.textContent)
       .not.toContain('Nome do Keycloak');
+  });
+  it('should display admin navigation only for an administrator', async () => {
+    autenticado.set(true);
+
+    usuario.set({
+      subject: 'admin-keycloak-id',
+      nome: 'Administrador',
+      email: 'admin@email.com',
+      roles: ['ADMIN'],
+    });
+
+    authServiceMock.possuiRole.mockImplementation(
+      role => role === 'ADMIN'
+    );
+
+    fixture.detectChanges();
+
+    const element =
+      fixture.nativeElement as HTMLElement;
+
+    expect(
+      element.querySelector(
+        '[data-testid="admin-users-link"]'
+      )?.getAttribute('href')
+    ).toBe('/admin/usuarios');
+
+    const menuButton = element.querySelector(
+      '[data-testid="mobile-menu-button"]'
+    ) as HTMLButtonElement;
+
+    menuButton.click();
+
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const overlay =
+      overlayContainer.getContainerElement();
+
+    expect(
+      overlay.querySelector(
+        '[data-testid="mobile-admin-users-link"]'
+      )?.getAttribute('href')
+    ).toBe('/admin/usuarios');
   });
 });

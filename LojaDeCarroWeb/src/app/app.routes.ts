@@ -6,12 +6,26 @@ import {
   contaDesativadaGuard,
   perfilCompletoGuard,
 } from './features/usuarios/guards/perfil-guards';
-
+import {
+  adminGuard,
+} from './core/auth/admin-guard';
 export const routes: Routes = [
   {
     path: '',
     component: Shell,
     children: [
+      {
+        path: 'admin/usuarios',
+        canActivate: [
+          authGuard,
+          perfilCompletoGuard,
+          adminGuard,
+        ],
+        loadComponent: () =>
+          import(
+            './features/usuarios/pages/admin-usuarios/admin-usuarios'
+          ).then(component => component.AdminUsuarios),
+      },
       {
         path: '',
         pathMatch: 'full',

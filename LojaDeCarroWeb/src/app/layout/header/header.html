@@ -60,6 +60,16 @@
 
         <span>Conta</span>
       </a>
+      @if (auth.possuiRole('ADMIN')) {
+      <a class="site-header__admin" routerLink="/admin/usuarios" routerLinkActive="site-header__link--active"
+        [routerLinkActiveOptions]="{ exact: true }" data-testid="admin-users-link">
+        <mat-icon aria-hidden="true">
+          admin_panel_settings
+        </mat-icon>
+
+        <span>Usuários</span>
+      </a>
+      }
       <span class="site-header__user" data-testid="authenticated-user">
         Olá,
         <strong>{{ nomeExibicao() }}</strong>
@@ -143,6 +153,15 @@
 
     <span>Minha conta</span>
   </a>
+  @if (auth.possuiRole('ADMIN')) {
+  <a mat-menu-item routerLink="/admin/usuarios" data-testid="mobile-admin-users-link">
+    <mat-icon aria-hidden="true">
+      admin_panel_settings
+    </mat-icon>
+
+    <span>Administrar usuários</span>
+  </a>
+  }
   <button type="button" mat-menu-item data-testid="mobile-logout-button" (click)="sair()">
     <mat-icon aria-hidden="true">logout</mat-icon>
     <span>Sair</span>
