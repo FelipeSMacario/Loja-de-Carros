@@ -39,9 +39,18 @@ jobs:
             dockerfile: ./LojaDeCarroWeb/Dockerfile
             repository: ${{ vars.ECR_WEB_REPOSITORY }}
 
-    steps:
+        steps:
       - name: Checkout repository
         uses: actions/checkout@v5
+
+      - name: Set up Java 25
+        if: matrix.component == 'api'
+        uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '25'
+          cache: maven
+          cache-dependency-path: LojadeCarro/pom.xml
 
       - name: Build API JAR
         if: matrix.component == 'api'
