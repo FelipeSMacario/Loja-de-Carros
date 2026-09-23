@@ -39,7 +39,7 @@ jobs:
             dockerfile: ./LojaDeCarroWeb/Dockerfile
             repository: ${{ vars.ECR_WEB_REPOSITORY }}
 
-        steps:
+    steps:
       - name: Checkout repository
         uses: actions/checkout@v5
 
