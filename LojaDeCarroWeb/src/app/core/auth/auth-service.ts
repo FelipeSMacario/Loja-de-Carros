@@ -53,12 +53,19 @@ export class AuthService {
     }
   }
 
-  entrar(
+  async entrar(
     redirectUri = window.location.href
   ): Promise<void> {
-    return this.keycloak.login({
-      redirectUri,
-    });
+    this.falhaInicializacao.set(false);
+
+    try {
+      await this.keycloak.login({
+        redirectUri,
+      });
+    } catch {
+      this.limparSessao();
+      this.falhaInicializacao.set(true);
+    }
   }
 
   sair(): Promise<void> {

@@ -1,8 +1,8 @@
 export const environment = {
   production: false,
-  apiUrl: 'http://localhost:8080',
+  apiUrl: '/api',
   keycloak: {
-    url: 'http://localhost:8081',
+    url: '/auth',
     realm: 'loja-de-carros',
     clientId: 'loja-de-carros-web',
   },

@@ -73,6 +73,28 @@ describe('AuthService', () => {
     });
   });
 
+  it('should expose an authentication failure when login fails', async () => {
+    vi.mocked(keycloakMock.login)
+      .mockRejectedValue(
+        new Error('Keycloak indisponível')
+      );
+
+    await expect(
+      service.entrar('/veiculos/anunciar')
+    ).resolves.toBeUndefined();
+
+    expect(keycloakMock.login)
+      .toHaveBeenCalledExactlyOnceWith({
+        redirectUri: '/veiculos/anunciar',
+      });
+
+    expect(service.autenticado()).toBe(false);
+    expect(service.usuario()).toBeNull();
+
+    expect(service.falhaInicializacao())
+      .toBe(true);
+  });
+
   it('should refresh and return a valid token', async () => {
     keycloakMock.authenticated = true;
     keycloakMock.token = 'token-atualizado';
