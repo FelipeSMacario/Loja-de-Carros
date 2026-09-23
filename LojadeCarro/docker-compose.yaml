@@ -71,8 +71,8 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/loja_de_carros
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: root
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:8081/realms/loja-de-carros
-      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/realms/loja-de-carros/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://localhost:4200/auth/realms/loja-de-carros
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/auth/realms/loja-de-carros/protocol/openid-connect/certs
       SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES: loja-de-carros-api
       STORAGE_PROVIDER: s3
       STORAGE_S3_BUCKET: loja-veiculos-local
@@ -108,6 +108,9 @@ services:
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_PROXY_HEADERS: xforwarded
+      KC_HTTP_MANAGEMENT_RELATIVE_PATH: /
 
       KC_DB: postgres
       KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
@@ -132,6 +135,18 @@ services:
       retries: 20
       start_period: 20s
     mem_limit: 1g
+  web:
+    build:
+      context: ../LojaDeCarroWeb
+    image: lojadecarro-web
+    container_name: lojadecarro-web
+    ports:
+      - "4200:80"
+    depends_on:
+      api:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
 
 volumes:
   mysql-data:
