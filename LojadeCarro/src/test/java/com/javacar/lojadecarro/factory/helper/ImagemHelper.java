@@ -34,6 +34,15 @@ public final class ImagemHelper extends BaseHelper {
         return new MultipartFile[]{file};
     }
 
+    public static MultipartFile criarFile(String nomeArquivo) {
+        return new MockMultipartFile(
+                "files",
+                nomeArquivo,
+                "image/jpeg",
+                "conteudo".getBytes()
+        );
+    }
+
     public static MultipartFile[] criarNovoImagemFile() {
         var file = new MockMultipartFile(
                 "files",
@@ -79,6 +88,16 @@ public final class ImagemHelper extends BaseHelper {
                 1L + "onix.jpg",
                 "uploads",
                 "onix.jpg",
+                "image/jpeg",
+                200L
+        );
+    }
+
+    public static UploadResult criarUploadResult(String nomeArquivo) {
+        return new UploadResult(
+                1L + nomeArquivo,
+                "uploads",
+                nomeArquivo,
                 "image/jpeg",
                 200L
         );

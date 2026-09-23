@@ -1,0 +1,39 @@
+<div
+  class="confirmation-dialog"
+  [class.confirmation-dialog--danger]="tipo === 'perigo'"
+>
+  <div class="confirmation-dialog__icon">
+    <mat-icon aria-hidden="true">
+      {{ tipo === 'perigo' ? 'delete_outline' : 'warning_amber' }}
+    </mat-icon>
+  </div>
+
+  <h2 mat-dialog-title>
+    {{ data.titulo }}
+  </h2>
+
+  <mat-dialog-content>
+    <p>{{ data.mensagem }}</p>
+  </mat-dialog-content>
+
+  <mat-dialog-actions align="end">
+    <button
+      type="button"
+      mat-button
+      (click)="cancelar()"
+      data-testid="cancel-confirmation"
+    >
+      {{ data.textoCancelar ?? 'Cancelar' }}
+    </button>
+
+    <button
+      type="button"
+      mat-flat-button
+      class="confirmation-dialog__confirm"
+      (click)="confirmar()"
+      data-testid="confirm-action"
+    >
+      {{ data.textoConfirmar ?? 'Confirmar' }}
+    </button>
+  </mat-dialog-actions>
+</div>

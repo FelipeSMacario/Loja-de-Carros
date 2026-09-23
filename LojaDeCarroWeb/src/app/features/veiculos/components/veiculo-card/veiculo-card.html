@@ -1,0 +1,44 @@
+<a class="vehicle-card-link" data-testid="vehicle-details-link" [routerLink]="[rotaDetalhe(), veiculo().id]"
+  [attr.aria-label]="
+    'Ver detalhes do ' + veiculo().marca + ' ' + veiculo().modelo
+  ">
+  <mat-card class="vehicle-card" appearance="outlined">
+    <div class="vehicle-card__media">
+      @if (imagemExibidaUrl(); as url) {
+      <img data-testid="vehicle-image" [src]="url" [alt]="'Foto do ' + veiculo().marca + ' ' + veiculo().modelo"
+        loading="lazy" (error)="tratarFalhaImagem()" />
+      } @else {
+      <div class="vehicle-card__placeholder" data-testid="vehicle-placeholder">
+        <mat-icon aria-hidden="true">directions_car</mat-icon>
+        <span>Imagem indisponível</span>
+      </div>
+      }
+    </div>
+
+    <mat-card-content class="vehicle-card__content">
+      <p class="vehicle-card__brand">
+        {{ veiculo().marca }}
+      </p>
+
+      <h2 class="vehicle-card__title" data-testid="vehicle-title">
+        {{ veiculo().modelo }}
+      </h2>
+
+      <p class="vehicle-card__price">
+        {{ valorFormatado() }}
+      </p>
+
+      <div class="vehicle-card__details">
+        <span>
+          <mat-icon aria-hidden="true">calendar_today</mat-icon>
+          {{ veiculo().anoFabricacao }}
+        </span>
+
+        <span>
+          <mat-icon aria-hidden="true">speed</mat-icon>
+          {{ quilometragemFormatada() }} km
+        </span>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</a>

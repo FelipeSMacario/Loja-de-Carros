@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 
 import java.math.BigDecimal;
 
-@Schema(description = "Resposta para criação de um veiculo para venda")
+@Schema(description = "Resumo de um veículo")
 public record VeiculoResponse(@Schema(example = "1", description = "Id do veiculo") Long id,
                               @Schema(example = "QUV1F83", description = "Placa do veiculo") String placa,
                               @Schema(example = "Chevrolet", description = "Marca do veiculo") String marca,
@@ -16,5 +16,7 @@ public record VeiculoResponse(@Schema(example = "1", description = "Id do veicul
                               @Schema(example = "75990.00", description = "Valor do veiculo") BigDecimal valor,
                               @Schema(example = "70000", description = "Quilometragem do veiculo") Integer quilometragem,
                               @Schema(example = "2023", description = "Ano de fabricação do veiculo") short anoFabricacao,
-                              @Schema(example = "DISPONIVEL", description = "Status do veiculo") StatusVeiculo statusVeiculo) {
+                              @Schema(example = "1", description = "Id da imagem principal") Long imagemPrincipalId,
+                              @Schema(example = "DISPONIVEL", description = "Status do veiculo") StatusVeiculo statusVeiculo,
+                              @Schema(example = "Bom estado", description = "Descricao do veículo") String descricao) {
 }

@@ -1,8 +1,11 @@
 package com.javacar.lojadecarro.service;
 
+import com.javacar.lojadecarro.dto.response.VeiculoEdicaoResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
+import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
+import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.helper.VeiculoTestContext;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoEntityFactory;
@@ -16,16 +19,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
 import static com.javacar.lojadecarro.enums.Entidade.USUARIO;
 import static com.javacar.lojadecarro.enums.Entidade.VEICULO;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.*;
-import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
-import static com.javacar.lojadecarro.enums.StatusVeiculo.VENDIDO;
 import static com.javacar.lojadecarro.factory.helper.BaseHelper.assertNotFoundResponseError;
-import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.assertVeiculoResponse;
 import static com.javacar.lojadecarro.support.TestConstants.ID_INVALIDO;
 import static com.javacar.lojadecarro.support.TestConstants.ID_VALIDO;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -36,7 +37,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @DisplayName("Testes das consultas de veículos")
-public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
+public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest {
     private final PageRequest pageable =
             PageRequest.of(0, 10);
 
@@ -48,18 +49,49 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
         void deveListarTodosVeiculos() {
             //Arrange
             var pagina = veiculosPage(pageable);
-            var responseList = veiculosResponseList();
+            var veiculo1 = pagina.getContent().getFirst();
+            var veiculo2 = pagina.getContent().get(1);
+            var veiculo3 = pagina.getContent().get(2);
+            var veiculo4 = pagina.getContent().getLast();
+
+            var imagemPrincipal1 = criarImagemPrincipal(10L, veiculo1);
+            var imagemPrincipal2 = criarImagemPrincipal(20L, veiculo2);
+            var imagemPrincipal3 = criarImagemPrincipal(30L, veiculo3);
+            var imagemPrincipal4 = criarImagemPrincipal(40L, veiculo4);
+
+            var idsVeiculos = List.of(
+                    veiculo1.getId(),
+                    veiculo2.getId(),
+                    veiculo3.getId(),
+                    veiculo4.getId()
+            );
+            var responseList =
+                    veiculosResponseList(imagemPrincipal1.getId(),
+                            imagemPrincipal2.getId(),
+                            imagemPrincipal3.getId(),
+                            imagemPrincipal4.getId());
 
 
             when(veiculoRepository.findAll(pageable))
                     .thenReturn(pagina);
-            when(veiculoMapper.toResponse(pagina.getContent().getFirst()))
+
+            when(imagensRepository
+                    .findByVeiculo_IdInAndPrincipalTrue(idsVeiculos))
+                    .thenReturn(List.of(
+                            imagemPrincipal1,
+                            imagemPrincipal2,
+                            imagemPrincipal3,
+                            imagemPrincipal4
+                    ));
+
+
+            when(veiculoMapper.toResponse(pagina.getContent().getFirst(), imagemPrincipal1.getId()))
                     .thenReturn(responseList.getFirst());
-            when(veiculoMapper.toResponse(pagina.getContent().get(1)))
+            when(veiculoMapper.toResponse(pagina.getContent().get(1), imagemPrincipal2.getId()))
                     .thenReturn(responseList.get(1));
-            when(veiculoMapper.toResponse(pagina.getContent().get(2)))
+            when(veiculoMapper.toResponse(pagina.getContent().get(2), imagemPrincipal3.getId()))
                     .thenReturn(responseList.get(2));
-            when(veiculoMapper.toResponse(pagina.getContent().getLast()))
+            when(veiculoMapper.toResponse(pagina.getContent().getLast(), imagemPrincipal4.getId()))
                     .thenReturn(responseList.getLast());
 
             //ACT
@@ -80,13 +112,31 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
 
             verify(veiculoRepository).findAll(pageable);
             verify(veiculoRepository, never()).findByStatusVeiculo(any(StatusVeiculo.class), eq(pageable));
-            verify(veiculoMapper).toResponse(pagina.getContent().getFirst());
-            verify(veiculoMapper).toResponse(pagina.getContent().get(1));
-            verify(veiculoMapper).toResponse(pagina.getContent().get(2));
-            verify(veiculoMapper).toResponse(pagina.getContent().getLast());
+            verify(imagensRepository)
+                    .findByVeiculo_IdInAndPrincipalTrue(
+                            idsVeiculos
+                    );
+            verify(veiculoMapper).toResponse(
+                    veiculo1,
+                    imagemPrincipal1.getId()
+            );
+
+            verify(veiculoMapper).toResponse(
+                    veiculo2,
+                    imagemPrincipal2.getId()
+            );
+            verify(veiculoMapper).toResponse(
+                    veiculo3,
+                    imagemPrincipal3.getId()
+            );
+            verify(veiculoMapper).toResponse(
+                    veiculo4,
+                    imagemPrincipal4.getId()
+            );
 
             verifyNoMoreInteractions(
                     veiculoRepository,
+                    imagensRepository,
                     veiculoMapper
             );
         }
@@ -97,15 +147,50 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
         void deveListarVeiculosPorStatus(StatusVeiculo statusVeiculo) {
             //Arrange
             var veiculoPage = veiculosPageStatus(pageable, statusVeiculo);
-            var veiculoResponseList = veiculosResponseListStatus(statusVeiculo);
+
+            var veiculo1 = veiculoPage.getContent().getFirst();
+            var veiculo2 = veiculoPage.getContent().getLast();
+
+            var imagemPrincipal1 = new Imagem();
+            imagemPrincipal1.setId(10L);
+            imagemPrincipal1.setPrincipal(true);
+            imagemPrincipal1.setVeiculo(veiculo1);
+
+            var imagemPrincipal2 = new Imagem();
+            imagemPrincipal2.setId(20L);
+            imagemPrincipal2.setPrincipal(true);
+            imagemPrincipal2.setVeiculo(veiculo2);
+
+            var veiculoResponseList = veiculosResponseListStatus(
+                    statusVeiculo,
+                    imagemPrincipal1.getId(),
+                    imagemPrincipal2.getId()
+            );
+            var idsVeiculos = List.of(
+                    veiculo1.getId(),
+                    veiculo2.getId()
+            );
+
 
             when(veiculoRepository.findByStatusVeiculo(statusVeiculo, pageable))
                     .thenReturn(veiculoPage);
-            when(veiculoMapper.toResponse(veiculoPage.getContent().getFirst()))
-                    .thenReturn(veiculoResponseList.getFirst());
 
-            when(veiculoMapper.toResponse(veiculoPage.getContent().getLast()))
-                    .thenReturn(veiculoResponseList.getLast());
+            when(imagensRepository
+                    .findByVeiculo_IdInAndPrincipalTrue(idsVeiculos))
+                    .thenReturn(List.of(
+                            imagemPrincipal1,
+                            imagemPrincipal2
+                    ));
+
+            when(veiculoMapper.toResponse(
+                    veiculo1,
+                    imagemPrincipal1.getId()
+            )).thenReturn(veiculoResponseList.getFirst());
+
+            when(veiculoMapper.toResponse(
+                    veiculo2,
+                    imagemPrincipal2.getId()
+            )).thenReturn(veiculoResponseList.getLast());
 
             //ACT
             var resultado = veiculoService.listarAdministrativo(pageable, statusVeiculo);
@@ -115,25 +200,47 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
                     .hasSize(2)
                     .extracting(
                             VeiculoResponse::id,
-                            VeiculoResponse::statusVeiculo
-                    ).containsExactly(
-                            tuple(ID_VALIDO, statusVeiculo),
-                            tuple(2L, statusVeiculo)
+                            VeiculoResponse::statusVeiculo,
+                            VeiculoResponse::imagemPrincipalId
+                    )
+                    .containsExactly(
+                            tuple(
+                                    veiculo1.getId(),
+                                    statusVeiculo,
+                                    imagemPrincipal1.getId()
+                            ),
+                            tuple(
+                                    veiculo2.getId(),
+                                    statusVeiculo,
+                                    imagemPrincipal2.getId()
+                            )
                     );
 
             verify(veiculoRepository, never()).findAll(pageable);
             verify(veiculoRepository).findByStatusVeiculo(statusVeiculo, pageable);
-            verify(veiculoMapper).toResponse(veiculoPage.getContent().getFirst());
-            verify(veiculoMapper).toResponse(veiculoPage.getContent().getLast());
+            verify(imagensRepository)
+                    .findByVeiculo_IdInAndPrincipalTrue(
+                            idsVeiculos
+                    );
+            verify(veiculoMapper).toResponse(
+                    veiculo1,
+                    imagemPrincipal1.getId()
+            );
+
+            verify(veiculoMapper).toResponse(
+                    veiculo2,
+                    imagemPrincipal2.getId()
+            );
 
             verifyNoMoreInteractions(
                     veiculoRepository,
+                    imagensRepository,
                     veiculoMapper
             );
         }
 
         @Test
-        @DisplayName("Deve retornar uma lista vazia")
+        @DisplayName("Deve retornar página vazia sem buscar imagens")
         void deveRetornarUmaListaVazia() {
             //Arrange
             when(veiculoRepository.findAll(pageable))
@@ -147,10 +254,76 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
 
             verify(veiculoRepository).findAll(pageable);
             verify(veiculoRepository, never()).findByStatusVeiculo(any(StatusVeiculo.class), eq(pageable));
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
 
             verifyNoMoreInteractions(
                     veiculoRepository,
+                    imagensRepository,
+                    veiculoMapper
+            );
+        }
+
+        @Test
+        @DisplayName("Deve retornar veículos sem imagem principal")
+        void deveRetornarVeiculosSemImagemPrincipal() {
+            //Arrange
+            var pagina = veiculosPage(pageable);
+            var veiculos = pagina.getContent();
+
+            var idsVeiculos = veiculos
+                    .stream()
+                    .map(Veiculo::getId)
+                    .toList();
+
+            var responseList =
+                    veiculosResponseList(null, null, null, null);
+
+            when(veiculoRepository.findAll(pageable))
+                    .thenReturn(pagina);
+
+            when(imagensRepository.findByVeiculo_IdInAndPrincipalTrue(idsVeiculos))
+                    .thenReturn(Collections.emptyList());
+
+            when(veiculoMapper.toResponse(veiculos.get(0), null))
+                    .thenReturn(responseList.get(0));
+
+            when(veiculoMapper.toResponse(veiculos.get(1), null))
+                    .thenReturn(responseList.get(1));
+
+            when(veiculoMapper.toResponse(veiculos.get(2), null))
+                    .thenReturn(responseList.get(2));
+
+            when(veiculoMapper.toResponse(veiculos.get(3), null))
+                    .thenReturn(responseList.get(3));
+
+            //ACT
+            var resultado = veiculoService.listarAdministrativo(pageable, null);
+            //Assert
+            assertThat(resultado)
+                    .isNotNull()
+                    .hasSize(4)
+                    .extracting(
+                            VeiculoResponse::id,
+                            VeiculoResponse::imagemPrincipalId,
+                            VeiculoResponse::statusVeiculo
+                    ).containsExactly(
+                            tuple(ID_VALIDO, null, VENDIDO),
+                            tuple(2L, null, DISPONIVEL),
+                            tuple(3L, null, PAUSADO),
+                            tuple(4L, null, VENDIDO)
+                    );
+
+            verify(veiculoRepository).findAll(pageable);
+            verify(veiculoRepository, never()).findByStatusVeiculo(any(StatusVeiculo.class), eq(pageable));
+            verify(imagensRepository).findByVeiculo_IdInAndPrincipalTrue(idsVeiculos);
+            verify(veiculoMapper).toResponse(veiculos.get(0), null);
+            verify(veiculoMapper).toResponse(veiculos.get(1), null);
+            verify(veiculoMapper).toResponse(veiculos.get(2), null);
+            verify(veiculoMapper).toResponse(veiculos.get(3), null);
+
+            verifyNoMoreInteractions(
+                    veiculoRepository,
+                    imagensRepository,
                     veiculoMapper
             );
         }
@@ -164,15 +337,43 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
         void deveListarVeiculosDisponiveis() {
             //Arrange
             var veiculoPage = veiculosPageStatus(pageable, DISPONIVEL);
-            var veiculoResponseList = veiculosResponseListStatus(DISPONIVEL);
+            var veiculo1 = veiculoPage.getContent().getFirst();
+            var veiculo2 = veiculoPage.getContent().getLast();
+
+            var imagemPrincipal1 = criarImagemPrincipal(10L, veiculo1);
+            var imagemPrincipal2 = criarImagemPrincipal(20L, veiculo2);
+
+            var veiculoResponseList = veiculosResponseListStatus(
+                    DISPONIVEL,
+                    imagemPrincipal1.getId(),
+                    imagemPrincipal2.getId()
+            );
+            var idsVeiculos = List.of(
+                    veiculo1.getId(),
+                    veiculo2.getId()
+            );
+
 
             when(veiculoRepository.findByStatusVeiculo(DISPONIVEL, pageable))
                     .thenReturn(veiculoPage);
-            when(veiculoMapper.toResponse(veiculoPage.getContent().getFirst()))
-                    .thenReturn(veiculoResponseList.getFirst());
 
-            when(veiculoMapper.toResponse(veiculoPage.getContent().getLast()))
-                    .thenReturn(veiculoResponseList.getLast());
+            when(imagensRepository
+                    .findByVeiculo_IdInAndPrincipalTrue(idsVeiculos))
+                    .thenReturn(List.of(
+                            imagemPrincipal1,
+                            imagemPrincipal2
+                    ));
+
+
+            when(veiculoMapper.toResponse(
+                    veiculo1,
+                    imagemPrincipal1.getId()
+            )).thenReturn(veiculoResponseList.getFirst());
+
+            when(veiculoMapper.toResponse(
+                    veiculo2,
+                    imagemPrincipal2.getId()
+            )).thenReturn(veiculoResponseList.getLast());
 
             //ACT
             var resultado = veiculoService.listarAtivos(pageable);
@@ -189,11 +390,23 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
                     );
 
             verify(veiculoRepository).findByStatusVeiculo(DISPONIVEL, pageable);
-            verify(veiculoMapper).toResponse(veiculoPage.getContent().getFirst());
-            verify(veiculoMapper).toResponse(veiculoPage.getContent().getLast());
+            verify(imagensRepository)
+                    .findByVeiculo_IdInAndPrincipalTrue(
+                            idsVeiculos
+                    );
+            verify(veiculoMapper).toResponse(
+                    veiculo1,
+                    imagemPrincipal1.getId()
+            );
+
+            verify(veiculoMapper).toResponse(
+                    veiculo2,
+                    imagemPrincipal2.getId()
+            );
 
             verifyNoMoreInteractions(
                     veiculoRepository,
+                    imagensRepository,
                     veiculoMapper
             );
         }
@@ -208,19 +421,49 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
             //Arrange
             var cx = new VeiculoTestContext();
             var pagina = veiculosPage(pageable);
-            var responseList = veiculosResponseList();
+            var veiculo1 = pagina.getContent().getFirst();
+            var veiculo2 = pagina.getContent().get(1);
+            var veiculo3 = pagina.getContent().get(2);
+            var veiculo4 = pagina.getContent().getLast();
+
+            var imagemPrincipal1 = criarImagemPrincipal(10L, veiculo1);
+            var imagemPrincipal2 = criarImagemPrincipal(20L, veiculo2);
+            var imagemPrincipal3 = criarImagemPrincipal(30L, veiculo3);
+            var imagemPrincipal4 = criarImagemPrincipal(40L, veiculo4);
+
+            var idsVeiculos = List.of(
+                    veiculo1.getId(),
+                    veiculo2.getId(),
+                    veiculo3.getId(),
+                    veiculo4.getId()
+            );
+            var responseList =
+                    veiculosResponseList(imagemPrincipal1.getId(),
+                            imagemPrincipal2.getId(),
+                            imagemPrincipal3.getId(),
+                            imagemPrincipal4.getId());
 
             when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
                     .thenReturn(cx.usuario);
             when(veiculoRepository.findByVendedor_Id(cx.usuario.getId(), pageable))
                     .thenReturn(pagina);
-            when(veiculoMapper.toResponse(pagina.getContent().getFirst()))
+
+            when(imagensRepository
+                    .findByVeiculo_IdInAndPrincipalTrue(idsVeiculos))
+                    .thenReturn(List.of(
+                            imagemPrincipal1,
+                            imagemPrincipal2,
+                            imagemPrincipal3,
+                            imagemPrincipal4
+                    ));
+
+            when(veiculoMapper.toResponse(pagina.getContent().getFirst(), imagemPrincipal1.getId()))
                     .thenReturn(responseList.getFirst());
-            when(veiculoMapper.toResponse(pagina.getContent().get(1)))
+            when(veiculoMapper.toResponse(pagina.getContent().get(1), imagemPrincipal2.getId()))
                     .thenReturn(responseList.get(1));
-            when(veiculoMapper.toResponse(pagina.getContent().get(2)))
+            when(veiculoMapper.toResponse(pagina.getContent().get(2), imagemPrincipal3.getId()))
                     .thenReturn(responseList.get(2));
-            when(veiculoMapper.toResponse(pagina.getContent().getLast()))
+            when(veiculoMapper.toResponse(pagina.getContent().getLast(), imagemPrincipal4.getId()))
                     .thenReturn(responseList.getLast());
             //ACT
             var response = veiculoService.listarMeusAnuncios(pageable, cx.usuario.getId(), null);
@@ -245,12 +488,29 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
             verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verify(veiculoRepository).findByVendedor_Id(cx.usuario.getId(), pageable);
             verify(veiculoRepository, never()).findByVendedor_IdAndStatusVeiculo(anyLong(), any(), any());
-            verify(veiculoMapper).toResponse(pagina.getContent().getFirst());
-            verify(veiculoMapper).toResponse(pagina.getContent().get(1));
-            verify(veiculoMapper).toResponse(pagina.getContent().get(2));
-            verify(veiculoMapper).toResponse(pagina.getContent().getLast());
+            verify(imagensRepository)
+                    .findByVeiculo_IdInAndPrincipalTrue(
+                            idsVeiculos
+                    );
+            verify(veiculoMapper).toResponse(
+                    veiculo1,
+                    imagemPrincipal1.getId()
+            );
 
-            verifyNoMoreInteractions(usuarioService, veiculoRepository, veiculoMapper);
+            verify(veiculoMapper).toResponse(
+                    veiculo2,
+                    imagemPrincipal2.getId()
+            );
+            verify(veiculoMapper).toResponse(
+                    veiculo3,
+                    imagemPrincipal3.getId()
+            );
+            verify(veiculoMapper).toResponse(
+                    veiculo4,
+                    imagemPrincipal4.getId()
+            );
+
+            verifyNoMoreInteractions(usuarioService, veiculoRepository, veiculoMapper, imagensRepository);
         }
 
         @ParameterizedTest
@@ -260,17 +520,49 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
             //Arrange
             var cx = new VeiculoTestContext();
             var veiculoPage = veiculosPageStatus(pageable, statusVeiculo);
-            var veiculoResponseList = veiculosResponseListStatus(statusVeiculo);
+            var veiculo1 = veiculoPage.getContent().getFirst();
+            var veiculo2 = veiculoPage.getContent().getLast();
+
+            var imagemPrincipal1 = new Imagem();
+            imagemPrincipal1.setId(10L);
+            imagemPrincipal1.setPrincipal(true);
+            imagemPrincipal1.setVeiculo(veiculo1);
+
+            var imagemPrincipal2 = new Imagem();
+            imagemPrincipal2.setId(20L);
+            imagemPrincipal2.setPrincipal(true);
+            imagemPrincipal2.setVeiculo(veiculo2);
+
+            var veiculoResponseList = veiculosResponseListStatus(
+                    statusVeiculo,
+                    imagemPrincipal1.getId(),
+                    imagemPrincipal2.getId()
+            );
+            var idsVeiculos = List.of(
+                    veiculo1.getId(),
+                    veiculo2.getId()
+            );
 
             when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
                     .thenReturn(cx.usuario);
             when(veiculoRepository.findByVendedor_IdAndStatusVeiculo(cx.usuario.getId(), statusVeiculo, pageable))
                     .thenReturn(veiculoPage);
-            when(veiculoMapper.toResponse(veiculoPage.getContent().getFirst()))
-                    .thenReturn(veiculoResponseList.getFirst());
+            when(imagensRepository
+                    .findByVeiculo_IdInAndPrincipalTrue(idsVeiculos))
+                    .thenReturn(List.of(
+                            imagemPrincipal1,
+                            imagemPrincipal2
+                    ));
 
-            when(veiculoMapper.toResponse(veiculoPage.getContent().getLast()))
-                    .thenReturn(veiculoResponseList.getLast());
+            when(veiculoMapper.toResponse(
+                    veiculo1,
+                    imagemPrincipal1.getId()
+            )).thenReturn(veiculoResponseList.getFirst());
+
+            when(veiculoMapper.toResponse(
+                    veiculo2,
+                    imagemPrincipal2.getId()
+            )).thenReturn(veiculoResponseList.getLast());
             //ACT
             var response = veiculoService.listarMeusAnuncios(pageable, cx.usuario.getId(), statusVeiculo);
             //Assert
@@ -292,10 +584,21 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
             verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verify(veiculoRepository, never()).findByVendedor_Id(cx.usuario.getId(), pageable);
             verify(veiculoRepository).findByVendedor_IdAndStatusVeiculo(cx.usuario.getId(), statusVeiculo, pageable);
-            verify(veiculoMapper).toResponse(veiculoPage.getContent().getFirst());
-            verify(veiculoMapper).toResponse(veiculoPage.getContent().getLast());
+            verify(imagensRepository)
+                    .findByVeiculo_IdInAndPrincipalTrue(
+                            idsVeiculos
+                    );
+            verify(veiculoMapper).toResponse(
+                    veiculo1,
+                    imagemPrincipal1.getId()
+            );
 
-            verifyNoMoreInteractions(usuarioService, veiculoRepository, veiculoMapper);
+            verify(veiculoMapper).toResponse(
+                    veiculo2,
+                    imagemPrincipal2.getId()
+            );
+
+            verifyNoMoreInteractions(usuarioService, veiculoRepository, veiculoMapper, imagensRepository);
         }
 
         @Test
@@ -314,7 +617,7 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
             verify(usuarioService).buscaUsuarioAtivo(ID_VALIDO);
             verify(veiculoRepository, never()).findByVendedor_Id(anyLong(), any());
             verify(veiculoRepository, never()).findByVendedor_IdAndStatusVeiculo(anyLong(), any(), any());
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
             verifyNoMoreInteractions(usuarioService, veiculoRepository, veiculoMapper);
 
         }
@@ -324,27 +627,40 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
     @DisplayName("Testes da busca do veículo disponível por ID")
     class Buscar {
         @Test
-        @DisplayName("Deve buscar o veículo disponivel por ID")
+        @DisplayName("Deve buscar o veículo disponível por ID")
         void deveBuscarVeiculoPorId() {
-            //Arrange
+            // Arrange
             var cx = new VeiculoTestContext();
 
-            when(veiculoRepository.findByIdAndStatusVeiculo(ID_VALIDO, DISPONIVEL))
-                    .thenReturn(Optional.of(cx.entity));
+            when(veiculoRepository.findByIdAndStatusVeiculo(
+                    ID_VALIDO,
+                    DISPONIVEL
+            )).thenReturn(Optional.of(cx.entity));
 
-            when(veiculoMapper.toResponse(cx.entity))
-                    .thenReturn(cx.response);
-            //ACT
-            var resultado = veiculoService.buscarPorId(ID_VALIDO);
-            //Assert
-            assertVeiculoResponse(resultado);
+            when(veiculoMapper.toDetalheResponse(cx.entity))
+                    .thenReturn(cx.responseDetalhes);
 
-            verify(veiculoRepository).findByIdAndStatusVeiculo(ID_VALIDO, DISPONIVEL);
-            verify(veiculoMapper).toResponse(cx.entity);
+            // Act
+            var resultado =
+                    veiculoService.buscarPorId(ID_VALIDO);
+
+            // Assert
+            assertThat(resultado)
+                    .isSameAs(cx.responseDetalhes);
+
+            verify(veiculoRepository)
+                    .findByIdAndStatusVeiculo(
+                            ID_VALIDO,
+                            DISPONIVEL
+                    );
+
+            verify(veiculoMapper)
+                    .toDetalheResponse(cx.entity);
 
             verifyNoMoreInteractions(
                     veiculoRepository,
-                    veiculoMapper);
+                    veiculoMapper
+            );
         }
 
         @Test
@@ -359,10 +675,236 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
             //Assert
             assertNotFoundResponseError(excecao, VEICULO, ID_INVALIDO);
             verify(veiculoRepository).findByIdAndStatusVeiculo(ID_INVALIDO, DISPONIVEL);
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
 
             verifyNoMoreInteractions(veiculoRepository, veiculoMapper);
 
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes da busca de um anúncio do vendedor")
+    class BuscarMeuAnuncio {
+
+        @Test
+        @DisplayName(
+                "Deve buscar um anúncio vendido do vendedor"
+        )
+        void deveBuscarAnuncioVendidoDoVendedor() {
+            // Arrange
+            var cx = new VeiculoTestContext();
+            cx.entity.setStatusVeiculo(VENDIDO);
+
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
+            when(veiculoRepository.findByIdAndVendedor_Id(
+                    ID_VALIDO,
+                    cx.usuario.getId()
+            )).thenReturn(Optional.of(cx.entity));
+
+            when(veiculoMapper.toDetalheResponse(cx.entity))
+                    .thenReturn(cx.responseDetalhes);
+
+            // Act
+            var resultado = veiculoService.buscarMeuAnuncio(
+                    ID_VALIDO,
+                    ID_VALIDO
+            );
+
+            // Assert
+            assertThat(resultado)
+                    .isSameAs(cx.responseDetalhes);
+
+            verify(usuarioService)
+                    .buscaUsuarioAtivo(ID_VALIDO);
+
+            verify(veiculoRepository)
+                    .findByIdAndVendedor_Id(
+                            ID_VALIDO,
+                            cx.usuario.getId()
+                    );
+
+            verify(veiculoMapper)
+                    .toDetalheResponse(cx.entity);
+
+            verifyNoMoreInteractions(
+                    usuarioService,
+                    veiculoRepository,
+                    veiculoMapper
+            );
+        }
+
+        @Test
+        @DisplayName(
+                "Deve lançar exceção quando o anúncio não pertencer ao vendedor"
+        )
+        void deveLancarExcecaoQuandoAnuncioNaoPertencerAoVendedor() {
+            // Arrange
+            var cx = new VeiculoTestContext();
+
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
+            when(veiculoRepository.findByIdAndVendedor_Id(
+                    ID_VALIDO,
+                    cx.usuario.getId()
+            )).thenReturn(Optional.empty());
+
+            // Act
+            var exception = assertThrows(
+                    NotFoundException.class,
+                    () -> veiculoService.buscarMeuAnuncio(
+                            ID_VALIDO,
+                            ID_VALIDO
+                    )
+            );
+
+            // Assert
+            assertNotFoundResponseError(
+                    exception,
+                    VEICULO,
+                    ID_VALIDO
+            );
+
+            verify(usuarioService)
+                    .buscaUsuarioAtivo(ID_VALIDO);
+
+            verify(veiculoRepository)
+                    .findByIdAndVendedor_Id(
+                            ID_VALIDO,
+                            cx.usuario.getId()
+                    );
+
+            verifyNoInteractions(veiculoMapper);
+
+            verifyNoMoreInteractions(
+                    usuarioService,
+                    veiculoRepository
+            );
+        }
+    }
+
+    @Nested
+    @DisplayName("Testes da busca de um anúncio para edição")
+    class BuscarMeuAnuncioParaEdicao {
+
+        @Test
+        @DisplayName(
+                "Deve buscar um anúncio pausado para edição"
+        )
+        void deveBuscarAnuncioPausadoParaEdicao() {
+            // Arrange
+            var cx = new VeiculoTestContext();
+            cx.entity.setStatusVeiculo(PAUSADO);
+
+            var response = new VeiculoEdicaoResponse(
+                    cx.entity.getId(),
+                    cx.entity.getPlaca(),
+                    cx.entity.getQuilometragem(),
+                    cx.entity.getValor(),
+                    cx.entity.getMotor(),
+                    cx.entity.getDescricao(),
+                    cx.entity.getAnoFabricacao(),
+                    cx.entity.getCarroceria().getId(),
+                    cx.entity.getCor().getId(),
+                    cx.entity.getModelo().getId(),
+                    cx.entity.getCombustivel().getId(),
+                    List.of(),
+                    cx.entity.getStatusVeiculo(),
+                    List.of()
+            );
+
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
+            when(veiculoRepository.findByIdAndVendedor_Id(
+                    ID_VALIDO,
+                    cx.usuario.getId()
+            )).thenReturn(Optional.of(cx.entity));
+
+            when(veiculoMapper.toEdicaoResponse(cx.entity))
+                    .thenReturn(response);
+
+            // Act
+            var resultado =
+                    veiculoService.buscarMeuAnuncioParaEdicao(
+                            ID_VALIDO,
+                            ID_VALIDO
+                    );
+
+            // Assert
+            assertThat(resultado).isSameAs(response);
+
+            verify(usuarioService)
+                    .buscaUsuarioAtivo(ID_VALIDO);
+
+            verify(veiculoRepository)
+                    .findByIdAndVendedor_Id(
+                            ID_VALIDO,
+                            cx.usuario.getId()
+                    );
+
+            verify(veiculoMapper)
+                    .toEdicaoResponse(cx.entity);
+
+            verifyNoMoreInteractions(
+                    usuarioService,
+                    veiculoRepository,
+                    veiculoMapper
+            );
+        }
+
+        @Test
+        @DisplayName(
+                "Deve impedir a edição de um anúncio vendido"
+        )
+        void deveImpedirEdicaoDeAnuncioVendido() {
+            // Arrange
+            var cx = new VeiculoTestContext();
+            cx.entity.setStatusVeiculo(VENDIDO);
+
+            when(usuarioService.buscaUsuarioAtivo(ID_VALIDO))
+                    .thenReturn(cx.usuario);
+
+            when(veiculoRepository.findByIdAndVendedor_Id(
+                    ID_VALIDO,
+                    cx.usuario.getId()
+            )).thenReturn(Optional.of(cx.entity));
+
+            // Act
+            var exception = assertThrows(
+                    BusinessException.class,
+                    () ->
+                            veiculoService
+                                    .buscarMeuAnuncioParaEdicao(
+                                            ID_VALIDO,
+                                            ID_VALIDO
+                                    )
+            );
+
+            // Assert
+            assertThat(exception.getMessage())
+                    .isEqualTo(
+                            "Somente anúncios disponíveis ou pausados " +
+                                    "podem ser editados."
+                    );
+
+            verify(usuarioService)
+                    .buscaUsuarioAtivo(ID_VALIDO);
+
+            verify(veiculoRepository)
+                    .findByIdAndVendedor_Id(
+                            ID_VALIDO,
+                            cx.usuario.getId()
+                    );
+
+            verifyNoInteractions(veiculoMapper);
+
+            verifyNoMoreInteractions(
+                    usuarioService,
+                    veiculoRepository
+            );
         }
     }
 
@@ -420,11 +962,16 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
         );
     }
 
-    private List<VeiculoResponse> veiculosResponseList() {
+
+    private List<VeiculoResponse> veiculosResponseList(Long idImagemPrincipal1,
+                                                       Long idImagemPrincipal2,
+                                                       Long idImagemPrincipal3,
+                                                       Long idImagemPrincipal4) {
         var response1 = VeiculoResponseFactory
                 .criarResponse()
                 .comTodosOsCampos()
                 .comStatus(VENDIDO)
+                .comIdImagemPrincipal(idImagemPrincipal1)
                 .build();
 
         var response2 = VeiculoResponseFactory
@@ -432,6 +979,7 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
                 .comTodosOsCampos()
                 .comId(2L)
                 .comStatus(DISPONIVEL)
+                .comIdImagemPrincipal(idImagemPrincipal2)
                 .build();
 
         var response3 = VeiculoResponseFactory
@@ -439,6 +987,7 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
                 .comTodosOsCampos()
                 .comId(3L)
                 .comStatus(PAUSADO)
+                .comIdImagemPrincipal(idImagemPrincipal3)
                 .build();
 
         var response4 = VeiculoResponseFactory
@@ -446,16 +995,20 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
                 .comTodosOsCampos()
                 .comId(4L)
                 .comStatus(VENDIDO)
+                .comIdImagemPrincipal(idImagemPrincipal4)
                 .build();
 
         return List.of(response1, response2, response3, response4);
     }
 
-    private List<VeiculoResponse> veiculosResponseListStatus(StatusVeiculo status) {
+    private List<VeiculoResponse> veiculosResponseListStatus(StatusVeiculo status,
+                                                             Long idImagemPrincipal1,
+                                                             Long idImagemPrincipal2) {
         var response1 = VeiculoResponseFactory
                 .criarResponse()
                 .comTodosOsCampos()
                 .comStatus(status)
+                .comIdImagemPrincipal(idImagemPrincipal1)
                 .build();
 
         var response2 = VeiculoResponseFactory
@@ -463,8 +1016,18 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest{
                 .comTodosOsCampos()
                 .comId(2L)
                 .comStatus(status)
+                .comIdImagemPrincipal(idImagemPrincipal2)
                 .build();
 
         return List.of(response1, response2);
+    }
+
+    private Imagem criarImagemPrincipal(Long idImagemPrincipal, Veiculo veiculo) {
+        var imagemPrincipal = new Imagem();
+        imagemPrincipal.setId(idImagemPrincipal);
+        imagemPrincipal.setPrincipal(true);
+        imagemPrincipal.setVeiculo(veiculo);
+
+        return imagemPrincipal;
     }
 }

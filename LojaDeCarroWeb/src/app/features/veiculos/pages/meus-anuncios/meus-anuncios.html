@@ -1,0 +1,105 @@
+<section class="my-ads">
+    <header class="my-ads__header">
+        <div>
+            <p class="my-ads__eyebrow">Área do vendedor</p>
+            <h1>Meus anúncios</h1>
+            <p class="my-ads__description">
+                Acompanhe e gerencie os veículos que você anunciou.
+            </p>
+        </div>
+
+        <a class="my-ads__create" mat-flat-button routerLink="/veiculos/anunciar">
+            <mat-icon aria-hidden="true">add_circle</mat-icon>
+            Anunciar veículo
+        </a>
+    </header>
+
+    <div class="my-ads__filters" role="group" aria-label="Filtrar anúncios por status">
+        @for (opcao of opcoesStatus; track opcao.rotulo) {
+        <button type="button" class="my-ads__filter" [class.my-ads__filter--active]="
+          statusSelecionado() === opcao.valor
+        " [attr.aria-pressed]="
+          statusSelecionado() === opcao.valor
+        " (click)="alterarStatus(opcao.valor)">
+            {{ opcao.rotulo }}
+        </button>
+        }
+    </div>
+
+    @if (carregando()) {
+    <div class="my-ads__feedback" data-testid="loading-state">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Carregando seus anúncios...</p>
+    </div>
+    } @else {
+    @if (erroAcao()) {
+    <div class="my-ads__action-error" role="alert" data-testid="action-error">
+        <mat-icon aria-hidden="true">error_outline</mat-icon>
+
+        <span>
+            Não foi possível alterar o anúncio. Tente novamente.
+        </span>
+
+        <button type="button" aria-label="Fechar aviso" (click)="erroAcao.set(false)">
+            <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+    </div>
+    }
+
+    <div class="my-ads__grid" data-testid="ads-grid">
+        @for (veiculo of veiculos(); track veiculo.id) {
+        <article class="my-ads__item">
+            <app-veiculo-card [veiculo]="veiculo" rotaDetalhe="/veiculos/meus-anuncios" />
+
+            <footer class="my-ads__actions">
+                <span class="my-ads__status" [class.my-ads__status--paused]="
+              veiculo.statusVeiculo === 'PAUSADO'
+            " [class.my-ads__status--reserved]="
+              veiculo.statusVeiculo === 'RESERVADO'
+            " [class.my-ads__status--sold]="
+              veiculo.statusVeiculo === 'VENDIDO'
+            ">
+                    {{ rotulosStatus[veiculo.statusVeiculo] }}
+                </span>
+
+                @if (veiculo.statusVeiculo === 'DISPONIVEL') {
+                <button type="button" mat-stroked-button data-testid="pause-button"
+                    [disabled]="acaoEmAndamentoId() !== null" (click)="pausar(veiculo.id)">
+                    @if (acaoEmAndamentoId() === veiculo.id) {
+                    <mat-spinner diameter="18" />
+                    } @else {
+                    <mat-icon aria-hidden="true">
+                        pause_circle
+                    </mat-icon>
+                    }
+
+                    Pausar
+                </button>
+                } @else if (veiculo.statusVeiculo === 'PAUSADO') {
+                <button type="button" mat-stroked-button data-testid="reactivate-button"
+                    [disabled]="acaoEmAndamentoId() !== null" (click)="reativar(veiculo.id)">
+                    @if (acaoEmAndamentoId() === veiculo.id) {
+                    <mat-spinner diameter="18" />
+                    } @else {
+                    <mat-icon aria-hidden="true">
+                        play_circle
+                    </mat-icon>
+                    }
+
+                    Reativar
+                </button>
+                } @else {
+                <span class="my-ads__action-unavailable">
+                    Sem ações disponíveis
+                </span>
+                }
+            </footer>
+        </article>
+        }
+    </div>
+
+    <mat-paginator class="my-ads__paginator" aria-label="Paginação dos meus anúncios" [length]="totalElementos()"
+        [pageIndex]="pagina()" [pageSize]="tamanhoPagina()" [pageSizeOptions]="[6, 9, 12]"
+        (page)="alterarPagina($event)" />
+    }
+</section>

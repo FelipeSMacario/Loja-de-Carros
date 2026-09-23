@@ -2,6 +2,8 @@ package com.javacar.lojadecarro.service;
 
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
+import com.javacar.lojadecarro.dto.response.VeiculoDetalheResponse;
+import com.javacar.lojadecarro.dto.response.VeiculoEdicaoResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Opcional;
@@ -11,6 +13,7 @@ import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.mapper.ImagemMapper;
 import com.javacar.lojadecarro.mapper.VeiculoMapper;
+import com.javacar.lojadecarro.repository.ImagensRepository;
 import com.javacar.lojadecarro.repository.VeiculoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static com.javacar.lojadecarro.enums.Entidade.VEICULO;
 import static com.javacar.lojadecarro.enums.StatusVeiculo.DISPONIVEL;
@@ -46,6 +50,8 @@ public class VeiculoService {
     private final UsuarioService usuarioService;
     private final CombustivelService combustivelService;
     private final ImagemMapper imagensMapper;
+    private final ImagensRepository imagensRepository;
+
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(rollbackFor = IOException.class)
@@ -66,45 +72,140 @@ public class VeiculoService {
 
         adicionarImagens(files, veiculo);
 
-        return veiculoMapper.toResponse(veiculo);
+        return mapearComImagemPrincipal(veiculo);
     }
 
     @PreAuthorize("hasRole('ADMIN')")
     @Transactional(readOnly = true)
     public Page<VeiculoResponse> listarAdministrativo(Pageable pageable, StatusVeiculo statusVeiculo) {
         if (statusVeiculo == null) {
-            return veiculoRepository.findAll(pageable)
-                    .map(veiculoMapper::toResponse);
+            return mapearComImagemPrincipal(veiculoRepository.findAll(pageable));
         }
-
-        return veiculoRepository.findByStatusVeiculo(statusVeiculo, pageable)
-                .map(veiculoMapper::toResponse);
+        return mapearComImagemPrincipal(veiculoRepository.findByStatusVeiculo(statusVeiculo, pageable));
     }
 
     @Transactional(readOnly = true)
     public Page<VeiculoResponse> listarAtivos(Pageable pageable) {
-        return veiculoRepository.findByStatusVeiculo(DISPONIVEL, pageable)
-                .map(veiculoMapper::toResponse);
+        var pagina =
+                veiculoRepository.findByStatusVeiculo(
+                        DISPONIVEL,
+                        pageable
+                );
+        return mapearComImagemPrincipal(pagina);
+    }
+
+    private Page<VeiculoResponse> mapearComImagemPrincipal(Page<Veiculo> pagina) {
+        var idsVeiculos = pagina
+                .getContent()
+                .stream()
+                .map(Veiculo::getId)
+                .toList();
+
+        if (idsVeiculos.isEmpty()) {
+            return pagina.map(veiculo ->
+                    veiculoMapper.toResponse(veiculo, null)
+            );
+        }
+        var imagensPrincipaisPorVeiculo =
+                buscarIdsImagensPrincipais(idsVeiculos);
+
+        return pagina.map(veiculo ->
+                veiculoMapper.toResponse(
+                        veiculo,
+                        imagensPrincipaisPorVeiculo.get(
+                                veiculo.getId()
+                        )
+                )
+        );
+    }
+
+    private VeiculoResponse mapearComImagemPrincipal(
+            Veiculo veiculo
+    ) {
+        var imagemPrincipalId = imagensRepository
+                .findByVeiculo_IdAndPrincipalTrue(
+                        veiculo.getId()
+                )
+                .map(Imagem::getId)
+                .orElse(null);
+
+        return veiculoMapper.toResponse(
+                veiculo,
+                imagemPrincipalId
+        );
+    }
+
+    private Map<Long, Long> buscarIdsImagensPrincipais(List<Long> idsVeiculos) {
+        return imagensRepository
+                .findByVeiculo_IdInAndPrincipalTrue(
+                        idsVeiculos
+                )
+                .stream()
+                .collect(Collectors.toMap(
+                        imagem ->
+                                imagem.getVeiculo().getId(),
+                        Imagem::getId
+                ));
+    }
+
+    @Transactional(readOnly = true)
+    public Page<VeiculoResponse> listarMeusAnuncios(
+            Pageable pageable,
+            Long idUsuario,
+            StatusVeiculo status) {
+        var vendedor = usuarioService.buscaUsuarioAtivo(idUsuario);
+
+        var pagina = status == null
+                ? veiculoRepository.findByVendedor_Id(
+                vendedor.getId(),
+                pageable)
+                : veiculoRepository
+                .findByVendedor_IdAndStatusVeiculo(
+                        vendedor.getId(),
+                        status,
+                        pageable
+                );
+
+        return mapearComImagemPrincipal(pagina);
+    }
+
+
+    @Transactional(readOnly = true)
+    public VeiculoDetalheResponse buscarPorId(Long id) {
+        var veiculo =
+                buscaVeiculoDisponivelPorId(id);
+
+        return veiculoMapper.toDetalheResponse(veiculo);
     }
 
     @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public Page<VeiculoResponse> listarMeusAnuncios(Pageable pageable, Long idUsuario, StatusVeiculo status) {
-        var vendedor = usuarioService.buscaUsuarioAtivo(idUsuario);
-        if (status == null) {
-            return veiculoRepository
-                    .findByVendedor_Id(vendedor.getId(), pageable)
-                    .map(veiculoMapper::toResponse);
-        }
-        return veiculoRepository.findByVendedor_IdAndStatusVeiculo(vendedor.getId(), status, pageable)
-                .map(veiculoMapper::toResponse);
+    public VeiculoDetalheResponse buscarMeuAnuncio(Long id, Long idUsuario) {
+        var veiculo = buscaAnuncioDoVendedor(id, idUsuario);
+
+        return veiculoMapper.toDetalheResponse(veiculo);
     }
 
-
+    @PreAuthorize("isAuthenticated()")
     @Transactional(readOnly = true)
-    public VeiculoResponse buscarPorId(Long id) {
-        return veiculoMapper.toResponse(buscaVeiculoDisponivelPorId(id));
+    public VeiculoEdicaoResponse buscarMeuAnuncioParaEdicao(Long id, Long idUsuario) {
+        var veiculo = buscaAnuncioDoVendedor(id, idUsuario);
+        veiculo.validarPodeSerEditado();
+        return veiculoMapper.toEdicaoResponse(veiculo);
+    }
 
+    private Veiculo buscaAnuncioDoVendedor(Long id, Long idUsuario) {
+        var vendedor =
+                usuarioService.buscaUsuarioAtivo(idUsuario);
+
+        return veiculoRepository
+                .findByIdAndVendedor_Id(
+                        id,
+                        vendedor.getId()
+                )
+                .orElseThrow(() ->
+                        new NotFoundException(VEICULO, id)
+                );
     }
 
     private Veiculo buscaVeiculoDisponivelPorId(Long id) {
@@ -126,7 +227,7 @@ public class VeiculoService {
         veiculoMapper.toUpdate(request, veiculo);
 
         preencherRelacionamentosAtualizacao(request, veiculo);
-        return veiculoMapper.toResponse(veiculo);
+        return mapearComImagemPrincipal(veiculo);
     }
 
     @PreAuthorize(
@@ -137,7 +238,7 @@ public class VeiculoService {
     public VeiculoResponse pausarVeiculo(Long id) {
         var veiculo = buscaVeiculo(id);
         veiculo.pausarAnuncio();
-        return veiculoMapper.toResponse(veiculo);
+        return mapearComImagemPrincipal(veiculo);
     }
 
     @PreAuthorize(
@@ -148,7 +249,7 @@ public class VeiculoService {
     public VeiculoResponse reativarVeiculo(Long id) {
         var veiculo = buscaVeiculo(id);
         veiculo.reativarAnuncio();
-        return veiculoMapper.toResponse(veiculo);
+        return mapearComImagemPrincipal(veiculo);
     }
 
     public Veiculo buscaVeiculo(Long id) {
@@ -244,7 +345,7 @@ public class VeiculoService {
 
     private void preencherRelacionamentos(VeiculoRequest request, Veiculo veiculoEntity) {
         veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
-        veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
+        veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCor()));
         veiculoEntity.setModelo(modeloService.buscaModeloAtivo(request.idModelo()));
         veiculoEntity.setCombustivel(combustivelService.buscaCombustivelAtivo(request.idCombustivel()));
 
@@ -255,8 +356,8 @@ public class VeiculoService {
             veiculoEntity.setCarroceria(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()));
         }
 
-        if (!Objects.equals(request.idCores(), veiculoEntity.getCor().getId())) {
-            veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCores()));
+        if (!Objects.equals(request.idCor(), veiculoEntity.getCor().getId())) {
+            veiculoEntity.setCor(coresService.buscaCorAtiva(request.idCor()));
         }
 
         if (!Objects.equals(request.idModelo(), veiculoEntity.getModelo().getId())) {

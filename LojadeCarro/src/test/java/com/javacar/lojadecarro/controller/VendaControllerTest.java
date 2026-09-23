@@ -482,7 +482,7 @@ public class VendaControllerTest extends BaseControllerTest {
         @DisplayName("Deve cancelar a venda")
         void deveCancelarAVenda() throws Exception {
             //Arrange
-            var response = criarVeiculoResponse(DISPONIVEL, CANCELADA);
+            var response = criarVeiculoResponse(DISPONIVEL, CANCELADA, 10L);
             when(vendasService.cancelarVenda(ID_VALIDO))
                     .thenReturn(response);
             //Act + Assert
@@ -539,7 +539,7 @@ public class VendaControllerTest extends BaseControllerTest {
         @DisplayName("Deve concluir a venda")
         void deveConcluirAVenda() throws Exception {
             //Arrange
-            var response = criarVeiculoResponse(VENDIDO, CONCLUIDA);
+            var response = criarVeiculoResponse(VENDIDO, CONCLUIDA, 10L);
             when(vendasService.concluirVenda(ID_VALIDO))
                     .thenReturn(response);
             //Act + Assert

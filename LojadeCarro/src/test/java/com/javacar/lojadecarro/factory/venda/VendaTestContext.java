@@ -56,8 +56,12 @@ public class VendaTestContext {
         return entity;
     }
 
-    public static VendaResponse criarVeiculoResponse(StatusVeiculo statusVeiculo, StatusVenda statusVenda) {
-        var veiculo = VeiculoResponseFactory.criarResponse().comTodosOsCampos().comStatus(statusVeiculo).build();
+    public static VendaResponse criarVeiculoResponse(StatusVeiculo statusVeiculo, StatusVenda statusVenda, Long imagemPrincipalId) {
+        var veiculo = VeiculoResponseFactory.criarResponse()
+                .comTodosOsCampos()
+                .comStatus(statusVeiculo)
+                .comIdImagemPrincipal(imagemPrincipalId)
+                .build();
         var veiculoVenda = new VeiculoVendaResponse(veiculo.id(), veiculo.marca(), veiculo.modelo(), statusVeiculo);
         return VendaResponseFactory
                 .criarResponse()
@@ -80,7 +84,7 @@ public class VendaTestContext {
                 .criarEntity()
                 .comId(2L)
                 .comValorVenda(new BigDecimal(300000))
-                .comStatusVenda(PAUSADA)
+                .comStatusVenda(CANCELADA)
                 .build();
 
         var entity3 = VendaEntityFactory
@@ -112,7 +116,7 @@ public class VendaTestContext {
                 .criarResponse()
                 .comId(2L)
                 .comValorVenda(new BigDecimal(300000))
-                .comStatusVenda(PAUSADA)
+                .comStatusVenda(CANCELADA)
                 .build();
 
         var response3 = VendaResponseFactory

@@ -5,6 +5,7 @@ import com.javacar.lojadecarro.dto.request.StatusRequest;
 import com.javacar.lojadecarro.dto.response.UsuarioResponse;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.usuario.UsuarioTestContext;
+import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.UsuarioService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -31,6 +32,9 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
 
     @MockitoBean
     private UsuarioService usuarioService;
+
+    @MockitoBean
+    private UsuarioAutenticadoService usuarioAutenticadoService;
 
     @Nested
     @DisplayName("Testes de listagem")
@@ -222,7 +226,10 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             var cx = new UsuarioTestContext();
             var status = new StatusRequest(true);
 
-            when(usuarioService.alterarStatus(ID_VALIDO, status))
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
+            when(usuarioService.alterarStatus(ID_VALIDO, status, Long.parseLong(ID_JWT)))
                     .thenReturn(cx.response);
             //ACT + assert
             var resultado = performPatchComAutenticacao(URL_STATUS, status, ID_JWT, ROLE_ADM);
@@ -236,8 +243,9 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     "12345678901"
             );
 
-            verify(usuarioService).alterarStatus(ID_VALIDO, status);
-            verifyNoMoreInteractions(usuarioService);
+            verify(usuarioService).alterarStatus(ID_VALIDO, status, Long.parseLong(ID_JWT));
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
+            verifyNoMoreInteractions(usuarioService, usuarioAutenticadoService);
         }
 
         @Test
@@ -259,7 +267,10 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
             //Arrange
             var status = new StatusRequest(true);
 
-            when(usuarioService.alterarStatus(ID_VALIDO, status))
+            when(usuarioAutenticadoService.buscarId(ID_JWT))
+                    .thenReturn(ID_VALIDO);
+
+            when(usuarioService.alterarStatus(ID_VALIDO, status, Long.parseLong(ID_JWT)))
                     .thenThrow(new NotFoundException(USUARIO, ID_VALIDO));
             //ACT + assert
             var resultado = performPatchComAutenticacao(URL_STATUS, status, ID_JWT, ROLE_ADM);
@@ -267,8 +278,9 @@ class AdminUsuarioControllerTest extends BaseControllerTest {
                     USUARIO,
                     ID_VALIDO);
 
-            verify(usuarioService).alterarStatus(ID_VALIDO, status);
-            verifyNoMoreInteractions(usuarioService);
+            verify(usuarioService).alterarStatus(ID_VALIDO, status, Long.parseLong(ID_JWT));
+            verify(usuarioAutenticadoService).buscarId(ID_JWT);
+            verifyNoMoreInteractions(usuarioService, usuarioAutenticadoService);
         }
     }
 

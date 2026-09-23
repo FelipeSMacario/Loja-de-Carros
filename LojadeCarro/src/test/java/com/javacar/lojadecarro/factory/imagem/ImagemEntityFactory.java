@@ -49,6 +49,16 @@ public final class ImagemEntityFactory {
         return this;
     }
 
+    public ImagemEntityFactory comObjectKey(String objectKey) {
+        imagem.setObjectKey(objectKey);
+        return this;
+    }
+
+    public ImagemEntityFactory comNomeOriginal(String nomeOriginal) {
+        imagem.setNomeOriginal(nomeOriginal);
+        return this;
+    }
+
     public Imagem build() {
         return imagem;
     }

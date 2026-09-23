@@ -3,6 +3,7 @@ package com.javacar.lojadecarro.service;
 import com.javacar.lojadecarro.dto.response.ImagemDownload;
 import com.javacar.lojadecarro.entity.Imagem;
 import com.javacar.lojadecarro.entity.Veiculo;
+import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.repository.ImagensRepository;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,6 +28,7 @@ public class ImagensService {
     private final ImagensRepository imagensRepository;
     private final StorageService storageService;
     private final StorageTransactionSupport storageTransactionSupport;
+    private static final int LIMITE_IMAGENS_POR_VEICULO = 10;
 
     @Transactional(rollbackFor = IOException.class )
     public List<Imagem> criar(MultipartFile[] files, Veiculo veiculo)
@@ -34,6 +36,8 @@ public class ImagensService {
         if (files == null || files.length == 0) {
             return Collections.emptyList();
         }
+
+        validarLimiteDeImagens(veiculo.getId(), files.length);
 
         var imagens = new ArrayList<Imagem>();
 
@@ -127,6 +131,15 @@ public class ImagensService {
     public Imagem buscaImagem(Long idImagem) {
         return imagensRepository.findById(idImagem)
                 .orElseThrow(() -> new NotFoundException(IMAGEM, idImagem));
+    }
+
+    private void validarLimiteDeImagens(Long idVeiculo, int quantidadeNovas) {
+        var quantidadeAtual = imagensRepository.countByVeiculo_Id(idVeiculo);
+
+        if (quantidadeAtual + quantidadeNovas >
+                LIMITE_IMAGENS_POR_VEICULO) {
+            throw new BusinessException("O veículo pode possuir no máximo %d imagens.".formatted(LIMITE_IMAGENS_POR_VEICULO));
+        }
     }
 
 }

@@ -2,12 +2,11 @@ package com.javacar.lojadecarro.factory.helper;
 
 import com.javacar.lojadecarro.dto.request.VeiculoOpcionaisRequest;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
-import com.javacar.lojadecarro.dto.response.ImagemResponse;
-import com.javacar.lojadecarro.dto.response.VeiculoResponse;
-import com.javacar.lojadecarro.dto.response.VeiculoVendaResponse;
+import com.javacar.lojadecarro.dto.response.*;
 import com.javacar.lojadecarro.entity.*;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.factory.imagem.ImagemResponseFactory;
+import com.javacar.lojadecarro.factory.veiculo.VeiculoDetalheResponseFactory;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoRequestFactory;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoResponseFactory;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,6 +29,7 @@ public class VeiculoTestContext {
     public final VeiculoRequest requestIncompleto = VeiculoRequestFactory.veiculoRequestFactory().build();
     public final Veiculo entity = criarVeiculoEntity();
     public final VeiculoResponse response = criarVeiculoResponse();
+    public final VeiculoDetalheResponse responseDetalhes = criarVeiculoDetalhes();
     public final Carroceria carroceria = criarCarroceriaEntity();
     public final Cor cor = criarCorEntity();
     public final Modelo modelo = criarModeloEntity();
@@ -105,6 +105,25 @@ public class VeiculoTestContext {
 
     public static VeiculoVendaResponse criarVeiculoVendaResponse(Long id, String marca, String modelo, StatusVeiculo statusVeiculo) {
         return new VeiculoVendaResponse(id, marca, modelo, statusVeiculo);
+    }
+
+    public static VeiculoDetalheResponse criarVeiculoDetalhes(){
+        return VeiculoDetalheResponseFactory
+                .criarResponse()
+                .comTodosOsCampos()
+                .build();
+    }
+
+    public static VeiculoDetalheResponse criarVeiculoDetalhes(List<OpcionalResponse> opcionais,
+                                                             VendedorResumoResponse vendedor,
+                                                             List<VeiculoImagemResponse> imagens){
+        return VeiculoDetalheResponseFactory
+                .criarResponse()
+                .comTodosOsCampos()
+                .comOpcionais(opcionais)
+                .comVendedor(vendedor)
+                .comImagens(imagens)
+                .build();
     }
 
 }

@@ -1,0 +1,31 @@
+@if (auth.falhaInicializacao()) {
+  <section
+    class="auth-unavailable"
+    role="alert"
+    data-testid="auth-unavailable"
+  >
+    <div class="auth-unavailable__content">
+      <div>
+        <strong>
+          Autenticação temporariamente indisponível
+        </strong>
+
+        <p>
+          Não foi possível conectar ao serviço de autenticação.
+          O estoque público continua disponível, mas entrar na
+          conta e acessar áreas protegidas pode não funcionar.
+        </p>
+      </div>
+
+      <button
+        type="button"
+        data-testid="reload-auth-button"
+        (click)="recarregar()"
+      >
+        Tentar novamente
+      </button>
+    </div>
+  </section>
+}
+
+<router-outlet />

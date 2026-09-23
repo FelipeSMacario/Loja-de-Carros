@@ -1,0 +1,163 @@
+import { inject, Injectable } from '@angular/core';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable } from 'rxjs';
+import { VeiculoDetalheResponse } from '../models/veiculo-detalhe-response';
+import { environment } from '../../../../environments/environment';
+import { PageResponse } from '../../../core/http/page-response';
+import { StatusVeiculo, VeiculoResponse, } from '../models/veiculo-response';
+import { VeiculoRequest } from '../models/veiculo-request';
+import { VeiculoEdicaoResponse } from '../models/veiculo-edicao-response';
+import { ImagemResponse } from '../models/imagem-response';
+
+@Injectable({
+  providedIn: 'root',
+})
+export class VeiculoApi {
+  private readonly http = inject(HttpClient);
+  private readonly url = `${environment.apiUrl}/veiculos`;
+
+  listarAtivos(
+    page = 0,
+    size = 9
+  ): Observable<PageResponse<VeiculoResponse>> {
+    const params = new HttpParams()
+      .set('page', page)
+      .set('size', size)
+      .set('sort', 'dataCadastro,desc')
+      .append('sort', 'id,desc');
+
+    return this.http.get<PageResponse<VeiculoResponse>>(
+      this.url,
+      { params }
+    );
+  }
+  buscarPorId(id: number): Observable<VeiculoDetalheResponse> {
+    return this.http.get<VeiculoDetalheResponse>(
+      `${this.url}/${id}`
+    );
+  }
+  criar(
+    request: VeiculoRequest,
+    files: readonly File[]
+  ): Observable<VeiculoResponse> {
+    const formData = new FormData();
+
+    const requestJson = new Blob(
+      [JSON.stringify(request)],
+      {
+        type: 'application/json',
+      }
+    );
+
+    formData.append('request', requestJson);
+
+    files.forEach(file => {
+      formData.append(
+        'files',
+        file,
+        file.name
+      );
+    });
+
+    return this.http.post<VeiculoResponse>(
+      this.url,
+      formData
+    );
+  }
+  listarMeusAnuncios(
+    page = 0,
+    size = 9,
+    status?: StatusVeiculo
+  ): Observable<PageResponse<VeiculoResponse>> {
+    let params = new HttpParams()
+      .set('page', page)
+      .set('size', size)
+      .set('sort', 'dataCadastro,desc')
+      .append('sort', 'id,desc');
+
+    if (status !== undefined) {
+      params = params.set('status', status);
+    }
+
+    return this.http.get<PageResponse<VeiculoResponse>>(
+      `${this.url}/meus-anuncios`,
+      { params }
+    );
+  }
+  pausar(id: number): Observable<VeiculoResponse> {
+    return this.http.patch<VeiculoResponse>(
+      `${this.url}/${id}/pausar`,
+      null
+    );
+  }
+
+  reativar(id: number): Observable<VeiculoResponse> {
+    return this.http.patch<VeiculoResponse>(
+      `${this.url}/${id}/reativar`,
+      null
+    );
+  }
+  buscarMeuAnuncio(
+    id: number
+  ): Observable<VeiculoDetalheResponse> {
+    return this.http.get<VeiculoDetalheResponse>(
+      `${this.url}/meus-anuncios/${id}`
+    );
+  }
+  buscarMeuAnuncioParaEdicao(
+    id: number
+  ): Observable<VeiculoEdicaoResponse> {
+    return this.http.get<VeiculoEdicaoResponse>(
+      `${this.url}/meus-anuncios/${id}/edicao`
+    );
+  }
+  atualizar(
+    id: number,
+    request: VeiculoRequest
+  ): Observable<VeiculoResponse> {
+    return this.http.put<VeiculoResponse>(
+      `${this.url}/${id}`,
+      request
+    );
+  }
+  listarImagens(
+    idVeiculo: number
+  ): Observable<ImagemResponse[]> {
+    return this.http.get<ImagemResponse[]>(
+      `${this.url}/${idVeiculo}/imagens`
+    );
+  }
+
+  adicionarImagens(
+    idVeiculo: number,
+    arquivos: readonly File[]
+  ): Observable<ImagemResponse[]> {
+    const formData = new FormData();
+
+    arquivos.forEach(arquivo => {
+      formData.append('files', arquivo);
+    });
+
+    return this.http.post<ImagemResponse[]>(
+      `${this.url}/${idVeiculo}/imagens`,
+      formData
+    );
+  }
+
+  excluirImagem(
+    idImagem: number
+  ): Observable<void> {
+    return this.http.delete<void>(
+      `${environment.apiUrl}/imagens/${idImagem}`
+    );
+  }
+
+  definirImagemPrincipal(
+    idImagem: number
+  ): Observable<void> {
+    return this.http.patch<void>(
+      `${environment.apiUrl}/imagens/${idImagem}/principal`,
+      null
+    );
+  }
+}

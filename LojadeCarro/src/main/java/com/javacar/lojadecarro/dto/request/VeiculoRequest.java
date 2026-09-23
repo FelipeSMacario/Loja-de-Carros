@@ -27,11 +27,11 @@ public record VeiculoRequest(@Schema(example = "123000", description = "quilomet
                              @Schema(example = "1999", description = "Ano de fabricação do veiculo")
                              @NotNull Short anoFabricacao,
                              @Schema(example = "1", description = "Ids dos opcionais")
-                             List<Long> idsOpcionais,
+                             @NotNull List<Long> idsOpcionais,
                              @Schema(example = "1", description = "Id da carroceria")
                              @NotNull Long idCarroceria,
                              @Schema(example = "1", description = "Id da cor")
-                             @NotNull Long idCores,
+                             @NotNull Long idCor,
                              @Schema(example = "1", description = "Id do modelo")
                              @NotNull Long idModelo,
                              @Schema(example = "1", description = "Id do combustível")

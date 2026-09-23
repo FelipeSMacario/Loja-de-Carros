@@ -1,0 +1,155 @@
+:host {
+    display: block;
+}
+
+.sale-card {
+    height: 100%;
+    box-sizing: border-box;
+    display: grid;
+    align-content: start;
+    gap: 22px;
+    padding: 26px;
+    border: 1px solid #ddd7c9;
+    border-radius: 18px;
+    background: #ffffff;
+    box-shadow: 0 12px 34px rgb(24 24 24 / 6%);
+
+    &--completed {
+        border-color: rgb(41 98 55 / 35%);
+    }
+
+
+    &--cancelled {
+        opacity: 0.82;
+    }
+
+    &__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+
+        >div {
+            min-width: 0;
+        }
+
+        h2,
+        p {
+            margin: 0;
+        }
+
+        h2 {
+            margin-top: 5px;
+            color: #202020;
+            font-size: 1.3rem;
+        }
+    }
+
+    &__identifier {
+        color: #777168;
+        font-size: 0.78rem;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    &__status {
+        flex: 0 0 auto;
+        padding: 7px 10px;
+        color: #80650e;
+        font-size: 0.72rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        border-radius: 999px;
+        background: #f4edcf;
+        white-space: nowrap;
+
+        &--completed {
+            color: #296237;
+            background: #e3f3e6;
+        }
+
+        &--cancelled {
+            color: #7a3333;
+            background: #f7e3e3;
+        }
+    }
+
+    &__price {
+        margin: 0;
+        color: #8a6d12;
+        font-size: 1.55rem;
+        font-weight: 800;
+    }
+
+    &__information {
+        display: grid;
+        gap: 16px;
+        margin: 0;
+
+        div {
+            display: grid;
+            gap: 5px;
+        }
+
+        dt {
+            display: flex;
+            align-items: center;
+            gap: 7px;
+            color: #777168;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+        }
+
+        dd {
+            margin: 0 0 0 27px;
+            color: #292929;
+            font-weight: 700;
+        }
+
+        mat-icon {
+            width: 20px;
+            height: 20px;
+            color: #8a6d12;
+            font-size: 20px;
+        }
+    }
+
+    &__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 12px;
+        padding-top: 18px;
+        border-top: 1px solid #ece8de;
+
+        button {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+        }
+    }
+}
+
+@media (max-width: 520px) {
+    .sale-card {
+        padding: 22px 20px;
+
+        &__header {
+            display: grid;
+        }
+
+        &__status {
+            width: fit-content;
+        }
+
+        &__actions {
+            display: grid;
+
+            button {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    }
+}

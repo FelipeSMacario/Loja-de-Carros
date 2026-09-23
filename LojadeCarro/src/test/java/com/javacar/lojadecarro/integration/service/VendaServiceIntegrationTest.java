@@ -219,18 +219,18 @@ class VendaServiceIntegrationTest extends AbstractIntegrationTest {
         void deveListarTodasAsVendas() {
             //Arrange
             var vendaAndamento = criarVenda(BigDecimal.valueOf(300000), EM_ANDAMENTO, "PLACA5", RESERVADO);
-            var vendaPausada = criarVenda(BigDecimal.valueOf(400000), PAUSADA, "PLACA6", PAUSADO);
+            var vendaConcluida = criarVenda(BigDecimal.valueOf(400000), CONCLUIDA, "PLACA6", VENDIDO);
             var vendaCancelada = criarVenda(BigDecimal.valueOf(500000), CANCELADA, "PLACA7", DISPONIVEL);
             //ACT
             var response = vendasService.listar(Pageable.unpaged(), null);
             //Assert
             assertThat(response)
                     .isNotEmpty()
-                    .anyMatch(v -> v.statusVenda() == PAUSADA)
+                    .anyMatch(v -> v.statusVenda() == CANCELADA)
                     .anyMatch(v -> v.statusVenda() == CANCELADA)
                     .anyMatch(v -> v.statusVenda() == EM_ANDAMENTO)
                     .extracting(VendaResponse::id)
-                    .contains(vendaAndamento.getId(), vendaPausada.getId(), vendaCancelada.getId());
+                    .contains(vendaAndamento.getId(), vendaConcluida.getId(), vendaCancelada.getId());
         }
 
         @ParameterizedTest
@@ -297,7 +297,7 @@ class VendaServiceIntegrationTest extends AbstractIntegrationTest {
         void deveListarTodasAsComprasDoUsuarioAutenticado() {
             //Arrange
             var vendaAndamento = criarVenda(BigDecimal.valueOf(300000), EM_ANDAMENTO, "PLACA5", RESERVADO);
-            var vendaPausada = criarVenda(BigDecimal.valueOf(400000), PAUSADA, "PLACA6", PAUSADO);
+            var vendaConcluida = criarVenda(BigDecimal.valueOf(400000), CONCLUIDA, "PLACA6", VENDIDO);
             var vendaCancelada = criarVenda(BigDecimal.valueOf(500000), CANCELADA, "PLACA7", DISPONIVEL);
             var outroComprador = vendaIntegrationFixture
                     .criarUsuarioPersistido(
@@ -321,7 +321,7 @@ class VendaServiceIntegrationTest extends AbstractIntegrationTest {
                     .extracting(VendaResponse::id)
                     .contains(
                             vendaAndamento.getId(),
-                            vendaPausada.getId(),
+                            vendaConcluida.getId(),
                             vendaCancelada.getId()
                     )
                     .doesNotContain(vendaOutroComprador.getId());
@@ -356,7 +356,7 @@ class VendaServiceIntegrationTest extends AbstractIntegrationTest {
         void deveListarTodasAsVendasDoUsuarioAutenticado() {
             //Arrange
             var vendaAndamento = criarVenda(BigDecimal.valueOf(300000), EM_ANDAMENTO, "PLACA5", RESERVADO);
-            var vendaPausada = criarVenda(BigDecimal.valueOf(400000), PAUSADA, "PLACA6", PAUSADO);
+            var vendaConcluida = criarVenda(BigDecimal.valueOf(400000), CONCLUIDA, "PLACA6", VENDIDO);
             var vendaCancelada = criarVenda(BigDecimal.valueOf(500000), CANCELADA, "PLACA7", DISPONIVEL);
             var outroVendedor = vendaIntegrationFixture
                     .criarUsuarioPersistido(
@@ -380,7 +380,7 @@ class VendaServiceIntegrationTest extends AbstractIntegrationTest {
                     .extracting(VendaResponse::id)
                     .contains(
                             vendaAndamento.getId(),
-                            vendaPausada.getId(),
+                            vendaConcluida.getId(),
                             vendaCancelada.getId()
                     )
                     .doesNotContain(vendaOutroVendedor.getId());
@@ -465,7 +465,7 @@ class VendaServiceIntegrationTest extends AbstractIntegrationTest {
         @DisplayName("Deve lançar quando a venda não está em andamento")
         void deveLancarQuandoAVendaNaoEmAndamento() {
             //Arrange
-            var venda = criarVenda(BigDecimal.valueOf(300000), PAUSADA, "PLACA5", DISPONIVEL);
+            var venda = criarVenda(BigDecimal.valueOf(300000), CANCELADA, "PLACA5", DISPONIVEL);
             var idVenda = venda.getId();
             //ACT
             var exception = assertThrows(BusinessException.class,
@@ -550,7 +550,7 @@ class VendaServiceIntegrationTest extends AbstractIntegrationTest {
         @DisplayName("Deve lançar quando a venda não está em andamento")
         void deveLancarQuandoAVendaNaoEmAndamento() {
             //Arrange
-            var venda = criarVenda(BigDecimal.valueOf(300000), PAUSADA, "PLACA5", RESERVADO);
+            var venda = criarVenda(BigDecimal.valueOf(300000), CANCELADA, "PLACA5", RESERVADO);
             var idVenda = venda.getId();
             //ACT
             var exception = assertThrows(BusinessException.class,

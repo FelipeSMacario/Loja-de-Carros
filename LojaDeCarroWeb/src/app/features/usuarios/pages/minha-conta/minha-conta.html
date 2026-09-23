@@ -1,0 +1,221 @@
+<main class="account">
+  <header class="account__header">
+    <p class="account__eyebrow">
+      Configurações
+    </p>
+
+    <h1>Minha conta</h1>
+
+    <p class="account__description">
+      Consulte seus dados e gerencie o acesso à loja.
+    </p>
+  </header>
+
+  @if (carregando()) {
+  <section class="account__feedback" data-testid="loading-state">
+    <mat-spinner diameter="48" />
+    <p>Carregando os dados da sua conta...</p>
+  </section>
+  } @else if (erroCarregamento()) {
+  <section class="account__feedback" data-testid="error-state">
+    <mat-icon aria-hidden="true">
+      error_outline
+    </mat-icon>
+
+    <h2>Não foi possível carregar sua conta</h2>
+
+    <p>Tente novamente em alguns instantes.</p>
+
+    <button type="button" mat-flat-button (click)="carregar()">
+      Tentar novamente
+    </button>
+  </section>
+  } @else if (usuario(); as usuario) {
+  @if (atualizacaoConcluida()) {
+  <div class="account__update-success" role="status" data-testid="update-success">
+    <mat-icon aria-hidden="true">
+      check_circle
+    </mat-icon>
+
+    <span>Dados atualizados com sucesso.</span>
+
+    <button type="button" aria-label="Fechar aviso" (click)="atualizacaoConcluida.set(false)">
+      <mat-icon aria-hidden="true">close</mat-icon>
+    </button>
+  </div>
+  }
+
+  <section class="account__profile" data-testid="account-profile">
+    <header class="account__profile-header">
+      <span class="account__avatar">
+        <mat-icon aria-hidden="true">person</mat-icon>
+      </span>
+
+      <div class="account__identity">
+        <p>Conta pessoal</p>
+        <h2>{{ usuario.nome }}</h2>
+      </div>
+
+      <div class="account__profile-actions">
+        <span class="account__status" [class.account__status--inactive]="!usuario.ativo">
+          {{ usuario.ativo ? 'Ativa' : 'Inativa' }}
+        </span>
+
+        @if (!editando()) {
+        <button type="button" mat-stroked-button data-testid="edit-account-button" (click)="iniciarEdicao()">
+          <mat-icon aria-hidden="true">edit</mat-icon>
+          Editar dados
+        </button>
+        }
+      </div>
+    </header>
+
+    @if (editando()) {
+    <form class="account__form" data-testid="account-form" [formGroup]="formulario" (ngSubmit)="salvarAlteracoes()">
+      <div class="account__form-fields">
+        <mat-form-field appearance="outline">
+          <mat-label>Nome</mat-label>
+
+          <input matInput type="text" formControlName="nome" autocomplete="name" />
+
+          @if (
+          formulario.controls.nome.touched
+          && (
+          formulario.controls.nome.hasError('required')
+          || formulario.controls.nome.hasError('pattern')
+          )
+          ) {
+          <mat-error>Informe seu nome.</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Data de nascimento</mat-label>
+
+          <input matInput type="date" formControlName="dataNascimento" autocomplete="bday" />
+
+          @if (
+          formulario.controls.dataNascimento.touched
+          && formulario.controls.dataNascimento.hasError('required')
+          ) {
+          <mat-error>
+            Informe sua data de nascimento.
+          </mat-error>
+          }
+        </mat-form-field>
+      </div>
+
+      @if (erroAtualizacao(); as mensagemErro) {
+      <div class="account__update-error" role="alert" data-testid="update-error">
+        <mat-icon aria-hidden="true">
+          error_outline
+        </mat-icon>
+
+        <span>{{ mensagemErro }}</span>
+      </div>
+      }
+
+      <div class="account__form-actions">
+        <button type="button" mat-stroked-button [disabled]="salvando()" (click)="cancelarEdicao()">
+          Cancelar
+        </button>
+
+        <button type="submit" mat-flat-button data-testid="save-account-button" [disabled]="salvando()">
+          @if (salvando()) {
+          <mat-spinner diameter="18" />
+          Salvando...
+          } @else {
+          <mat-icon aria-hidden="true">save</mat-icon>
+          Salvar alterações
+          }
+        </button>
+      </div>
+    </form>
+    } @else {
+    <dl class="account__information">
+      <div>
+        <dt>
+          <mat-icon aria-hidden="true">email</mat-icon>
+          E-mail
+        </dt>
+        <dd>{{ usuario.email }}</dd>
+      </div>
+
+      <div>
+        <dt>
+          <mat-icon aria-hidden="true">badge</mat-icon>
+          CPF
+        </dt>
+        <dd>{{ cpfFormatado() }}</dd>
+      </div>
+
+      <div>
+        <dt>
+          <mat-icon aria-hidden="true">
+            calendar_today
+          </mat-icon>
+          Data de nascimento
+        </dt>
+        <dd>{{ dataNascimentoFormatada() }}</dd>
+      </div>
+    </dl>
+    }
+  </section>
+
+  <section class="account__danger-zone">
+    <div class="account__danger-content">
+      <span class="account__danger-icon">
+        <mat-icon aria-hidden="true">
+          warning
+        </mat-icon>
+      </span>
+
+      <div>
+        <h2>Desativar conta</h2>
+
+        <p>
+          Seus anúncios disponíveis serão pausados e
+          você será desconectado da aplicação.
+        </p>
+
+        <p>
+          Não é possível desativar uma conta que tenha
+          compras, vendas ou veículos reservados.
+        </p>
+
+        <strong>
+          A reativação deverá ser realizada por um
+          administrador.
+        </strong>
+      </div>
+    </div>
+
+    @if (erroDesativacao(); as mensagemErro) {
+    <div class="account__deactivation-error" role="alert" data-testid="deactivation-error">
+      <mat-icon aria-hidden="true">
+        error_outline
+      </mat-icon>
+
+      <span>{{ mensagemErro }}</span>
+
+      <button type="button" aria-label="Fechar aviso" (click)="erroDesativacao.set(null)">
+        <mat-icon aria-hidden="true">close</mat-icon>
+      </button>
+    </div>
+    }
+
+    <button type="button" mat-stroked-button class="account__deactivate" data-testid="deactivate-account-button"
+      [disabled]="desativando()" (click)="solicitarDesativacao()">
+      @if (desativando()) {
+      <mat-spinner diameter="18" />
+      } @else {
+      <mat-icon aria-hidden="true">
+        person_off
+      </mat-icon>
+      }
+
+      Desativar minha conta
+    </button>
+  </section>
+  }
+</main>

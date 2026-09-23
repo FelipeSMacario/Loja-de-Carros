@@ -40,6 +40,8 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 @DisplayName("Testes da atualização de veículos")
 public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
+    private final Long imagem = 1L;
+
     @Nested
     @DisplayName("Testes da atualização do veículo")
     class Atualizar {
@@ -51,6 +53,7 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
         @DisplayName("Deve atualizar a placa do veículo com status permitido")
         void deveAtualizarPlacaDeVeiculoComStatusPermitido(StatusVeiculo status) {
             //Arrange
+            var cx = new VeiculoTestContext();
             var entity = VeiculoEntityFactory
                     .criarEntity()
                     .comTodosOsCampos()
@@ -74,7 +77,10 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             when(veiculoRepository.existsByPlaca(request.placa()))
                     .thenReturn(false);
 
-            when(veiculoMapper.toResponse(entity))
+            when(imagensRepository.findByVeiculo_IdAndPrincipalTrue(entity.getId()))
+                    .thenReturn(Optional.of(cx.imagens.getFirst()));
+
+            when(veiculoMapper.toResponse(entity, imagem))
                     .thenReturn(response);
 
             //ACT
@@ -112,7 +118,8 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(coresService, never()).buscaCorAtiva(anyLong());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
-            verify(veiculoMapper).toResponse(entity);
+            verify(imagensRepository).findByVeiculo_IdAndPrincipalTrue(entity.getId());
+            verify(veiculoMapper).toResponse(entity, imagem);
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -140,13 +147,16 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
                     .comCarroceria("Conversivel")
                     .build();
 
-            when(veiculoRepository.findById(cx.entity.getId()))
+            when(veiculoRepository.findById(ID_VALIDO))
                     .thenReturn(Optional.of(cx.entity));
 
             when(carroceriaService.buscaCarroceriaAtiva(request.idCarroceria()))
                     .thenReturn(carroceria);
 
-            when(veiculoMapper.toResponse(cx.entity))
+            when(imagensRepository.findByVeiculo_IdAndPrincipalTrue(cx.entity.getId()))
+                    .thenReturn(Optional.of(cx.imagens.getFirst()));
+
+            when(veiculoMapper.toResponse(cx.entity, imagem))
                     .thenReturn(response);
 
             //ACT
@@ -190,7 +200,8 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(coresService, never()).buscaCorAtiva(anyLong());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
-            verify(veiculoMapper).toResponse(cx.entity);
+            verify(imagensRepository).findByVeiculo_IdAndPrincipalTrue(cx.entity.getId());
+            verify(veiculoMapper).toResponse(cx.entity, imagem);
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -221,10 +232,13 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             when(veiculoRepository.findById(cx.entity.getId()))
                     .thenReturn(Optional.of(cx.entity));
 
-            when(coresService.buscaCorAtiva(request.idCores()))
+            when(coresService.buscaCorAtiva(request.idCor()))
                     .thenReturn(cor);
 
-            when(veiculoMapper.toResponse(cx.entity))
+            when(imagensRepository.findByVeiculo_IdAndPrincipalTrue(cx.entity.getId()))
+                    .thenReturn(Optional.of(cx.imagens.getFirst()));
+
+            when(veiculoMapper.toResponse(cx.entity, imagem))
                     .thenReturn(response);
 
             //ACT
@@ -265,10 +279,11 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(veiculoRepository, never()).existsByPlaca(anyString());
             verify(veiculoMapper).toUpdate(request, cx.entity);
             verify(carroceriaService, never()).buscaCarroceriaAtiva(anyLong());
-            verify(coresService).buscaCorAtiva(request.idCores());
+            verify(coresService).buscaCorAtiva(request.idCor());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
-            verify(veiculoMapper).toResponse(cx.entity);
+            verify(imagensRepository).findByVeiculo_IdAndPrincipalTrue(cx.entity.getId());
+            verify(veiculoMapper).toResponse(cx.entity, imagem);
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -302,7 +317,10 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             when(combustivelService.buscaCombustivelAtivo(request.idCombustivel()))
                     .thenReturn(combustivel);
 
-            when(veiculoMapper.toResponse(cx.entity))
+            when(imagensRepository.findByVeiculo_IdAndPrincipalTrue(cx.entity.getId()))
+                    .thenReturn(Optional.of(cx.imagens.getFirst()));
+
+            when(veiculoMapper.toResponse(cx.entity, imagem))
                     .thenReturn(response);
 
             //ACT
@@ -346,7 +364,8 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(coresService, never()).buscaCorAtiva(anyLong());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService).buscaCombustivelAtivo(request.idCombustivel());
-            verify(veiculoMapper).toResponse(cx.entity);
+            verify(imagensRepository).findByVeiculo_IdAndPrincipalTrue(cx.entity.getId());
+            verify(veiculoMapper).toResponse(cx.entity, imagem);
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -382,7 +401,10 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             when(modeloService.buscaModeloAtivo(request.idModelo()))
                     .thenReturn(modelo);
 
-            when(veiculoMapper.toResponse(cx.entity))
+            when(imagensRepository.findByVeiculo_IdAndPrincipalTrue(cx.entity.getId()))
+                    .thenReturn(Optional.of(cx.imagens.getFirst()));
+
+            when(veiculoMapper.toResponse(cx.entity, imagem))
                     .thenReturn(response);
 
             //ACT
@@ -420,7 +442,8 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(coresService, never()).buscaCorAtiva(anyLong());
             verify(modeloService).buscaModeloAtivo(request.idModelo());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
-            verify(veiculoMapper).toResponse(cx.entity);
+            verify(imagensRepository).findByVeiculo_IdAndPrincipalTrue(cx.entity.getId());
+            verify(veiculoMapper).toResponse(cx.entity, imagem);
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -452,7 +475,7 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(coresService, never()).buscaCorAtiva(anyLong());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -494,7 +517,7 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(coresService, never()).buscaCorAtiva(anyLong());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -519,23 +542,23 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             when(veiculoRepository.findById(cx.entity.getId()))
                     .thenReturn(Optional.of(cx.entity));
 
-            when(coresService.buscaCorAtiva(request.idCores()))
-                    .thenThrow(new NotFoundException(COR, request.idCores()));
+            when(coresService.buscaCorAtiva(request.idCor()))
+                    .thenThrow(new NotFoundException(COR, request.idCor()));
 
             //ACT
             var exception = assertThrows(NotFoundException.class,
                     () -> veiculoService.atualizar(request, ID_VALIDO));
             //Assert
-            assertNotFoundResponseError(exception, COR, request.idCores());
+            assertNotFoundResponseError(exception, COR, request.idCor());
 
             verify(veiculoRepository).findById(cx.entity.getId());
             verify(veiculoRepository, never()).existsByPlaca(anyString());
             verify(veiculoMapper).toUpdate(request, cx.entity);
             verify(carroceriaService, never()).buscaCarroceriaAtiva(anyLong());
-            verify(coresService).buscaCorAtiva(request.idCores());
+            verify(coresService).buscaCorAtiva(request.idCor());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -576,7 +599,7 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(coresService, never()).buscaCorAtiva(anyLong());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService).buscaCombustivelAtivo(request.idCombustivel());
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -617,7 +640,7 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(coresService, never()).buscaCorAtiva(anyLong());
             verify(modeloService).buscaModeloAtivo(request.idModelo());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -659,7 +682,7 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(coresService, never()).buscaCorAtiva(anyLong());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
 
             verifyNoMoreInteractions(
                     veiculoRepository,
@@ -699,7 +722,7 @@ public class VeiculoServiceAtualizarTest extends AbstractVeiculoServiceTest{
             verify(coresService, never()).buscaCorAtiva(anyLong());
             verify(modeloService, never()).buscaModeloAtivo(anyLong());
             verify(combustivelService, never()).buscaCombustivelAtivo(anyLong());
-            verify(veiculoMapper, never()).toResponse(any());
+            verify(veiculoMapper, never()).toResponse(any(), anyLong());
 
             verifyNoMoreInteractions(
                     veiculoRepository,

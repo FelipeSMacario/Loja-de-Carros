@@ -1,0 +1,91 @@
+<article
+  class="sale-card"
+  [class.sale-card--completed]="
+    venda().statusVenda === 'CONCLUIDA'
+  "
+  [class.sale-card--cancelled]="
+    venda().statusVenda === 'CANCELADA'
+  "
+>
+  <header class="sale-card__header">
+    <div>
+      <p class="sale-card__identifier">
+        Venda nº {{ venda().id }}
+      </p>
+
+      <h2>
+        {{ venda().veiculo.marca }}
+        {{ venda().veiculo.modelo }}
+      </h2>
+    </div>
+
+    <span
+      class="sale-card__status"
+      [class.sale-card__status--completed]="
+        venda().statusVenda === 'CONCLUIDA'
+      "
+      [class.sale-card__status--cancelled]="
+        venda().statusVenda === 'CANCELADA'
+      "
+    >
+      {{ rotulosStatus[venda().statusVenda] }}
+    </span>
+  </header>
+
+  <p class="sale-card__price">
+    {{ valorFormatado() }}
+  </p>
+
+  <dl class="sale-card__information">
+    <div>
+      <dt>
+        <mat-icon aria-hidden="true">person</mat-icon>
+        {{ rotuloParticipante() }}
+      </dt>
+      <dd>{{ participante().nome }}</dd>
+    </div>
+
+    <div>
+      <dt>
+        <mat-icon aria-hidden="true">event</mat-icon>
+        Iniciada em
+      </dt>
+      <dd>{{ dataFormatada() }}</dd>
+    </div>
+  </dl>
+
+  @if (venda().statusVenda === 'EM_ANDAMENTO') {
+    <footer class="sale-card__actions">
+      <button
+        type="button"
+        mat-stroked-button
+        data-testid="cancel-sale-button"
+        [disabled]="acaoEmAndamento()"
+        (click)="solicitarCancelamento()"
+      >
+        <mat-icon aria-hidden="true">cancel</mat-icon>
+        Cancelar
+      </button>
+
+      @if (contexto() === 'VENDA') {
+        <button
+          type="button"
+          mat-flat-button
+          data-testid="complete-sale-button"
+          [disabled]="acaoEmAndamento()"
+          (click)="solicitarConclusao()"
+        >
+          @if (acaoEmAndamento()) {
+            <mat-spinner diameter="18" />
+          } @else {
+            <mat-icon aria-hidden="true">
+              check_circle
+            </mat-icon>
+          }
+
+          Concluir venda
+        </button>
+      }
+    </footer>
+  }
+</article>

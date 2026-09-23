@@ -72,7 +72,7 @@ public final class VendaHelper extends BaseHelper {
                         VendaResponse::statusVenda
                 ).containsExactly(
                         tuple(1L, BigDecimal.valueOf(200000), CONCLUIDA),
-                        tuple(2L, BigDecimal.valueOf(300000), PAUSADA),
+                        tuple(2L, BigDecimal.valueOf(300000), CANCELADA),
                         tuple(3L, BigDecimal.valueOf(400000), CANCELADA),
                         tuple(4L, BigDecimal.valueOf(500000), EM_ANDAMENTO)
                 );
@@ -108,7 +108,7 @@ public final class VendaHelper extends BaseHelper {
                 .andExpect(jsonPath("$.content[0].statusVenda").value(CONCLUIDA.name()))
                 .andExpect(jsonPath("$.content[1].id").value(2L))
                 .andExpect(jsonPath("$.content[1].valorVenda").value(BigDecimal.valueOf(300000)))
-                .andExpect(jsonPath("$.content[1].statusVenda").value(PAUSADA.name()))
+                .andExpect(jsonPath("$.content[1].statusVenda").value(CANCELADA.name()))
                 .andExpect(jsonPath("$.content[2].id").value(3L))
                 .andExpect(jsonPath("$.content[2].valorVenda").value(BigDecimal.valueOf(400000)))
                 .andExpect(jsonPath("$.content[2].statusVenda").value(CANCELADA.name()))

@@ -1,0 +1,153 @@
+<main class="purchases">
+  <header class="purchases__header">
+    <div>
+      <p class="purchases__eyebrow">
+        Área do comprador
+      </p>
+
+      <h1>Minhas compras</h1>
+
+      <p class="purchases__description">
+        Acompanhe os veículos reservados e o histórico
+        das suas compras.
+      </p>
+    </div>
+  </header>
+
+  <div
+    class="purchases__filters"
+    role="group"
+    aria-label="Filtrar compras por status"
+  >
+    @for (opcao of opcoesStatus; track opcao.rotulo) {
+      <button
+        type="button"
+        class="purchases__filter"
+        [class.purchases__filter--active]="
+          statusSelecionado() === opcao.valor
+        "
+        [attr.aria-pressed]="
+          statusSelecionado() === opcao.valor
+        "
+        (click)="alterarStatus(opcao.valor)"
+      >
+        {{ opcao.rotulo }}
+      </button>
+    }
+  </div>
+
+  @if (carregando()) {
+    <section
+      class="purchases__feedback"
+      data-testid="loading-state"
+    >
+      <mat-spinner diameter="48" />
+      <p>Carregando suas compras...</p>
+    </section>
+  } @else if (erro()) {
+    <section
+      class="purchases__feedback"
+      data-testid="error-state"
+    >
+      <mat-icon aria-hidden="true">
+        error_outline
+      </mat-icon>
+
+      <h2>Não foi possível carregar suas compras</h2>
+
+      <p>Tente novamente em alguns instantes.</p>
+
+      <button
+        type="button"
+        mat-flat-button
+        (click)="carregar()"
+      >
+        Tentar novamente
+      </button>
+    </section>
+  } @else {
+    @if (erroAcao()) {
+      <div
+        class="purchases__action-error"
+        role="alert"
+        data-testid="action-error"
+      >
+        <mat-icon aria-hidden="true">
+          error_outline
+        </mat-icon>
+
+        <span>
+          Não foi possível cancelar a compra.
+          Tente novamente.
+        </span>
+
+        <button
+          type="button"
+          aria-label="Fechar aviso"
+          (click)="erroAcao.set(false)"
+        >
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </div>
+    }
+
+    @if (compras().length === 0) {
+      <section
+        class="purchases__feedback"
+        data-testid="empty-state"
+      >
+        <mat-icon aria-hidden="true">
+          shopping_cart
+        </mat-icon>
+
+        <h2>Nenhuma compra encontrada</h2>
+
+        @if (statusSelecionado() === null) {
+          <p>
+            Você ainda não reservou nenhum veículo.
+          </p>
+        } @else {
+          <p>
+            Você não possui compras com o status
+            selecionado.
+          </p>
+
+          <button
+            type="button"
+            mat-flat-button
+            (click)="alterarStatus(null)"
+          >
+            Visualizar todas
+          </button>
+        }
+      </section>
+    } @else {
+      <section
+        class="purchases__grid"
+        data-testid="purchases-grid"
+        aria-label="Lista de compras"
+      >
+        @for (compra of compras(); track compra.id) {
+          <app-venda-card
+            [venda]="compra"
+            contexto="COMPRA"
+            [acaoEmAndamento]="
+              acaoEmAndamentoId() === compra.id
+            "
+            (cancelar)="cancelar($event)"
+          />
+        }
+      </section>
+
+      <mat-paginator
+        class="purchases__paginator"
+        aria-label="Paginação das minhas compras"
+        [length]="totalElementos()"
+        [pageIndex]="pagina()"
+        [pageSize]="tamanhoPagina()"
+        [pageSizeOptions]="[6, 9, 12]"
+        (page)="alterarPagina($event)"
+      />
+    }
+  }
+</main>

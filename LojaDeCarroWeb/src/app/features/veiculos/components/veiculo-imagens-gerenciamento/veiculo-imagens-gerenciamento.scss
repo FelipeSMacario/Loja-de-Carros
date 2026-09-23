@@ -1,0 +1,267 @@
+:host {
+  display: block;
+  margin-top: 32px;
+}
+
+.image-manager {
+  padding: clamp(24px, 4vw, 36px);
+  border: 1px solid #ddd7c9;
+  border-radius: 20px;
+  background: #ffffff;
+
+  &__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 28px;
+
+    h2 {
+      margin: 4px 0 8px;
+      color: #202020;
+      font-size: 1.4rem;
+    }
+
+    p {
+      margin: 0;
+      color: #6c675e;
+    }
+  }
+
+  &__eyebrow {
+    color: #8a6d12 !important;
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  &__counter {
+    flex: 0 0 auto;
+    padding: 7px 12px;
+    color: #6c5510;
+    font-weight: 800;
+    border-radius: 999px;
+    background: #f2e8bd;
+  }
+
+  &__message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+    padding: 13px 16px;
+    border-radius: 10px;
+
+    mat-icon {
+      flex: 0 0 auto;
+    }
+
+    &--success {
+      color: #245c32;
+      background: #e3f3e6;
+    }
+
+    &--error {
+      color: #8c2727;
+      background: #fbe7e7;
+    }
+  }
+
+  &__upload {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-bottom: 28px;
+    padding: 18px;
+    border: 1px dashed #c9bb8e;
+    border-radius: 14px;
+    background: #fbfaf6;
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+    }
+  }
+
+  &__file-input {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  &__selection {
+    color: #403d37;
+    font-weight: 600;
+  }
+
+  &__available,
+  &__limit {
+    margin-left: auto;
+    color: #777168;
+    font-size: 0.85rem;
+  }
+
+  &__limit {
+    color: #8c2727;
+    font-weight: 600;
+  }
+
+  &__feedback {
+    min-height: 210px;
+    display: grid;
+    place-content: center;
+    justify-items: center;
+    gap: 12px;
+    padding: 28px;
+    color: #68645c;
+    text-align: center;
+    border-radius: 14px;
+    background: #f8f7f3;
+
+    h3,
+    p {
+      margin: 0;
+    }
+
+    > mat-icon {
+      width: 44px;
+      height: 44px;
+      color: #a07d0d;
+      font-size: 44px;
+    }
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns:
+      repeat(auto-fill, minmax(230px, 1fr));
+    gap: 20px;
+  }
+}
+
+.image-card {
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #ddd7c9;
+  border-radius: 14px;
+  background: #ffffff;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
+
+  &--main {
+    border-color: #a88a2a;
+    box-shadow: 0 0 0 2px rgb(168 138 42 / 14%);
+  }
+
+  &__preview {
+    position: relative;
+    overflow: hidden;
+    aspect-ratio: 16 / 9;
+    background: #242424;
+
+    img {
+      width: 100%;
+      height: 100%;
+      display: block;
+      object-fit: cover;
+    }
+  }
+
+  &__badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 6px 9px;
+    color: #171717;
+    font-size: 0.72rem;
+    font-weight: 800;
+    border-radius: 999px;
+    background: #d4b95f;
+
+    mat-icon {
+      width: 16px;
+      height: 16px;
+      font-size: 16px;
+    }
+  }
+
+  &__content {
+    padding: 14px;
+
+    > p {
+      overflow: hidden;
+      margin: 0 0 14px;
+      color: #403d37;
+      font-weight: 600;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+
+    button:first-child:not(:last-child) {
+      flex: 1;
+    }
+  }
+
+  &__delete {
+    flex: 0 0 auto;
+    color: #9d3030;
+  }
+}
+
+@media (max-width: 600px) {
+  :host {
+    margin-top: 24px;
+  }
+
+  .image-manager {
+    padding: 22px 18px;
+    border-radius: 14px;
+
+    &__header {
+      gap: 16px;
+    }
+
+    &__upload {
+      align-items: stretch;
+
+      button {
+        justify-content: center;
+      }
+    }
+
+    &__selection,
+    &__available,
+    &__limit {
+      width: 100%;
+      margin-left: 0;
+      text-align: center;
+    }
+
+    &__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .image-card {
+    transition: none;
+  }
+}

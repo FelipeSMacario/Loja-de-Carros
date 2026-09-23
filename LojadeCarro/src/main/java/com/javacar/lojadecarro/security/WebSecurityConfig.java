@@ -12,6 +12,13 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -37,7 +44,8 @@ public class WebSecurityConfig {
 
                         .requestMatchers(
                                 HttpMethod.GET,
-                                "/veiculos/meus-anuncios"
+                                "/veiculos/meus-anuncios",
+                                "/veiculos/meus-anuncios/**"
                         ).authenticated()
 
                         .requestMatchers(
@@ -94,5 +102,49 @@ public class WebSecurityConfig {
         );
 
         return authenticationConverter;
+    }
+
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource(
+            @Value("${app.cors.allowed-origin:http://localhost:4200}")
+            String allowedOrigin
+    ) {
+        var configuration = new CorsConfiguration();
+
+        configuration.setAllowedOrigins(
+                List.of(allowedOrigin)
+        );
+
+        configuration.setAllowedMethods(
+                List.of(
+                        "GET",
+                        "POST",
+                        "PUT",
+                        "PATCH",
+                        "DELETE",
+                        "OPTIONS"
+                )
+        );
+
+        configuration.setAllowedHeaders(
+                List.of(
+                        HttpHeaders.AUTHORIZATION,
+                        HttpHeaders.CONTENT_TYPE
+                )
+        );
+
+        configuration.setExposedHeaders(
+                List.of(HttpHeaders.CONTENT_DISPOSITION)
+        );
+
+        configuration.setMaxAge(3600L);
+
+        var source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration(
+                "/**",
+                configuration
+        );
+
+        return source;
     }
 }

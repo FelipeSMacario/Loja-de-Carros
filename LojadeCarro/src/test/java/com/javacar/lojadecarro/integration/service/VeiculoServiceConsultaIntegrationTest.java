@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.integration.service;
 
+import com.javacar.lojadecarro.dto.response.VeiculoDetalheResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoResponse;
 import com.javacar.lojadecarro.entity.Usuario;
 import com.javacar.lojadecarro.entity.Veiculo;
@@ -170,12 +171,11 @@ public class VeiculoServiceConsultaIntegrationTest extends AbstractVeiculoServic
             //Assert
             assertThat(response)
                     .extracting(
-                            VeiculoResponse::id,
-                            VeiculoResponse::placa,
-                            VeiculoResponse::marca,
-                            VeiculoResponse::modelo,
-                            VeiculoResponse::valor,
-                            VeiculoResponse::statusVeiculo
+                            VeiculoDetalheResponse::id,
+                            VeiculoDetalheResponse::marca,
+                            VeiculoDetalheResponse::modelo,
+                            VeiculoDetalheResponse::valor,
+                            VeiculoDetalheResponse::statusVeiculo
                     ).doesNotContainNull();
 
             assertThat(veiculoPersistido)
