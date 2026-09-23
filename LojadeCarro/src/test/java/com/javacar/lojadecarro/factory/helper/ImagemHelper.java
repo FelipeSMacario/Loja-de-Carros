@@ -35,14 +35,12 @@ public final class ImagemHelper extends BaseHelper {
     }
 
     public static MultipartFile criarFile(String nomeArquivo) {
-        var file = new MockMultipartFile(
+        return new MockMultipartFile(
                 "files",
                 nomeArquivo,
                 "image/jpeg",
                 "conteudo".getBytes()
         );
-
-        return file;
     }
 
     public static MultipartFile[] criarNovoImagemFile() {
