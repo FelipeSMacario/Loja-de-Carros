@@ -1,0 +1,22 @@
+http://23.20.74.233 {
+    redir https://23-20-74-233.sslip.io{uri} permanent
+}
+
+23-20-74-233.sslip.io {
+    encode zstd gzip
+
+    @api path /api /api/*
+    handle @api {
+        uri strip_prefix /api
+        reverse_proxy api:8080
+    }
+
+    @auth path /auth /auth/*
+    handle @auth {
+        reverse_proxy keycloak:8080
+    }
+
+    handle {
+        reverse_proxy web:80
+    }
+}

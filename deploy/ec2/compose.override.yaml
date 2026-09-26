@@ -1,0 +1,34 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    container_name: lojadecarro-caddy
+    restart: unless-stopped
+    depends_on:
+      web:
+        condition: service_healthy
+      api:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro,Z
+      - caddy-data:/data
+      - caddy-config:/config
+    networks:
+      - edge
+    mem_limit: 128m
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  caddy-data:
+    name: loja-de-carros-caddy-data
+  caddy-config:
+    name: loja-de-carros-caddy-config
