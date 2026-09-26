@@ -1,0 +1,176 @@
+name: loja-de-carros
+
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+services:
+  mysql:
+    image: mysql:8.4
+    container_name: lojadecarro-mysql
+    restart: unless-stopped
+    command:
+      - --innodb-buffer-pool-size=256M
+      - --max-connections=50
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USERNAME}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - backend
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - mysqladmin ping -h localhost -uroot -p"$${MYSQL_ROOT_PASSWORD}" --silent
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    mem_limit: 640m
+    logging: *default-logging
+
+  keycloak-db:
+    image: postgres:17-alpine
+    container_name: lojadecarro-keycloak-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${KEYCLOAK_DATABASE}
+      POSTGRES_USER: ${KEYCLOAK_DB_USERNAME}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+    volumes:
+      - keycloak-data:/var/lib/postgresql/data
+    networks:
+      - backend
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    mem_limit: 320m
+    logging: *default-logging
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.3
+    container_name: lojadecarro-keycloak
+    restart: unless-stopped
+    command:
+      - start
+      - --import-realm
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN_USERNAME}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/${KEYCLOAK_DATABASE}
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USERNAME}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+
+      KC_HTTP_ENABLED: "true"
+      KC_HTTP_RELATIVE_PATH: /auth
+      KC_HOSTNAME: ${PUBLIC_ORIGIN}/auth
+      KC_PROXY_HEADERS: xforwarded
+
+      KC_HEALTH_ENABLED: "true"
+      KC_METRICS_ENABLED: "false"
+      JAVA_OPTS_KC_HEAP: -Xms256m -Xmx640m
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    volumes:
+      - ./keycloak/realm:/opt/keycloak/data/import:ro,Z
+    networks:
+      - edge
+      - backend
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - >-
+          bash -c "{ printf 'HEAD /auth/health/ready HTTP/1.0\r\n\r\n' >&0;
+          grep -q 'HTTP/1.0 200'; } 0<>/dev/tcp/localhost/9000"
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 40s
+    mem_limit: 1024m
+    logging: *default-logging
+
+  api:
+    image: ${ECR_REGISTRY}/loja-de-carros/api:${API_IMAGE_TAG}
+    container_name: lojadecarro-api
+    restart: unless-stopped
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SERVER_TOMCAT_MAX_PART_COUNT: "20"
+
+      APP_CORS_ALLOWED_ORIGIN: ${PUBLIC_ORIGIN}
+
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: ${PUBLIC_ORIGIN}/auth/realms/loja-de-carros
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: http://keycloak:8080/auth/realms/loja-de-carros/protocol/openid-connect/certs
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_AUDIENCES: loja-de-carros-api
+
+      STORAGE_PROVIDER: s3
+      STORAGE_S3_BUCKET: ${S3_BUCKET}
+      STORAGE_S3_REGION: ${AWS_REGION}
+
+      AWS_REGION: ${AWS_REGION}
+      AWS_DEFAULT_REGION: ${AWS_REGION}
+      JAVA_TOOL_OPTIONS: -XX:InitialRAMPercentage=20 -XX:MaxRAMPercentage=70
+    depends_on:
+      mysql:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    networks:
+      - edge
+      - backend
+    mem_limit: 896m
+    logging: *default-logging
+
+  web:
+    image: ${ECR_REGISTRY}/loja-de-carros/web:${WEB_IMAGE_TAG}
+    container_name: lojadecarro-web
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_started
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "127.0.0.1:8088:80"
+    networks:
+      - edge
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - wget -q -O - http://localhost/health | grep -q '^ok'
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    mem_limit: 128m
+    logging: *default-logging
+
+networks:
+  edge:
+    name: loja-de-carros-edge
+  backend:
+    name: loja-de-carros-backend
+    internal: true
+
+volumes:
+  mysql-data:
+    name: loja-de-carros-mysql-data
+  keycloak-data:
+    name: loja-de-carros-keycloak-data
