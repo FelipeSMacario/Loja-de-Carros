@@ -9,15 +9,18 @@ import com.javacar.lojadecarro.exception.business.BusinessException;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.factory.helper.VeiculoTestContext;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoEntityFactory;
+import com.javacar.lojadecarro.factory.veiculo.VeiculoFiltroFactory;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoResponseFactory;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.ArgumentMatchers;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.Collections;
 import java.util.List;
@@ -339,6 +342,7 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest {
             var veiculoPage = veiculosPageStatus(pageable, DISPONIVEL);
             var veiculo1 = veiculoPage.getContent().getFirst();
             var veiculo2 = veiculoPage.getContent().getLast();
+            var filtro = VeiculoFiltroFactory.criarFiltro().build();
 
             var imagemPrincipal1 = criarImagemPrincipal(10L, veiculo1);
             var imagemPrincipal2 = criarImagemPrincipal(20L, veiculo2);
@@ -354,7 +358,7 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest {
             );
 
 
-            when(veiculoRepository.findByStatusVeiculo(DISPONIVEL, pageable))
+            when(veiculoRepository.findAll(ArgumentMatchers.<Specification<Veiculo>>any(), eq(pageable)))
                     .thenReturn(veiculoPage);
 
             when(imagensRepository
@@ -376,7 +380,7 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest {
             )).thenReturn(veiculoResponseList.getLast());
 
             //ACT
-            var resultado = veiculoService.listarAtivos(pageable);
+            var resultado = veiculoService.listarAtivos(filtro, pageable);
             //Assert
             assertThat(resultado)
                     .isNotNull()
@@ -389,7 +393,11 @@ public class VeiculoServiceConsultaTest extends AbstractVeiculoServiceTest {
                             tuple(2L, DISPONIVEL)
                     );
 
-            verify(veiculoRepository).findByStatusVeiculo(DISPONIVEL, pageable);
+            verify(veiculoRepository).findAll(
+                    ArgumentMatchers
+                            .<Specification<Veiculo>>any(),
+                    eq(pageable)
+            );
             verify(imagensRepository)
                     .findByVeiculo_IdInAndPrincipalTrue(
                             idsVeiculos

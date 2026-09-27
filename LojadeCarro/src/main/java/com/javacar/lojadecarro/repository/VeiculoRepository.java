@@ -4,15 +4,16 @@ import com.javacar.lojadecarro.entity.Veiculo;
 import com.javacar.lojadecarro.enums.StatusVeiculo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
-
 @Repository
-public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
+public interface VeiculoRepository extends JpaRepository<Veiculo, Long>, JpaSpecificationExecutor<Veiculo> {
 
     Page<Veiculo> findByStatusVeiculo(StatusVeiculo statusVeiculo, Pageable pageable);
     Optional<Veiculo> findByPlaca(String placa);
@@ -32,4 +33,6 @@ public interface VeiculoRepository extends JpaRepository<Veiculo, Long> {
     Optional<Veiculo> findByIdAndStatusVeiculo(Long id, StatusVeiculo statusVeiculo);
 
     Optional<Veiculo> findByIdAndVendedor_Id(Long idVeiculo, Long idVendedor);
+
+    Page<Veiculo> findAll(Specification<Veiculo> specification,  Pageable pageable);
 }

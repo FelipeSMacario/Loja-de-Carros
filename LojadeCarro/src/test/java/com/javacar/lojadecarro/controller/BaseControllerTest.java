@@ -91,6 +91,36 @@ public abstract class BaseControllerTest {
         return mockMvc.perform(get(url).param(parametro, valor));
     }
 
+    protected ResultActions performGet(String url, String parametro, String valor, String parametro2, String valor2) throws Exception {
+        return mockMvc.perform(get(url).param(parametro, valor).param(parametro2, valor2));
+    }
+
+    protected ResultActions performGet(String url,
+                                       String parametro,
+                                       String valor,
+                                       String parametro2,
+                                       String valor2,
+                                       String parametro3,
+                                       String valor3,
+                                       String parametro4,
+                                       String valor4,
+                                       String parametro5,
+                                       String valor5,
+                                       String parametro6,
+                                       String valor6,
+                                       String parametro7,
+                                       String valor7) throws Exception {
+        return mockMvc.perform(get(url)
+                .param(parametro, valor)
+                .param(parametro2, valor2)
+                .param(parametro3, valor3)
+                .param(parametro4, valor4)
+                .param(parametro5, valor5)
+                .param(parametro6, valor6)
+                .param(parametro7, valor7)
+        );
+    }
+
     protected ResultActions performPost(String url, Object body) throws Exception {
         return mockMvc.perform(
                 post(url)

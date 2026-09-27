@@ -10,6 +10,7 @@ import com.javacar.lojadecarro.enums.StatusVeiculo;
 import com.javacar.lojadecarro.exception.notfound.NotFoundException;
 import com.javacar.lojadecarro.exception.security.UsuarioNaoVinculadoException;
 import com.javacar.lojadecarro.factory.helper.VeiculoTestContext;
+import com.javacar.lojadecarro.factory.veiculo.VeiculoFiltroFactory;
 import com.javacar.lojadecarro.factory.veiculo.VeiculoResponseFactory;
 import com.javacar.lojadecarro.security.service.UsuarioAutenticadoService;
 import com.javacar.lojadecarro.service.VeiculoService;
@@ -41,12 +42,12 @@ import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.assertVeiculo
 import static com.javacar.lojadecarro.factory.helper.VeiculoHelper.assertVeiculoList;
 import static com.javacar.lojadecarro.support.TestConstants.*;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.everyItem;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.contains;
 import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.hamcrest.Matchers.contains;
 
 @WebMvcTest(VeiculoController.class)
 @DisplayName("Testes da controller do veiculo")
@@ -289,10 +290,11 @@ public class VeiculoControllerTest extends BaseControllerTest {
         void deveListarOsVeiculosAtivos() throws Exception {
             //Arrange
             var cx = new VeiculoTestContext();
+            var filtro = VeiculoFiltroFactory.criarFiltro().build();
             Page<VeiculoResponse> page =
                     new PageImpl<>(List.of(cx.veiculoResponse1, cx.veiculoResponse2));
 
-            when(veiculoService.listarAtivos(any(Pageable.class)))
+            when(veiculoService.listarAtivos(eq(filtro), any(Pageable.class)))
                     .thenReturn(page);
             //Act + Assert
             var resultado = performGet(URL);
@@ -317,7 +319,103 @@ public class VeiculoControllerTest extends BaseControllerTest {
                     DISPONIVEL
             );
 
-            verify(veiculoService).listarAtivos(any(Pageable.class));
+            verify(veiculoService).listarAtivos(eq(filtro), any(Pageable.class));
+            verifyNoMoreInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 400 quando ano mínimo for maior que ano máximo")
+        void deveRetornarBadRequestQuandoIntervaloAnoForInvalido() throws Exception {
+            //Arrange
+            //Act + Assert
+            var resultado = performGet(URL, "anoMin", "2025", "anoMax", "2020");
+            assertStatus400(resultado);
+            verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 400 quando valor mínimo for maior que valor máximo")
+        void deveRetornarBadRequestQuandoIntervaloValorForInvalido() throws Exception {
+            //Arrange
+            //Act + Assert
+            var resultado = performGet(URL, "valorMin", "150000", "valorMax", "50000");
+            assertStatus400(resultado);
+            verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 400 quando informar um ID invalído")
+        void deveRetornar400QuandoInformarIdInvalido() throws Exception {
+            //Arrange
+            //Act + Assert
+            var resultado = performGet(URL, "marcaId", ID_INVALIDO.toString());
+            assertStatus400(resultado);
+            verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 400 quando informar quilometragem negativa")
+        void deveRetornar400QuandoInformarQuilometragemNegativa() throws Exception {
+            //Arrange
+            //Act + Assert
+            var resultado = performGet(URL, "quilometragemMax", ID_INVALIDO.toString());
+            assertStatus400(resultado);
+            verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve retornar 400 quando informar ano invalído")
+        void deveRetornarBadRequestQuandoInformarAnoInvalido() throws Exception {
+            //Arrange
+            //Act + Assert
+            var resultado = performGet(URL, "anoMin", "Batata");
+            assertStatus400(resultado);
+            verifyNoInteractions(veiculoService);
+        }
+
+        @Test
+        @DisplayName("Deve vincular os parâmetros ao filtro")
+        void deveVincularOsParametrosAoFiltro() throws Exception {
+            // Arrange
+            var filtroEsperado = VeiculoFiltroFactory
+                    .criarFiltro()
+                    .comMarca(1L)
+                    .comModelo(2L)
+                    .comAnoMinimo((short) 2020)
+                    .comAnoMaximo((short) 2025)
+                    .comValorMinimo(new BigDecimal("50000"))
+                    .comValorMaximo(new BigDecimal("150000"))
+                    .comValorQuilometragem(100000)
+                    .build();
+
+            when(
+                    veiculoService.listarAtivos(
+                            eq(filtroEsperado),
+                            any(Pageable.class)
+                    )
+            ).thenReturn(Page.empty());
+
+            // Act
+            var resultado = performGet(
+                    URL,
+                    "marcaId", "1",
+                    "modeloId", "2",
+                    "anoMin", "2020",
+                    "anoMax", "2025",
+                    "valorMin", "50000",
+                    "valorMax", "150000",
+                    "quilometragemMax", "100000"
+            );
+
+            // Assert
+            resultado
+                    .andExpect(status().isOk());
+
+            verify(veiculoService).listarAtivos(
+                    eq(filtroEsperado),
+                    any(Pageable.class)
+            );
+
             verifyNoMoreInteractions(veiculoService);
         }
 

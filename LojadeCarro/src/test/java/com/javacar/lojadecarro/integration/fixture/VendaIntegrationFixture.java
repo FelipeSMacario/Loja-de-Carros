@@ -61,6 +61,33 @@ public class VendaIntegrationFixture {
         return veiculoRepository.save(veiculo);
     }
 
+    public Veiculo criarVeiculoPersistido(String placa,
+                                          BigDecimal valor,
+                                          Carroceria carroceria,
+                                          Cor cor,
+                                          Modelo modelo,
+                                          Combustivel combustivel,
+                                          Usuario vendedor,
+                                          short anoFabricacao,
+                                          Integer quilometragem,
+                                          StatusVeiculo status) {
+        var veiculo = new Veiculo();
+        veiculo.setAnoFabricacao(anoFabricacao);
+        veiculo.setMotor("1.4 flex");
+        veiculo.setPlaca(placa);
+        veiculo.setQuilometragem(quilometragem);
+        veiculo.setValor(valor);
+        veiculo.setDescricao("Teste descricao");
+        veiculo.setDataCadastro(LocalDateTime.now());
+        veiculo.setStatusVeiculo(status);
+        veiculo.setCarroceria(carroceria);
+        veiculo.setCor(cor);
+        veiculo.setModelo(modelo);
+        veiculo.setCombustivel(combustivel);
+        veiculo.setVendedor(vendedor);
+        return veiculoRepository.save(veiculo);
+    }
+
     public Veiculo criarVeiculoPersistidoComImagens(String placa,
                                                     BigDecimal valor,
                                                     Carroceria carroceria,
@@ -159,6 +186,16 @@ public class VendaIntegrationFixture {
         return modeloRepository.save(modelo);
     }
 
+    public Modelo criarModeloPersistido(String nome, Marca marca, boolean ativo) {
+        var modelo = new Modelo();
+        modelo.setNome(nome);
+        modelo.setMarca(marca);
+        modelo.setAtivo(ativo);
+        modelo.setDataCadastro(LocalDateTime.now());
+
+        return modeloRepository.save(modelo);
+    }
+
     public Modelo criarModeloPersistido(String nome, String marca, boolean ativo) {
         var modelo = new Modelo();
         modelo.setNome(nome);
@@ -169,7 +206,7 @@ public class VendaIntegrationFixture {
         return modeloRepository.save(modelo);
     }
 
-    private Marca criarMarcaPersistida() {
+    public Marca criarMarcaPersistida() {
         var marca = new Marca();
         marca.setNome("MARCA TESTE");
         marca.setUrl("URL TESTE");
@@ -179,7 +216,17 @@ public class VendaIntegrationFixture {
         return marcaRepository.save(marca);
     }
 
-    private Marca criarMarca2Persistida(String marcaNome) {
+    public Marca criarMarcaPersistida(String nome, String url, boolean ativo) {
+        var marca = new Marca();
+        marca.setNome(nome);
+        marca.setUrl(url);
+        marca.setAtivo(ativo);
+        marca.setDataCadastro(LocalDateTime.now());
+
+        return marcaRepository.save(marca);
+    }
+
+    public Marca criarMarca2Persistida(String marcaNome) {
         var marca = new Marca();
         marca.setNome(marcaNome);
         marca.setUrl("URL " + marcaNome);
