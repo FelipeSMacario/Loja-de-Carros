@@ -1,5 +1,6 @@
 package com.javacar.lojadecarro.service;
 
+import com.javacar.lojadecarro.dto.request.VeiculoFiltro;
 import com.javacar.lojadecarro.dto.request.VeiculoRequest;
 import com.javacar.lojadecarro.dto.response.ImagemResponse;
 import com.javacar.lojadecarro.dto.response.VeiculoDetalheResponse;
@@ -23,7 +24,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-
+import static com.javacar.lojadecarro.repository.specification
+        .VeiculoSpecification.comFiltro;
+import static com.javacar.lojadecarro.repository.specification
+        .VeiculoSpecification.comFiltro;
 import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -51,6 +55,7 @@ public class VeiculoService {
     private final CombustivelService combustivelService;
     private final ImagemMapper imagensMapper;
     private final ImagensRepository imagensRepository;
+
 
 
     @PreAuthorize("isAuthenticated()")
@@ -85,12 +90,14 @@ public class VeiculoService {
     }
 
     @Transactional(readOnly = true)
-    public Page<VeiculoResponse> listarAtivos(Pageable pageable) {
-        var pagina =
-                veiculoRepository.findByStatusVeiculo(
-                        DISPONIVEL,
-                        pageable
-                );
+    public Page<VeiculoResponse> listarAtivos( VeiculoFiltro filtro,
+                                               Pageable pageable) {
+        var specification = comFiltro(filtro);
+
+        var pagina = veiculoRepository.findAll(
+                specification,
+                pageable
+        );
         return mapearComImagemPrincipal(pagina);
     }
 

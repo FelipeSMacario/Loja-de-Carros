@@ -30,7 +30,8 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-
+import com.javacar.lojadecarro.dto.request.VeiculoFiltro;
+import org.springdoc.core.annotations.ParameterObject;
 import java.io.IOException;
 import java.util.List;
 
@@ -90,23 +91,24 @@ public class VeiculoController {
     }
 
     @GetMapping
-    @Operation(summary = "Listar todos os veículos ativos")
+    @Operation(summary = "Listar veículos disponíveis com filtros opcionais")
     public ResponseEntity<Page<VeiculoResponse>> listarAtivos(
+            @Valid
+            @ModelAttribute
+            @ParameterObject
+            VeiculoFiltro filtro,
+            @ParameterObject
             @PageableDefault(
                     size = 9,
                     sort = {"dataCadastro", "id"},
                     direction = Sort.Direction.DESC
             )
-            Pageable pageable
-    ) {
-        log.debug("Buscando todos os veículos ativos.");
+            Pageable pageable) {
+        log.debug("Buscando veículos disponíveis. filtro={}", filtro);
 
-        var response = veiculoService.listarAtivos(pageable);
+        var response = veiculoService.listarAtivos(filtro, pageable);
 
-        log.debug(
-                "Consulta retornou {} elementos",
-                response.getNumberOfElements()
-        );
+        log.debug("Consulta retornou {} elementos", response.getNumberOfElements());
 
         return ResponseEntity.ok(response);
     }

@@ -107,7 +107,7 @@ public class VeiculoTestContext {
         return new VeiculoVendaResponse(id, marca, modelo, statusVeiculo);
     }
 
-    public static VeiculoDetalheResponse criarVeiculoDetalhes(){
+    public static VeiculoDetalheResponse criarVeiculoDetalhes() {
         return VeiculoDetalheResponseFactory
                 .criarResponse()
                 .comTodosOsCampos()
@@ -115,8 +115,8 @@ public class VeiculoTestContext {
     }
 
     public static VeiculoDetalheResponse criarVeiculoDetalhes(List<OpcionalResponse> opcionais,
-                                                             VendedorResumoResponse vendedor,
-                                                             List<VeiculoImagemResponse> imagens){
+                                                              VendedorResumoResponse vendedor,
+                                                              List<VeiculoImagemResponse> imagens) {
         return VeiculoDetalheResponseFactory
                 .criarResponse()
                 .comTodosOsCampos()
@@ -125,5 +125,6 @@ public class VeiculoTestContext {
                 .comImagens(imagens)
                 .build();
     }
+
 
 }
