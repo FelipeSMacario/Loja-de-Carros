@@ -1,10 +1,5 @@
-import { ComponentFixture, TestBed, } from '@angular/core/testing';
-import {
-  ActivatedRoute,
-  convertToParamMap,
-  provideRouter,
-  Router,
-} from '@angular/router';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoDetalheResponse } from '../../models/veiculo-detalhe-response';
@@ -137,9 +132,7 @@ describe('VeiculoDetalhe', () => {
     }).compileComponents();
     router = TestBed.inject(Router);
 
-    navigateMock = vi
-      .spyOn(router, 'navigate')
-      .mockResolvedValue(true);
+    navigateMock = vi.spyOn(router, 'navigate').mockResolvedValue(true);
   });
 
   function criarComponente(): void {
@@ -149,9 +142,7 @@ describe('VeiculoDetalhe', () => {
   }
 
   it('should create', () => {
-    veiculoApiMock.buscarPorId.mockReturnValue(
-      of(veiculo)
-    );
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
 
     criarComponente();
 
@@ -159,70 +150,129 @@ describe('VeiculoDetalhe', () => {
   });
 
   it('should load and display vehicle details', () => {
-    veiculoApiMock.buscarPorId.mockReturnValue(
-      of(veiculo)
-    );
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
 
     criarComponente();
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(veiculoApiMock.buscarPorId)
-      .toHaveBeenCalledExactlyOnceWith(1);
+    expect(veiculoApiMock.buscarPorId).toHaveBeenCalledExactlyOnceWith(1);
 
-    expect(
-      element.querySelector(
-        '[data-testid="vehicle-title"]'
-      )?.textContent
-    ).toContain('Pré-explosão');
+    expect(element.querySelector('[data-testid="vehicle-title"]')?.textContent).toContain(
+      'Pré-explosão',
+    );
 
-    expect(element.textContent)
-      .toContain('Peugeot');
+    expect(element.textContent).toContain('Peugeot');
 
-    expect(element.textContent)
-      .toContain('Perfeito estado');
-    expect(
-      element.querySelector(
-        '[data-testid="edit-ad-link"]'
-      )
-    ).toBeNull();
+    expect(element.textContent).toContain('Perfeito estado');
+    expect(element.querySelector('[data-testid="edit-ad-link"]')).toBeNull();
   });
 
   it('should display an error when the vehicle cannot be loaded', () => {
-    veiculoApiMock.buscarPorId.mockReturnValue(
-      throwError(() => new Error('API indisponível'))
-    );
+    veiculoApiMock.buscarPorId.mockReturnValue(throwError(() => new Error('API indisponível')));
 
     criarComponente();
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(
-      element.querySelector(
-        '[data-testid="vehicle-error"]'
-      )
-    ).not.toBeNull();
+    expect(element.querySelector('[data-testid="vehicle-error"]')).not.toBeNull();
 
-    expect(element.textContent)
-      .toContain('Não foi possível carregar o veículo');
+    expect(element.textContent).toContain('Não foi possível carregar o veículo');
 
-    expect(component.imagemSelecionadaId())
-      .toBeNull();
+    expect(component.imagemSelecionadaId()).toBeNull();
   });
   it('should select another gallery image', () => {
-    veiculoApiMock.buscarPorId.mockReturnValue(
-      of(veiculo)
-    );
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
 
     criarComponente();
 
     component.selecionarImagem(11);
 
-    expect(component.imagemSelecionadaId())
-      .toBe(11);
+    expect(component.imagemSelecionadaId()).toBe(11);
 
-    expect(component.imagemSelecionadaUrl())
-      .toContain('/imagens/11/conteudo');
+    expect(component.imagemSelecionadaUrl()).toContain('/imagens/11/conteudo');
+  });
+  it('should navigate to the next image and return to the first', () => {
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
+
+    criarComponente();
+
+    expect(component.imagemSelecionadaId()).toBe(10);
+
+    expect(component.indiceImagemSelecionada()).toBe(0);
+
+    component.selecionarProximaImagem();
+
+    expect(component.imagemSelecionadaId()).toBe(11);
+
+    expect(component.indiceImagemSelecionada()).toBe(1);
+
+    component.selecionarProximaImagem();
+
+    expect(component.imagemSelecionadaId()).toBe(10);
+
+    expect(component.indiceImagemSelecionada()).toBe(0);
+  });
+
+  it('should navigate from the first image to the last', () => {
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
+
+    criarComponente();
+
+    component.selecionarImagemAnterior();
+
+    expect(component.imagemSelecionadaId()).toBe(11);
+
+    expect(component.indiceImagemSelecionada()).toBe(1);
+  });
+
+  it('should navigate through the gallery using the next button', () => {
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
+
+    criarComponente();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    const botaoProxima = element.querySelector(
+      '.vehicle-gallery__navigation--next',
+    ) as HTMLButtonElement;
+
+    expect(botaoProxima).not.toBeNull();
+
+    botaoProxima.click();
+    fixture.detectChanges();
+
+    expect(component.imagemSelecionadaId()).toBe(11);
+
+    const contador = element.querySelector('.vehicle-gallery__counter');
+
+    expect(contador?.textContent?.replace(/\s/g, '')).toBe('2/2');
+  });
+
+  it('should hide navigation when the vehicle has only one image', () => {
+    const veiculoComUmaImagem: VeiculoDetalheResponse = {
+      ...veiculo,
+      imagens: [
+        {
+          id: 10,
+          principal: true,
+        },
+      ],
+    };
+
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculoComUmaImagem));
+
+    criarComponente();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.vehicle-gallery__navigation')).toBeNull();
+
+    expect(element.querySelector('.vehicle-gallery__counter')).toBeNull();
+
+    component.selecionarProximaImagem();
+
+    expect(component.imagemSelecionadaId()).toBe(10);
   });
   it('should load an authenticated user sold ad', () => {
     const anuncioVendido: VeiculoDetalheResponse = {
@@ -234,40 +284,27 @@ describe('VeiculoDetalhe', () => {
       meuAnuncio: true,
     };
 
-    veiculoApiMock.buscarMeuAnuncio.mockReturnValue(
-      of(anuncioVendido)
-    );
+    veiculoApiMock.buscarMeuAnuncio.mockReturnValue(of(anuncioVendido));
 
     criarComponente();
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.textContent)
-      .toContain('Vendido');
+    expect(element.textContent).toContain('Vendido');
 
-    expect(
-      element.querySelector(
-        '[data-testid="edit-ad-link"]'
-      )
-    ).toBeNull();
+    expect(element.querySelector('[data-testid="edit-ad-link"]')).toBeNull();
 
-    expect(veiculoApiMock.buscarMeuAnuncio)
-      .toHaveBeenCalledExactlyOnceWith(1);
+    expect(veiculoApiMock.buscarMeuAnuncio).toHaveBeenCalledExactlyOnceWith(1);
 
-    expect(veiculoApiMock.buscarPorId)
-      .not.toHaveBeenCalled();
+    expect(veiculoApiMock.buscarPorId).not.toHaveBeenCalled();
 
-    expect(component.gerenciandoMeuAnuncio)
-      .toBe(true);
+    expect(component.gerenciandoMeuAnuncio).toBe(true);
 
-    expect(component.rotaRetorno)
-      .toBe('/veiculos/meus-anuncios');
+    expect(component.rotaRetorno).toBe('/veiculos/meus-anuncios');
 
-    expect(component.textoRetorno)
-      .toBe('Voltar aos meus anúncios');
+    expect(component.textoRetorno).toBe('Voltar aos meus anúncios');
 
-    expect(component.veiculo()?.statusVeiculo)
-      .toBe('VENDIDO');
+    expect(component.veiculo()?.statusVeiculo).toBe('VENDIDO');
   });
 
   it('should allow the owner to edit a paused ad', () => {
@@ -280,23 +317,17 @@ describe('VeiculoDetalhe', () => {
       statusVeiculo: 'PAUSADO',
     };
 
-    veiculoApiMock.buscarMeuAnuncio.mockReturnValue(
-      of(anuncioPausado)
-    );
+    veiculoApiMock.buscarMeuAnuncio.mockReturnValue(of(anuncioPausado));
 
     criarComponente();
 
     const element = fixture.nativeElement as HTMLElement;
 
-    const link = element.querySelector(
-      '[data-testid="edit-ad-link"]'
-    );
+    const link = element.querySelector('[data-testid="edit-ad-link"]');
 
-    expect(element.textContent)
-      .toContain('Pausado');
+    expect(element.textContent).toContain('Pausado');
 
-    expect(link?.getAttribute('href'))
-      .toBe('/veiculos/meus-anuncios/1/editar');
+    expect(link?.getAttribute('href')).toBe('/veiculos/meus-anuncios/1/editar');
   });
   it('should send a visitor to login before purchasing', () => {
     veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
@@ -311,32 +342,23 @@ describe('VeiculoDetalhe', () => {
 
   it('should hide the purchase action from the seller', () => {
     autenticado.set(true);
-    usuarioApiMock.buscarAtual.mockReturnValue(
-      of({ id: veiculo.vendedor.id })
-    );
+    usuarioApiMock.buscarAtual.mockReturnValue(of({ id: veiculo.vendedor.id }));
     veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
 
     criarComponente();
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(usuarioApiMock.buscarAtual)
-      .toHaveBeenCalledOnce();
+    expect(usuarioApiMock.buscarAtual).toHaveBeenCalledOnce();
 
-    expect(
-      element.querySelector(
-        '[data-testid="start-purchase-button"]'
-      )
-    ).toBeNull();
+    expect(element.querySelector('[data-testid="start-purchase-button"]')).toBeNull();
 
     expect(component.podeIniciarCompra()).toBe(false);
   });
 
   it('should not create a sale when confirmation is cancelled', () => {
     autenticado.set(true);
-    usuarioApiMock.buscarAtual.mockReturnValue(
-      of({ id: 6 })
-    );
+    usuarioApiMock.buscarAtual.mockReturnValue(of({ id: 6 }));
     veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
     dialogMock.open.mockReturnValue({
       afterClosed: () => of(false),
@@ -352,9 +374,7 @@ describe('VeiculoDetalhe', () => {
 
   it('should reserve the vehicle after confirming the purchase', () => {
     autenticado.set(true);
-    usuarioApiMock.buscarAtual.mockReturnValue(
-      of({ id: 6 })
-    );
+    usuarioApiMock.buscarAtual.mockReturnValue(of({ id: 6 }));
     veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
     dialogMock.open.mockReturnValue({
       afterClosed: () => of(true),
@@ -366,67 +386,53 @@ describe('VeiculoDetalhe', () => {
           id: veiculo.id,
           status: 'RESERVADO',
         },
-      })
+      }),
     );
 
     criarComponente();
     component.iniciarCompra();
     fixture.detectChanges();
 
-    expect(vendaApiMock.criar)
-      .toHaveBeenCalledExactlyOnceWith({
-        veiculoId: 1,
-      });
+    expect(vendaApiMock.criar).toHaveBeenCalledExactlyOnceWith({
+      veiculoId: 1,
+    });
 
     expect(component.vendaCriada()?.id).toBe(7);
-    expect(component.veiculo()?.statusVeiculo)
-      .toBe('RESERVADO');
+    expect(component.veiculo()?.statusVeiculo).toBe('RESERVADO');
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.textContent)
-      .toContain('Compra iniciada!');
+    expect(element.textContent).toContain('Compra iniciada!');
 
-    expect(
-      element.querySelector(
-        '[data-testid="start-purchase-button"]'
-      )
-    ).toBeNull();
+    expect(element.querySelector('[data-testid="start-purchase-button"]')).toBeNull();
   });
   it('should redirect a user without local profile to registration', () => {
     autenticado.set(true);
 
     usuarioApiMock.buscarAtual.mockReturnValue(
-      throwError(() =>
-        new HttpErrorResponse({
-          status: 403,
-          statusText: 'Forbidden',
-          error: {
-            message:
-              'Usuário autenticado não possui cadastro local.',
-          },
-        })
-      )
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 403,
+            statusText: 'Forbidden',
+            error: {
+              message: 'Usuário autenticado não possui cadastro local.',
+            },
+          }),
+      ),
     );
 
-    veiculoApiMock.buscarPorId.mockReturnValue(
-      of(veiculo)
-    );
+    veiculoApiMock.buscarPorId.mockReturnValue(of(veiculo));
 
     criarComponente();
 
-    expect(usuarioApiMock.buscarAtual)
-      .toHaveBeenCalledOnce();
+    expect(usuarioApiMock.buscarAtual).toHaveBeenCalledOnce();
 
-    expect(navigateMock)
-      .toHaveBeenCalledExactlyOnceWith(
-        ['/completar-cadastro'],
-        {
-          queryParams: {
-            returnUrl: '/veiculos/1',
-          },
-        }
-      );
+    expect(navigateMock).toHaveBeenCalledExactlyOnceWith(['/completar-cadastro'], {
+      queryParams: {
+        returnUrl: '/veiculos/1',
+      },
+    });
 
     expect(component.erroUsuario()).toBe(false);
   });

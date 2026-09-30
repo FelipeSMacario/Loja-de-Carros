@@ -1,5 +1,12 @@
-import { ChangeDetectionStrategy, Component, computed, inject, OnInit, signal, } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink, } from '@angular/router';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { environment } from '../../../../../environments/environment';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoDetalheResponse } from '../../models/veiculo-detalhe-response';
@@ -11,11 +18,11 @@ import { AuthService } from '../../../../core/auth/auth-service';
 import { DialogoConfirmacao } from '../../../../shared/components/dialogo-confirmacao/dialogo-confirmacao';
 import { VendaResponse } from '../../models/venda-response';
 import { VendaApi } from '../../data-access/venda-api';
-import { perfilUsuarioPendente, UsuarioApi, } from '../../../usuarios/data-access/usuario-api';
+import { perfilUsuarioPendente, UsuarioApi } from '../../../usuarios/data-access/usuario-api';
 
 @Component({
   selector: 'app-veiculo-detalhe',
-  imports: [MatButtonModule, MatIconModule, RouterLink,],
+  imports: [MatButtonModule, MatIconModule, RouterLink],
   templateUrl: './veiculo-detalhe.html',
   styleUrl: './veiculo-detalhe.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -45,7 +52,6 @@ export class VeiculoDetalhe implements OnInit {
   readonly enviandoCompra = signal(false);
   readonly erroCompra = signal(false);
 
-
   private readonly usuarioApi = inject(UsuarioApi);
   private readonly vendaApi = inject(VendaApi);
 
@@ -55,10 +61,10 @@ export class VeiculoDetalhe implements OnInit {
     const veiculo = this.veiculo();
 
     if (
-      this.gerenciandoMeuAnuncio
-      || !this.auth.inicializado()
-      || veiculo?.statusVeiculo !== 'DISPONIVEL'
-      || this.vendaCriada() !== null
+      this.gerenciandoMeuAnuncio ||
+      !this.auth.inicializado() ||
+      veiculo?.statusVeiculo !== 'DISPONIVEL' ||
+      this.vendaCriada() !== null
     ) {
       return false;
     }
@@ -67,16 +73,17 @@ export class VeiculoDetalhe implements OnInit {
       return true; // O botão levará ao login.
     }
 
-    return this.auth.possuiRole('USUARIO')
-      && !this.carregandoUsuario()
-      && !this.erroUsuario()
-      && this.usuarioAtualId() !== null
-      && this.usuarioAtualId() !== veiculo.vendedor.id;
+    return (
+      this.auth.possuiRole('USUARIO') &&
+      !this.carregandoUsuario() &&
+      !this.erroUsuario() &&
+      this.usuarioAtualId() !== null &&
+      this.usuarioAtualId() !== veiculo.vendedor.id
+    );
   });
 
   readonly imagemSelecionadaUrl = computed(() => {
     const id = this.imagemSelecionadaId();
-
 
     if (id === null || this.imagemSelecionadaFalhou()) {
       return null;
@@ -103,11 +110,7 @@ export class VeiculoDetalhe implements OnInit {
   readonly podeEditar = computed(() => {
     const status = this.veiculo()?.statusVeiculo;
 
-    return this.gerenciandoMeuAnuncio
-      && (
-        status === 'DISPONIVEL'
-        || status === 'PAUSADO'
-      );
+    return this.gerenciandoMeuAnuncio && (status === 'DISPONIVEL' || status === 'PAUSADO');
   });
 
   readonly valorFormatado = computed(() => {
@@ -116,9 +119,9 @@ export class VeiculoDetalhe implements OnInit {
     return valor === undefined
       ? ''
       : new Intl.NumberFormat('pt-BR', {
-        style: 'currency',
-        currency: 'BRL',
-      }).format(valor);
+          style: 'currency',
+          currency: 'BRL',
+        }).format(valor);
   });
 
   readonly imagensOrdenadas = computed(() => {
@@ -133,30 +136,28 @@ export class VeiculoDetalhe implements OnInit {
     });
   });
 
+  readonly indiceImagemSelecionada = computed(() => {
+    const imagemId = this.imagemSelecionadaId();
+
+    return this.imagensOrdenadas().findIndex((imagem) => imagem.id === imagemId);
+  });
+
   readonly quilometragemFormatada = computed(() => {
     const quilometragem = this.veiculo()?.quilometragem;
 
-    return quilometragem === undefined
-      ? ''
-      : new Intl.NumberFormat('pt-BR')
-        .format(quilometragem);
+    return quilometragem === undefined ? '' : new Intl.NumberFormat('pt-BR').format(quilometragem);
   });
 
-  readonly gerenciandoMeuAnuncio =
-    this.route.snapshot.data?.['meuAnuncio'] === true;
+  readonly gerenciandoMeuAnuncio = this.route.snapshot.data?.['meuAnuncio'] === true;
 
-  readonly rotaRetorno = this.gerenciandoMeuAnuncio
-    ? '/veiculos/meus-anuncios'
-    : '/home';
+  readonly rotaRetorno = this.gerenciandoMeuAnuncio ? '/veiculos/meus-anuncios' : '/home';
 
   readonly textoRetorno = this.gerenciandoMeuAnuncio
     ? 'Voltar aos meus anúncios'
     : 'Voltar ao estoque';
 
   ngOnInit(): void {
-    const id = Number(
-      this.route.snapshot.paramMap.get('id')
-    );
+    const id = Number(this.route.snapshot.paramMap.get('id'));
 
     if (!Number.isInteger(id) || id <= 0) {
       this.carregando.set(false);
@@ -184,20 +185,14 @@ export class VeiculoDetalhe implements OnInit {
       ? this.veiculoApi.buscarMeuAnuncio(this.idVeiculo)
       : this.veiculoApi.buscarPorId(this.idVeiculo);
 
-
-
     consulta.subscribe({
-      next: veiculo => {
+      next: (veiculo) => {
         this.veiculo.set(veiculo);
 
         const imagemPrincipal =
-          veiculo.imagens.find(
-            imagem => imagem.principal
-          ) ?? veiculo.imagens[0];
+          veiculo.imagens.find((imagem) => imagem.principal) ?? veiculo.imagens[0];
 
-        this.imagemSelecionadaId.set(
-          imagemPrincipal?.id ?? null
-        );
+        this.imagemSelecionadaId.set(imagemPrincipal?.id ?? null);
 
         this.imagemSelecionadaFalhou.set(false);
         this.carregando.set(false);
@@ -215,7 +210,28 @@ export class VeiculoDetalhe implements OnInit {
     this.imagemSelecionadaId.set(id);
     this.imagemSelecionadaFalhou.set(false);
   }
+  selecionarImagemAnterior(): void {
+    this.navegarEntreImagens(-1);
+  }
 
+  selecionarProximaImagem(): void {
+    this.navegarEntreImagens(1);
+  }
+
+  private navegarEntreImagens(direcao: number): void {
+    const imagens = this.imagensOrdenadas();
+
+    if (imagens.length <= 1) {
+      return;
+    }
+
+    const indiceAtual = this.indiceImagemSelecionada();
+    const indiceInicial = indiceAtual >= 0 ? indiceAtual : 0;
+
+    const proximoIndice = (indiceInicial + direcao + imagens.length) % imagens.length;
+
+    this.selecionarImagem(imagens[proximoIndice].id);
+  }
   imagemUrl(id: number): string {
     return `${environment.apiUrl}/imagens/${id}/conteudo`;
   }
@@ -232,26 +248,20 @@ export class VeiculoDetalhe implements OnInit {
     this.erroUsuario.set(false);
     this.usuarioAtualId.set(null);
 
-    this.usuarioApi.buscarAtual()
+    this.usuarioApi
+      .buscarAtual()
       .pipe(finalize(() => this.carregandoUsuario.set(false)))
       .subscribe({
-        next: usuario => {
+        next: (usuario) => {
           this.usuarioAtualId.set(usuario.id);
         },
-        error: erro => {
-          if (
-            perfilUsuarioPendente(erro)
-            && this.idVeiculo !== null
-          ) {
-            void this.router.navigate(
-              ['/completar-cadastro'],
-              {
-                queryParams: {
-                  returnUrl:
-                    `/veiculos/${this.idVeiculo}`,
-                },
-              }
-            );
+        error: (erro) => {
+          if (perfilUsuarioPendente(erro) && this.idVeiculo !== null) {
+            void this.router.navigate(['/completar-cadastro'], {
+              queryParams: {
+                returnUrl: `/veiculos/${this.idVeiculo}`,
+              },
+            });
 
             return;
           }
@@ -265,10 +275,10 @@ export class VeiculoDetalhe implements OnInit {
     const veiculo = this.veiculo();
 
     if (
-      !veiculo
-      || !this.podeIniciarCompra()
-      || this.confirmandoCompra()
-      || this.enviandoCompra()
+      !veiculo ||
+      !this.podeIniciarCompra() ||
+      this.confirmandoCompra() ||
+      this.enviandoCompra()
     ) {
       return;
     }
@@ -281,22 +291,25 @@ export class VeiculoDetalhe implements OnInit {
     this.confirmandoCompra.set(true);
     this.erroCompra.set(false);
 
-    this.dialog.open(DialogoConfirmacao, {
-      autoFocus: 'first-tabbable',
-      disableClose: true,
-      maxWidth: 'calc(100vw - 32px)',
-      data: {
-        titulo: 'Reservar veículo?',
-        mensagem:
-          `O anúncio de ${veiculo.marca} ${veiculo.modelo} `
-          + 'ficará reservado para você. Você poderá cancelar '
-          + 'a venda; a conclusão depende do vendedor.',
-        textoConfirmar: 'Reservar veículo',
-        textoCancelar: 'Voltar',
-        tipo: 'aviso',
-      },
-    }).afterClosed().pipe(take(1))
-      .subscribe(confirmado => {
+    this.dialog
+      .open(DialogoConfirmacao, {
+        autoFocus: 'first-tabbable',
+        disableClose: true,
+        maxWidth: 'calc(100vw - 32px)',
+        data: {
+          titulo: 'Reservar veículo?',
+          mensagem:
+            `O anúncio de ${veiculo.marca} ${veiculo.modelo} ` +
+            'ficará reservado para você. Você poderá cancelar ' +
+            'a venda; a conclusão depende do vendedor.',
+          textoConfirmar: 'Reservar veículo',
+          textoCancelar: 'Voltar',
+          tipo: 'aviso',
+        },
+      })
+      .afterClosed()
+      .pipe(take(1))
+      .subscribe((confirmado) => {
         this.confirmandoCompra.set(false);
 
         if (!confirmado) {
@@ -305,19 +318,20 @@ export class VeiculoDetalhe implements OnInit {
 
         this.enviandoCompra.set(true);
 
-        this.vendaApi.criar({ veiculoId: veiculo.id })
+        this.vendaApi
+          .criar({ veiculoId: veiculo.id })
           .pipe(finalize(() => this.enviandoCompra.set(false)))
           .subscribe({
-            next: venda => {
+            next: (venda) => {
               this.vendaCriada.set(venda);
 
-              this.veiculo.update(atual =>
+              this.veiculo.update((atual) =>
                 atual?.id === venda.veiculo.id
                   ? {
-                    ...atual,
-                    statusVeiculo: venda.veiculo.status,
-                  }
-                  : atual
+                      ...atual,
+                      statusVeiculo: venda.veiculo.status,
+                    }
+                  : atual,
               );
             },
             error: () => {
