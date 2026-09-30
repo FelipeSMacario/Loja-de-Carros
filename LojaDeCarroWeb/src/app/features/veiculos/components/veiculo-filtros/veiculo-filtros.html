@@ -1,0 +1,143 @@
+<section class="filtros">
+  <header class="filtros__cabecalho">
+    <div>
+      <h2>Encontre seu veículo</h2>
+      <p>Use os campos abaixo para refinar o catálogo.</p>
+    </div>
+  </header>
+
+  @if (carregandoCatalogos()) {
+    <p class="filtros__mensagem">Carregando opções dos filtros...</p>
+  }
+
+  @if (erroCatalogos()) {
+    <p class="filtros__erro">
+      {{ erroCatalogos() }}
+    </p>
+  }
+
+  <form class="filtros__formulario" [formGroup]="formulario" (ngSubmit)="aplicarFiltros()">
+    <div class="filtros__grade">
+      <mat-form-field appearance="outline">
+        <mat-label>Marca</mat-label>
+
+        <mat-select formControlName="marcaId">
+          <mat-option [value]="null"> Todas as marcas </mat-option>
+
+          @for (marca of marcas(); track marca.id) {
+            <mat-option [value]="marca.id">
+              {{ marca.nome }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Modelo</mat-label>
+
+        <mat-select formControlName="modeloId">
+          <mat-option [value]="null"> Todos os modelos </mat-option>
+
+          @for (modelo of modelosFiltrados(); track modelo.id) {
+            <mat-option [value]="modelo.id">
+              {{ modelo.nome }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Carroceria</mat-label>
+
+        <mat-select formControlName="carroceriaId">
+          <mat-option [value]="null"> Todas as carrocerias </mat-option>
+
+          @for (carroceria of catalogos()?.carrocerias ?? []; track carroceria.id) {
+            <mat-option [value]="carroceria.id">
+              {{ carroceria.nome }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Cor</mat-label>
+
+        <mat-select formControlName="corId">
+          <mat-option [value]="null"> Todas as cores </mat-option>
+
+          @for (cor of catalogos()?.cores ?? []; track cor.id) {
+            <mat-option [value]="cor.id">
+              {{ cor.nome }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Combustível</mat-label>
+
+        <mat-select formControlName="combustivelId">
+          <mat-option [value]="null"> Todos os combustíveis </mat-option>
+
+          @for (combustivel of catalogos()?.combustiveis ?? []; track combustivel.id) {
+            <mat-option [value]="combustivel.id">
+              {{ combustivel.nome }}
+            </mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Quilometragem máxima (km)</mat-label>
+
+        <input matInput type="number" min="0" formControlName="quilometragemMax" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ano mínimo</mat-label>
+
+        <input matInput type="number" min="1886" formControlName="anoMin" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Ano máximo</mat-label>
+
+        <input matInput type="number" min="1886" formControlName="anoMax" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Valor mínimo (R$)</mat-label>
+
+        <input matInput type="number" min="0" step="0.01" formControlName="valorMin" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+       <mat-label>Valor máximo (R$)</mat-label>
+
+
+        <input matInput type="number" min="0" step="0.01" formControlName="valorMax" />
+      </mat-form-field>
+    </div>
+
+    @if (formulario.hasError('intervaloAnoInvalido')) {
+      <p class="filtros__erro">O ano mínimo não pode ser maior que o ano máximo.</p>
+    }
+
+    @if (formulario.hasError('intervaloValorInvalido')) {
+      <p class="filtros__erro">O valor mínimo não pode ser maior que o valor máximo.</p>
+    }
+
+    <div class="filtros__acoes">
+      <button mat-stroked-button type="button" (click)="limparFiltros()">
+        <mat-icon>clear</mat-icon>
+        Limpar
+      </button>
+
+      <button mat-flat-button type="submit" [disabled]="carregandoCatalogos()">
+        <mat-icon>search</mat-icon>
+        Buscar veículos
+      </button>
+    </div>
+  </form>
+</section>

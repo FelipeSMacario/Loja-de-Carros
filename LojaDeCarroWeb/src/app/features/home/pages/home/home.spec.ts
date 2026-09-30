@@ -1,14 +1,11 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
-import {
-  MatPaginatorModule,
-  PageEvent,
-} from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { VeiculoApi } from '../../../veiculos/data-access/veiculo-api';
 import { Home } from './home';
 import { provideRouter } from '@angular/router';
-
+import { VeiculoFiltro } from '../../../veiculos/models/veiculo-filtro';
 
 describe('Home', () => {
   let fixture: ComponentFixture<Home>;
@@ -48,9 +45,7 @@ describe('Home', () => {
   beforeEach(async () => {
     vi.clearAllMocks();
 
-    veiculoApiMock.listarAtivos.mockReturnValue(
-      of(resposta)
-    );
+    veiculoApiMock.listarAtivos.mockReturnValue(of(resposta));
 
     await TestBed.configureTestingModule({
       imports: [Home],
@@ -78,8 +73,7 @@ describe('Home', () => {
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(veiculoApiMock.listarAtivos)
-      .toHaveBeenCalledExactlyOnceWith(0, 9);
+    expect(veiculoApiMock.listarAtivos).toHaveBeenCalledExactlyOnceWith(0, 9, {});
 
     expect(element.textContent).toContain('Onix');
     expect(element.textContent).toContain('Chevrolet');
@@ -93,36 +87,28 @@ describe('Home', () => {
         totalElements: 0,
         numberOfElements: 0,
         empty: true,
-      })
+      }),
     );
 
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.textContent)
-      .toContain('Nenhum veículo disponível');
+    expect(element.textContent).toContain('Nenhum veículo disponível');
 
-    expect(
-      element.querySelector('app-veiculo-card')
-    ).toBeNull();
+    expect(element.querySelector('app-veiculo-card')).toBeNull();
   });
 
   it('should display an error when vehicles cannot be loaded', () => {
-    veiculoApiMock.listarAtivos.mockReturnValue(
-      throwError(() => new Error('API indisponível'))
-    );
+    veiculoApiMock.listarAtivos.mockReturnValue(throwError(() => new Error('API indisponível')));
 
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.textContent)
-      .toContain('Não foi possível carregar os veículos');
+    expect(element.textContent).toContain('Não foi possível carregar os veículos');
 
-    expect(
-      element.querySelector('[role="alert"]')
-    ).not.toBeNull();
+    expect(element.querySelector('[role="alert"]')).not.toBeNull();
   });
 
   it('should load the page selected by the user', () => {
@@ -137,7 +123,38 @@ describe('Home', () => {
 
     component.alterarPagina(evento);
 
-    expect(veiculoApiMock.listarAtivos)
-      .toHaveBeenLastCalledWith(1, 9);
+    expect(veiculoApiMock.listarAtivos).toHaveBeenLastCalledWith(1, 9, {});
+  });
+
+  it('should apply filters from the first page and keep them during pagination', () => {
+    fixture.detectChanges();
+
+    const filtro: VeiculoFiltro = {
+      marcaId: 1,
+      modeloId: 2,
+      anoMin: 2020,
+      anoMax: 2025,
+      valorMax: 100000,
+    };
+
+    component.paginaAtual.set(3);
+
+    component.aplicarFiltros(filtro);
+
+    expect(component.filtroAtual()).toEqual(filtro);
+    expect(component.paginaAtual()).toBe(0);
+
+    expect(veiculoApiMock.listarAtivos).toHaveBeenLastCalledWith(0, 9, filtro);
+
+    const evento: PageEvent = {
+      pageIndex: 1,
+      pageSize: 9,
+      length: 20,
+      previousPageIndex: 0,
+    };
+
+    component.alterarPagina(evento);
+
+    expect(veiculoApiMock.listarAtivos).toHaveBeenLastCalledWith(1, 9, filtro);
   });
 });

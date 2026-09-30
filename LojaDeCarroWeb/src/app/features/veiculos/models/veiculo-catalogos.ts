@@ -15,3 +15,6 @@ export interface VeiculoCatalogos {
   modelos: ModeloCatalogo[];
   opcionais: CatalogoItem[];
 }
+
+export type VeiculoFiltroCatalogos =
+  Omit<VeiculoCatalogos, 'opcionais'>;
