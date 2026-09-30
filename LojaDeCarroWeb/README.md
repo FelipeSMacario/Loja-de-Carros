@@ -1,59 +1,76 @@
-# LojaDeCarrosWeb
+# Loja de Carros — Web
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 22.1.7.
+Interface web para pesquisa e visualização de anúncios de veículos, desenvolvida com Angular e integrada ao backend Java com Spring Boot do projeto Loja de Carros.
 
-## Development server
+Projeto pessoal de portfólio em desenvolvimento, utilizado para aprofundar conhecimentos em desenvolvimento full-stack e integração com APIs REST.
 
-To start a local development server, run:
+## Funcionalidades
 
-```bash
-ng serve
-```
+- Pesquisa e listagem de veículos.
+- Filtros para consulta de anúncios.
+- Visualização dos detalhes dos veículos.
+- Galeria de imagens dos anúncios.
+- Integração com a API REST do backend.
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+## Tecnologias
 
-## Code scaffolding
+| Área | Tecnologia |
+| --- | --- |
+| Framework | Angular |
+| Linguagem | TypeScript |
+| Interface | HTML e CSS |
+| Testes unitários | Vitest |
+| Ferramentas | Angular CLI, Node.js e npm |
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+O projeto foi gerado com **Angular CLI 22.1.7**. As versões das dependências estão definidas no `package.json`.
 
-```bash
-ng generate component component-name
-```
+## Executar localmente
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+### Pré-requisitos
 
-```bash
-ng generate --help
-```
+- Node.js e npm compatíveis com as dependências do projeto.
+- Backend em execução para as funcionalidades que consomem a API.
 
-## Building
+### Instalar as dependências
 
-To build the project run:
-
-```bash
-ng build
-```
-
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
-
-## Running unit tests
-
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+No diretório do projeto web, onde está o `package.json`, execute:
 
 ```bash
-ng test
+npm install
 ```
 
-## Running end-to-end tests
+### Configurar a API
 
-For end-to-end (e2e) testing, run:
+Confira o endereço do backend na configuração utilizada pela aplicação e ajuste-o para o seu ambiente, se necessário. A API deve permitir requisições da origem do frontend por meio da configuração de CORS.
+
+### Iniciar o servidor de desenvolvimento
 
 ```bash
-ng e2e
+npx ng serve
 ```
 
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+Acesse **http://localhost:4200/**. A interface é recarregada automaticamente quando os arquivos de origem são alterados.
 
-## Additional Resources
+## Build
 
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+```bash
+npx ng build
+```
+
+Os arquivos compilados são gerados em `dist/`, conforme a configuração de saída do projeto. O build padrão aplica as otimizações configuradas para produção.
+
+## Testes unitários
+
+Para executar os testes configurados com Vitest:
+
+```bash
+npx ng test
+```
+
+## Backend
+
+O backend utiliza Java e Spring Boot, com autenticação JWT, persistência de dados e gerenciamento dos anúncios e imagens. Consulte o README do backend para configurar e executar a API.
+
+## Status
+
+Projeto em desenvolvimento, com evolução das funcionalidades e da interface.
