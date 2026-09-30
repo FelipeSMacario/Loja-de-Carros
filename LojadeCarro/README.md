@@ -1,27 +1,109 @@
-# LojaDeCarrosAngular
-teste
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.1.0.
+# Loja de Carros — Backend
 
-## Development server
+API REST para anúncio e comercialização de veículos, desenvolvida em Java com Spring Boot. Integra um projeto pessoal de portfólio full-stack, com interface web em Angular.
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+## Funcionalidades
 
-## Code scaffolding
+- Cadastro e gerenciamento de veículos e informações relacionadas, como marcas, modelos, cores, combustíveis, carrocerias e opcionais.
+- Pesquisa de veículos e consulta de anúncios.
+- Autenticação com JWT e autorização por perfis de acesso.
+- Regras de acesso para operações vinculadas ao vendedor do veículo.
+- Upload e gerenciamento de imagens dos anúncios.
+- Gerenciamento de vendas.
+- Validação de dados e tratamento centralizado de erros.
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+## Tecnologias
 
-## Build
+| Área | Tecnologias |
+| --- | --- |
+| Linguagem e framework | Java, Spring Boot |
+| API e validação | Spring Web, Bean Validation |
+| Segurança | Spring Security, JWT |
+| Persistência | Spring Data JPA, Hibernate, MySQL |
+| Migrações | Flyway |
+| Mapeamento e código auxiliar | MapStruct, Lombok |
+| Documentação da API | Swagger/OpenAPI |
+| Testes | JUnit, Mockito, AssertJ, Testcontainers |
+| Cobertura e qualidade | JaCoCo, SonarCloud |
+| Build e integração contínua | Maven, GitHub Actions |
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory.
+As versões das dependências estão definidas no `pom.xml`.
 
-## Running unit tests
+## Organização da aplicação
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+A aplicação utiliza controllers para expor os endpoints, services para implementar as regras de negócio e repositories para acessar os dados. DTOs representam as entradas e saídas da API, com mapeamento realizado por MapStruct.
 
-## Running end-to-end tests
+O tratamento centralizado de exceções padroniza as respostas de erro. As migrações do Flyway versionam a estrutura do banco de dados.
 
-Run `ng e2e` to execute the end-to-end tests via a platform of your choice. To use this command, you need to first add a package that implements end-to-end testing capabilities.
+## Executar localmente
 
-## Further help
+### Pré-requisitos
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page. 
+- JDK compatível com a versão definida no `pom.xml`.
+- MySQL configurado para o ambiente de execução.
+- Docker disponível para os testes de integração que utilizam Testcontainers.
+
+### Configuração
+
+Antes de iniciar a aplicação, confira as configurações em `src/main/resources` e no perfil utilizado:
+
+- URL, usuário e senha do banco de dados.
+- Porta e eventual caminho de contexto da aplicação.
+- Origem permitida pelo CORS para o frontend.
+- Configurações de armazenamento de imagens.
+
+Forneça credenciais pelo mecanismo de configuração adotado no ambiente e evite incluí-las no repositório.
+
+### Iniciar a API
+
+Execute os comandos no diretório que contém o `pom.xml` e o Maven Wrapper.
+
+Linux/macOS:
+
+```bash
+./mvnw spring-boot:run
+```
+
+Windows PowerShell:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+O frontend deve apontar para o endereço e a porta configurados para esta API.
+
+## Documentação da API
+
+A documentação dos endpoints utiliza Swagger/OpenAPI. Com a aplicação em execução, consulte o Swagger UI no caminho configurado pelo projeto.
+
+Para testar operações protegidas, obtenha um token pelo endpoint de login e envie-o no cabeçalho:
+
+```http
+Authorization: Bearer <token>
+```
+
+## Testes e build
+
+Para executar os testes unitários e de integração e as verificações configuradas no Maven:
+
+Linux/macOS:
+
+```bash
+./mvnw clean verify
+```
+
+Windows PowerShell:
+
+```powershell
+.\mvnw.cmd clean verify
+```
+
+Os testes de integração com Testcontainers precisam de Docker em execução. O projeto utiliza JaCoCo para análise de cobertura, SonarCloud para análise de qualidade e GitHub Actions para integração contínua.
+
+## Frontend
+
+A interface web é desenvolvida no projeto **LojaDeCarrosWeb**, com Angular. Consulte o README do frontend para configurar e executar a interface.
+
+## Status
+
+Projeto pessoal de portfólio em desenvolvimento, com evolução das funcionalidades, testes e integrações.

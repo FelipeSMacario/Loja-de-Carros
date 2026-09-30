@@ -1,49 +1,105 @@
-Loja de Carros — Frontend Angular
-Frontend de uma aplicação para anúncio e comercialização de veículos, desenvolvido com Angular e integrado a uma API Java com Spring Boot.
-Este é um projeto pessoal de portfólio, em desenvolvimento, utilizado para aprofundar conhecimentos em desenvolvimento full-stack e integração entre frontend e backend.
-Funcionalidades
-- Pesquisa e listagem de veículos.
-- Aplicação de filtros na pesquisa.
-- Visualização dos detalhes dos anúncios.
-- Galeria de imagens dos veículos.
-- Consumo da API REST do backend.
-Tecnologias
-- Angular — projeto gerado com Angular CLI 12.1.0.
-- TypeScript.
-- HTML e CSS.
-- Integração com API REST.
-Organização do repositório
-O projeto completo é organizado em um monorepositório:
-Diretório	Conteúdo
-LojaDeCarroAngular/	Frontend Angular
-LojadeCarro/	Backend Java com Spring Boot
+# Loja de Carros
 
+Aplicação full-stack para anúncio e comercialização de veículos, com backend em **Java e Spring Boot** e frontend em **Angular**.
 
-Este README descreve o frontend. A configuração e a execução da API devem ser consultadas na documentação do backend.
-Executar localmente
-Pré-requisitos
-- Git.
-- Node.js e npm em versões compatíveis com a versão do Angular utilizada no projeto. Consulte as dependências em package.json antes de configurar o ambiente.
-- Backend em execução para utilizar as funcionalidades que dependem da API.
-Instalar as dependências
-Na raiz do repositório, acesse o diretório do frontend:
-cd LojaDeCarroAngular
+Projeto pessoal de portfólio em desenvolvimento, voltado à prática de desenvolvimento de software, segurança, persistência, testes automatizados e integração contínua.
+
+## Funcionalidades
+
+- Pesquisa e listagem de veículos com filtros.
+- Visualização de anúncios e galeria de imagens.
+- Cadastro e gerenciamento de veículos e informações relacionadas.
+- Autenticação com JWT e autorização por perfis de acesso.
+- Regras de acesso vinculadas ao vendedor do veículo.
+- Upload e gerenciamento de imagens.
+- Gerenciamento de vendas.
+
+As funcionalidades de negócio são implementadas no backend; a interface web está em evolução.
+
+## Tecnologias
+
+| Área | Tecnologias |
+| --- | --- |
+| Backend | Java, Spring Boot, Spring Web, Bean Validation |
+| Segurança | Spring Security, JWT |
+| Persistência | MySQL, Spring Data JPA, Hibernate, Flyway |
+| Mapeamento e documentação | MapStruct, Lombok, Swagger/OpenAPI |
+| Frontend | Angular, TypeScript, HTML, CSS |
+| Testes do backend | JUnit, Mockito, AssertJ, Testcontainers |
+| Testes do frontend web | Vitest |
+| Qualidade | JaCoCo, SonarCloud |
+| Build e integração contínua | Maven, npm, GitHub Actions |
+
+As versões das dependências estão definidas no `pom.xml` do backend e no `package.json` do frontend. O projeto web atual foi gerado com Angular CLI 22.1.7.
+
+## Organização
+
+O repositório reúne o backend Java e o frontend **LojaDeCarrosWeb**. Cada módulo possui seu próprio README com instruções de configuração e execução.
+
+O backend é organizado em controllers, services e repositories, com DTOs para entrada e saída, mapeamento com MapStruct e tratamento centralizado de exceções. O frontend consome os endpoints REST da API.
+
+## Executar localmente
+
+### Pré-requisitos
+
+- JDK compatível com o `pom.xml` do backend.
+- Node.js e npm compatíveis com as dependências do frontend.
+- MySQL configurado para a aplicação.
+- Docker em execução para os testes de integração com Testcontainers.
+
+### Backend
+
+Configure a conexão com o banco, o armazenamento de imagens e a origem permitida pelo CORS conforme as configurações da aplicação.
+
+No diretório do backend, execute:
+
+```bash
+./mvnw spring-boot:run
+```
+
+No Windows PowerShell:
+
+```powershell
+.\mvnw.cmd spring-boot:run
+```
+
+### Frontend web
+
+No diretório do frontend, confira a configuração da URL da API e execute:
+
+```bash
 npm install
-Configurar a integração com o backend
-Confira a URL da API na configuração utilizada pelo frontend e ajuste-a para o seu ambiente, se necessário. O backend deve permitir requisições da origem do frontend por meio da configuração de CORS.
-Iniciar o servidor de desenvolvimento
-Dentro do diretório do frontend, execute:
 npx ng serve
-Acesse http://localhost:4200/. A aplicação é recarregada automaticamente quando os arquivos de origem são alterados.
-Build
-Para gerar o build do frontend:
-npx ng build
-Os arquivos gerados ficam em dist/, conforme a configuração de saída do projeto.
-Testes
-Para executar os testes unitários configurados com Karma:
+```
+
+Acesse **http://localhost:4200/**. O backend deve estar em execução para as funcionalidades que dependem da API.
+
+## Testes e qualidade
+
+No diretório do backend:
+
+```bash
+./mvnw clean verify
+```
+
+No Windows PowerShell:
+
+```powershell
+.\mvnw.cmd clean verify
+```
+
+Os testes de integração utilizam Testcontainers e precisam de Docker. A cobertura é analisada com JaCoCo e a qualidade do código com SonarCloud. O projeto utiliza GitHub Actions para integração contínua.
+
+No diretório do frontend web:
+
+```bash
 npx ng test
-Contexto do projeto completo
-O backend utiliza Java, Spring Boot, Spring Security com JWT, JPA/Hibernate e MySQL. Também inclui migrações com Flyway, documentação com Swagger/OpenAPI, testes unitários e de integração e integração contínua com GitHub Actions.
-Esses recursos pertencem ao backend; os comandos deste README se referem ao frontend Angular.
-Status
-Projeto em desenvolvimento, com evolução das funcionalidades e da interface.
+```
+
+## Documentação da API
+
+O backend disponibiliza documentação com Swagger/OpenAPI. Consulte o README e a configuração do backend para acessar o Swagger UI e testar os endpoints.
+
+## Status
+
+Projeto em desenvolvimento, com evolução das funcionalidades, da interface e das integrações.
