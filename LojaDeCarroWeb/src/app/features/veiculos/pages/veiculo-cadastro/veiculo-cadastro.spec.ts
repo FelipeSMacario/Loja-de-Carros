@@ -1,16 +1,30 @@
-import { ComponentFixture, TestBed, } from '@angular/core/testing';
-import { of, throwError, Subject, } from 'rxjs';
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { of, throwError, Subject } from 'rxjs';
 import { vi } from 'vitest';
 import { VeiculoCatalogoApi } from '../../data-access/veiculo-catalogo-api';
 import { VeiculoCatalogos } from '../../models/veiculo-catalogos';
 import { VeiculoCadastro } from './veiculo-cadastro';
-import { ActivatedRoute, convertToParamMap, Router, } from '@angular/router';
+import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoEdicaoResponse } from '../../models/veiculo-edicao-response';
 
 describe('VeiculoCadastro', () => {
   let component: VeiculoCadastro;
   let fixture: ComponentFixture<VeiculoCadastro>;
+
+  const requestEsperado = {
+    placa: 'ABC1D23',
+    anoFabricacao: 2024,
+    quilometragem: 28000,
+    valor: 350000,
+    motor: '2.0',
+    descricao: 'Veículo em ótimo estado',
+    idModelo: 4,
+    idCarroceria: 1,
+    idCor: 3,
+    idCombustivel: 2,
+    idsOpcionais: [],
+  };
 
   function preencherFormularioValido(): void {
     component.formulario.setValue({
@@ -20,6 +34,7 @@ describe('VeiculoCadastro', () => {
       valor: 350000,
       motor: '2.0',
       descricao: 'Veículo em ótimo estado',
+      idMarca: 5,
       idModelo: 4,
       idCarroceria: 1,
       idCor: 3,
@@ -28,9 +43,7 @@ describe('VeiculoCadastro', () => {
     });
   }
 
-  function criarEventoComArquivos(
-    arquivos: File[]
-  ): Event {
+  function criarEventoComArquivos(arquivos: File[]): Event {
     return {
       target: {
         files: arquivos,
@@ -56,15 +69,9 @@ describe('VeiculoCadastro', () => {
   };
 
   const catalogos: VeiculoCatalogos = {
-    carrocerias: [
-      { id: 1, nome: 'SUV', ativo: true },
-    ],
-    combustiveis: [
-      { id: 2, nome: 'Flex', ativo: true },
-    ],
-    cores: [
-      { id: 3, nome: 'Branco', ativo: true },
-    ],
+    carrocerias: [{ id: 1, nome: 'SUV', ativo: true }],
+    combustiveis: [{ id: 2, nome: 'Flex', ativo: true }],
+    cores: [{ id: 3, nome: 'Branco', ativo: true }],
     modelos: [
       {
         id: 4,
@@ -114,25 +121,17 @@ describe('VeiculoCadastro', () => {
 
   beforeEach(async () => {
     activatedRouteMock.snapshot.data = {};
-    activatedRouteMock.snapshot.paramMap =
-      convertToParamMap({});
+    activatedRouteMock.snapshot.paramMap = convertToParamMap({});
 
     veiculoApiMock.criar.mockReset();
     routerMock.navigate.mockReset();
 
-    veiculoApiMock.criar.mockReturnValue(
-      of({ id: 99 })
-    );
+    veiculoApiMock.criar.mockReturnValue(of({ id: 99 }));
     catalogoApiMock.carregar.mockReset();
-    catalogoApiMock.carregar.mockReturnValue(
-      of(catalogos)
-    );
-    veiculoApiMock.atualizar
-      .mockReset()
-      .mockReturnValue(of({ id: 99 }));
+    catalogoApiMock.carregar.mockReturnValue(of(catalogos));
+    veiculoApiMock.atualizar.mockReset().mockReturnValue(of({ id: 99 }));
 
-    veiculoApiMock.buscarMeuAnuncioParaEdicao
-      .mockReset();
+    veiculoApiMock.buscarMeuAnuncioParaEdicao.mockReset();
 
     await TestBed.configureTestingModule({
       imports: [VeiculoCadastro],
@@ -172,8 +171,7 @@ describe('VeiculoCadastro', () => {
   it('should load vehicle catalogs', () => {
     criarComponente();
 
-    expect(catalogoApiMock.carregar)
-      .toHaveBeenCalledOnce();
+    expect(catalogoApiMock.carregar).toHaveBeenCalledOnce();
 
     expect(component.catalogos()).toEqual(catalogos);
     expect(component.carregandoCatalogos()).toBe(false);
@@ -182,9 +180,7 @@ describe('VeiculoCadastro', () => {
 
   it('should display catalog loading failure', () => {
     catalogoApiMock.carregar.mockReturnValue(
-      throwError(
-        () => new Error('Falha ao carregar catálogos')
-      )
+      throwError(() => new Error('Falha ao carregar catálogos')),
     );
 
     criarComponente();
@@ -197,74 +193,35 @@ describe('VeiculoCadastro', () => {
   it('should allow an empty optional list', () => {
     criarComponente();
 
-    expect(
-      component.formulario.controls
-        .idsOpcionais.value
-    ).toEqual([]);
+    expect(component.formulario.controls.idsOpcionais.value).toEqual([]);
 
-    expect(
-      component.formulario.controls
-        .idsOpcionais.valid
-    ).toBe(true);
+    expect(component.formulario.controls.idsOpcionais.valid).toBe(true);
   });
 
   it('should validate the vehicle form', () => {
     criarComponente();
 
-    component.formulario.setValue({
-      placa: 'ABC1D23',
-      anoFabricacao: 2024,
-      quilometragem: 28000,
-      valor: 350000,
-      motor: '2.0',
-      descricao: 'Veículo em ótimo estado',
-      idModelo: 4,
-      idCarroceria: 1,
-      idCor: 3,
-      idCombustivel: 2,
-      idsOpcionais: [],
-    });
+    preencherFormularioValido();
 
     expect(component.formulario.valid).toBe(true);
   });
   it('should create a vehicle and navigate to its details', () => {
     criarComponente();
 
-    component.formulario.setValue({
-      placa: 'ABC1D23',
-      anoFabricacao: 2024,
-      quilometragem: 28000,
-      valor: 350000,
-      motor: '2.0',
-      descricao: 'Veículo em ótimo estado',
-      idModelo: 4,
-      idCarroceria: 1,
-      idCor: 3,
-      idCombustivel: 2,
-      idsOpcionais: [],
-    });
+    preencherFormularioValido();
 
     component.salvar();
 
-    expect(veiculoApiMock.criar)
-      .toHaveBeenCalledExactlyOnceWith(
-        component.formulario.getRawValue(),
-        []
-      );
+    expect(veiculoApiMock.criar).toHaveBeenCalledExactlyOnceWith(requestEsperado, []);
 
-    expect(routerMock.navigate)
-      .toHaveBeenCalledExactlyOnceWith([
-        '/veiculos',
-        99,
-      ]);
+    expect(routerMock.navigate).toHaveBeenCalledExactlyOnceWith(['/veiculos', 99]);
   });
   it('should not create an invalid vehicle', () => {
     criarComponente();
 
     component.salvar();
 
-    expect(veiculoApiMock.criar)
-      .not.toHaveBeenCalled();
+    expect(veiculoApiMock.criar).not.toHaveBeenCalled();
 
     expect(component.formulario.touched).toBe(true);
   });
@@ -281,19 +238,15 @@ describe('VeiculoCadastro', () => {
       }),
     ];
 
-    component.selecionarArquivos(
-      criarEventoComArquivos(arquivos)
-    );
+    component.selecionarArquivos(criarEventoComArquivos(arquivos));
 
-    expect(component.arquivosSelecionados())
-      .toEqual(arquivos);
+    expect(component.arquivosSelecionados()).toEqual(arquivos);
 
     component.removerArquivo(0);
 
-    expect(
-      component.arquivosSelecionados()
-        .map(arquivo => arquivo.name)
-    ).toEqual(['traseira.jpg']);
+    expect(component.arquivosSelecionados().map((arquivo) => arquivo.name)).toEqual([
+      'traseira.jpg',
+    ]);
   });
 
   it('should limit the vehicle to ten images', () => {
@@ -302,30 +255,18 @@ describe('VeiculoCadastro', () => {
     const arquivos = Array.from(
       { length: 11 },
       (_valor, indice) =>
-        new File(
-          [`imagem-${indice}`],
-          `imagem-${indice}.jpg`,
-          { type: 'image/jpeg' }
-        )
+        new File([`imagem-${indice}`], `imagem-${indice}.jpg`, { type: 'image/jpeg' }),
     );
 
-    component.selecionarArquivos(
-      criarEventoComArquivos(arquivos)
-    );
+    component.selecionarArquivos(criarEventoComArquivos(arquivos));
 
-    expect(component.arquivosSelecionados())
-      .toHaveLength(10);
+    expect(component.arquivosSelecionados()).toHaveLength(10);
 
-    expect(component.erroArquivos())
-      .toContain('no máximo 10 imagens');
+    expect(component.erroArquivos()).toContain('no máximo 10 imagens');
   });
 
   it('should display an error when creation fails', () => {
-    veiculoApiMock.criar.mockReturnValue(
-      throwError(
-        () => new Error('Falha no cadastro')
-      )
-    );
+    veiculoApiMock.criar.mockReturnValue(throwError(() => new Error('Falha no cadastro')));
 
     criarComponente();
     preencherFormularioValido();
@@ -335,16 +276,13 @@ describe('VeiculoCadastro', () => {
     expect(component.erroCadastro()).toBe(true);
     expect(component.enviando()).toBe(false);
 
-    expect(routerMock.navigate)
-      .not.toHaveBeenCalled();
+    expect(routerMock.navigate).not.toHaveBeenCalled();
   });
 
   it('should prevent duplicate submissions', () => {
     const resposta$ = new Subject<{ id: number }>();
 
-    veiculoApiMock.criar.mockReturnValue(
-      resposta$
-    );
+    veiculoApiMock.criar.mockReturnValue(resposta$);
 
     criarComponente();
     preencherFormularioValido();
@@ -352,8 +290,7 @@ describe('VeiculoCadastro', () => {
     component.salvar();
     component.salvar();
 
-    expect(veiculoApiMock.criar)
-      .toHaveBeenCalledOnce();
+    expect(veiculoApiMock.criar).toHaveBeenCalledOnce();
 
     expect(component.enviando()).toBe(true);
 
@@ -362,57 +299,46 @@ describe('VeiculoCadastro', () => {
 
     expect(component.enviando()).toBe(false);
 
-    expect(routerMock.navigate)
-      .toHaveBeenCalledExactlyOnceWith([
-        '/veiculos',
-        99,
-      ]);
+    expect(routerMock.navigate).toHaveBeenCalledExactlyOnceWith(['/veiculos', 99]);
   });
   it('should load an ad for editing', () => {
     activatedRouteMock.snapshot.data = {
       modoEdicao: true,
     };
 
-    activatedRouteMock.snapshot.paramMap =
-      convertToParamMap({
-        id: '42',
-      });
+    activatedRouteMock.snapshot.paramMap = convertToParamMap({
+      id: '42',
+    });
 
-    veiculoApiMock.buscarMeuAnuncioParaEdicao
-      .mockReturnValue(of(veiculoParaEdicao));
+    veiculoApiMock.buscarMeuAnuncioParaEdicao.mockReturnValue(of(veiculoParaEdicao));
 
     criarComponente();
 
-    expect(
-      veiculoApiMock.buscarMeuAnuncioParaEdicao
-    ).toHaveBeenCalledExactlyOnceWith(42);
+    expect(veiculoApiMock.buscarMeuAnuncioParaEdicao).toHaveBeenCalledExactlyOnceWith(42);
 
     expect(component.modoEdicao).toBe(true);
     expect(component.tituloPagina).toBe('Editar anúncio');
 
-    expect(component.formulario.getRawValue())
-      .toEqual({
-        placa: 'ABC1D23',
-        anoFabricacao: 2024,
-        quilometragem: 28000,
-        valor: 350000,
-        motor: '2.0',
-        descricao: '',
-        idModelo: 4,
-        idCarroceria: 1,
-        idCor: 3,
-        idCombustivel: 2,
-        idsOpcionais: [6],
-      });
+    expect(component.formulario.getRawValue()).toEqual({
+      placa: 'ABC1D23',
+      anoFabricacao: 2024,
+      quilometragem: 28000,
+      valor: 350000,
+      motor: '2.0',
+      descricao: '',
+      idMarca: 5,
+      idModelo: 4,
+      idCarroceria: 1,
+      idCor: 3,
+      idCombustivel: 2,
+      idsOpcionais: [6],
+    });
 
-    expect(component.imagensExistentes())
-      .toEqual(veiculoParaEdicao.imagens);
+    expect(component.imagensExistentes()).toEqual(veiculoParaEdicao.imagens);
 
-    expect(component.carregandoVeiculo())
-      .toBe(false);
+    expect(component.carregandoVeiculo()).toBe(false);
 
-    expect(component.erroCarregamentoVeiculo())
-      .toBe(false);
+    expect(component.erroCarregamentoVeiculo()).toBe(false);
   });
 
   it('should update an ad and navigate to its owner details', () => {
@@ -420,42 +346,32 @@ describe('VeiculoCadastro', () => {
       modoEdicao: true,
     };
 
-    activatedRouteMock.snapshot.paramMap =
-      convertToParamMap({
-        id: '42',
-      });
+    activatedRouteMock.snapshot.paramMap = convertToParamMap({
+      id: '42',
+    });
 
-    veiculoApiMock.buscarMeuAnuncioParaEdicao
-      .mockReturnValue(of(veiculoParaEdicao));
+    veiculoApiMock.buscarMeuAnuncioParaEdicao.mockReturnValue(of(veiculoParaEdicao));
 
     veiculoApiMock.atualizar.mockReturnValue(
       of({
         id: 42,
-      })
+      }),
     );
 
     criarComponente();
 
-    component.formulario.controls.descricao.setValue(
-      'Veículo em ótimo estado'
-    );
+    component.formulario.controls.descricao.setValue('Veículo em ótimo estado');
 
     component.salvar();
 
-    expect(veiculoApiMock.atualizar)
-      .toHaveBeenCalledExactlyOnceWith(
-        42,
-        component.formulario.getRawValue()
-      );
+    expect(veiculoApiMock.atualizar).toHaveBeenCalledExactlyOnceWith(42, {
+      ...requestEsperado,
+      idsOpcionais: [6],
+    });
 
-    expect(veiculoApiMock.criar)
-      .not.toHaveBeenCalled();
+    expect(veiculoApiMock.criar).not.toHaveBeenCalled();
 
-    expect(routerMock.navigate)
-      .toHaveBeenCalledExactlyOnceWith([
-        '/veiculos/meus-anuncios',
-        42,
-      ]);
+    expect(routerMock.navigate).toHaveBeenCalledExactlyOnceWith(['/veiculos/meus-anuncios', 42]);
   });
 
   it('should display an error when the ad cannot be loaded for editing', () => {
@@ -463,27 +379,145 @@ describe('VeiculoCadastro', () => {
       modoEdicao: true,
     };
 
-    activatedRouteMock.snapshot.paramMap =
-      convertToParamMap({
-        id: '42',
-      });
+    activatedRouteMock.snapshot.paramMap = convertToParamMap({
+      id: '42',
+    });
 
-    veiculoApiMock.buscarMeuAnuncioParaEdicao
-      .mockReturnValue(
-        throwError(
-          () => new Error('Falha ao carregar anúncio')
-        )
-      );
+    veiculoApiMock.buscarMeuAnuncioParaEdicao.mockReturnValue(
+      throwError(() => new Error('Falha ao carregar anúncio')),
+    );
 
     criarComponente();
 
-    expect(component.carregandoVeiculo())
-      .toBe(false);
+    expect(component.carregandoVeiculo()).toBe(false);
 
-    expect(component.erroCarregamentoVeiculo())
-      .toBe(true);
+    expect(component.erroCarregamentoVeiculo()).toBe(true);
 
-    expect(veiculoApiMock.atualizar)
-      .not.toHaveBeenCalled();
+    expect(veiculoApiMock.atualizar).not.toHaveBeenCalled();
   });
+
+  it('should require a brand and initially disable the model', () => {
+    criarComponente();
+
+    expect(component.formulario.controls.idMarca.invalid).toBe(true);
+
+    expect(component.formulario.controls.idModelo.disabled).toBe(true);
+
+    expect(component.modelosFiltrados()).toEqual([]);
+  });
+
+  it('should filter models by brand and clear the previous selection', () => {
+    criarComponente();
+
+    component.catalogos.set({
+      ...catalogos,
+      modelos: [
+        ...catalogos.modelos,
+        {
+          id: 7,
+          nome: 'Civic',
+          ativo: true,
+          marca: {
+            id: 8,
+            nome: 'Honda',
+            ativo: true,
+          },
+        },
+      ],
+    });
+
+    component.formulario.controls.idMarca.setValue(5);
+
+    expect(component.formulario.controls.idModelo.enabled).toBe(true);
+
+    expect(component.modelosFiltrados().map((modelo) => modelo.id)).toEqual([4]);
+
+    component.formulario.controls.idModelo.setValue(4);
+    component.formulario.controls.idMarca.setValue(8);
+
+    expect(component.formulario.controls.idModelo.value).toBe(0);
+
+    expect(component.formulario.controls.idModelo.invalid).toBe(true);
+
+    expect(component.modelosFiltrados().map((modelo) => modelo.id)).toEqual([7]);
+  });
+
+  it('should clear and disable the model when the brand is cleared', () => {
+    criarComponente();
+
+    preencherFormularioValido();
+
+    component.formulario.controls.idMarca.setValue(0);
+
+    expect(component.formulario.controls.idModelo.value).toBe(0);
+
+    expect(component.formulario.controls.idModelo.disabled).toBe(true);
+
+    expect(component.modelosFiltrados()).toEqual([]);
+    expect(component.formulario.invalid).toBe(true);
+
+    component.salvar();
+
+    expect(veiculoApiMock.criar).not.toHaveBeenCalled();
+  });
+
+  it('should prevent submission after changing the brand without selecting a model', () => {
+    criarComponente();
+
+    preencherFormularioValido();
+
+    component.formulario.controls.idMarca.setValue(8);
+    component.salvar();
+
+    expect(component.formulario.controls.idModelo.enabled).toBe(true);
+
+    expect(component.formulario.controls.idModelo.invalid).toBe(true);
+
+    expect(veiculoApiMock.criar).not.toHaveBeenCalled();
+  });
+
+  it.each(['catalogos', 'veiculo'] as const)(
+    'should preserve the editing selection when %s arrives first',
+    (primeiro) => {
+      const catalogos$ = new Subject<VeiculoCatalogos>();
+      const veiculo$ = new Subject<VeiculoEdicaoResponse>();
+
+      activatedRouteMock.snapshot.data = {
+        modoEdicao: true,
+      };
+
+      activatedRouteMock.snapshot.paramMap = convertToParamMap({ id: '42' });
+
+      catalogoApiMock.carregar.mockReturnValue(catalogos$);
+
+      veiculoApiMock.buscarMeuAnuncioParaEdicao.mockReturnValue(veiculo$);
+
+      criarComponente();
+
+      if (primeiro === 'catalogos') {
+        catalogos$.next(catalogos);
+        catalogos$.complete();
+
+        veiculo$.next(veiculoParaEdicao);
+        veiculo$.complete();
+      } else {
+        veiculo$.next(veiculoParaEdicao);
+        veiculo$.complete();
+
+        catalogos$.next(catalogos);
+        catalogos$.complete();
+      }
+
+      expect(component.formulario.controls.idMarca.value).toBe(5);
+
+      expect(component.formulario.controls.idModelo.value).toBe(4);
+
+      expect(component.formulario.controls.idModelo.enabled).toBe(true);
+
+      expect(component.modelosFiltrados().map((modelo) => modelo.id)).toEqual([4]);
+
+      expect(component.carregandoCatalogos()).toBe(false);
+      expect(component.carregandoVeiculo()).toBe(false);
+    },
+  );
 });

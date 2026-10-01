@@ -1,5 +1,13 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal, } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators, } from '@angular/forms';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  computed,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -12,9 +20,10 @@ import { finalize } from 'rxjs';
 import { VeiculoApi } from '../../data-access/veiculo-api';
 import { VeiculoRequest } from '../../models/veiculo-request';
 import { VeiculoCatalogoApi } from '../../data-access/veiculo-catalogo-api';
-import { VeiculoCatalogos } from '../../models/veiculo-catalogos';
+import { CatalogoItem, VeiculoCatalogos } from '../../models/veiculo-catalogos';
 import { VeiculoImagemResponse } from '../../models/veiculo-detalhe-response';
 import { VeiculoImagensGerenciamento } from '../../components/veiculo-imagens-gerenciamento/veiculo-imagens-gerenciamento';
+import { takeUntilDestroyed, toSignal } from '@angular/core/rxjs-interop';
 
 @Component({
   selector: 'app-veiculo-cadastro',
@@ -34,6 +43,7 @@ import { VeiculoImagensGerenciamento } from '../../components/veiculo-imagens-ge
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class VeiculoCadastro implements OnInit {
+  private readonly destroyRef = inject(DestroyRef);
   private readonly formBuilder = inject(FormBuilder);
   private readonly catalogoApi = inject(VeiculoCatalogoApi);
   private readonly route = inject(ActivatedRoute);
@@ -44,8 +54,7 @@ export class VeiculoCadastro implements OnInit {
 
   readonly anoAtual = new Date().getFullYear();
 
-  readonly catalogos =
-    signal<VeiculoCatalogos | null>(null);
+  readonly catalogos = signal<VeiculoCatalogos | null>(null);
 
   readonly carregandoCatalogos = signal(true);
   readonly erroCatalogos = signal(false);
@@ -53,107 +62,98 @@ export class VeiculoCadastro implements OnInit {
   private readonly router = inject(Router);
 
   readonly formulario = this.formBuilder.nonNullable.group({
-    placa: [
-      '',
-      [
-        Validators.required,
-        Validators.pattern(
-          /^[A-Z]{3}\d[A-Z\d]\d{2}$/
-        ),
-      ],
-    ],
+    placa: ['', [Validators.required, Validators.pattern(/^[A-Z]{3}\d[A-Z\d]\d{2}$/)]],
     anoFabricacao: [
       this.anoAtual,
-      [
-        Validators.required,
-        Validators.min(1886),
-        Validators.max(this.anoAtual + 1),
-      ],
+      [Validators.required, Validators.min(1886), Validators.max(this.anoAtual + 1)],
     ],
-    quilometragem: [
-      0,
-      [
-        Validators.required,
-        Validators.min(0),
-      ],
-    ],
-    valor: [
-      0,
-      [
-        Validators.required,
-        Validators.min(0.01),
-      ],
-    ],
-    motor: [
-      '',
-      [
-        Validators.required,
-        Validators.maxLength(255),
-      ],
-    ],
-    descricao: [
-      '',
-      [
-        Validators.required,
-        Validators.maxLength(255),
-      ],
-    ],
-    idModelo: [
-      0,
-      [
-        Validators.required,
-        Validators.min(1),
-      ],
-    ],
-    idCarroceria: [
-      0,
-      [
-        Validators.required,
-        Validators.min(1),
-      ],
-    ],
-    idCor: [
-      0,
-      [
-        Validators.required,
-        Validators.min(1),
-      ],
-    ],
-    idCombustivel: [
-      0,
-      [
-        Validators.required,
-        Validators.min(1),
-      ],
-    ],
-    idsOpcionais:
-      this.formBuilder.nonNullable.control<number[]>([]),
+    quilometragem: [0, [Validators.required, Validators.min(0)]],
+    valor: [0, [Validators.required, Validators.min(0.01)]],
+    motor: ['', [Validators.required, Validators.maxLength(255)]],
+    descricao: ['', [Validators.required, Validators.maxLength(255)]],
+    idMarca: [0, [Validators.required, Validators.min(1)]],
+    idModelo: [{ value: 0, disabled: true }, [Validators.required, Validators.min(1)]],
+    idCarroceria: [0, [Validators.required, Validators.min(1)]],
+    idCor: [0, [Validators.required, Validators.min(1)]],
+    idCombustivel: [0, [Validators.required, Validators.min(1)]],
+    idsOpcionais: this.formBuilder.nonNullable.control<number[]>([]),
   });
 
   readonly limiteImagens = 10;
 
-  readonly arquivosSelecionados =
-    signal<readonly File[]>([]);
+  readonly arquivosSelecionados = signal<readonly File[]>([]);
 
-  readonly erroArquivos =
-    signal<string | null>(null);
+  readonly erroArquivos = signal<string | null>(null);
 
-  readonly modoEdicao =
-    this.route.snapshot.data?.['modoEdicao'] === true;
+  readonly modoEdicao = this.route.snapshot.data?.['modoEdicao'] === true;
 
   readonly carregandoVeiculo = signal(false);
   readonly erroCarregamentoVeiculo = signal(false);
 
-  readonly imagensExistentes =
-    signal<VeiculoImagemResponse[]>([]);
+  readonly imagensExistentes = signal<VeiculoImagemResponse[]>([]);
 
-  readonly tituloPagina = this.modoEdicao
-    ? 'Editar anúncio'
-    : 'Anunciar veículo';
+  readonly tituloPagina = this.modoEdicao ? 'Editar anúncio' : 'Anunciar veículo';
 
-  readonly textoBotaoSalvar = this.modoEdicao
-    ? 'Salvar alterações'
-    : 'Publicar anúncio';
+  readonly textoBotaoSalvar = this.modoEdicao ? 'Salvar alterações' : 'Publicar anúncio';
+
+  private readonly marcaSelecionada = toSignal(this.formulario.controls.idMarca.valueChanges, {
+    initialValue: this.formulario.controls.idMarca.value,
+  });
+
+  readonly marcas = computed(() => {
+    const marcasPorId = new Map<number, CatalogoItem>();
+
+    for (const modelo of this.catalogos()?.modelos ?? []) {
+      if (modelo.ativo && modelo.marca.ativo) {
+        marcasPorId.set(modelo.marca.id, modelo.marca);
+      }
+    }
+
+    return Array.from(marcasPorId.values()).sort((a, b) => a.nome.localeCompare(b.nome));
+  });
+
+  readonly modelosFiltrados = computed(() => {
+    const marcaId = this.marcaSelecionada();
+
+    return (this.catalogos()?.modelos ?? [])
+      .filter((modelo) => modelo.ativo && modelo.marca.ativo && modelo.marca.id === marcaId)
+      .sort((a, b) => a.nome.localeCompare(b.nome));
+  });
+
+  constructor() {
+    this.formulario.controls.idMarca.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((marcaId) => {
+        const modeloControl = this.formulario.controls.idModelo;
+
+        modeloControl.reset(0, { emitEvent: false });
+
+        if (marcaId > 0) {
+          modeloControl.enable({ emitEvent: false });
+        } else {
+          modeloControl.disable({ emitEvent: false });
+        }
+      });
+  }
+
+  private sincronizarMarcaNaEdicao(): void {
+    if (!this.modoEdicao) {
+      return;
+    }
+
+    const idModelo = this.formulario.controls.idModelo.value;
+    const modelo = this.catalogos()?.modelos.find((item) => item.id === idModelo);
+
+    if (!modelo || this.formulario.controls.idMarca.value === modelo.marca.id) {
+      return;
+    }
+
+    // A mudança de marca limpa o modelo pela assinatura acima.
+    this.formulario.controls.idMarca.setValue(modelo.marca.id);
+
+    // Restaura o modelo que pertence ao anúncio em edição.
+    this.formulario.controls.idModelo.setValue(idModelo);
+  }
 
   readonly enviando = signal(false);
   readonly erroCadastro = signal(false);
@@ -170,18 +170,18 @@ export class VeiculoCadastro implements OnInit {
     this.carregandoCatalogos.set(true);
     this.erroCatalogos.set(false);
 
-    this.catalogoApi.carregar()
-      .subscribe({
-        next: catalogos => {
-          this.catalogos.set(catalogos);
-          this.carregandoCatalogos.set(false);
-        },
-        error: () => {
-          this.catalogos.set(null);
-          this.carregandoCatalogos.set(false);
-          this.erroCatalogos.set(true);
-        },
-      });
+    this.catalogoApi.carregar().subscribe({
+      next: (catalogos) => {
+        this.catalogos.set(catalogos);
+        this.sincronizarMarcaNaEdicao();
+        this.carregandoCatalogos.set(false);
+      },
+      error: () => {
+        this.catalogos.set(null);
+        this.carregandoCatalogos.set(false);
+        this.erroCatalogos.set(true);
+      },
+    });
   }
 
   selecionarArquivos(event: Event): void {
@@ -191,13 +191,9 @@ export class VeiculoCadastro implements OnInit {
     this.erroArquivos.set(null);
 
     if (arquivos.length > this.limiteImagens) {
-      this.erroArquivos.set(
-        `Selecione no máximo ${this.limiteImagens} imagens.`
-      );
+      this.erroArquivos.set(`Selecione no máximo ${this.limiteImagens} imagens.`);
 
-      this.arquivosSelecionados.set(
-        arquivos.slice(0, this.limiteImagens)
-      );
+      this.arquivosSelecionados.set(arquivos.slice(0, this.limiteImagens));
 
       return;
     }
@@ -206,11 +202,8 @@ export class VeiculoCadastro implements OnInit {
   }
 
   removerArquivo(indice: number): void {
-    this.arquivosSelecionados.update(arquivos =>
-      arquivos.filter(
-        (_arquivo, indiceAtual) =>
-          indiceAtual !== indice
-      )
+    this.arquivosSelecionados.update((arquivos) =>
+      arquivos.filter((_arquivo, indiceAtual) => indiceAtual !== indice),
     );
 
     this.erroArquivos.set(null);
@@ -226,39 +219,29 @@ export class VeiculoCadastro implements OnInit {
       return;
     }
 
-    const request: VeiculoRequest =
-      this.formulario.getRawValue();
+    const { idMarca, ...dadosVeiculo } = this.formulario.getRawValue();
+
+    const request: VeiculoRequest = dadosVeiculo;
 
     this.enviando.set(true);
     this.erroCadastro.set(false);
 
     const operacao =
       this.modoEdicao && this.idVeiculo !== null
-        ? this.veiculoApi.atualizar(
-          this.idVeiculo,
-          request
-        )
-        : this.veiculoApi.criar(
-          request,
-          this.arquivosSelecionados()
-        );
+        ? this.veiculoApi.atualizar(this.idVeiculo, request)
+        : this.veiculoApi.criar(request, this.arquivosSelecionados());
 
     operacao
       .pipe(
         finalize(() => {
           this.enviando.set(false);
-        })
+        }),
       )
       .subscribe({
-        next: veiculo => {
-          const rota = this.modoEdicao
-            ? '/veiculos/meus-anuncios'
-            : '/veiculos';
+        next: (veiculo) => {
+          const rota = this.modoEdicao ? '/veiculos/meus-anuncios' : '/veiculos';
 
-          void this.router.navigate([
-            rota,
-            veiculo.id,
-          ]);
+          void this.router.navigate([rota, veiculo.id]);
         },
         error: () => {
           this.erroCadastro.set(true);
@@ -267,9 +250,7 @@ export class VeiculoCadastro implements OnInit {
   }
 
   carregarVeiculoParaEdicao(): void {
-    const id = Number(
-      this.route.snapshot.paramMap.get('id')
-    );
+    const id = Number(this.route.snapshot.paramMap.get('id'));
 
     if (!Number.isInteger(id) || id <= 0) {
       this.erroCarregamentoVeiculo.set(true);
@@ -285,10 +266,10 @@ export class VeiculoCadastro implements OnInit {
       .pipe(
         finalize(() => {
           this.carregandoVeiculo.set(false);
-        })
+        }),
       )
       .subscribe({
-        next: veiculo => {
+        next: (veiculo) => {
           this.formulario.patchValue({
             placa: veiculo.placa,
             anoFabricacao: veiculo.anoFabricacao,
@@ -302,10 +283,8 @@ export class VeiculoCadastro implements OnInit {
             idCombustivel: veiculo.idCombustivel,
             idsOpcionais: veiculo.idsOpcionais,
           });
-
-          this.imagensExistentes.set(
-            veiculo.imagens
-          );
+          this.sincronizarMarcaNaEdicao();
+          this.imagensExistentes.set(veiculo.imagens);
         },
         error: () => {
           this.erroCarregamentoVeiculo.set(true);
