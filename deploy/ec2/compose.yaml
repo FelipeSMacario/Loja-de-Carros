@@ -136,7 +136,16 @@ services:
       - edge
       - backend
     mem_limit: 896m
-    logging: *default-logging
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: "us-east-1"
+        awslogs-group: "/loja-de-carros/prod/backend"
+        awslogs-create-group: "false"
+        awslogs-create-stream: "true"
+        tag: "api/{{.ID}}"
+        mode: "non-blocking"
+        max-buffer-size: "4m"
 
   web:
     image: ${ECR_REGISTRY}/loja-de-carros/web:${WEB_IMAGE_TAG}
