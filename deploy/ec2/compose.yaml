@@ -142,7 +142,6 @@ services:
         awslogs-region: "us-east-1"
         awslogs-group: "/loja-de-carros/prod/backend"
         awslogs-create-group: "false"
-        awslogs-create-stream: "true"
         tag: "api/{{.ID}}"
         mode: "non-blocking"
         max-buffer-size: "4m"
